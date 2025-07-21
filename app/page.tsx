@@ -1,6 +1,7 @@
 import Header from "./components/header";
 import TrendingBar from "./components/trendingbar";
 import { TradingDashboard } from "./components/TradingDashboard";
+import BottomControlBar from "./components/BottomControlBar";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Header />
       <TrendingBar />
       <TradingDashboard />
+      <BottomControlBar />
     </div>
   );
 }

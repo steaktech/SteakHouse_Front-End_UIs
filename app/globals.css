@@ -25,6 +25,73 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* TradingView Widget Styling */
+.tradingview-widget-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.tradingview-widget {
+  width: 100%;
+  height: 100%;
+}
+
+.tradingview-widget-container iframe {
+  border-radius: 8px;
+  border: 1px solid #d97706;
+  opacity: 0.9;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.tradingview-widget-copyright {
+  font-size: 11px;
+  text-align: center;
+  padding: 8px;
+  color: #d97706;
+  opacity: 0.7;
+}
+
+.tradingview-widget-copyright a {
+  color: #f59e0b;
+  text-decoration: none;
+}
+
+.tradingview-widget-copyright a:hover {
+  color: #fbbf24;
+}
+
+/* Hide TradingView watermark if needed */
+.tradingview-widget-container .blue-text {
+  color: #d97706 !important;
+}
+
+/* Custom scrollbar for TradingView */
+.tradingview-widget-container ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tradingview-widget-container ::-webkit-scrollbar-track {
+  background: #3d1e01;
+}
+
+.tradingview-widget-container ::-webkit-scrollbar-thumb {
+  background: #d97706;
+  border-radius: 3px;
+}
+
+.tradingview-widget-container ::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
+
+/* Sidebar Animations and Vertical Text */
+.writing-mode-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
 /* Trending Bar Animation */
 @keyframes scroll {
   0% {
