@@ -1,6 +1,6 @@
 'use client';
-import Header from "@/app/components/Header";
-import TrendingBar from "@/app/components/TrendingBar";
+import Header from "@/app/components/header";
+import TrendingBar from "@/app/components/trendingBar";
 import { TradingDashboard } from "@/app/components/TradingDashboard";
 import BottomControlBar from "@/app/components/BottomControlBar";
 import Footer from "@/app/components/Footer";
