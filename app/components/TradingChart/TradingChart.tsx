@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Header from '@/app/components/header';
+import Header from '@/app/components/Header';
 import { Sidebar } from './Sidebar';
 import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
