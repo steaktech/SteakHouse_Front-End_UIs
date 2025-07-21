@@ -135,11 +135,13 @@ export default function TradingDashboard() {
         </div>
 
         {/* Token Cards Container */}
-        <div className="bg-[#d6bb97] rounded-b-xl rounded-t-none p-6">
+        <div className="bg-[#d6bb97] rounded-b-xl rounded-t-none p-4 sm:p-6">
           {/* Token Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {tokenData.map((token, index) => (
-              <TokenCard key={index} {...token} />
+              <div key={index} className="h-full">
+                <TokenCard {...token} />
+              </div>
             ))}
           </div>
         </div>
