@@ -43,7 +43,8 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       details: true,
       hotlist: true,
       calendar: false,
-      support_host: 'https://www.tradingview.com'
+      support_host: 'https://www.tradingview.com',
+      
     });
 
     if (containerRef.current) {
@@ -58,8 +59,6 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   }, [symbol, interval, theme]);
 
   return (
-    <div className="tradingview-widget-container w-full h-full bg-[#1a0d00] rounded-lg overflow-hidden">
       <div ref={containerRef} className="tradingview-widget w-full h-full"></div>
-    </div>
   );
 }; 
