@@ -4,9 +4,11 @@ import Image from 'next/image';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 const CreateTokenModal = dynamic(() => import('./Modals/CreateTokenModal'), { ssr: false });
+const SteakHouseInfoModal = dynamic(() => import('./Modals/SteakHouseInfoModal'), { ssr: false });
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   return (
     <>
       <header className="relative w-full h-20 md:h-20 lg:h-30">
@@ -62,7 +64,10 @@ export default function Header() {
               </div>
               
               {/* Info Icon */}
-              <div className="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-amber-700 transition-colors">
+              <div 
+                className="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-amber-700 transition-colors"
+                onClick={() => setIsInfoModalOpen(true)}
+              >
                 <svg className="w-5 h-5 fill-current text-yellow-400" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                 </svg>
@@ -88,8 +93,9 @@ export default function Header() {
         </div>
       </header>
       
-      {/* Modal - Moved outside of header */}
+      {/* Modals - Moved outside of header */}
       <CreateTokenModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SteakHouseInfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} />
     </>
   );
 }

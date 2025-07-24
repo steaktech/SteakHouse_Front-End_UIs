@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Flame, BarChart, DollarSign, Search, Star, Wrench, Smile } from 'lucide-react';
 import { StatCard } from './StatCard';
 import { FilterButton } from './FilterButton';
 import { TokenCard } from './TokenCard';
 import { StatCardProps, TokenCardProps } from './types';
+import TrendingSearchModal from '../Modals/TrendingSearchModal';
 
 export default function TradingDashboard() {
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+
+  const handleSearchClick = () => {
+    setIsSearchModalOpen(true);
+  };
+
+  const handleSearchModalClose = () => {
+    setIsSearchModalOpen(false);
+  };
+
+  const handleApplyFilters = (filters: Record<string, string>) => {
+    console.log("Applied Filters:", filters);
+    // Here you would typically apply the filters to your data.
+  };
+
   const statsData: StatCardProps[] = [
     { title: "TOKEN'S LAUNCHED", value: "2678" },
     { title: "TVL", value: "$5.7m" },
@@ -119,11 +135,13 @@ export default function TradingDashboard() {
           </div>
           
           <div className="relative flex-grow sm:flex-grow-0 sm:w-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white" size={20} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white pointer-events-none" size={20} />
             <input 
               type="text" 
               placeholder="Search..."
-              className="bg-[#d69f18] border border-gray-500 text-white placeholder-white rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              onClick={handleSearchClick}
+              readOnly
+              className="bg-[#d69f18] border border-gray-500 text-white placeholder-white rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
             />
           </div>
 
@@ -146,6 +164,13 @@ export default function TradingDashboard() {
           </div>
         </div>
       </div>
+
+      {/* TrendingSearchModal */}
+      <TrendingSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={handleSearchModalClose}
+        onApply={handleApplyFilters}
+      />
     </div>
   );
 }
