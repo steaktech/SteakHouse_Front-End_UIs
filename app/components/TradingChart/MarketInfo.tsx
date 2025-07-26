@@ -59,7 +59,7 @@ export const MarketInfo: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-4 bg-amber-950/50 p-2 rounded-lg">
+      <div className="mt-4 bg-amber-950/50 p-2 rounded-4xl">
         <div className="flex justify-around text-center">
           <div>
             <p className="text-xs text-amber-300">PRICE</p>
@@ -75,9 +75,9 @@ export const MarketInfo: React.FC = () => {
           </div>
         </div>
         
-        <div className="mt-3 w-full bg-amber-950/50 rounded-full h-8 relative">
+        <div className="ml-3 mt-3 w-75 bg-[#978200] rounded-full h-8 relative">
           <div 
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-8 rounded-full flex items-center justify-center" 
+            className="bg-[#f6c300] h-8 rounded-full flex items-center justify-center" 
             style={{ width: `82%` }}
           >
             <span className="text-black font-bold text-sm">82%</span>
