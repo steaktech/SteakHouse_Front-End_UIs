@@ -29,7 +29,7 @@ export const TradePanel: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#532301] to-[#863c04] rounded-2xl p-4 border-2 border-amber-600/30 shadow-lg h-full flex flex-col">
+    <div className="bg-[#2d1300] rounded-2xl p-4 border-2 border-amber-600/30 shadow-lg h-full flex flex-col">
       {/* Buy/Sell Tabs */}
       <div className="flex mb-4">
         <button

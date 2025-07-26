@@ -48,15 +48,22 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
           save_image: true,
           // The widget will be rendered inside the div with this ID
           container_id: containerRef.current.id,
-          studies: [],
+          studies: [
+            "Volume@tv-basicstudies"
+          ],
+          studies_overrides: {
+            "volume.volume.color.0": "#57f25d", // Color for down volume bar
+            "volume.volume.color.1": "#ff0000",  // Color for up volume bar
+            "volume.volume.transparency": "10%"
+          },
           // Custom candle colors
           overrides: {
             "mainSeriesProperties.candleStyle.upColor": "#57f25d",
-            "mainSeriesProperties.candleStyle.downColor": "#bc402b",
+            "mainSeriesProperties.candleStyle.downColor": "#ff0000",
             "mainSeriesProperties.candleStyle.borderUpColor": "#57f25d",
-            "mainSeriesProperties.candleStyle.borderDownColor": "#bc402b",
+            "mainSeriesProperties.candleStyle.borderDownColor": "#ff0000",
             "mainSeriesProperties.candleStyle.wickUpColor": "#57f25d",
-            "mainSeriesProperties.candleStyle.wickDownColor": "#bc402b"
+            "mainSeriesProperties.candleStyle.wickDownColor": "#ff0000",
           }
         });
       }

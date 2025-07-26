@@ -11,17 +11,8 @@ export default function Header() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   return (
     <>
-      <header className="relative w-full h-20 md:h-20 lg:h-20">
+      <header className="relative w-full h-20 md:h-20 lg:h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md">
         {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/images/header.png"
-            alt="Header Background"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-        </div>
         
         {/* Header Content */}
         <div className="relative z-10 flex items-center justify-between h-full px-6 md:px-12 lg:px-16">
@@ -81,7 +72,7 @@ export default function Header() {
               <span className="hidden sm:inline font-bold">Create Token</span>
               <span className="sm:hidden">Create</span>
             </button>
-            <button className="bg-[#e9b057] hover:bg-yellow-500 text-black font-medium px-2 py-1 sm:px-4 sm:py-2 rounded-lg border border-yellow-700/30 transition-all duration-300 shadow-lg text-sm sm:text-base">
+            <button className="bg-[#e9b057] hover:bg-yellow-200 text-black font-medium px-2 py-1 sm:px-4 sm:py-2 rounded-lg border border-yellow-700/30 transition-all duration-300 shadow-lg text-sm sm:text-base">
               <span className="hidden sm:inline font-bold">Connect Wallet</span>
               <span className="sm:hidden">Connect</span>
             </button>

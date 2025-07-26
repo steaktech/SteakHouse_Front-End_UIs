@@ -10,7 +10,7 @@ const tradeHistoryData = [
 
 export const TradeHistory: React.FC = () => {
   return (
-    <div className="bg-gradient-to-b from-[#3d1e01] to-[#2a1500] rounded-lg p-4 mt-4 overflow-hidden border border-amber-600/30 shadow-lg">
+    <div className="bg-[#190900] rounded-lg p-4 mt-4 overflow-hidden border border-amber-600/30 shadow-lg">
       <h3 className="text-lg font-semibold text-white mb-4">
         Trade History
       </h3>
@@ -32,8 +32,8 @@ export const TradeHistory: React.FC = () => {
                 <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>
                   {trade.type}
                 </td>
-                <td className="p-2">{trade.amountETH}</td>
-                <td className="p-2">{trade.amountPECA}</td>
+                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>{trade.amountETH}</td>
+                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>{trade.amountPECA}</td>
                 <td className="p-2 text-amber-400 font-mono">{trade.tx}</td>
               </tr>
             ))}

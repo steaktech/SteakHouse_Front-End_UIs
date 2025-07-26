@@ -58,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
 
   return (
     <aside 
-      className={`h-screen transition-all duration-300 ease-in-out bg-gradient-to-b from-[#4a2c0a] to-[#2d1a05] text-amber-300 flex flex-col border-r border-amber-600/30 relative flex-shrink-0 ${
+      className={`h-screen transition-all duration-300 ease-in-out bg-gradient-to-b from-[#472303] to-[#2d1a05] text-amber-300 flex flex-col border-r border-amber-600/30 relative flex-shrink-0 ${
         expanded ? 'w-64' : 'w-16'
       }`}
       style={{ 
