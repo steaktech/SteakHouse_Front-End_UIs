@@ -29,11 +29,11 @@ export const TradeHistory: React.FC = () => {
             {tradeHistoryData.map(trade => (
               <tr key={trade.id} className="hover:bg-[#3d1e01]/30">
                 <td className="p-2">{trade.date}</td>
-                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>
+                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-[#29f266]' : 'text-red-400'}`}>
                   {trade.type}
                 </td>
-                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>{trade.amountETH}</td>
-                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>{trade.amountPECA}</td>
+                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-[#29f266]' : 'text-red-400'}`}>{trade.amountETH}</td>
+                <td className={`p-2 font-semibold ${trade.type === 'buy' ? 'text-[#29f266]' : 'text-red-400'}`}>{trade.amountPECA}</td>
                 <td className="p-2 text-amber-400 font-mono">{trade.tx}</td>
               </tr>
             ))}

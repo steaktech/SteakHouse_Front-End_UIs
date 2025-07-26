@@ -21,19 +21,21 @@ export default function TradingChart() {
       <div className="flex text-white font-sans h-[calc(100vh-80px)]">
         <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
         
-        <main className="flex flex-1">
-          {/* Center content - increased width for trading chart */}
-          <div className="flex-[0.75] flex flex-col h-full">
+        <main className="flex flex-1 flex-col lg:flex-row">
+          {/* Center content - will take up remaining space */}
+          <div className="flex-1 flex flex-col min-w-0">
             <TradingView />
             <TradeHistory />
           </div>
 
-          {/* Right sidebar - proper size with full height and increased component heights */}
-          <aside className="flex-[0.25] flex-shrink-0 flex flex-col h-full space-y-2 p-2">
-            <div className="flex-[0.55] min-h-0">
+          {/* Right sidebar - fixed width on large screens, full width on small */}
+          <aside className="w-full lg:w-[390px] lg:flex-shrink-0 flex flex-col space-y-2 p-2">
+            {/* MarketInfo will fill the remaining space above the TradePanel */}
+            <div className="flex-1 min-h-0">
               <MarketInfo />
             </div>
-            <div className="flex-[0.45] min-h-0">
+            {/* Container with fixed height for the TradePanel */}
+            <div className="h-[370px]">
               <TradePanel />
             </div>
           </aside>

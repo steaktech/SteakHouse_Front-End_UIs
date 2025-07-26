@@ -9,15 +9,18 @@ const TwitterIcon = () => (
 
 export const MarketInfo: React.FC = () => {
   return (
-    <div className="bg-gradient-to-b from-[#532301] to-[#863c04] rounded-2xl p-4 text-white border-2 border-amber-600/30 shadow-lg relative overflow-hidden h-full flex flex-col">
+    // --- CHANGES START HERE ---
+    <div className="bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
+                 border border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
       {/* Top rounded image */}
       <div className="absolute top-0 left-0 right-0 mb-4">
         <img 
           src="/images/card_img.jpg" 
           alt="Token Header" 
-          className="w-full h-32 object-cover rounded-t-2xl"
+          className="w-full h-32 object-cover rounded-t-3xl" // Increased rounding
         />
       </div>
+     {/* --- CHANGES END HERE --- */}
       <div className="mt-32 mb-4"></div>
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
@@ -83,4 +86,4 @@ export const MarketInfo: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

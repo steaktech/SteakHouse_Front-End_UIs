@@ -3,11 +3,15 @@ import { TradingViewWidget } from './TradingViewWidget';
 
 export const TradingView: React.FC = () => {
   return (
-    <div className="p-1 flex-grow flex flex-col shadow-lg z-50">
+
+    
+    <div className="flex-grow flex flex-col">
         <TradingViewWidget 
           symbol="TRADENATION:SOLANA"
           theme="dark"
         />
     </div>
+
+    
   );
 }; 

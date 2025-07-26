@@ -64,18 +64,25 @@ export default function Header() {
           
           {/* Buttons Section */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <button
-              className="bg-[#462307] hover:bg-amber-800 text-yellow-400 font-medium px-2 py-1 sm:px-4 sm:py-2 rounded-lg border border-yellow-600/30 transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg text-sm sm:text-base"
+            {/* Create Token Button with 3D Effect */}
+            <div 
+              className="outer-button header-button cursor-pointer"
               onClick={() => setIsModalOpen(true)}
             >
-              <span className="text-sm sm:text-lg font-bold">+</span>
-              <span className="hidden sm:inline font-bold">Create Token</span>
-              <span className="sm:hidden">Create</span>
-            </button>
-            <button className="bg-[#e9b057] hover:bg-yellow-200 text-black font-medium px-2 py-1 sm:px-4 sm:py-2 rounded-lg border border-yellow-700/30 transition-all duration-300 shadow-lg text-sm sm:text-base">
-              <span className="hidden sm:inline font-bold">Connect Wallet</span>
-              <span className="sm:hidden">Connect</span>
-            </button>
+              <div className="inner-button text-yellow-400 font-bold text-sm sm:text-base">
+                <span className="text-sm sm:text-lg font-bold mr-1 sm:mr-2">+</span>
+                <span className="hidden sm:inline">Create Token</span>
+                <span className="sm:hidden">Create</span>
+              </div>
+            </div>
+
+            {/* Connect Wallet Button with 3D Effect */}
+            <div className="outer-button golden header-button cursor-pointer">
+              <div className="inner-button golden text-black font-bold text-sm sm:text-base">
+                <span className="hidden sm:inline">Connect Wallet</span>
+                <span className="sm:hidden">Connect</span>
+              </div>
+            </div>
           </div>
         </div>
       </header>
