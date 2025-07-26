@@ -17,40 +17,55 @@ interface TradingViewWidgetProps {
 
 export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   symbol = 'BINANCE:BTCUSDT',
-  interval = '1D',
-  theme = 'dark'
+  interval = 'D',
+  theme = 'light'
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isScriptLoaded = useRef(false);
 
   useEffect(() => {
+    // Ensure the script is loaded only once
+    if (isScriptLoaded.current || !containerRef.current) return;
+
     const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.src = 'https://s3.tradingview.com/tv.js';
     script.type = 'text/javascript';
     script.async = true;
-    script.innerHTML = JSON.stringify({
-      autosize: true,
-      symbol: symbol,
-      interval: interval,
-      timezone: 'Etc/UTC',
-      theme: theme,
-      style: '1',
-      locale: 'en',
-      enable_publishing: false,
-      withdateranges: true,
-      range: '12M',
-      hide_side_toolbar: false,
-      allow_symbol_change: true,
-      details: true,
-      hotlist: true,
-      calendar: false,
-      support_host: 'https://www.tradingview.com',
-      
-    });
 
-    if (containerRef.current) {
-      containerRef.current.appendChild(script);
-    }
+    // Script onload callback
+    script.onload = () => {
+      if (typeof window.TradingView !== 'undefined' && containerRef.current) {
+        // Create the widget using the proper constructor
+        new window.TradingView.widget({
+          autosize: true,
+          symbol: symbol,
+          interval: interval,
+          timezone: "Etc/UTC",
+          theme: theme,
+          style: "1",
+          locale: "en",
+          hide_top_toolbar: false,
+          save_image: true,
+          // The widget will be rendered inside the div with this ID
+          container_id: containerRef.current.id,
+          studies: [],
+          // Custom candle colors
+          overrides: {
+            "mainSeriesProperties.candleStyle.upColor": "#57f25d",
+            "mainSeriesProperties.candleStyle.downColor": "#bc402b",
+            "mainSeriesProperties.candleStyle.borderUpColor": "#57f25d",
+            "mainSeriesProperties.candleStyle.borderDownColor": "#bc402b",
+            "mainSeriesProperties.candleStyle.wickUpColor": "#57f25d",
+            "mainSeriesProperties.candleStyle.wickDownColor": "#bc402b"
+          }
+        });
+      }
+    };
+    
+    document.body.appendChild(script);
+    isScriptLoaded.current = true;
 
+    // Cleanup on component unmount
     return () => {
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
@@ -59,6 +74,10 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   }, [symbol, interval, theme]);
 
   return (
-      <div ref={containerRef} className="tradingview-widget w-full h-full"></div>
+    <div 
+      ref={containerRef} 
+      id="tradingview_chart_container"
+      className="h-full w-full"
+    />
   );
 }; 

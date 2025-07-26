@@ -30,13 +30,12 @@ export default function Header() {
         <div className="relative z-10 flex items-center justify-between h-full px-6 md:px-12 lg:px-16">
           {/* Logo Section */}
           <div className="flex items-center space-x-4">
-            <div className="relative w-40 h-40 md:w-40 md:h-40 lg:w-70 lg:h-70">
+            <div className="relative w-40 h-40 md:w-40 md:h-40 lg:w-70 lg:h-70 pointer-events-none">
               <Image
                 src="/images/header_icon.png"
                 alt="Logo"
                 fill
-                className="object-contain"
-                priority
+                className="object-contain pointer-events-auto"         
               />
             </div>
             
