@@ -187,6 +187,48 @@ body {
   min-width: 120px;
 }
 
+.box-shadow-1{
+  box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -5px 0px 6px rgba(255, 255, 255, 0.153), inset 0 3px 2px rgba(96, 41, 7, 0.7), inset 0 -3px 5px rgba(35, 20, 0, 0.846), inset 1px 0px 2px rgb(47 24 5), inset 2px 0 3px rgba(0, 0, 0, 0.15);
+
+}
+.box-shadow-2{
+  box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -5px 0px 6px rgba(255, 255, 255, 0.153), inset -1px 1px 1px rgb(171 171 171 / 70%), inset 0 -3px 5px rgba(35, 20, 0, 0.846), inset 1px 0px 2px rgb(47 24 5), inset 2px 0 3px rgba(0, 0, 0, 0.15); 
+}
+
+.box-shadow-3{
+  box-shadow: inset 2px 2px 5px rgb(0 0 0 / 10%), inset -5px 0px 6px rgb(255 255 255 / 17%), inset -1px 1px 1px rgb(171 171 171 / 70%), inset 0 -3px 5px rgb(8 6 2 / 85%), inset 1px 0px 2px rgb(57 43 32), inset 2px 0 3px rgba(0, 0, 0, 0.15);
+}
+.font-1rem {
+  font-size: 1rem;
+}
+.font-1\.2rem {
+  font-size: 1.2rem;
+}
+.font-1\.3rem {
+  font-size: 1.3rem;
+}
+.font-1\.4rem {
+  font-size: 1.4rem;
+}
+.font-1\.5rem {
+  font-size: 1.5rem;
+}
+.height-45{
+  height: 45px;
+}
+.buy-btn-active{
+  border: 2px solid #93eca8;
+  color: #93eca8;
+  background: #0a8834;
+}
+.sell-btn-active{
+  border: 2px solid #ff3b3b;
+  color: #ff3b3b;
+  background: #a71c1c;
+}
+.text-\[\#fff4da\] {
+  color: #fff4da;
+}
 @media (max-width: 640px) {
   .header-button {
     height: 36px;
