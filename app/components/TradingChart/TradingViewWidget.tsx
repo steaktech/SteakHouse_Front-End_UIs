@@ -18,11 +18,10 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   interval = 'D',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  // Use a ref to ensure the widget is created only once.
   const widgetRef = useRef<any>(null);
 
   useEffect(() => {
-    // Only create the widget if the container is available and it hasn't been created yet.
+    // Ensure the container is ready and the widget isn't already created
     if (!containerRef.current || widgetRef.current) {
       return;
     }
@@ -31,23 +30,19 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
     script.onload = () => {
-      if (typeof window.TradingView === 'undefined') return;
-      if (!containerRef.current) return;
+      if (typeof window.TradingView === 'undefined' || !containerRef.current) return;
 
       const widgetOptions = {
         autosize: true,
         symbol: symbol,
         interval: interval,
-        theme: "dark", // Use the dark theme as a base
+        theme: "dark",
         style: "1",
         hide_top_toolbar: true,
         backgroundColor: "rgb(12, 6, 0)",
         gridColor: "rgba(2, 2, 2, 0.06)",
-        container_id: "tradingview_chart_container", // Use the actual ID string directly
-        custom_css_url: '/css/custom_chart_styles.css',
-        // All custom styles are placed in the 'overrides' object
+        container_id: "tradingview_chart_container", // Must match the container's id
         overrides: {
-          // -- Main Series (Candles) Styling --
           "mainSeriesProperties.candleStyle.upColor": "#57f25d",
           "mainSeriesProperties.candleStyle.downColor": "#bc402b",
           "mainSeriesProperties.candleStyle.borderUpColor": "#57f25d",
@@ -55,11 +50,10 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
           "mainSeriesProperties.candleStyle.wickUpColor": "#57f25d",
           "mainSeriesProperties.candleStyle.wickDownColor": "#bc402b",
         },
-        // -- Study Overrides for Volume Indicator --
         studies_overrides: {
-            "volume.volume.color.0": "#bc402b", // Down volume
-            "volume.volume.color.1": "#57f25d", // Up volume
-            "volume.volume.transparency": 80,    // Make volume 100% opaque
+            "volume.volume.color.0": "#bc402b",
+            "volume.volume.color.1": "#57f25d",
+            "volume.volume.transparency": 80,
         },
       };
 
@@ -77,7 +71,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     
     document.head.appendChild(script);
 
-    // Cleanup function to remove the widget when the component unmounts
+    // Cleanup function to remove widget on component unmount
     return () => {
       if (widgetRef.current) {
         try {
@@ -91,25 +85,14 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   }, [symbol, interval]);
 
   return (
-    <>
-    <style>
-      {`
-        .tradingview-widget-container {
-          width: 977px;
-          height: 607px;
-          overflow: hidden;
-
-        }
-        #tradingview_chart{
-          margin: -1px -1px !important;
-        }
-      `}
-    </style>
-    <div 
-      ref={containerRef} 
-      id="tradingview_chart_container"
-      className="tradingview-container h-full w-full"
-    />
-    </>
+    // This outer wrapper clips the scaled content, hiding the border.
+    <div className="w-full h-full overflow-hidden">
+      <div
+        ref={containerRef}
+        id="tradingview_chart_container"
+        // Scale the widget up slightly to push its border outside the visible area.
+        className="w-full h-full transform scale-[1.01]"
+      />
+    </div>
   );
 };

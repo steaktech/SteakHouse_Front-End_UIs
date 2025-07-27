@@ -59,28 +59,57 @@ export const MarketInfo: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-4 bg-amber-950/50 p-2 rounded-4xl">
-        <div className="flex justify-around text-center">
-          <div>
-            <p className="text-xs text-amber-300">PRICE</p>
-            <p className="font-bold text-sm">$68.1K</p>
-          </div>
-          <div>
-            <p className="text-xs text-amber-300">24H HIGH</p>
-            <p className="font-bold text-sm text-green-400">$69.1K</p>
-          </div>
-          <div>
-            <p className="text-xs text-amber-300">VOL</p>
-            <p className="font-bold text-sm">2.3K</p>
-          </div>
-        </div>
-        
-        <div className="w-75 bg-[#978200] rounded-full h-8 relative">
-          <div 
-            className="bg-[#f6c300] h-8 rounded-full flex items-center justify-center" 
-            style={{ width: `82%` }}
-          >
-            <span className="text-black font-bold text-sm">82%</span>
+      <div className="mt-4 relative">
+        {/* Outer 3D container */}
+        <div className="bg-[#b15821] rounded-3xl">
+          {/* Inner glass container */}
+          <div className="bg-[#b15821] rounded-3xl p-3 
+                          relative overflow-hidden
+                          shadow-[inset_2px_2px_3px_rgba(255,255,255,0),inset_-4px_0px_4px_rgba(255,255,255,0.15),inset_0_3px_15px_rgba(96,41,7,0.7),inset_0_-5px_6px_rgba(35,20,0,0.8),inset_3px_0_5px_rgba(52,24,2,1),inset_-3px_0_5px_rgba(0,0,0,0.15)]">
+            
+            {/* Glass highlight overlay */}
+            <div className="absolute inset-0 bg-gradient-radial from-white/10 via-transparent to-transparent 
+                            bg-[radial-gradient(circle_at_100%_-40%,rgba(255,255,255,0.2),rgba(255,255,255,0)_22%)] 
+                            rounded-xl pointer-events-none"></div>
+            
+            <div className="flex justify-around text-center relative z-10">
+              <div>
+                <p className="text-xs text-amber-300/90">PRICE</p>
+                <p className="font-bold text-sm text-white/95">$68.1K</p>
+              </div>
+              <div>
+                <p className="text-xs text-amber-300/90">24H HIGH</p>
+                <p className="font-bold text-sm text-white-400/95">$69.1K</p>
+              </div>
+              <div>
+                <p className="text-xs text-amber-300/90">VOL</p>
+                <p className="font-bold text-sm text-white/95">2.3K</p>
+              </div>
+            </div>
+            
+            {/* Progress bar with 3D glass effect */}
+            <div className="mt-3 relative">
+              {/* Outer progress container */}
+              <div className="bg-[#a07b24] rounded-full p-[2px] shadow-sm">
+                <div className="bg-[#a07b24] rounded-full h-6 relative overflow-hidden
+                               shadow-[inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-2px_0_3px_rgba(0,0,0,0.3),inset_0_-2px_3px_rgba(0,0,0,0.4)]">
+                  
+                  {/* Progress fill with glass effect */}
+                  <div className="bg-[#a07b24] rounded-full p-[1px] h-full">
+                    <div 
+                      className="bg-gradient-to-r from-[#fbc710] via-[#f8d96e] to-[#f8d96e] h-full rounded-full 
+                                 flex items-center justify-center relative overflow-hidden
+                                 shadow-[inset_1px_1px_2px_rgba(255,255,255,0.3),inset_-1px_0_2px_rgba(0,0,0,0.1)]" 
+                      style={{ width: `82%` }}
+                    >
+                      {/* Glass highlight on progress bar */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent rounded-full"></div>
+                      <span className="text-black font-bold text-sm relative z-10">82%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
