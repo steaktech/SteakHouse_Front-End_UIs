@@ -10,7 +10,7 @@ const tradeHistoryData = [
 
 export const TradeHistory: React.FC = () => {
   return (
-    <div className="bg-[#190900] w-full h-full rounded-lg p-4 overflow-hidden border border-amber-600/30 shadow-lg">
+    <div className="bg-[#190900] box-shadow-1 w-full h-full rounded-lg p-4 overflow-hidden border border-amber-600/30 shadow-lg">
       <h3 className="text-lg font-semibold text-white mb-4">
         Trade History
       </h3>
