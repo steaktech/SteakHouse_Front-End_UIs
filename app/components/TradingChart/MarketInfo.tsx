@@ -20,6 +20,7 @@ export const MarketInfo: React.FC = () => {
           className="w-full h-32 object-cover rounded-t-3xl" // Increased rounding
         />
       </div>
+      
      {/* --- CHANGES END HERE --- */}
       <div className="mt-32 mb-4"></div>
       <div className="flex items-center gap-8">
