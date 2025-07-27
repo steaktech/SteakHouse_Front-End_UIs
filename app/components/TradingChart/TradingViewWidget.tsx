@@ -18,7 +18,6 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   interval = 'D',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
   // Use a ref to ensure the widget is created only once.
   const widgetRef = useRef<any>(null);
 
@@ -33,6 +32,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     script.async = true;
     script.onload = () => {
       if (typeof window.TradingView === 'undefined') return;
+      if (!containerRef.current) return;
 
       const widgetOptions = {
         autosize: true,
@@ -43,7 +43,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         hide_top_toolbar: true,
         backgroundColor: "rgb(12, 6, 0)",
         gridColor: "rgba(2, 2, 2, 0.06)",
-        container_id: containerRef.current!.id,
+        container_id: "tradingview_chart_container", // Use the actual ID string directly
         custom_css_url: '/css/custom_chart_styles.css',
         // All custom styles are placed in the 'overrides' object
         overrides: {
@@ -63,8 +63,16 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         },
       };
 
-      const tvWidget = new window.TradingView.widget(widgetOptions);
-      widgetRef.current = tvWidget;
+      try {
+        const tvWidget = new window.TradingView.widget(widgetOptions);
+        widgetRef.current = tvWidget;
+      } catch (error) {
+        console.error('Error creating TradingView widget:', error);
+      }
+    };
+    
+    script.onerror = () => {
+      console.error('Failed to load TradingView script');
     };
     
     document.head.appendChild(script);
@@ -72,7 +80,11 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     // Cleanup function to remove the widget when the component unmounts
     return () => {
       if (widgetRef.current) {
-        widgetRef.current.remove();
+        try {
+          widgetRef.current.remove();
+        } catch (error) {
+          console.error('Error removing TradingView widget:', error);
+        }
         widgetRef.current = null;
       }
     };
@@ -82,13 +94,14 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     <>
     <style>
       {`
-        .tradingview-container {
-          position: relative;
-          border: none !important;
+        .tradingview-widget-container {
+          width: 977px;
+          height: 607px;
+          overflow: hidden;
+
         }
-        /* This pseudo-element creates the black overlay at the top */
-        .tradingview-container::before {
-          border: none !important;
+        #tradingview_chart{
+          margin: -1px -1px !important;
         }
       `}
     </style>

@@ -10,8 +10,8 @@ const TwitterIcon = () => (
 export const MarketInfo: React.FC = () => {
   return (
     // --- CHANGES START HERE ---
-    <div className="bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
-                 border border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
+    <div className="mt-2 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
+                 border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
       {/* Top rounded image */}
       <div className="absolute top-0 left-0 right-0 mb-4">
         <img 
@@ -75,7 +75,7 @@ export const MarketInfo: React.FC = () => {
           </div>
         </div>
         
-        <div className="ml-3 mt-3 w-75 bg-[#978200] rounded-full h-8 relative">
+        <div className="w-75 bg-[#978200] rounded-full h-8 relative">
           <div 
             className="bg-[#f6c300] h-8 rounded-full flex items-center justify-center" 
             style={{ width: `82%` }}

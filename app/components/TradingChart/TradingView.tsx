@@ -8,7 +8,6 @@ export const TradingView: React.FC = () => {
     <div className="flex-grow flex flex-col">
         <TradingViewWidget 
           symbol="TRADENATION:SOLANA"
-          theme="dark"
         />
     </div>
 

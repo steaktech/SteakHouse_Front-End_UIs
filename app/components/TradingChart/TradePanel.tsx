@@ -31,28 +31,36 @@ export const TradePanel: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#2d1300] rounded-2xl p-4 border-2 border-amber-600/30 shadow-lg h-full flex flex-col">
+    <div className="mt-1 bg-[#2d1300] rounded-2xl p-4 border-2 border-amber-600/30 shadow-lg h-full flex flex-col">
       {/* Buy/Sell Tabs - Sliding Switch Style */}
       <div className="relative flex w-full rounded-xl bg-[#160d0b] p-1 mb-4 border border-gray-700/50">
         {/* Sliding Background */}
         <div
           className={`absolute top-0.5 left-0.5 h-[calc(100%-4px)] w-1/2 rounded-xl transition-all duration-300 ease-in-out
             ${activeTab === 'buy' 
-              ? 'translate-x-0 bg-green-600' 
+              ? 'translate-x-0 bg-[#2a882f]' // Changed background color
               : 'translate-x-full bg-red-600'
             }`}
         />
         <button
           onClick={() => setActiveTab('buy')}
-          className="relative z-10 flex-1 py-1.5 text-center text-lg font-bold text-white transition-colors duration-300"
+          className={`relative z-10 flex-1 py-1.5 text-center text-lg font-bold
+            ${activeTab === 'buy' 
+              ? 'text-[#93eca8] border border-[#2a882f] rounded-xl mr-0.5 shadow-[inset_1px_1px_3px_rgba(255,255,255,0.1),inset_-1px_-1px_3px_rgba(0,0,0,0.3)] hover:shadow-[inset_2px_2px_4px_rgba(255,255,255,0.15),inset_-2px_-2px_4px_rgba(0,0,0,0.4)] active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.1)] transition-all duration-100 delay-300' // Changed text color
+              : 'text-white border border-transparent rounded-xl mr-0.5 transition-all duration-100 delay-0 hover:opacity-80'
+            }`}
         >
-          Buy
+          BUY
         </button>
         <button
           onClick={() => setActiveTab('sell')}
-          className="relative z-10 flex-1 py-1.5 text-center text-lg font-bold text-white transition-colors duration-300"
+          className={`relative z-10 flex-1 py-1.5 text-center text-lg font-bold
+            ${activeTab === 'sell'
+              ? 'text-[#ff3b3b] border border-[#f13633] rounded-xl ml-0.5 shadow-[inset_1px_1px_3px_rgba(255,255,255,0.1),inset_-1px_-1px_3px_rgba(0,0,0,0.3)] hover:shadow-[inset_2px_2px_4px_rgba(255,255,255,0.15),inset_-2px_-2px_4px_rgba(0,0,0,0.4)] active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.1)] transition-all duration-100 delay-300'
+              : 'text-[#ff3b3b] border border-transparent rounded-xl ml-0.5 transition-all duration-100 delay-0 hover:opacity-80'
+            }`}
         >
-          Sell
+          SELL
         </button>
       </div>
 
@@ -91,7 +99,7 @@ export const TradePanel: React.FC = () => {
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full bg-[#160d0b] text-white text-3xl p-6 rounded-xl border border-[#321806] focus:outline-none focus:ring-2 focus:ring-green-500 text-left h-[65px]"
+          className="w-full bg-[#160d0b] text-white text-3xl p-6 rounded-xl border border-[#321806] focus:outline-none focus:ring-2 focus:ring-[#2a882f] text-left h-[65px]"
           placeholder="0"
         />
         <button className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 text-gray-700 hover:text-gray-900 transition-colors">
@@ -121,13 +129,13 @@ export const TradePanel: React.FC = () => {
           </div>
         ))}
       </div>
-          
+              
       {/* Confirm Button */}
-      <button className={`w-full font-bold py-4 rounded-lg text-lg transition-colors duration-300  ${
+      <button className={`w-full font-bold py-4 rounded-lg text-lg transition-colors duration-300 ${
         activeTab === 'buy'
-          ? 'bg-green-600 hover:bg-green-700'
-          : 'bg-red-600 hover:bg-red-700'
-      } text-[#4b3206]`}>
+          ? 'bg-[#2a882f] hover:bg-green-700 text-[#93eca8]' // Changed background and text color
+          : 'bg-red-600 hover:bg-red-700 text-white'
+      }`}>
         CONFIRM TRADE
       </button>
     </div>

@@ -69,12 +69,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
           transition-all duration-300 ease-in-out
           
           /* Mobile Overlay Styles */
-          fixed inset-y-0 left-0 z-30 w-64
+          fixed inset-y-0 left-0 z-30 w-[200px]
           ${expanded ? 'translate-x-0' : '-translate-x-full'}
 
           /* Desktop Static Styles */
           lg:relative lg:translate-x-0
-          ${expanded ? 'lg:w-64' : 'lg:w-16'}
+          ${expanded ? 'lg:w-[200px]' : 'lg:w-16'}
         `}
       >
         {/* Header */}
