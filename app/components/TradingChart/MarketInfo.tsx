@@ -48,16 +48,17 @@ export const MarketInfo: React.FC = () => {
       </div>
 
       <div className="flex items-center space-x-3 mt-4 text-yellow-200">
-        <div className="bg-[#f8ead3] rounded-full p-2 flex items-center justify-center">
-          <Send className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
-        </div>
-        <div className="bg-[#f8ead3] rounded-full p-2 flex items-center justify-center text-amber-800">
-          <TwitterIcon />
-        </div>
-        <div className="bg-[#f8ead3] rounded-full p-2 flex items-center justify-center">
-          <Globe className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
-        </div>
-      </div>
+  {/* The classes below have been updated to create a 3D glass button effect */}
+  <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
+    <Send className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
+  </div>
+  <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center text-amber-800 border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
+    <TwitterIcon />
+  </div>
+  <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
+    <Globe className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
+  </div>
+</div>
 
       <div className="mt-4 relative">
         {/* Outer 3D container */}
@@ -65,7 +66,7 @@ export const MarketInfo: React.FC = () => {
           {/* Inner glass container */}
           <div className="bg-[#b15821] rounded-3xl p-3 
                           relative overflow-hidden
-                          shadow-[inset_2px_2px_3px_rgba(255,255,255,0),inset_-4px_0px_4px_rgba(255,255,255,0.15),inset_0_3px_15px_rgba(96,41,7,0.7),inset_0_-5px_6px_rgba(35,20,0,0.8),inset_3px_0_5px_rgba(52,24,2,1),inset_-3px_0_5px_rgba(0,0,0,0.15)]">
+                          shadow-[inset_2px_2px_3px_rgba(255,255,255,0),inset_-4px_0px_4px_rgba(255,255,255,0.10),inset_0_3px_15px_rgba(96,41,7,0.1),inset_0_-5px_6px_rgba(35,20,0,0.10),inset_3px_0_5px_rgba(52,24,2,7),inset_-3px_0_5px_rgba(0,0,0,0.15)]">
             
             {/* Glass highlight overlay */}
             <div className="absolute inset-0 bg-gradient-radial from-white/10 via-transparent to-transparent 
@@ -73,19 +74,20 @@ export const MarketInfo: React.FC = () => {
                             rounded-xl pointer-events-none"></div>
             
             <div className="flex justify-around text-center relative z-10">
-              <div>
-                <p className="text-xs text-amber-300/90">PRICE</p>
-                <p className="font-bold text-sm text-white/95">$68.1K</p>
-              </div>
-              <div>
-                <p className="text-xs text-amber-300/90">24H HIGH</p>
-                <p className="font-bold text-sm text-white-400/95">$69.1K</p>
-              </div>
-              <div>
-                <p className="text-xs text-amber-300/90">VOL</p>
-                <p className="font-bold text-sm text-white/95">2.3K</p>
-              </div>
+
+            <div>
+              <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">PRICE</p>
+              <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">$68.1K</p>
             </div>
+            <div>
+              <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">24H HIGH</p>
+              <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">$69.1K</p>
+            </div>
+            <div>
+              <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">VOL</p>
+              <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">2.3K</p>
+            </div>
+          </div>
             
             {/* Progress bar with 3D glass effect */}
             <div className="mt-3 relative">

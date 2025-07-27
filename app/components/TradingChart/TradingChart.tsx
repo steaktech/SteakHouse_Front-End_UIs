@@ -23,7 +23,7 @@ export default function TradingChart() {
         
         <main className="flex flex-1 flex-col lg:flex-row">
           {/* Center content - will take up remaining space */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-100">
+          <div className="flex-1 flex flex-col min-w-0 min-h-100 p-2 space-y-2">
             <TradingView />
             <TradeHistory />
           </div>

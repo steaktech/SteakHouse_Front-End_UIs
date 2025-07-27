@@ -86,12 +86,12 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
 
   return (
     // This outer wrapper clips the scaled content, hiding the border.
-    <div className="w-full h-full overflow-hidden">
+    <div className="w-full h-full min-h-140 overflow-hidden">
       <div
         ref={containerRef}
         id="tradingview_chart_container"
         // Scale the widget up slightly to push its border outside the visible area.
-        className="w-full h-full transform scale-[1.01]"
+        className="w-full h-full min-h-170 transform scale-[1.01]"
       />
     </div>
   );
