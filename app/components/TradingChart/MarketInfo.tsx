@@ -38,14 +38,14 @@ export const MarketInfo: React.FC = () => {
       
       <div className="mt-4 text-amber-200 space-y-2">
         <div className="flex items-center space-x-2 text-xs">
-          <p className='font-1.2rem'>TAX: 3/3</p>
+          <p className='font-1.2rem font-bold'>TAX: 3/3</p>
           <div className="bg-[#2d1300] border border-amber-600/30 rounded-full px-2 py-1">
             <p className="text-white">
               Current TAX: <span className="text-yellow-400 font-semibold">16/16</span> MaxTX: <span className="text-yellow-400 font-semibold">2.1%</span>
             </p>
           </div>
         </div>
-        <p className="text-[#f8ead3]">Spaceman is a meme deflationary token with a finite supply and buyback and burn.</p>
+        <p className="text-[#f8ead3] font-bold font-1.2rem">Spaceman is a meme deflationary token with a finite supply and buyback and burn.</p>
       </div>
 
       <div className="flex items-center space-x-3 mt-4 text-yellow-200">

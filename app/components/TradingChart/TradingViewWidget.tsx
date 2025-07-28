@@ -14,8 +14,8 @@ interface TradingViewWidgetProps {
 }
 
 export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
-  symbol = 'BINANCE:BTCUSDT',
-  interval = 'D',
+  symbol = 'BINANCE:SOLUSD',
+  interval = '1',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<any>(null);
@@ -39,20 +39,20 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         theme: "dark",
         style: "1",
         hide_top_toolbar: true,
-        backgroundColor: "rgb(12, 6, 0)",
+        backgroundColor: "#07040b",
         gridColor: "rgba(2, 2, 2, 0.06)",
         container_id: "tradingview_chart_container", // Must match the container's id
         overrides: {
-          "mainSeriesProperties.candleStyle.upColor": "#57f25d",
-          "mainSeriesProperties.candleStyle.downColor": "#bc402b",
-          "mainSeriesProperties.candleStyle.borderUpColor": "#57f25d",
-          "mainSeriesProperties.candleStyle.borderDownColor": "#bc402b",
-          "mainSeriesProperties.candleStyle.wickUpColor": "#57f25d",
-          "mainSeriesProperties.candleStyle.wickDownColor": "#bc402b",
+          "mainSeriesProperties.candleStyle.upColor": "#29f266",
+          "mainSeriesProperties.candleStyle.downColor": "#ff3b3b",
+          "mainSeriesProperties.candleStyle.borderUpColor": "#29f266",
+          "mainSeriesProperties.candleStyle.borderDownColor": "#ff3b3b",
+          "mainSeriesProperties.candleStyle.wickUpColor": "#29f266",
+          "mainSeriesProperties.candleStyle.wickDownColor": "#ff3b3b",
         },
         studies_overrides: {
-            "volume.volume.color.0": "#bc402b",
-            "volume.volume.color.1": "#57f25d",
+            "volume.volume.color.0": "#ff3b3b",
+            "volume.volume.color.1": "#29f266",
             "volume.volume.transparency": 80,
         },
       };
@@ -91,7 +91,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         ref={containerRef}
         id="tradingview_chart_container"
         // Scale the widget up slightly to push its border outside the visible area.
-        className="w-full h-full min-h-170 transform scale-[1.01]"
+        className="w-full h-full min-h-145 transform scale-[1.01]"
       />
     </div>
   );

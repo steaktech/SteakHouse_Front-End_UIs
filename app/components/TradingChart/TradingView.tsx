@@ -7,7 +7,7 @@ export const TradingView: React.FC = () => {
     
     <div className="flex-grow flex flex-col h-full">
         <TradingViewWidget 
-          symbol="TRADENATION:SOLANA"
+          symbol="BINANCE:SOLUSD"
         />
     </div>
 

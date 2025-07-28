@@ -69,7 +69,7 @@ export default function Header() {
               className="outer-button header-button cursor-pointer"
               onClick={() => setIsModalOpen(true)}
             >
-              <div className="inner-button text-yellow-400 font-bold text-sm sm:text-base">
+              <div className="inner-button text-[#e9af5a] font-bold text-sm sm:text-base">
                 <span className="text-sm sm:text-lg font-bold mr-1 sm:mr-2">+</span>
                 <span className="hidden sm:inline">Create Token</span>
                 <span className="sm:hidden">Create</span>

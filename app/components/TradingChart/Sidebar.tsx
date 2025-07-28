@@ -24,7 +24,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active })
           {icon}
         </div>
         <span className={`
-          text-amber-300 group-hover:text-amber-200 transition-all duration-300 font-medium
+          text-[#f8ead3] group-hover:text-amber-200 transition-all duration-300 font-medium
           ${expanded ? 'ml-3 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'}
         `}>
           {text}
@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
         {/* Header */}
         <div className="p-4 border-b border-amber-600/30 flex items-center justify-center relative h-[68px] flex-shrink-0">
           <div className={`transition-opacity duration-200 ${expanded ? "opacity-100" : "opacity-0"}`}>
-            <h2 className="text-amber-200 font-bold text-lg tracking-wider">WIDGETS</h2>
+            <h2 className="text-amber-400 font-bold text-lg tracking-wider">WIDGETS</h2>
           </div>
           
           {/* Desktop Toggle Button */}

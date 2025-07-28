@@ -13,7 +13,7 @@ export default function TradingChart() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
   return (
-    <div className="min-h-screen bg-[#0d0600]">
+    <div className="min-h-screen bg-[#07040b]">
       {/* Header */}
       <Header />
       
