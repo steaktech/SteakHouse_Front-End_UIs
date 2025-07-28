@@ -21,6 +21,7 @@ export const MarketInfo: React.FC = () => {
         />
       </div>
       
+
      {/* --- CHANGES END HERE --- */}
       <div className="mt-32 mb-4"></div>
       <div className="flex items-center gap-8">
