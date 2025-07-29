@@ -51,17 +51,17 @@ export default function TradingChart() {
       </button>
       
       {/* Main Trading Interface */}
-      <div className="flex text-white font-sans h-[calc(100vh-80px)]">
+      <div className="flex text-white font-sans h-[calc(100vh-80px)] overflow-auto">
         <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
         
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-2 p-2">
           {/* Trading Chart - Position 1 on mobile, Left column top on desktop */}
-          <div className="h-[calc(100vh-450px)] order-1 lg:order-none lg:row-span-1">
+          <div className="h-[calc(100vh-450px)] min-h-[578px] order-1 lg:order-none lg:row-span-1">
             <TradingView />
           </div>
 
           {/* Market Info - Position 2 on mobile, Right column top on desktop */}
-          <div className="h-[calc(100vh-450px)] min-h-583px order-2 lg:order-none lg:row-start-1 lg:col-start-2">
+          <div className="h-[calc(100vh-450px)] min-h-[578px] order-2 lg:order-none lg:row-start-1 lg:col-start-2">
             <MarketInfo />
           </div>
 
@@ -71,7 +71,7 @@ export default function TradingChart() {
           </div>
 
           {/* Trade History - Position 4 on mobile, Left column bottom on desktop */}
-          <div className="h-[calc(450px-80px-16px)] order-4 lg:order-none lg:row-start-2 lg:col-start-1">
+          <div className="h-[calc(450px-80px-20px)] order-4 lg:order-none lg:row-start-2 lg:col-start-1">
             <TradeHistory />
           </div>
         </main>
