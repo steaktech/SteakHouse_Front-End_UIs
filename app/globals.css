@@ -262,9 +262,3 @@ body {
     inset 3px 0 5px rgba(139, 117, 6, 0.3),
     inset -3px 0 5px rgba(0, 0, 0, 0.1);
 }
-.preset-btn{
-  color: #fff4da;
-}
-.preset-btn:hover {
-  color: #ea7f17;
-}
