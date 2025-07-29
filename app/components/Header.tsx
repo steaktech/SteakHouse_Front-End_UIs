@@ -19,11 +19,20 @@ export default function Header() {
           {/* Logo Section */}
           <div className="flex items-center space-x-4">
             <div className="relative w-40 h-40 md:w-40 md:h-40 lg:w-60 lg:h-60 pointer-events-none">
+                            {/* Logo for smaller devices */}
+              <Image
+                src="/images/app-logo.png"
+                alt="Logo"
+                width={80}
+                height={80}
+                className="object-contain pointer-events-auto md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"         
+              />
+              {/* Logo for medium and larger devices */}
               <Image
                 src="/images/header_icon.png"
                 alt="Logo"
                 fill
-                className="object-contain pointer-events-auto"         
+                className="object-contain pointer-events-auto hidden md:block"         
               />
             </div>
             
