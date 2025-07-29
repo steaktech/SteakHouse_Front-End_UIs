@@ -21,30 +21,26 @@ export default function TradingChart() {
       <div className="flex text-white font-sans h-[calc(100vh-80px)]">
         <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
         
-        <main className="flex flex-1 flex-col lg:flex-row">
-          {/* Center content - will take up remaining space */}
-          <div className="flex-1 flex flex-col min-w-0 p-2 space-y-2">
-            {/* This container will have the same height as MarketInfo */}
-            <div className="h-[calc(100vh-450px)]">
-              <TradingView />
-            </div>
-            {/* This container will fill the remaining vertical space */}
-            <div className="h-[calc(450px-80px-16px)]"> 
-              <TradeHistory />
-            </div>
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-2 p-2">
+          {/* Trading Chart - Position 1 on mobile, Left column top on desktop */}
+          <div className="h-[calc(100vh-450px)] order-1 lg:order-none lg:row-span-1">
+            <TradingView />
           </div>
 
-          {/* Right sidebar - fixed width on large screens */}
-          <aside className="w-full lg:w-[380px] lg:flex-shrink-0 flex flex-col space-y-2 p-2">
-            {/* MarketInfo will have the same height as TradingView */}
-            <div className="h-[calc(100vh-450px)] min-h-583px mt-1">
-              <MarketInfo />
-            </div>
-            {/* Container with a fixed height for the TradePanel */}
-            <div className="h-[370px]">
-              <TradePanel />
-            </div>
-          </aside>
+          {/* Market Info - Position 2 on mobile, Right column top on desktop */}
+          <div className="h-[calc(100vh-450px)] min-h-583px order-2 lg:order-none lg:row-start-1 lg:col-start-2">
+            <MarketInfo />
+          </div>
+
+          {/* Trade Panel - Position 3 on mobile, Right column bottom on desktop */}
+          <div className="h-[350px] order-3 lg:order-none lg:row-start-2 lg:col-start-2">
+            <TradePanel />
+          </div>
+
+          {/* Trade History - Position 4 on mobile, Left column bottom on desktop */}
+          <div className="h-[calc(450px-80px-16px)] order-4 lg:order-none lg:row-start-2 lg:col-start-1">
+            <TradeHistory />
+          </div>
         </main>
       </div>
     </div>

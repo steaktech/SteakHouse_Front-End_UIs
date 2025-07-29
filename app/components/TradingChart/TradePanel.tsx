@@ -31,7 +31,7 @@ export const TradePanel: React.FC = () => {
   };
 
   return (
-    <div className="mt-1 box-shadow-1 bg-[#2d1300] rounded-2xl p-4 border-2 border-amber-600/30 shadow-lg h-full flex flex-col">
+    <div className="box-shadow-1 bg-[#2d1300] rounded-2xl p-5 border-2 border-amber-600/30 shadow-lg h-full flex flex-col">
       {/* Buy/Sell Tabs - Sliding Switch Style */}
       <div className="relative flex w-full h-[calc(54px)] rounded-xl bg-[#07040b] mb-4 border border-gray-700/50">
         {/* Sliding Background */}
