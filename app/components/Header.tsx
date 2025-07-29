@@ -29,7 +29,7 @@ export default function Header() {
               />
               {/* Logo for medium and larger devices */}
               <Image
-                src="/images/header_icon.png"
+                src="/images/header-logo-lg.png"
                 alt="Logo"
                 fill
                 className="object-contain pointer-events-auto hidden md:block"         
