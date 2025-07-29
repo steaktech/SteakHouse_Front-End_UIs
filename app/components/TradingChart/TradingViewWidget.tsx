@@ -40,6 +40,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         style: "1",
         hide_top_toolbar: true,
         backgroundColor: "#07040b",
+        hide_side_toolbar: false,
         gridColor: "rgba(2, 2, 2, 0.06)",
         container_id: "tradingview_chart_container", // Must match the container's id
         overrides: {
@@ -86,7 +87,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
 
   return (
     // This outer wrapper clips the scaled content, hiding the border.
-    <div className="w-full h-full min-h-140 overflow-hidden">
+    <div className="w-full h-full overflow-hidden">
       <div
         ref={containerRef}
         id="tradingview_chart_container"
