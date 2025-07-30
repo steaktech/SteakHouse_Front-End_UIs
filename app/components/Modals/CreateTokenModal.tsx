@@ -54,11 +54,9 @@ const FileUploadButton: FC<{ label: string; dimensions: string }> = ({ label, di
 // Checkbox without the outer box
 const FormCheckbox: FC<{ label: string; checked: boolean; onChange: () => void; }> = ({ label, checked, onChange }) => {
     return (
-        <div className="flex flex-col gap-1.5 w-full">
-            {/* Invisible label for alignment with other inputs */}
-            <label className="text-sm font-medium invisible">Checkbox</label>
+        <div className="flex flex-col w-full">
             <div
-                className="flex items-center justify-center text-center gap-3 cursor-pointer p-2.5 h-20 rounded-lg hover:bg-amber-900/10 transition-colors"
+                className="flex items-center text-center gap-3 cursor-pointer p-2.5 rounded-lg hover:bg-amber-900/10 transition-colors"
                 onClick={onChange}
             >
                 <div className={`w-6 h-6 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all ${checked ? 'bg-amber-500 border-amber-400' : 'bg-transparent border-amber-500/50'}`}>
@@ -113,9 +111,9 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
         launchDate: '20/07/2025',
         launchTime: '16:00',
         marketCap: '500,000',
-        lock: '100%',
+        lock: false,
         lockTime: '365 days',
-        burn: '0%',
+        burn: false,
         description: 'Steakhouse finance ($STEAK) is the heart of the ecosystem used for governance and rewards.',
         telegram: 't.me/steak',
         website: 'steak.com',
@@ -136,6 +134,10 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+    
+    const handleCheckboxChange = (name: string) => {
+        setFormData(prev => ({ ...prev, [name]: !prev[name as keyof typeof prev] }));
     };
 
     useEffect(() => {
@@ -224,9 +226,6 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                                 { label: 'market cap', placeholder: '$ 500,000', name: 'marketCap', value: formData.marketCap },
                             ] as SectionField[] },
                             { title: 'Liquidity', fields: [
-                                { label: 'lock', placeholder: '100%', name: 'lock', value: formData.lock },
-                                { label: 'lock time', placeholder: '365 days', name: 'lockTime', value: formData.lockTime },
-                                { label: 'burn', placeholder: '0%', name: 'burn', value: formData.burn },
                             ] as SectionField[] },
                             { title: 'Metadata and Socials', fields: [
                                 { label: 'token description', placeholder: 'Your token description...', name: 'description', value: formData.description, fullWidth: true, isTextarea: true },
@@ -276,6 +275,31 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                                                 checked={removeSuffix}
                                                 onChange={() => setRemoveSuffix(prev => !prev)}
                                             />
+                                        </div>
+                                    )}
+                                    
+                                    {section.title === 'Liquidity' && (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <FormCheckbox
+                                                label="Lock liquidity"
+                                                checked={formData.lock as boolean}
+                                                onChange={() => handleCheckboxChange('lock')}
+                                            />
+                                            <FormCheckbox
+                                                label="Burn liquidity"
+                                                checked={formData.burn as boolean}
+                                                onChange={() => handleCheckboxChange('burn')}
+                                            />
+                                            {/* Only show lock time if lock is checked */}
+                                            {formData.lock && (
+                                                <FormInput
+                                                    label="lock time"
+                                                    placeholder="365 days"
+                                                    name="lockTime"
+                                                    value={formData.lockTime as string}
+                                                    onChange={handleInputChange}
+                                                />
+                                            )}
                                         </div>
                                     )}
                                 </div>
