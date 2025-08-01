@@ -18,7 +18,16 @@ interface FormInputProps {
     type?: string;
 }
 
-const FormInput: FC<FormInputProps> = ({ label, placeholder, name, value, onChange, containerClassName = 'w-full', type = 'text' }) => (
+const FormInput: FC<FormInputProps & { disabled?: boolean }> = ({ 
+    label, 
+    placeholder, 
+    name, 
+    value, 
+    onChange, 
+    containerClassName = 'w-full', 
+    type = 'text',
+    disabled = false 
+}) => (
     <div className={`flex flex-col gap-1.5 ${containerClassName}`}>
         <label htmlFor={name} className="text-sm text-amber-300/80 font-medium">{label}</label>
         <input
@@ -28,7 +37,8 @@ const FormInput: FC<FormInputProps> = ({ label, placeholder, name, value, onChan
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="bg-[#2a1f14] border border-amber-600/30 text-amber-200 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 placeholder-amber-400/30"
+            disabled={disabled}
+            className={`bg-[#2a1f14] border border-amber-600/30 text-amber-200 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 placeholder-amber-400/30 ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
         />
     </div>
 );
@@ -102,13 +112,13 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
         timeActive1: '10m',
         finalTax: '2%',
         startingMaxTx: '0.5%',
-        maxTimeActive: '3s',
+        maxTimeActive: '3m',
         finalMaxTx: '2%',
         startingMaxWallet: '0.5%',
-        maxWalletTimeActive: '3s',
+        maxWalletTimeActive: '3m',
         finalMaxWallet: '2%',
         taxReceiver: '0x76c...4457d',
-        launchDate: '20/07/2025',
+        launchDate: '2025-07-20',
         launchTime: '16:00',
         marketCap: '500,000',
         lock: false,
@@ -139,6 +149,13 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
     const handleCheckboxChange = (name: string) => {
         setFormData(prev => ({ ...prev, [name]: !prev[name as keyof typeof prev] }));
     };
+
+    // Effect to handle token type changes
+    useEffect(() => {
+        if (tokenType === 'no-tax') {
+            setFormData(prev => ({ ...prev, finalTax: '0' }));
+        }
+    }, [tokenType]);
 
     useEffect(() => {
         setMounted(true);
@@ -218,10 +235,7 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                                 { label: 'final max wallet', placeholder: '2%', name: 'finalMaxWallet', value: formData.finalMaxWallet },
                                 { label: 'tax reciever', placeholder: '0x...', name: 'taxReceiver', value: formData.taxReceiver, fullWidth: true },
                             ] as SectionField[] },
-                            { title: 'Launch DateTime', fields: [
-                                { label: 'date: DD/MM/YYYY', placeholder: '30/07/2025', name: 'launchDate', value: formData.launchDate },
-                                { label: 'time: HH/MM', placeholder: '16:00', name: 'launchTime', value: formData.launchTime },
-                            ] as SectionField[] },
+                            { title: 'Launch DateTime', fields: [] as SectionField[] },
                             { title: 'Graduation Market Cap', fields: [
                                 { label: 'market cap', placeholder: '$ 500,000', name: 'marketCap', value: formData.marketCap },
                             ] as SectionField[] },
@@ -261,10 +275,36 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                                                     value={field.value}
                                                     onChange={handleInputChange}
                                                     containerClassName={field.fullWidth ? 'sm:col-span-2 lg:col-span-3' : ''}
+                                                    disabled={field.name === 'finalTax' && tokenType === 'no-tax'}
                                                 />
                                             )
                                         ))}
                                     </div>
+
+                                    {section.title === 'Launch DateTime' && (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-sm text-amber-300/80 font-medium">Launch Date</label>
+                                                <input
+                                                    type="date"
+                                                    name="launchDate"
+                                                    value={formData.launchDate}
+                                                    onChange={handleInputChange}
+                                                    className="bg-[#2a1f14] border border-amber-600/30 text-amber-200 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 date-input-custom"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-sm text-amber-300/80 font-medium">Launch Time</label>
+                                                <input
+                                                    type="time"
+                                                    name="launchTime"
+                                                    value={formData.launchTime}
+                                                    onChange={handleInputChange}
+                                                    className="bg-[#2a1f14] border border-amber-600/30 text-amber-200 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 time-input-custom"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {section.title === 'Metadata and Socials' && (
                                         <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -278,6 +318,33 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                                         </div>
                                     )}
                                     
+                                    {section.title === 'Kitchen (Virtual Curve)' && (
+                                        <div className="mt-6 border-t border-amber-800/30 pt-6">
+                                            <button
+                                                onClick={() => setIsAdvancedOpen(prev => !prev)}
+                                                className="w-full flex justify-between items-center text-lg font-bold text-amber-300 hover:text-amber-100 transition-colors py-2"
+                                            >
+                                                <span>[ADVANCED]</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-transform duration-300 ${isAdvancedOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {isAdvancedOpen && (
+                                                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    <FormInput label="Starting TAX" name="adv_startingTax" value={formData.adv_startingTax} placeholder="20%" onChange={handleInputChange} />
+                                                    <FormInput label="Tax Drop" name="adv_taxDropAmount" value={formData.adv_taxDropAmount} placeholder="-1%" onChange={handleInputChange} />
+                                                    <FormInput label="Final TAX" name="adv_finalTax" value={formData.adv_finalTax} placeholder="5%" onChange={handleInputChange} />
+                                                    <FormInput label="TAX wallet" name="adv_taxWallet" value={formData.adv_taxWallet} placeholder="0x..." onChange={handleInputChange} containerClassName="sm:col-span-2 lg:col-span-3" />
+                                                    <FormInput label="Starting max wallet" name="adv_startingMaxWallet" value={formData.adv_startingMaxWallet} placeholder="0.5%" onChange={handleInputChange} />
+                                                    <FormInput label="Max wallet increase" name="adv_maxWalletIncreaseAmount" value={formData.adv_maxWalletIncreaseAmount} placeholder="+0.1%" onChange={handleInputChange} />
+                                                    <FormInput label="Starting maxTX" name="adv_startingMaxTx" value={formData.adv_startingMaxTx} placeholder="0.1%" onChange={handleInputChange} />
+                                                    <FormInput label="maxTX increase" name="adv_maxTxIncreaseAmount" value={formData.adv_maxTxIncreaseAmount} placeholder="+0.1%" onChange={handleInputChange} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {section.title === 'Liquidity' && (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <FormCheckbox
@@ -307,31 +374,7 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                         ))}
                     </div>
 
-                    {/* Standalone Advanced Section */}
-                    <div className="border-t border-amber-800/30 pt-6 mt-8">
-                        <button
-                            onClick={() => setIsAdvancedOpen(prev => !prev)}
-                            className="w-full flex justify-between items-center text-lg font-bold text-amber-300 hover:text-amber-100 transition-colors py-2"
-                        >
-                            <span>[ADVANCED]</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-transform duration-300 ${isAdvancedOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
 
-                        {isAdvancedOpen && (
-                            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <FormInput label="Starting TAX" name="adv_startingTax" value={formData.adv_startingTax} placeholder="20%" onChange={handleInputChange} />
-                                <FormInput label="Tax Drop" name="adv_taxDropAmount" value={formData.adv_taxDropAmount} placeholder="-1%" onChange={handleInputChange} />
-                                <FormInput label="Final TAX" name="adv_finalTax" value={formData.adv_finalTax} placeholder="5%" onChange={handleInputChange} />
-                                <FormInput label="TAX wallet" name="adv_taxWallet" value={formData.adv_taxWallet} placeholder="0x..." onChange={handleInputChange} containerClassName="sm:col-span-2 lg:col-span-3" />
-                                <FormInput label="Starting max wallet" name="adv_startingMaxWallet" value={formData.adv_startingMaxWallet} placeholder="0.5%" onChange={handleInputChange} />
-                                <FormInput label="Max wallet increase" name="adv_maxWalletIncreaseAmount" value={formData.adv_maxWalletIncreaseAmount} placeholder="+0.1%" onChange={handleInputChange} />
-                                <FormInput label="Starting maxTX" name="adv_startingMaxTx" value={formData.adv_startingMaxTx} placeholder="0.1%" onChange={handleInputChange} />
-                                <FormInput label="maxTX increase" name="adv_maxTxIncreaseAmount" value={formData.adv_maxTxIncreaseAmount} placeholder="+0.1%" onChange={handleInputChange} />
-                            </div>
-                        )}
-                    </div>
                 </div>
 
                 {/* Footer */}
@@ -365,6 +408,39 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
                 .custom-scrollbar {
                     scrollbar-width: thin;
                     scrollbar-color: #d97706 #2a1f14;
+                }
+                
+                /* Custom styles for date input */
+                .date-input-custom::-webkit-calendar-picker-indicator {
+                    filter: invert(0.8) sepia(1) saturate(5) hue-rotate(20deg) brightness(0.8);
+                    cursor: pointer;
+                    opacity: 0.7;
+                }
+                
+                .date-input-custom::-webkit-calendar-picker-indicator:hover {
+                    opacity: 1;
+                }
+                
+                /* Custom styles for time input */
+                .time-input-custom::-webkit-calendar-picker-indicator {
+                    filter: invert(0.8) sepia(1) saturate(5) hue-rotate(20deg) brightness(0.8);
+                    cursor: pointer;
+                    opacity: 0.7;
+                }
+                
+                .time-input-custom::-webkit-calendar-picker-indicator:hover {
+                    opacity: 1;
+                }
+                
+                /* Override default focus styles */
+                input[type="date"]:focus, input[type="time"]:focus {
+                    color: #fcd34d;
+                    border-color: #d97706;
+                }
+                
+                /* For Firefox */
+                input[type="date"], input[type="time"] {
+                    color-scheme: dark;
                 }
             `}</style>
         </div>

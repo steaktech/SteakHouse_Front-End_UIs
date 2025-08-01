@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-const CreateTokenModal = dynamic(() => import('./Modals/CreateTokenModal'), { ssr: false });
+const CreateTokenModal = dynamic(() => import('./Modals/CreateTokenModal/CreateTokenModal'), { ssr: false });
 const SteakHouseInfoModal = dynamic(() => import('./Modals/SteakHouseInfoModal'), { ssr: false });
 
 export default function Header() {
