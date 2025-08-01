@@ -127,21 +127,26 @@ export default function TradingDashboard() {
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="bg-gradient-to-b from-[#532301] to-[#863c04] p-4 rounded-t-xl mb-0 flex flex-wrap items-center gap-2 justify-between">
+        <div className="bg-gradient-to-b from-[#532301] to-[#863c04] p-4 rounded-t-xl mb-0 flex flex-wrap items-center gap-2 justify-between shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-2 flex-wrap">
             <FilterButton icon={<BarChart size={16} />} label="Volume" />
             <FilterButton icon={<DollarSign size={16} />} label="MCAP" />
             <FilterButton icon={<Flame size={16} />} label="Trending" />
           </div>
           
-          <div className="relative flex-grow sm:flex-grow-0 sm:w-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white pointer-events-none" size={20} />
+          <div className="relative flex-grow sm:flex-grow-0 sm:w-auto ">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white pointer-events-none " size={20} />
             <input 
               type="text" 
               placeholder="Search..."
               onClick={handleSearchClick}
               readOnly
-              className="bg-[#d69f18] border border-gray-500 text-white placeholder-white rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
+              className="bg-[#d69f18] border border-gray-500 text-white placeholder-white rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer bg-gradient-to-b from-[#a47105] to-[#bb892a]
+             text-[#f6f86c] border-[#925929]
+             shadow-[inset_0_2px_4px_rgba(253,224,71,0.5),_inset_0_-2px_4px_rgba(118,69,10,0.4)]
+             hover:from-yellow-500 hover:to-yellow-600
+             active:shadow-[inset_0_3px_5px_rgba(118,69,10,0.5)]
+             active:from-yellow-600 active:to-yellow-700"
             />
           </div>
 
