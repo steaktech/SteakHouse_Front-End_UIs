@@ -17,39 +17,7 @@ export default function TradingChart() {
     <div className="min-h-screen bg-[#07040b]">
       {/* Header */}
       <Header />
-      
-      {/* Mobile Expand Button - Attached to left side */}
-      <button
-        onClick={() => setSidebarExpanded(true)}
-        className={`
-          fixed top-[80px] left-0 z-40
-          w-8 h-16 rounded-r-xl
-          bg-gradient-to-r from-[#472303] to-[#5a2d04]
-          border-r border-t border-b border-[#daa20b]/40
-          shadow-[2px_0_10px_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,221,0,0.1)]
-          hover:shadow-[2px_0_15px_rgba(0,0,0,0.4),_inset_0_1px_0_rgba(255,221,0,0.2)]
-          hover:from-[#5a2d04] hover:to-[#6b3405]
-          transform hover:translate-x-1
-          transition-all duration-300 ease-out
-          lg:hidden group
-          ${sidebarExpanded ? 'opacity-0 pointer-events-none -translate-x-full' : 'opacity-100 translate-x-0'}
-        `}
-        type="button"
-      >
-        <div className="flex items-center justify-center w-full h-full">
-          <ChevronRight 
-            size={16} 
-            className="text-[#daa20b] group-hover:text-[#ffdd00] 
-                       transition-colors duration-200
-                       drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" 
-          />
-        </div>
-        
-        {/* Animated glow effect */}
-        <div className="absolute inset-0 rounded-r-xl bg-gradient-to-r from-transparent to-[#daa20b]/10 
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      </button>
-      
+    
       {/* Main Trading Interface */}
       <div className="flex text-white font-sans h-[calc(100vh-80px)] overflow-auto">
         <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />

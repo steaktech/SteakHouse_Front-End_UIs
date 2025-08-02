@@ -1,8 +1,12 @@
 "use client";
 
 import React from 'react';
-// Icons from lucide-react, including X for the mobile close button
-import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, ChevronLeft, ChevronRight, X } from 'lucide-react';
+// Icons from lucide-react
+// CHANGED: Import ChevronUp for the mobile button
+import { 
+    Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, 
+    Bookmark, ChevronLeft, ChevronRight, X, ChevronUp 
+} from 'lucide-react';
 import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
 
 // Props for each widget item
@@ -22,7 +26,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active })
   const inactiveClasses = "hover:bg-[rgba(0,0,0,0.178)]";
 
   return (
-    <div className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}>
+    <div className={`${baseClasses} ${active ? activeClasses : inactiveClasses} lg:mb-[6px] lg:mx-2`}>
       {/* Icon */}
       <div className={`flex-shrink-0 ${active ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]' : 'opacity-80'}`}>
         {icon}
@@ -54,7 +58,6 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active })
 
 export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const widgets = [
-    // Updated icon size to 18px to match the CSS
     { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },
     { icon: <Coins size={18} className="text-[#d29900]" />, text: 'Token' },
     { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade' },
@@ -73,25 +76,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
         }`}
       />
 
+      {/* MOBILE-ONLY TOGGLE BUTTON */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="fixed bottom-4 right-4 w-12 h-12 bg-[#a3580f] rounded-full flex items-center justify-center text-amber-200 shadow-lg z-40 lg:hidden"
+        type="button"
+      >
+        {/* CHANGED: Replaced Plus icon with ChevronUp */}
+        {expanded ? <X size={24} /> : <ChevronUp size={24} />}
+      </button>
+
       {/* RESPONSIVE SIDEBAR CONTAINER */}
       <aside 
         className={`
-          h-full bg-[#472303] flex flex-col
+          flex bg-[#472303] z-30
           transition-all duration-300 ease-in-out
           
-          /* Mobile Overlay Styles */
-          fixed inset-y-0 left-0 z-30
-          ${expanded ? 'translate-x-0 w-[170px]' : '-translate-x-full w-[150px]'}
+          /* --- Mobile Bottom Sheet Styles --- */
+          fixed bottom-0 left-0 w-full 
+          ${expanded ? 'h-[60vh] flex-col' : 'h-[64px] flex-row items-center justify-evenly'}
 
-          /* Desktop Static Styles */
-          lg:relative lg:translate-x-0
+          /* --- Desktop Static Sidebar Styles --- */
+          lg:relative lg:flex-col lg:h-full lg:justify-start lg:w-auto
           ${expanded ? 'lg:w-[170px]' : 'lg:w-[72px]'} 
         `}
       >
-        {/* Header */}
-        <div className="flex-shrink-0 relative flex items-center justify-center px-[12px] pt-[16px] pb-[20px]">
-          <div className={`transition-opacity duration-200 ${expanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            {/* Title styled to match the CSS */}
+        {/* Header: Hidden on collapsed mobile, visible otherwise */}
+        <div className={`
+            relative flex-shrink-0 flex items-center justify-center px-[12px] pt-[16px] pb-[20px]
+            ${expanded ? 'block' : 'hidden lg:flex'}
+        `}>
+          <div className={`transition-opacity duration-200 ${expanded ? "opacity-100" : "opacity-0 pointer-events-none lg:opacity-0"}`}>
             <h2 className="text-[#daa20b] text-lg font-semibold tracking-[0.2px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
               Widgets
             </h2>
@@ -107,11 +122,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
           >
             {expanded ? <ChevronLeft size={16} className="text-amber-200" /> : <ChevronRight size={16} className="text-amber-200" />}
           </button>
-
         </div>
 
         {/* Widget List */}
-        <nav className="flex-1 overflow-y-auto">
+        <nav className={`
+            w-full flex
+            ${expanded ? 'flex-col flex-1 overflow-y-auto' : 'flex-row items-center justify-evenly'}
+            lg:flex-col lg:flex-1 lg:overflow-y-auto
+        `}>
           {widgets.map((widget, index) => (
             <WidgetItem
               key={index}

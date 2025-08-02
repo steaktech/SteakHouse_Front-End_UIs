@@ -51,12 +51,12 @@ Lock (min. 30 days; we recommend ≥ 90 days), your full liquidity pool and ETH 
             <div className="w-full md:w-3/4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormOptionBox
-                        label="Lock liquidity"
+                        label="Lock"
                         selected={formData.lock}
                         onChange={() => handleLiquidityOptionChange('lock')}
                     />
                     <FormOptionBox
-                        label="Burn liquidity"
+                        label="Burn"
                         selected={formData.burn}
                         onChange={() => handleLiquidityOptionChange('burn')}
                     />
