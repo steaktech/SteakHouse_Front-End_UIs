@@ -149,27 +149,27 @@ Advanced lets you stepwise decay or increase parameters: e.g. –1% tax every 10
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <FormInput label="Starting TAX" name="adv_startingTax" value={formData.adv_startingTax} placeholder="20%" onChange={handleInputChange} />
                                 <FormInput label="Tax Drop Increment" name="adv_taxDropAmount" value={formData.adv_taxDropAmount} placeholder="-1%" onChange={handleInputChange} />
-                                <FormInput label="Every X Blocks" name="adv_taxDropBlocks" value={formData.adv_taxDropBlocks} placeholder="10 blocks (1 ~ 12s)" onChange={handleInputChange} />
+                                <FormInput label="Every X Blocks" name="adv_taxDropBlocks" value={formData.adv_taxDropBlocks} placeholder="seconds" onChange={handleInputChange} />
                             </div>
                             
                             {/* Final Tax and Tax Wallet */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormInput label="Final TAX" name="adv_finalTax" value={formData.adv_finalTax} placeholder="5%" onChange={handleInputChange} />
-                                <FormInput label="Tax wallet" name="adv_taxWallet" value={formData.adv_taxWallet} placeholder="0x38hfn84bv&cruirt85nt..." onChange={handleInputChange} />
+                                <FormInput label="Tax Reciever" name="adv_taxWallet" value={formData.adv_taxWallet} placeholder="0x38hfn84bv&cruirt85nt..." onChange={handleInputChange} />
                             </div>
                             
                             {/* MaxWallet Section */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <FormInput label="Starting MaxWallet" name="adv_startingMaxWallet" value={formData.adv_startingMaxWallet} placeholder="0.5%" onChange={handleInputChange} />
                                 <FormInput label="MaxWallet Increase" name="adv_maxWalletIncreaseAmount" value={formData.adv_maxWalletIncreaseAmount} placeholder="+0.1%" onChange={handleInputChange} />
-                                <FormInput label="Every X Blocks" name="adv_maxWalletBlocks" value={formData.adv_maxWalletBlocks} placeholder="10 blocks (1 ~ 12s)" onChange={handleInputChange} />
+                                <FormInput label="Every X Blocks" name="adv_maxWalletBlocks" value={formData.adv_maxWalletBlocks} placeholder="seconds" onChange={handleInputChange} />
                             </div>
                             
                             {/* MaxTX Section */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <FormInput label="Starting MaxTX" name="adv_startingMaxTx" value={formData.adv_startingMaxTx} placeholder="0.1%" onChange={handleInputChange} />
                                 <FormInput label="MaxTX increase" name="adv_maxTxIncreaseAmount" value={formData.adv_maxTxIncreaseAmount} placeholder="+0.1%" onChange={handleInputChange} />
-                                <FormInput label="Every X Blocks" name="adv_maxTxBlocks" value={formData.adv_maxTxBlocks} placeholder="10 blocks (1 ~ 12s)" onChange={handleInputChange} />
+                                <FormInput label="Every X Blocks" name="adv_maxTxBlocks" value={formData.adv_maxTxBlocks} placeholder="seconds" onChange={handleInputChange} />
                             </div>
                         </div>
                     )}
