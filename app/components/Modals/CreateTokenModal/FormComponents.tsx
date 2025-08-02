@@ -79,3 +79,20 @@ export const FormCheckbox: FC<{ label: string; checked: boolean; onChange: () =>
         </div>
     );
 };
+
+// Option box (radio button style) for mutually exclusive options
+export const FormOptionBox: FC<{ label: string; selected: boolean; onChange: () => void; }> = ({ label, selected, onChange }) => {
+    return (
+        <div className="flex flex-col w-full">
+            <div
+                className="flex items-center text-center gap-3 cursor-pointer p-2.5 rounded-lg hover:bg-amber-900/10 transition-colors"
+                onClick={onChange}
+            >
+                <div className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${selected ? 'bg-amber-500 border-amber-400' : 'bg-transparent border-amber-500/50'}`}>
+                    {selected && <div className="w-3 h-3 rounded-full bg-[#411e02]" />}
+                </div>
+                <span className="text-sm text-amber-200">{label}</span>
+            </div>
+        </div>
+    );
+};

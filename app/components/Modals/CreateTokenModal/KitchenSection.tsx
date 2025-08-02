@@ -54,80 +54,82 @@ Advanced lets you stepwise decay or increase parameters: e.g. –1% tax every 10
                 />
             </h3>
             <div className="w-full md:w-3/4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <FormInput 
-                        label="starting tax" 
-                        placeholder="20%" 
-                        name="startingTax" 
-                        value={formData.startingTax} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="tax time active" 
-                        placeholder="10m" 
-                        name="timeActive1" 
-                        value={formData.timeActive1} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="final tax" 
-                        placeholder="2%" 
-                        name="finalTax" 
-                        value={formData.finalTax} 
-                        onChange={handleInputChange}
-                        disabled={tokenType === 'no-tax'} 
-                    />
-                    <FormInput 
-                        label="starting maxtx" 
-                        placeholder="0.5%" 
-                        name="startingMaxTx" 
-                        value={formData.startingMaxTx} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="max time active" 
-                        placeholder="3s" 
-                        name="maxTimeActive" 
-                        value={formData.maxTimeActive} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="final maxtx" 
-                        placeholder="2%" 
-                        name="finalMaxTx" 
-                        value={formData.finalMaxTx} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="starting maxwallet" 
-                        placeholder="0.5%" 
-                        name="startingMaxWallet" 
-                        value={formData.startingMaxWallet} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="maxwallet time active" 
-                        placeholder="3s" 
-                        name="maxWalletTimeActive" 
-                        value={formData.maxWalletTimeActive} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="final max wallet" 
-                        placeholder="2%" 
-                        name="finalMaxWallet" 
-                        value={formData.finalMaxWallet} 
-                        onChange={handleInputChange} 
-                    />
-                    <FormInput 
-                        label="tax reciever" 
-                        placeholder="0x..." 
-                        name="taxReceiver" 
-                        value={formData.taxReceiver} 
-                        onChange={handleInputChange}
-                        containerClassName="sm:col-span-2 lg:col-span-3" 
-                    />
-                </div>
+                {!isAdvancedOpen && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <FormInput 
+                            label="starting tax" 
+                            placeholder="20%" 
+                            name="startingTax" 
+                            value={formData.startingTax} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="tax time active" 
+                            placeholder="10s" 
+                            name="timeActive1" 
+                            value={formData.timeActive1} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="final tax" 
+                            placeholder="2%" 
+                            name="finalTax" 
+                            value={formData.finalTax} 
+                            onChange={handleInputChange}
+                            disabled={tokenType === 'no-tax'} 
+                        />
+                        <FormInput 
+                            label="starting maxtx" 
+                            placeholder="0.5%" 
+                            name="startingMaxTx" 
+                            value={formData.startingMaxTx} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="maxtx time active" 
+                            placeholder="3s" 
+                            name="maxTimeActive" 
+                            value={formData.maxTimeActive} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="final maxtx" 
+                            placeholder="2%" 
+                            name="finalMaxTx" 
+                            value={formData.finalMaxTx} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="starting maxwallet" 
+                            placeholder="0.5%" 
+                            name="startingMaxWallet" 
+                            value={formData.startingMaxWallet} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="maxwallet time active" 
+                            placeholder="3s" 
+                            name="maxWalletTimeActive" 
+                            value={formData.maxWalletTimeActive} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="final max wallet" 
+                            placeholder="2%" 
+                            name="finalMaxWallet" 
+                            value={formData.finalMaxWallet} 
+                            onChange={handleInputChange} 
+                        />
+                        <FormInput 
+                            label="tax reciever" 
+                            placeholder="0x..." 
+                            name="taxReceiver" 
+                            value={formData.taxReceiver} 
+                            onChange={handleInputChange}
+                            containerClassName="sm:col-span-2 lg:col-span-3" 
+                        />
+                    </div>
+                )}
 
                 {/* Advanced Section */}
                 <div className="mt-6 border-t border-amber-800/30 pt-6">
