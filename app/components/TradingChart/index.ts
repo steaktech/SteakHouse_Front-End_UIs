@@ -1,5 +1,5 @@
 export { default as TradingChart } from './TradingChart';
-export { Sidebar } from './DesktopSidebar';
+export { DesktopSidebar } from './DesktopSidebar';
 export { MobileBottomBar } from './MobileSidebar';
 export { TradingView } from './TradingView';
 export { TradingViewWidget } from './TradingViewWidget';
