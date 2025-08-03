@@ -57,15 +57,15 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
         // Advanced fields
         adv_startingTax: '20%',
         adv_taxDropAmount: '-1%',
-        adv_taxDropBlocks: '10 blocks (1 ~ 12s)',
+        adv_taxDropBlocks: '60 seconds',
         adv_finalTax: '5%',
         adv_taxWallet: '0x38hfn84bv&cruirt85nt58nyhn86yn6b86nyt....',
         adv_startingMaxWallet: '0.5%',
         adv_maxWalletIncreaseAmount: '+0.1%',
-        adv_maxWalletBlocks: '10 blocks (1 ~ 12s)',
+        adv_maxWalletBlocks: '60 seconds',
         adv_startingMaxTx: '0.1%',
         adv_maxTxIncreaseAmount: '+0.1%',
-        adv_maxTxBlocks: '10 blocks (1 ~ 12s)',
+        adv_maxTxBlocks: '60 seconds',
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
