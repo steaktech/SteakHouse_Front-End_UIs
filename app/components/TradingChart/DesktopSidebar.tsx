@@ -52,7 +52,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active })
 };
 
 
-export const Sidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
+export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const widgets = [
     // Updated icon size to 18px to match the CSS
     { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },

@@ -3,106 +3,100 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+
 const CreateTokenModal = dynamic(() => import('./Modals/CreateTokenModal/CreateTokenModal'), { ssr: false });
 const SteakHouseInfoModal = dynamic(() => import('./Modals/SteakHouseInfoModal'), { ssr: false });
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+
   return (
     <>
-      <header className="relative w-full h-20 md:h-20 lg:h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md">
-        {/* Background Image */}
-        
+      <header className="relative w-full h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md">
         {/* Header Content */}
-        <div className="relative z-10 flex items-center justify-between h-full px-6 md:px-12 lg:px-16">
-          {/* Logo Section */}
-          <div className="flex items-center space-x-4">
-            <div className="relative w-40 h-40 md:w-40 md:h-40 lg:w-60 lg:h-60 pointer-events-none">
-                            {/* Logo for smaller devices */}
+        <div className="relative z-10 flex items-center justify-between h-full px-2 sm:px-4 md:px-6 lg:px-12">
+          {/* Logo & Socials Section */}
+          <div className="flex items-center">
+            {/* Logo Container */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-40 md:h-40 pointer-events-none">
               <Image
                 src="/images/app-logo.png"
                 alt="Logo"
-                width={80}
-                height={80}
-                className="object-contain pointer-events-auto md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"         
+                fill
+                className="object-contain pointer-events-auto md:hidden"
               />
-              {/* Logo for medium and larger devices */}
               <Image
                 src="/images/header-logo-lg.png"
                 alt="Logo"
                 fill
-                className="object-contain pointer-events-auto hidden md:block"         
+                className="object-contain pointer-events-auto hidden md:block"
               />
             </div>
             
             {/* Social Icons */}
+            {/* MODIFIED: Icons are hidden by default, and appear as a flex container on 'sm' screens and larger */}
             <div className="hidden sm:flex items-center space-x-2 ml-4">
               {/* Discord Icon */}
-              <div className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                 <Image
                   src="/images/discord.png"
                   alt="Discord"
-                  width={30}
-                  height={30}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
-              </div>
+              </a>
               
               {/* Telegram Icon */}
-              <div className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                 <Image
                   src="/images/telegram.png"
                   alt="Telegram"
-                  width={30}
-                  height={30}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
-              </div>
+              </a>
 
               {/* Twitter/X Icon */}
-              <div className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                 <Image
                   src="/images/twitter.png"
                   alt="Twitter"
-                  width={30}
-                  height={30}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
-              </div>
+              </a>
               
               {/* Info Icon */}
-              <div className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setIsInfoModalOpen(true)}>
+              <div onClick={() => setIsInfoModalOpen(true)} className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                 <Image
                   src="/images/info.png"
                   alt="Info"
-                  width={30}
-                  height={30}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
               </div>
-
-
             </div>
           </div>
           
-          {/* Buttons Section */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Create Token Button with 3D Effect */}
-            <div 
-              className="outer-button header-button cursor-pointer"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <div className="inner-button text-[#e9af5a] font-bold text-sm sm:text-base">
-                <span className="text-sm sm:text-lg font-bold mr-1 sm:mr-2">+</span>
+          {/* Buttons Section (using the most compact version) */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3">
+            {/* Create Token Button */}
+            <div className="outer-button header-button cursor-pointer" onClick={() => setIsModalOpen(true)}>
+              <div className="inner-button px-1.5 py-1 sm:px-2 md:px-3 text-[#e9af5a] font-bold text-xs sm:text-sm md:text-base">
+                <span className="text-xs sm:text-sm font-bold mr-1">+</span>
                 <span className="hidden sm:inline">Create Token</span>
                 <span className="sm:hidden">Create</span>
               </div>
             </div>
 
-            {/* Connect Wallet Button with 3D Effect */}
-            <div className="outer-button golden header-button cursor-pointer">
-              <div className="inner-button golden text-black font-bold text-sm sm:text-base">
+            {/* Connect Wallet Button */}
+            <div className="outer-button header-button cursor-pointer" onClick={() => { /* wallet logic */ }}>
+              <div className="inner-button golden px-1.5 py-1 sm:px-2 md:px-3 text-[#000000] font-bold text-xs sm:text-sm md:text-base">
                 <span className="hidden sm:inline">Connect Wallet</span>
                 <span className="sm:hidden">Connect</span>
               </div>
@@ -111,7 +105,7 @@ export default function Header() {
         </div>
       </header>
       
-      {/* Modals - Moved outside of header */}
+      {/* Modals */}
       <CreateTokenModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <SteakHouseInfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} />
     </>
