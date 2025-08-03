@@ -1,0 +1,114 @@
+"use client";
+
+import React from 'react';
+import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, X } from 'lucide-react';
+import { SidebarProps } from './types';
+
+// Props for each widget card
+interface WidgetCardProps {
+  icon: React.ReactNode;
+  text: string;
+  active?: boolean;
+  onClick?: () => void;
+}
+
+const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) => {
+  const baseClasses = "flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
+  const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] border border-[#daa20b]/40";
+  const inactiveClasses = "bg-[#472303]/80 hover:bg-[#472303] border border-[#472303]/60 hover:border-[#daa20b]/30";
+
+  return (
+    <div 
+      className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}
+      onClick={onClick}
+    >
+      {/* Icon */}
+      <div className={`mb-2 ${active ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]' : 'opacity-80'}`}>
+        {icon}
+      </div>
+
+      {/* Widget Text */}
+      <span className={`
+        text-xs font-medium text-center tracking-[0.1px]
+        ${active ? 'text-[#e6d4a3] [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]' : 'text-[#e6d4a3]/80'}
+      `}>
+        {text}
+      </span>
+
+      {/* Plus Icon for active state */}
+      {active && (
+        <div className="absolute top-2 right-2">
+          <Plus size={12} className="text-[#e0940a] opacity-90" />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
+  const widgets = [
+    { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true },
+    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token' },
+    { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade' },
+    { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders' },
+    { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat' },
+    { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved' },
+  ];
+
+  return (
+    <>
+      {/* BACKDROP */}
+      <div
+        onClick={() => setExpanded(false)}
+        className={`fixed inset-0 bg-black/60 z-40 transition-opacity lg:hidden ${
+          expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+
+      {/* MOBILE BOTTOM SIDEBAR */}
+      <div 
+        className={`
+          fixed bottom-0 left-0 right-0 z-50
+          bg-gradient-to-t from-[#472303] to-[#5a2d04]
+          border-t border-[#daa20b]/40
+          shadow-[0_-4px_20px_rgba(0,0,0,0.4)]
+          transition-transform duration-300 ease-out
+          lg:hidden
+          ${expanded ? 'translate-y-0' : 'translate-y-full'}
+        `}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#daa20b]/20">
+          <h2 className="text-[#daa20b] text-lg font-semibold tracking-[0.2px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+            Widgets
+          </h2>
+          <button 
+            onClick={() => setExpanded(false)}
+            className="p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+            type="button"
+          >
+            <X size={18} className="text-[#daa20b]" />
+          </button>
+        </div>
+
+        {/* Widget Grid */}
+        <div className="p-6 pb-8">
+          <div className="grid grid-cols-3 gap-4">
+            {widgets.map((widget, index) => (
+              <WidgetCard
+                key={index}
+                icon={widget.icon}
+                text={widget.text}
+                active={widget.active}
+                onClick={() => {
+                  // Handle widget selection here
+                  console.log(`Selected widget: ${widget.text}`);
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
