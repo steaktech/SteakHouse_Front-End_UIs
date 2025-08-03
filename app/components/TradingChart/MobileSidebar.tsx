@@ -34,13 +34,6 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
       `}>
         {text}
       </span>
-
-      {/* Plus Icon for active state */}
-      {active && (
-        <div className="absolute top-2 right-2">
-          <Plus size={12} className="text-[#e0940a] opacity-90" />
-        </div>
-      )}
     </div>
   );
 };
