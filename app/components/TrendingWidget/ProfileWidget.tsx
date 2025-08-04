@@ -16,7 +16,7 @@ const UpArrowIcon: React.FC = () => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-6 h-6 text-green-500  drop-shadow-md"
+    className="w-6 h-6 text-green-500  drop-shadow-md mb-5"
   >
     <path
       d="M12 19V5M12 5L5 12M12 5L19 12"
@@ -74,7 +74,7 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = ({
         }
       `}</style>
       
-      <div className="flex items-center justify-center p-4 space-x-3 font-sans">
+      <div className="flex items-center justify-center p-4 space-x-1 font-sans">
         {/* Conditionally render the arrow icon */}
         {showArrow && <UpArrowIcon />}
 
