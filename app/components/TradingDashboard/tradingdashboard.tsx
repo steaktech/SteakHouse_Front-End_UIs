@@ -125,8 +125,10 @@ export default function TradingDashboard() {
             <StatCard key={index} title={stat.title} value={stat.value} />
           ))}
         </div>
+      </div>
 
-        {/* Filter and Search Bar */}
+      {/* Filter and Search Bar */}
+      <div className="max-w-full xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-b from-[#532301] to-[#863c04] p-4 rounded-t-xl mb-0 flex flex-wrap items-center gap-2 justify-between shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-2 flex-wrap">
             <FilterButton icon={<BarChart size={16} />} label="Volume" />
@@ -160,7 +162,7 @@ export default function TradingDashboard() {
         {/* Token Cards Container */}
         <div className="bg-[#d6bb97] rounded-b-xl rounded-t-none p-4 sm:p-6">
           {/* Token Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {tokenData.map((token, index) => (
               <div key={index} className="h-full">
                 <TokenCard {...token} />
