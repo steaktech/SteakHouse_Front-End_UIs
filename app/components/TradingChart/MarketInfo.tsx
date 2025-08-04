@@ -57,7 +57,7 @@ export const MarketInfo: React.FC = () => {
             </p>
           </div>
         </div>
-        <p className="text-[#f8ead3] font-bold font-1.2rem">Spaceman is a meme deflationary token with a finite supply and buyback and burn.</p>
+        <p className="text-[#f8ead3] font-1.2rem">Spaceman is a meme deflationary token with a finite supply and buyback and burn.</p>
       </div>
 
       <div className="flex items-center space-x-3 mt-4 text-yellow-200">

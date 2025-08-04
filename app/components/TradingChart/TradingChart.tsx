@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Header from '@/app/components/Header';
+import TrendingBar from "@/app/components/TrendingBar";
 import { DesktopSidebar } from './DesktopSidebar';
 import { MobileBottomBar } from './MobileSidebar';
 import { TradingView } from './TradingView';
@@ -18,6 +19,9 @@ export default function TradingChart() {
     <div className="flex flex-col h-screen bg-[#07040b]">
       {/* Header */}
       <Header />
+      <TrendingBar />
+
+
 
       <button
         onClick={() => setMobileSidebarExpanded(true)}
@@ -68,13 +72,13 @@ export default function TradingChart() {
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded">
           
           {/* Trading Chart */}
-          <div className="order-1 lg:col-start-1 lg:row-start-1">
+          <div className="order-1 lg:col-start-1 lg:row-start-1 mt-2">
             <TradingView />
           </div>
 
           {/* Market Info */}
           {/* MODIFIED: Added overflow and scrollbar classes */}
-          <div className="order-2 lg:col-start-2 lg:row-start-1">
+          <div className="order-2 lg:col-start-2 lg:row-start-1 mt-2">
             <MarketInfo />
           </div>
 

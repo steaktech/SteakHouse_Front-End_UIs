@@ -84,7 +84,7 @@ export default function Header() {
           </div>
           
           {/* Buttons Section (using the most compact version) */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 mb-2">
             {/* Create Token Button */}
             <div className="outer-button header-button cursor-pointer" onClick={() => setIsModalOpen(true)}>
               <div className="inner-button px-1.5 py-1 sm:px-2 md:px-3 text-[#e9af5a] font-bold text-xs sm:text-sm md:text-base">
