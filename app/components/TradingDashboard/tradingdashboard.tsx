@@ -113,25 +113,25 @@ export default function TradingDashboard() {
       {/* This is the new single container for all content. 
         It uses the desired max-width and padding to align everything within it.
       */}
-      <div className="max-w-full xl:max-w-[1450px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full xl:max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section (now inside the unified container) */}
-        <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-8">
+        <header className="flex flex-col md:flex-row items-center mb-32 mt-20">
           {/* Left Side - Text Content */}
-          <div className="md:w-1/2 text-center md:text-left">
-            <h1 className="text-6xl font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
+          <div className="md:w-2/3 text-center md:text-left">
+            <h1 className="text-4xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-[7rem] font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
               The Dev's Kitchen
             </h1>
-            <p className="mt-4 text-4xl font-semibold text-[#3c1c03]">
+            <p className="mt-6 text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold text-[#3c1c03]">
               Launch A Token For{' '}
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#fea634] to-[#9f3c00]" style={{ textShadow: '1px 1px px rgba(0,0,0,0.3)' }}>
-                $3
+              <span className="font-bold">
+                <img src="/images/3d.png" alt="$3" className="h-8 md:h-12 lg:h-14 xl:h-28 inline-block" />
               </span>
             </p>
           </div>
 
           {/* Right Side - Video */}
-          <div className="md:w-1/2 w-full">
+          <div className="md:w-1/3 w-full">
             <div className="aspect-video overflow-hidden">
               <video 
                 className="w-full h-full object-cover"
