@@ -106,6 +106,30 @@ export default function TradingDashboard() {
       volume: "$6.2k",
       progress: 91.5,
     },
+    {
+      imageUrl: "/images/info_icon.jpg",
+      name: "SpaceMan",
+      symbol: "SPACE",
+      tag: "Meme",
+      tagColor: "bg-[#fade79] text-black",
+      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      mcap: "$21.5k",
+      liquidity: "$100.3k",
+      volume: "$6.2k",
+      progress: 91.5,
+    },
+    {
+      imageUrl: "/images/info_icon.jpg",
+      name: "SpaceMan",
+      symbol: "SPACE",
+      tag: "Meme",
+      tagColor: "bg-[#fade79] text-black",
+      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      mcap: "$21.5k",
+      liquidity: "$100.3k",
+      volume: "$6.2k",
+      progress: 91.5,
+    }
   ];
 
   return (
