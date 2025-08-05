@@ -111,13 +111,41 @@ export default function TradingDashboard() {
   return (
     <div className="bg-[#ebd6b4] min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <header className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-[#4A3F35] font-serif">Where Real Devs Cook.</h1>
-          <p className="text-gray-500 mt-2">
-            Stealth kitchen with fully customizable $2 contract deployments with virtual liquidity baked in before hitting the V2 grill.
-          </p>
+        {/* === START: Updated Header Section === */}
+        <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-8">
+          {/* Left Side - Text Content */}
+          <div className="md:w-1/2 text-center md:text-left">
+            <h1 className="text-6xl font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
+              The Dev's Kitchen
+            </h1>
+            <p className="mt-4 text-4xl font-semibold text-[#3c1c03]">
+              Launch A Token For{' '}
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#fea634] to-[#9f3c00]" style={{ textShadow: '1px 1px px rgba(0,0,0,0.3)' }}>
+                $3
+              </span>
+            </p>
+          </div>
+
+          {/* Right Side - Video */}
+          <div className="md:w-1/2 w-full">
+            <div className="aspect-video overflow-hidden">
+              <video 
+                className="w-full h-full object-cover"
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+              >
+                <source src="/videos/pan-animation.webm" type="video/webm" />
+                <source src="/videos/pan-animation.mp4" type="video/mp4" />
+                <p className="text-gray-200 font-semibold text-xl flex items-center justify-center h-full">
+                  Your browser does not support the video tag.
+                </p>
+              </video>
+            </div>
+          </div>
         </header>
+        {/* === END: Updated Header Section === */}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -128,7 +156,7 @@ export default function TradingDashboard() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="max-w-full xl:max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-b from-[#532301] to-[#863c04] p-4 rounded-t-xl mb-0 flex flex-wrap items-center gap-2 justify-between shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-2 flex-wrap">
             <FilterButton icon={<BarChart size={16} />} label="Volume" />
@@ -143,12 +171,7 @@ export default function TradingDashboard() {
               placeholder="Search..."
               onClick={handleSearchClick}
               readOnly
-              className="bg-[#d69f18] border border-gray-500 text-white placeholder-white rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer bg-gradient-to-b from-[#a47105] to-[#bb892a]
-             text-[#f6f86c] border-[#925929]
-             shadow-[inset_0_2px_4px_rgba(253,224,71,0.5),_inset_0_-2px_4px_rgba(118,69,10,0.4)]
-             hover:from-yellow-500 hover:to-yellow-600
-             active:shadow-[inset_0_3px_5px_rgba(118,69,10,0.5)]
-             active:from-yellow-600 active:to-yellow-700"
+              className="bg-[#d69f18] border border-gray-500 text-white placeholder-white rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer bg-gradient-to-b from-[#a47105] to-[#bb892a] text-[#f6f86c] border-[#925929] shadow-[inset_0_2px_4px_rgba(253,224,71,0.5),_inset_0_-2px_4px_rgba(118,69,10,0.4)] hover:from-yellow-500 hover:to-yellow-600 active:shadow-[inset_0_3px_5px_rgba(118,69,10,0.5)] active:from-yellow-600 active:to-yellow-700"
             />
           </div>
 
