@@ -26,7 +26,7 @@ export const TokenInfoSection: FC<TokenInfoSectionProps> = ({ formData, handleIn
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <FormInput 
                         label="name" 
-                        placeholder="STEAK TOKEN" 
+                        placeholder="STEAK" 
                         name="name" 
                         value={formData.name} 
                         onChange={handleInputChange} 
