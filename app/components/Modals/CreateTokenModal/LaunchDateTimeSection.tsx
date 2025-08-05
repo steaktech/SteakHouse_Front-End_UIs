@@ -1,8 +1,8 @@
 'use client';
 import React, { FC } from 'react';
 import { InfoIcon } from './InfoIcon';
-import { CustomDatePicker } from '@/app/components/CustomDatePicker'; // Import new component
-import { CustomTimePicker } from '@/app/components/CustomTimePicker'; // Import new component
+import { CustomDatePicker } from '@/app/components/UI/CustomDatePicker'; // Import new component
+import { CustomTimePicker } from '@/app/components/UI/CustomTimePicker'; // Import new component
 
 interface LaunchDateTimeSectionProps {
     formData: {
