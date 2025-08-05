@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Flame, BarChart, DollarSign, Search, Star, Wrench, Smile } from 'lucide-react';
 import { StatCard } from './StatCard';
 import { FilterButton } from './FilterButton';
@@ -113,16 +113,17 @@ export default function TradingDashboard() {
       {/* This is the new single container for all content. 
         It uses the desired max-width and padding to align everything within it.
       */}
-      <div className="max-w-full xl:max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-full xl:max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section (now inside the unified container) */}
-        <header className="flex flex-col md:flex-row items-center mb-32 mt-20">
+        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-20">
           {/* Left Side - Text Content */}
-          <div className="md:w-2/3 text-center md:text-left">
-            <h1 className="text-4xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-[7rem] font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
-              The Dev's Kitchen
+          {/* MODIFICATION: Added `z-10` to ensure text stays on top of the video */}
+          <div className="md:w-2/3 text-center md:text-left z-10">
+            <h1 className="text-4xl md:text-[6rem] lg:text-[7rem] xl:text-[9rem] 2xl:text-[9rem] font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
+              The <span className="2xl:text-[10rem]">Dev's</span> <span className="2xl:text-[7rem]">Kitchen</span>
             </h1>
-            <p className="mt-6 text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold text-[#3c1c03]">
+            <p className="mt-6 text-2xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#3c1c03]">
               Launch A Token For{' '}
               <span className="font-bold">
                 <img src="/images/3d.png" alt="$3" className="h-8 md:h-12 lg:h-14 xl:h-28 inline-block" />
@@ -131,7 +132,8 @@ export default function TradingDashboard() {
           </div>
 
           {/* Right Side - Video */}
-          <div className="md:w-1/3 w-full">
+          {/* MODIFICATION: Changed classes to make the video larger and positioned absolutely on medium screens and up */}
+          <div className="w-full md:absolute -md:top-10 md:w-5/6 lg:w-3/4 -right-30">
             <div className="aspect-video overflow-hidden">
               <video 
                 className="w-full h-full object-cover"
@@ -151,7 +153,7 @@ export default function TradingDashboard() {
         </header>
 
         {/* Stats Grid (now inside the unified container) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-12 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-11 mb-8">
           {statsData.map((stat, index) => (
             <StatCard key={index} title={stat.title} value={stat.value} />
           ))}
