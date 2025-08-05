@@ -1,13 +1,15 @@
 'use client';
 import React, { FC } from 'react';
 import { InfoIcon } from './InfoIcon';
+import { CustomDatePicker } from '@/app/components/CustomDatePicker'; // Import new component
+import { CustomTimePicker } from '@/app/components/CustomTimePicker'; // Import new component
 
 interface LaunchDateTimeSectionProps {
     formData: {
-        launchDate: string;
-        launchTime: string;
+        launchDate: string; // Should be in "YYYY-MM-DD" format
+        launchTime: string; // Should be in "HH:mm" format
     };
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
 export const LaunchDateTimeSection: FC<LaunchDateTimeSectionProps> = ({ formData, handleInputChange }) => {
@@ -22,26 +24,27 @@ export const LaunchDateTimeSection: FC<LaunchDateTimeSectionProps> = ({ formData
             </h3>
             <div className="w-full md:w-3/4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
+                    {/* Date Picker Component */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm text-amber-300/80 font-medium">Launch Date</label>
-                        <input
-                            type="date"
+                        <CustomDatePicker
                             name="launchDate"
                             value={formData.launchDate}
                             onChange={handleInputChange}
-                            className="bg-[#2a1f14] border border-amber-600/30 text-amber-200 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 date-input-custom"
                         />
                     </div>
+
+                    {/* Time Picker Component */}
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm text-amber-300/80 font-medium">Launch Time</label>
-                        <input
-                            type="time"
+                        <CustomTimePicker
                             name="launchTime"
                             value={formData.launchTime}
                             onChange={handleInputChange}
-                            className="bg-[#2a1f14] border border-amber-600/30 text-amber-200 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 time-input-custom"
                         />
                     </div>
+
                 </div>
             </div>
         </div>
