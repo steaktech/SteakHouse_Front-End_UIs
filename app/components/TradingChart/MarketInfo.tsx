@@ -24,7 +24,7 @@ export const MarketInfo: React.FC = () => {
       {/* Top rounded image - Hidden on mobile (screens smaller than 'md') */}
       <div className="hidden md:block absolute top-0 left-0 right-0 mb-4">
         <img 
-          src="/images/card_img.jpg" 
+          src="/images/info_banner.jpg" 
           alt="Token Header" 
           className="w-full h-32 object-cover rounded-t-3xl"
         />
@@ -37,7 +37,7 @@ export const MarketInfo: React.FC = () => {
 
       <div className="flex items-center gap-8">
         <div className="flex items-center space-x-3">
-          <img src="/images/bull.png" alt="Market Token" className="w-16 h-16 rounded-full border-2 border-amber-300" />
+          <img src="/images/info_icon.jpg" alt="Market Token" className="w-16 h-16 rounded-full border-2 border-amber-300" />
           <div>
             <h3 className="font-bold text-xl text-[#fade79] font-1.4rem">SpaceMan</h3>
             <p className="font-bold text-xl text-[#f8ead3] font-1.4rem">SPACE</p>
