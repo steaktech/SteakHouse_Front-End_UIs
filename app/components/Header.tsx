@@ -19,7 +19,7 @@ export default function Header() {
           {/* Logo & Socials Section */}
           <div className="flex items-center">
             {/* Logo Container */}
-            <div className="relative w-25 h-25 sm:w-24 sm:h-24 md:w-65 md:h-65 pointer-events-none">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-65 md:h-65 pointer-events-none">
               <Image
                 src="/images/app-logo.png"
                 alt="Logo"
