@@ -1,40 +1,32 @@
 import React from 'react';
-import Marquee from 'react-fast-marquee';
-import ProfileWidget, { ProfileWidgetProps } from './ProfileWidget';
+import ProfileWidget, { ProfileWidgetProps } from './ProfileWidget'; // Adjust path if needed
+import './ProfileMarquee.css'; // Your animation CSS
 
+// Define the props for the ProfileMarquee component
 interface ProfileMarqueeProps {
   profiles: ProfileWidgetProps[];
-  speed?: number;
 }
 
-const ProfileMarquee: React.FC<ProfileMarqueeProps> = ({
-  profiles,
-  speed = 40,
-}) => {
-  // This width controls how wide the fade effect is on each side.
-  const fadeWidth = '40px';
-
-  // We use a CSS mask to create a fade effect on both sides.
-  const marqueeWrapperStyle: React.CSSProperties = {
-    WebkitMaskImage: `linear-gradient(to right, transparent, black ${fadeWidth}, black calc(100% - ${fadeWidth}), transparent)`,
-    maskImage: `linear-gradient(to right, transparent, black ${fadeWidth}, black calc(100% - ${fadeWidth}), transparent)`,
-  };
+const ProfileMarquee: React.FC<ProfileMarqueeProps> = ({ profiles }) => {
+  // THE FIX: Create a new array that contains the original profiles twice.
+  const duplicatedProfiles = [...profiles, ...profiles];
 
   return (
-    <div style={marqueeWrapperStyle}>
-      <Marquee
-        // Disable the default gradient, as we are applying our own.
-        gradient={false}
-        speed={speed}
-      >
-        {/*
-          CORRECTION: We map over the ORIGINAL profiles array.
-          The library will handle duplicating the content for a seamless loop.
-        */}
-        {profiles.map((profile, index) => (
-          <ProfileWidget key={`${profile.name}-${index}`} {...profile} />
-        ))}
-      </Marquee>
+    // The animated container. 'flex' arranges the items horizontally,
+    // and 'animate-marquee' applies your CSS animation.
+    <div className="flex animate-marquee">
+      {/* Map over the DUPLICATED list, not the original one */}
+      {duplicatedProfiles.map((profile, index) => (
+        <ProfileWidget
+          // It's crucial to have a unique key for each element.
+          // The index is sufficient here since the list is static during render.
+          key={index}
+          imageUrl={profile.imageUrl}
+          name={profile.name}
+          percentage={profile.percentage}
+          showArrow={profile.showArrow}
+        />
+      ))}
     </div>
   );
 };

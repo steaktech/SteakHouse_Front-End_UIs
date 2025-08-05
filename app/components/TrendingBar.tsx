@@ -21,7 +21,7 @@ export default function TrendingBar() {
       </div>
 
       {/* Main bar with bull image and scrolling profiles */}
-      <div className="flex-grow bg-[#F7F0D4] rounded-l-full -ml-8 z-10 h-18 -mt-2 -mb-2 flex items-center">
+      <div className="flex-grow bg-[#F7F0D4] rounded-l-full -ml-8 z-10 h-18 -mt-1 flex items-center">
         <Image
           src="/images/bull.png"
           alt="Bull"
@@ -30,12 +30,15 @@ export default function TrendingBar() {
           className="-ml-6 -mt-3 h-full w-auto object-contain flex-shrink-0"
         />
 
-        {/* This container will take up the rest of the available space.
-          'flex-1' makes it grow, and 'overflow-hidden' ensures the marquee
-          doesn't break the layout.
-        */}
-        <div className="flex-1 overflow-hidden">
-          <ProfileMarquee profiles={trendingProfiles} speed={25} />
+        {/* This container will take up the rest of the available space. */}
+        <div className="flex-1 relative flex items-center overflow-hidden h-full w-20">
+          {/* Left fade overlay (shorter and vertically centered) */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#F7F0D4] to-transparent pointer-events-none" />
+          
+          <ProfileMarquee profiles={trendingProfiles} />
+          
+          {/* Right fade overlay (shorter and vertically centered) */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#F7F0D4] to-transparent pointer-events-none" />
         </div>
       </div>
     </div>

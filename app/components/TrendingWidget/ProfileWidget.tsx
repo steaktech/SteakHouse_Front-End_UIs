@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 // Define the types for the component props for type safety
 export interface ProfileWidgetProps {
@@ -8,8 +8,8 @@ export interface ProfileWidgetProps {
   showArrow?: boolean;
 }
 
-// SVG component for the green up-arrow icon
-const UpArrowIcon: React.FC = () => (
+// SVG component for the green up-arrow icon - memoized for performance
+const UpArrowIcon: React.FC = memo(() => (
   <svg
     width="24"
     height="24"
@@ -26,82 +26,67 @@ const UpArrowIcon: React.FC = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+));
 
-const ProfileWidget: React.FC<ProfileWidgetProps> = ({
+UpArrowIcon.displayName = 'UpArrowIcon';
+
+const ProfileWidget: React.FC<ProfileWidgetProps> = memo(({
   imageUrl,
   name,
   percentage,
   showArrow = true,
 }) => {
+  // Memoize the error handler to prevent recreation on each render
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.onerror = null; // prevent infinite loop
+    target.src = `https://placehold.co/48x48/2d3748/ffffff?text=${name.charAt(0)}`;
+  }, [name]);
+
+  // Memoize the alt text to prevent recreation
+  const altText = useMemo(() => `${name}'s profile`, [name]);
+  
+  // Memoize the uppercase name to prevent recreation
+  const uppercaseName = useMemo(() => name.toUpperCase(), [name]);
+
+  // Memoize inline styles to prevent recreation
+  const textShadowStyle = useMemo(() => ({ 
+    textShadow: '1px 1px 2px rgba(0,0,0,0.4)' 
+  }), []);
+
   return (
-    <>
-      {/* Inject custom styles for fire gif border */}
-      <style jsx>{`
-        .fire-border {
-          position: relative;
-          display: inline-block;
-          border-radius: 40%;
-          padding: 5px;
-          /* You can replace this with a real gif path */
-          background-image: url('/images/fire.gif');
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-        }
+    /* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */
+    <div className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans">
+      {showArrow && <UpArrowIcon />}
 
-        .fire-border::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          border-radius: 50%;
-          background-image: url('/images/fire.gif');
-          background-size: 120% 120%;
-          background-position: center;
-          background-repeat: no-repeat;
-          z-index: -1;
-        }
-      `}</style>
-
-      {/* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */}
-      <div className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans">
-        {showArrow && <UpArrowIcon />}
-
-        <div className="fire-border">
-          <img
-            src={imageUrl}
-            alt={`${name}'s profile`}
-            className="w-12 h-12 rounded-full object-cover border-2 border-slate-800"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null; // prevent infinite loop
-              target.src = `https://placehold.co/48x48/2d3748/ffffff?text=${name.charAt(
-                0
-              )}`;
-            }}
-          />
-        </div>
-
-        <div className="flex items-center space-x-1">
-          <span
-            className="text-lg font-extrabold text-yellow-500"
-            style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}
-          >
-            {name.toUpperCase()}
-          </span>
-          <span
-            className="text-lg font-bold text-green-500"
-            style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}
-          >
-            {percentage}%
-          </span>
-        </div>
+      <div className="profile-widget-fire-border">
+        <img
+          src={imageUrl}
+          alt={altText}
+          className="w-12 h-12 rounded-full object-cover border-2 border-slate-800"
+          onError={handleImageError}
+          loading="lazy" // Add lazy loading for better performance
+        />
       </div>
-    </>
+
+      <div className="flex items-center space-x-1">
+        <span
+          className="text-lg font-extrabold text-yellow-500"
+          style={textShadowStyle}
+        >
+          {uppercaseName}
+        </span>
+        <span
+          className="text-lg font-bold text-green-500"
+          style={textShadowStyle}
+        >
+          {percentage}%
+        </span>
+      </div>
+    </div>
   );
-};
+});
+
+ProfileWidget.displayName = 'ProfileWidget';
 
 export default ProfileWidget;

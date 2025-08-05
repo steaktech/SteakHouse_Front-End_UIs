@@ -25,6 +25,51 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Profile Widget Fire Border Styles - moved here for better performance */
+.profile-widget-fire-border {
+  position: relative;
+  display: inline-block;
+  border-radius: 40%;
+  padding: 5px;
+  background-image: url('/images/fire.gif');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.profile-widget-fire-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background-image: url('/images/fire.gif');
+  background-size: 120% 120%;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+/* Custom marquee animations - better performance and control */
+.custom-marquee-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  max-width: 100%;
+}
+
+.custom-marquee-content {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  width: max-content;
+  /* Smooth animation performance optimizations */
+  will-change: transform;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
 /* TradingView Widget Styling */
 .tradingview-widget-container {
   position: relative;
