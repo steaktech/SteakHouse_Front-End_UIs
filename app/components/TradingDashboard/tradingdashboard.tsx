@@ -34,7 +34,7 @@ export default function TradingDashboard() {
   const tokenData: TokenCardProps[] = [
     {
       isOneStop: true,
-      imageUrl: "https://placehold.co/64x64/7E57C2/FFFFFF?text=S",
+      imageUrl: "/images/info_icon.jpg",
       name: "SpaceMan",
       symbol: "SPACE",
       tag: "Meme",
@@ -46,7 +46,7 @@ export default function TradingDashboard() {
       progress: 91.5,
     },
     {
-      imageUrl: "https://placehold.co/64x64/7E57C2/FFFFFF?text=S",
+      imageUrl: "/images/info_icon.jpg",
       name: "SpaceMan",
       symbol: "SPACE",
       tag: "Meme",
@@ -58,7 +58,7 @@ export default function TradingDashboard() {
       progress: 91.5,
     },
     {
-      imageUrl: "https://placehold.co/64x64/7E57C2/FFFFFF?text=S",
+      imageUrl: "/images/info_icon.jpg",
       name: "SpaceMan",
       symbol: "SPACE",
       tag: "Meme",
@@ -71,7 +71,7 @@ export default function TradingDashboard() {
     },
     {
       isOneStop: true,
-      imageUrl: "https://placehold.co/64x64/7E57C2/FFFFFF?text=S",
+      imageUrl: "/images/info_icon.jpg",
       name: "SpaceMan",
       symbol: "SPACE",
       tag: "Meme",
@@ -83,7 +83,7 @@ export default function TradingDashboard() {
       progress: 91.5,
     },
     {
-      imageUrl: "https://placehold.co/64x64/7E57C2/FFFFFF?text=S",
+      imageUrl: "/images/info_icon.jpg",
       name: "SpaceMan",
       symbol: "SPACE",
       tag: "Meme",
@@ -95,7 +95,7 @@ export default function TradingDashboard() {
       progress: 91.5,
     },
     {
-      imageUrl: "https://placehold.co/64x64/7E57C2/FFFFFF?text=S",
+      imageUrl: "/images/info_icon.jpg",
       name: "SpaceMan",
       symbol: "SPACE",
       tag: "Meme",

@@ -4,11 +4,11 @@ import ProfileMarquee from './TrendingWidget/ProfileMarquee';
 export default function TrendingBar() {
   // Define your profile data here. This could also come from an API.
   const trendingProfiles = [
-    { imageUrl: '/images/card_img.jpg', name: 'Zeus', percentage: 89, showArrow: true },
-    { imageUrl: '/images/card_img.jpg', name: 'Apollo', percentage: 76, showArrow: true },
-    { imageUrl: '/images/card_img.jpg', name: 'Hades', percentage: 92, showArrow: true },
-    { imageUrl: '/images/card_img.jpg', name: 'Hera', percentage: 85, showArrow: false },
-    { imageUrl: '/images/card_img.jpg', name: 'Ares', percentage: 70, showArrow: true },
+    { imageUrl: '/images/info_icon.jpg', name: 'Zeus', percentage: 89, showArrow: true },
+    { imageUrl: '/images/info_icon.jpg', name: 'Apollo', percentage: 76, showArrow: true },
+    { imageUrl: '/images/info_icon.jpg', name: 'Hades', percentage: 92, showArrow: true },
+    { imageUrl: '/images/info_icon.jpg', name: 'Hera', percentage: 85, showArrow: false },
+    { imageUrl: '/images/info_icon.jpg', name: 'Ares', percentage: 70, showArrow: true },
   ];
 
   return (

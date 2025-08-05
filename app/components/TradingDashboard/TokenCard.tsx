@@ -22,7 +22,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     {/* Top rounded image */}
     <div className="absolute top-0 left-0 right-0 mb-4">
       <img 
-        src="/images/card_img.jpg" 
+        src="/images/info_banner.jpg" 
         alt="Token Header" 
         className="w-full h-32 object-cover rounded-t-3xl"
       />
