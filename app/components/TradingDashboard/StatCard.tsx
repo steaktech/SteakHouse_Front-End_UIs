@@ -21,7 +21,7 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
     <div className="flex items-center justify-center font-sans">
       {/* Card container with corrected styles for a rounded gradient border */}
       <div
-        className="rounded-xl shadow-lg p-4 transform transition-all duration-300 hover:scale-105"
+        className="rounded-xl w-188 shadow-lg p-4 transform transition-all duration-300 hover:scale-105"
         style={{
           // 1. Set a transparent border. The width (4px) matches the desired border thickness.
           border: '4px solid transparent',
@@ -43,7 +43,7 @@ export const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
             className="text-sm font-semibold uppercase tracking-wider"
             style={{ color: colors.titleText }}
           >
-            Tokens Launched
+            {title}
           </p>
           {/* The count of launched tokens */}
           <p
