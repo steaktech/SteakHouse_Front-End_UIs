@@ -69,7 +69,7 @@ const CreateTokenModal: FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
         adv_removeUnitsAfter: '',
     });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };

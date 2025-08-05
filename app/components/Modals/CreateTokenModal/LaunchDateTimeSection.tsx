@@ -9,7 +9,7 @@ interface LaunchDateTimeSectionProps {
         launchDate: string; // Should be in "YYYY-MM-DD" format
         launchTime: string; // Should be in "HH:mm" format
     };
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
 }
 
 export const LaunchDateTimeSection: FC<LaunchDateTimeSectionProps> = ({ formData, handleInputChange }) => {
