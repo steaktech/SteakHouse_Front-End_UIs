@@ -40,7 +40,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         style: "1",
         hide_top_toolbar: true,
         backgroundColor: "#07040b",
-        hide_side_toolbar: false,
+        hide_side_toolbar: true,
         gridColor: "rgba(2, 2, 2, 0.06)",
         container_id: "tradingview_chart_container", // Must match the container's id
         overrides: {

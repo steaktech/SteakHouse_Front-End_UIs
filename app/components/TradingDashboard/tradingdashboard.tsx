@@ -140,17 +140,17 @@ export default function TradingDashboard() {
       <div className="max-w-full xl:max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section (now inside the unified container) */}
-        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-20">
+        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[5px] md:mt-20">
           {/* Left Side - Text Content */}
           {/* MODIFICATION: Added `z-10` to ensure text stays on top of the video */}
           <div className="md:w-2/3 text-center md:text-left z-10">
-            <h1 className="text-4xl md:text-[6rem] lg:text-[7rem] xl:text-[9rem] 2xl:text-[9rem] font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
+            <h1 className="text-7xl md:text-[6rem] lg:text-[7rem] xl:text-[9rem] 2xl:text-[9rem] font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
               The <span className="2xl:text-[10rem]">Dev's</span> <span className="2xl:text-[7rem]">Kitchen</span>
             </h1>
-            <p className="mt-6 text-2xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#3c1c03]">
+            <p className="mt-6 text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#3c1c03]">
               Launch A Token For{' '}
               <span className="font-bold">
-                <img src="/images/3d.png" alt="$3" className="h-8 md:h-12 lg:h-14 xl:h-28 inline-block" />
+                <img src="/images/3d.png" alt="$3" className="h-15 md:h-12 lg:h-14 xl:h-28 inline-block" />
               </span>
             </p>
           </div>
