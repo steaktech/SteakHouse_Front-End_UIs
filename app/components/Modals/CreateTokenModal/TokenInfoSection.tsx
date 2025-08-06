@@ -2,6 +2,7 @@
 import React, { FC } from 'react';
 import { FormInput } from './FormComponents';
 import { InfoIcon } from './InfoIcon';
+import Image from 'next/image';
 
 interface TokenInfoSectionProps {
     formData: {
@@ -16,9 +17,15 @@ export const TokenInfoSection: FC<TokenInfoSectionProps> = ({ formData, handleIn
     return (
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 border-t border-amber-800/30 pt-6">
             <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg whitespace-pre-wrap flex items-start">
-                ℹ️ Token Info
+                <Image 
+                    src="/images/modal-icons/info-website-webp.webp" 
+                    alt="Token Type" 
+                    width={24} 
+                    height={24} 
+                    className="inline-block"
+                /> Token Info
                 <InfoIcon 
-                    title="ℹ️ Token Info"
+                    title="Token Info"
                     content="Pick a name, symbol (3–5 characters works best), and total supply. Utility tokens often use round figures (1 – 100 M), while memes can get playful (69 B)."
                 />
             </h3>

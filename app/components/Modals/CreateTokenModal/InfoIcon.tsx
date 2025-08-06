@@ -10,7 +10,7 @@ export const InfoIcon: FC<InfoIconProps> = ({ content, title }) => {
     const [isVisible, setIsVisible] = useState(false);
 
     return (
-        <div className="relative inline-block ml-2 flex-shrink-0 self-start mt-0.5">
+        <div className="relative inline-block flex-shrink-0 self-start">
             <button
                 type="button"
                 onMouseEnter={() => setIsVisible(true)}

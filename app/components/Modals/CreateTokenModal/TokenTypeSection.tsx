@@ -1,6 +1,7 @@
 'use client';
 import React, { FC } from 'react';
 import { InfoIcon } from './InfoIcon';
+import Image from 'next/image';
 
 interface TokenTypeSectionProps {
     tokenType: 'tax' | 'no-tax';
@@ -10,10 +11,17 @@ interface TokenTypeSectionProps {
 export const TokenTypeSection: FC<TokenTypeSectionProps> = ({ tokenType, setTokenType }) => {
     return (
         <div className="flex flex-col md:flex-row gap-8">
-            <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg flex items-center">
-                🥩 Token Type
+            <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg flex items-center gap-2">
+                <Image 
+                    src="/images/modal-icons/meat-website-webp.webp" 
+                    alt="Token Type" 
+                    width={24} 
+                    height={24} 
+                    className="inline-block"
+                />
+                Token Type
                 <InfoIcon 
-                    title="🥩 Token Type"
+                    title="Token Type"
                     content={`This determines which V2 contract you'll get once your project "graduates" and adds real liquidity. You have two choices ...
 
 TAX: your V2 token charges a buy/sell tax (1–5%) that goes straight to your wallet.

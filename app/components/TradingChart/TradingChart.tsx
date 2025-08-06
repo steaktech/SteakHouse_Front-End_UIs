@@ -74,19 +74,19 @@ export default function TradingChart() {
 
           {/* Market Info */}
           {/* MODIFIED: Added overflow and scrollbar classes */}
-          <div className="order-2 lg:col-start-2 lg:row-start-1 ">
+          <div className="order-4 lg:col-start-2 lg:row-start-1 ">
             <MarketInfo />
           </div>
 
           {/* Trade Panel */}
           {/* MODIFIED: Added overflow and scrollbar classes */}
-          <div className="order-3 lg:col-start-2 lg:row-start-2">
+          <div className="order-2 lg:col-start-2 lg:row-start-2">
             <TradePanel />
           </div>
 
           {/* Trade History */}
           {/* MODIFIED: Added overflow and scrollbar classes */}
-          <div className="order-4 lg:col-start-1 lg:row-start-2">
+          <div className="order-3 lg:col-start-1 lg:row-start-2">
             <TradeHistory />
           </div>
 

@@ -2,6 +2,7 @@
 import React, { FC } from "react";
 import { FormInput } from "./FormComponents";
 import { InfoIcon } from "./InfoIcon";
+import Image from 'next/image';
 
 interface KitchenSectionProps {
   formData: {
@@ -44,9 +45,16 @@ export const KitchenSection: FC<KitchenSectionProps> = ({
   return (
     <div className="flex flex-col md:flex-row gap-4 md:gap-8 border-t border-amber-800/30 pt-6">
       <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg whitespace-pre-wrap flex items-start">
-        📊 Kitchen (Virtual Curve)
+  
+      <Image
+          src="/images/modal-icons/meat-website-webp.webp"
+          alt="Token Type"
+          width={24}
+          height={24}
+          className="inline-block"
+        /> Kitchen (Virtual Curve)
         <InfoIcon
-          title="📊 Kitchen (Virtual Curve)"
+          title="Kitchen (Virtual Curve)"
           content={`While your token is still virtual, the bonding curve enforces any static or time-based limits and taxes at each buy. ETH taxes are taken immediately, smoothing out "sell pressure" and funding your V2 marketing vault.
 
 Standard (TAX / NO-TAX) can enforce a flat tax (e.g. 20%) and static limits (e.g. 1% max-tx, 1% max-wallet) for a set duration, then drop to forever values.

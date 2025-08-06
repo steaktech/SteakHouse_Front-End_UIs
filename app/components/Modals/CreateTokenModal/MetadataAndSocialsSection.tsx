@@ -2,6 +2,7 @@
 import React, { FC } from 'react';
 import { FormInput, FileUploadButton, FormCheckbox } from './FormComponents';
 import { InfoIcon } from './InfoIcon';
+import Image from 'next/image';
 
 interface MetadataAndSocialsSectionProps {
     formData: {
@@ -24,9 +25,15 @@ export const MetadataAndSocialsSection: FC<MetadataAndSocialsSectionProps> = ({
     return (
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 border-t border-amber-800/30 pt-6">
             <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg whitespace-pre-wrap flex items-start">
-                🌐 Metadata & Socials
+                <Image 
+                    src="/images/modal-icons/metadata-website-webp.webp" 
+                    alt="Token Type" 
+                    width={24} 
+                    height={24} 
+                    className="inline-block"
+                /> Metadata & Socials
                 <InfoIcon 
-                    title="🌐 Metadata & Socials"
+                    title="Metadata & Socials"
                     content="Add your website and social links, upload a banner and logo, and write a short description. Let your community know who you are and why you're cooking."
                 />
             </h3>

@@ -2,6 +2,7 @@
 import React, { FC } from 'react';
 import { FormOptionBox, FormInput } from './FormComponents';
 import { InfoIcon } from './InfoIcon';
+import Image from 'next/image';
 
 interface LiquiditySectionProps {
     formData: {
@@ -38,9 +39,15 @@ export const LiquiditySection: FC<LiquiditySectionProps> = ({ formData, handleCh
     return (
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 border-t border-amber-800/30 pt-6">
             <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg whitespace-pre-wrap flex items-start">
-                💧 Liquidity
+                <Image 
+                    src="/images/modal-icons/liquidity-website.webp" 
+                    alt="Token Type" 
+                    width={24} 
+                    height={24} 
+                    className="inline-block"
+                /> Liquidity
                 <InfoIcon 
-                    title="💧 Liquidity"
+                    title="Liquidity"
                     content="Decide what happens to your LP tokens once V2 launches:
 
 Burn (irrecoverable), great for pure meme vibes.
