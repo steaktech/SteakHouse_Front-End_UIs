@@ -49,10 +49,11 @@ export const KitchenSection: FC<KitchenSectionProps> = ({
       <Image
           src="/images/modal-icons/meat-website-webp.webp"
           alt="Token Type"
-          width={24}
-          height={24}
+          width={30}
+          height={30}
           className="inline-block"
         /> Kitchen (Virtual Curve)
+        <span className="mt-1 sm:mt-8 ml-2">
         <InfoIcon
           title="Kitchen (Virtual Curve)"
           content={`While your token is still virtual, the bonding curve enforces any static or time-based limits and taxes at each buy. ETH taxes are taken immediately, smoothing out "sell pressure" and funding your V2 marketing vault.
@@ -61,6 +62,7 @@ Standard (TAX / NO-TAX) can enforce a flat tax (e.g. 20%) and static limits (e.g
 
 Advanced lets you stepwise decay or increase parameters: e.g. –1% tax every 10 blocks (~1m20s), or ramp max-wallet by +0.1% each interval until final values are reached in-curve or the token graduates.`}
         />
+        </span>
       </h3>
       <div className="w-full md:w-3/4">
         {!isAdvancedOpen && (

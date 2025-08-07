@@ -17,9 +17,6 @@ export interface SteakHouseInfoModalProps {
 const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) => {
     const [mounted, setMounted] = useState(false);
 
-    // URL for the placeholder logo.
-    const logoUrl = "https://placehold.co/128x128/eab308/3A2411?text=🐮";
-
     useEffect(() => {
         setMounted(true);
         const handleEsc = (event: KeyboardEvent) => {
@@ -42,19 +39,11 @@ const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) 
             style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
         >
             {/* Main container for the modal with a dark brown background, more rounded corners, and a thicker border. */}
+            {/* MODIFICATION: Added `scroll-smooth` and `custom-scrollbar` classes. */}
             <div 
-                className="bg-[rgb(49,25,0)] text-white font-sans rounded-3xl p-6 sm:p-8 max-w-lg w-full mx-auto shadow-2xl border-4 border-[rgb(106,61,11)]/30 max-h-[90vh] overflow-y-auto"
+                className="bg-[rgb(49,25,0)] text-white font-sans rounded-3xl p-6 sm:p-8 max-w-4xl w-full mx-auto shadow-2xl border-4 border-[rgb(106,61,11)]/30 max-h-[90vh] overflow-y-auto scroll-smooth custom-scrollbar"
                 onClick={e => e.stopPropagation()}
             >
-                {/* Close button
-                <div className="flex justify-end mb-4">
-                    <button onClick={onClose} className="text-amber-300 hover:text-white transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div> */}  
-
                 {/* Logo Image */}
                 <div className="flex justify-center mb-6">
                     <img 
@@ -113,7 +102,31 @@ const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) 
                             <li>No slippage, no dumps, no snipers</li>
                         </ul>
                     </div>
+                </div>
 
+                {/* Video Placeholder Section */}
+                <div className="mt-10 pt-6 border-t border-[rgb(106,61,11)]/30">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-center text-[#efb95e] mb-4">
+                        See How It Works
+                    </h3>
+                    <div className="aspect-video bg-black/40 rounded-2xl flex justify-center items-center border-2 border-[rgb(106,61,11)]/40 hover:border-[rgb(106,61,11)]/60 transition-colors">
+                        <button 
+                            className="group flex flex-col items-center text-white/80 hover:text-white transition-all duration-300"
+                            aria-label="Play Video Tutorial"
+                            // onClick={() => console.log("Play video!")} // Add your video player logic here
+                        >
+                            {/* Play Icon SVG */}
+                            <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className="h-20 w-20 text-[#efb95e] group-hover:scale-110 transition-transform duration-300" 
+                                viewBox="0 0 24 24" 
+                                fill="currentColor"
+                            >
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span className="mt-2 font-semibold tracking-wider">WATCH TUTORIAL</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -334,3 +334,29 @@ body {
     inset 3px 0 5px rgba(139, 117, 6, 0.3),
     inset -3px 0 5px rgba(0, 0, 0, 0.1);
 }
+
+/* Custom Scrollbar for SteakHouse Modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgb(49 25 0 / 0.8);
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #efb95e;
+  border-radius: 20px;
+  border: 2px solid rgb(49 25 0);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #fce1a8;
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #efb95e rgb(49 25 0 / 0.8);
+}

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Image from "next/image";
 
 // --- Footer Component ---
 const Footer: React.FC = () => {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-  
+
   const footerLinks = [
     { href: "#", text: "Documentation" },
     { href: "#", text: "Create Token" },
@@ -15,27 +15,41 @@ const Footer: React.FC = () => {
     // The main footer is now a wrapper for the two sections
     <footer className="text-white">
       {/* Section 1: Your original content and layout. Unchanged. */}
-      <div style={{ backgroundColor: '#3d1e01' }} className="py-8">
+      <div style={{ backgroundColor: "#3d1e01" }} className="py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile Layout: Stack vertically - Logo, Links, Social Icons */}
           <div className="flex flex-col items-center space-y-6 sm:hidden">
             {/* Footer Logo */}
             <div className="flex items-center">
-              <Image 
-                src="/images/footer_logo.png" 
-                alt="Footer Logo" 
-                width={300} 
-                height={300} 
+              <Image
+                src="/images/header-logo-lg.png"
+                alt="Footer Logo"
+                width={250}
+                height={250}
                 className="object-contain"
               />
             </div>
 
+            <div className="flex flex-row items-center ml-2">
+                <Image
+                  src="/images/footer-certik_main.png"
+                  alt="Footer Logo"
+                  width={200}
+                  height={200}
+                  className="object-contain"
+                />
+                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 rounded-md">Certificate&nbsp;&gt;</button>
+              </div>
+
             {/* Footer Links - Mobile: Vertical List */}
             <nav>
-              <ul className="flex flex-col items-center space-y-2 text-sm text-gray-300">
+              <ul className="flex flex-col items-center space-y-2 text-sm text-[#e1a73a]">
                 {footerLinks.map((link) => (
                   <li key={link.text}>
-                    <a href={link.href} className="hover:text-white transition-colors duration-300">
+                    <a
+                      href={link.href}
+                      className="hover:text-[#df6400] transition-colors duration-300"
+                    >
                       {link.text}
                     </a>
                   </li>
@@ -46,7 +60,10 @@ const Footer: React.FC = () => {
             {/* Social Icons */}
             <div className="flex items-center space-x-2">
               {/* Discord Icon */}
-              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a
+                href="#"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/discord.png"
                   alt="Discord"
@@ -55,9 +72,12 @@ const Footer: React.FC = () => {
                   className="object-contain"
                 />
               </a>
-              
+
               {/* Telegram Icon */}
-              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a
+                href="#"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/telegram.png"
                   alt="Telegram"
@@ -68,7 +88,10 @@ const Footer: React.FC = () => {
               </a>
 
               {/* Twitter/X Icon */}
-              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a
+                href="#"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/twitter.png"
                   alt="Twitter"
@@ -77,9 +100,12 @@ const Footer: React.FC = () => {
                   className="object-contain"
                 />
               </a>
-              
+
               {/* Info Icon */}
-              <div onClick={() => setIsInfoModalOpen(true)} className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <div
+                onClick={() => setIsInfoModalOpen(true)}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/info.png"
                   alt="Info"
@@ -94,14 +120,27 @@ const Footer: React.FC = () => {
           {/* Desktop Layout: Logo left, content pushed right */}
           <div className="hidden sm:flex flex-row justify-between items-center">
             {/* Footer Logo - Positioned more to the left */}
-            <div className="flex items-center -ml-8">
-              <Image 
-                src="/images/footer_logo.png" 
-                alt="Footer Logo" 
-                width={400} 
-                height={400} 
-                className="object-contain"
-              />
+            <div className="flex flex-col items-center">
+              <div className="flex items-center -ml-8">
+                <Image
+                  src="/images/footer_main_logo.png"
+                  alt="Footer Logo"
+                  width={400}
+                  height={400}
+                  className="object-contain"
+                />
+              </div>
+
+              <div className="flex flex-row items-center -ml-17">
+                <Image
+                  src="/images/footer-certik_main.png"
+                  alt="Footer Logo"
+                  width={200}
+                  height={200}
+                  className="object-contain"
+                />
+                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 rounded-md">Certificate&nbsp;&gt;</button>
+              </div>
             </div>
 
             {/* Right Side Content - Positioned more to the right */}
@@ -109,7 +148,10 @@ const Footer: React.FC = () => {
               {/* Social Icons */}
               <div className="flex items-center space-x-2 ml-4">
                 {/* Discord Icon */}
-                <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+                <a
+                  href="#"
+                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <Image
                     src="/images/discord.png"
                     alt="Discord"
@@ -118,9 +160,12 @@ const Footer: React.FC = () => {
                     className="object-contain"
                   />
                 </a>
-                
+
                 {/* Telegram Icon */}
-                <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+                <a
+                  href="#"
+                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <Image
                     src="/images/telegram.png"
                     alt="Telegram"
@@ -131,7 +176,10 @@ const Footer: React.FC = () => {
                 </a>
 
                 {/* Twitter/X Icon */}
-                <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+                <a
+                  href="#"
+                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <Image
                     src="/images/twitter.png"
                     alt="Twitter"
@@ -140,9 +188,12 @@ const Footer: React.FC = () => {
                     className="object-contain"
                   />
                 </a>
-                
+
                 {/* Info Icon */}
-                <div onClick={() => setIsInfoModalOpen(true)} className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+                <div
+                  onClick={() => setIsInfoModalOpen(true)}
+                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                >
                   <Image
                     src="/images/info.png"
                     alt="Info"
@@ -155,11 +206,14 @@ const Footer: React.FC = () => {
 
               {/* Footer Links */}
               <nav>
-                <ul className="flex items-center space-x-3 text-sm sm:text-base text-gray-300">
+                <ul className="flex items-center space-x-3 text-sm sm:text-base text-[#e1a73a]">
                   {footerLinks.map((link, index) => (
                     <React.Fragment key={link.text}>
                       <li>
-                        <a href={link.href} className="hover:text-white transition-colors duration-300">
+                        <a
+                          href={link.href}
+                          className="hover:text-[#df6400] transition-colors duration-300"
+                        >
                           {link.text}
                         </a>
                       </li>
@@ -176,15 +230,15 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Section 2: The new part you requested */}
-      <div 
-        style={{ 
-          backgroundColor: '#2e1906', 
-          borderColor: '#401d00' 
-        }} 
+      <div
+        style={{
+          backgroundColor: "#2e1906",
+          borderColor: "#401d00",
+        }}
         className="border-t py-3"
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs text-gray-400">
+          <p className="text-center text-xs text-[#e1a73a]">
             © SteakHouse Finance LTD
           </p>
         </div>

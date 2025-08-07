@@ -42,8 +42,8 @@ export const LiquiditySection: FC<LiquiditySectionProps> = ({ formData, handleCh
                 <Image 
                     src="/images/modal-icons/liquidity-website.webp" 
                     alt="Token Type" 
-                    width={24} 
-                    height={24} 
+                    width={30} 
+                    height={30} 
                     className="inline-block"
                 /> Liquidity
                 <InfoIcon 

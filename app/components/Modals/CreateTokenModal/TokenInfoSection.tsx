@@ -20,14 +20,16 @@ export const TokenInfoSection: FC<TokenInfoSectionProps> = ({ formData, handleIn
                 <Image 
                     src="/images/modal-icons/info-website-webp.webp" 
                     alt="Token Type" 
-                    width={24} 
-                    height={24} 
+                    width={30} 
+                    height={30} 
                     className="inline-block"
                 /> Token Info
+                <span className="mt-1 ml-2">
                 <InfoIcon 
                     title="Token Info"
                     content="Pick a name, symbol (3–5 characters works best), and total supply. Utility tokens often use round figures (1 – 100 M), while memes can get playful (69 B)."
                 />
+                </span>
             </h3>
             <div className="w-full md:w-3/4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

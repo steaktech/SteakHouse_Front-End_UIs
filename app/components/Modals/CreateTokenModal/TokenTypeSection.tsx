@@ -15,11 +15,11 @@ export const TokenTypeSection: FC<TokenTypeSectionProps> = ({ tokenType, setToke
                 <Image 
                     src="/images/modal-icons/meat-website-webp.webp" 
                     alt="Token Type" 
-                    width={24} 
-                    height={24} 
+                    width={30} 
+                    height={30} 
                     className="inline-block"
                 />
-                Token Type
+                <span className="-mt-1">Token Type</span>
                 <InfoIcon 
                     title="Token Type"
                     content={`This determines which V2 contract you'll get once your project "graduates" and adds real liquidity. You have two choices ...

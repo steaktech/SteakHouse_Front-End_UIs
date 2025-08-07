@@ -27,8 +27,8 @@ export const LaunchDateTimeSection: FC<LaunchDateTimeSectionProps> = ({
         <Image
           src="/images/modal-icons/rocket-website-webp.webp"
           alt="Token Type"
-          width={24}
-          height={24}
+          width={30}
+          height={30}
           className="inline-block"
         />
         Launch DateTime
