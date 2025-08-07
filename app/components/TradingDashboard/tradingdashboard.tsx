@@ -157,7 +157,7 @@ export default function TradingDashboard() {
 
           {/* Right Side - Video */}
           {/* MODIFICATION: Changed classes to make the video larger and positioned absolutely on medium screens and up */}
-          <div className="w-full md:absolute -md:top-10 md:w-5/6 lg:w-3/4 -right-30">
+          <div className="w-full md:absolute -md:top-10 md:w-5/6 lg:w-3/4 -right-30 overflow-hidden">
             <div className="aspect-video overflow-hidden">
               <video 
                 className="w-full h-full object-cover"

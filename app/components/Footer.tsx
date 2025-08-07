@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
                   height={200}
                   className="object-contain"
                 />
-                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 rounded-md">Certificate&nbsp;&gt;</button>
+                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 hover:bg-[#df6400] hover:text-[#f3edd0] rounded-md">Certificate&nbsp;&gt;</button>
               </div>
 
             {/* Footer Links - Mobile: Vertical List */}
@@ -139,7 +139,7 @@ const Footer: React.FC = () => {
                   height={200}
                   className="object-contain"
                 />
-                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 rounded-md">Certificate&nbsp;&gt;</button>
+                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 hover:bg-[#df6400] hover:text-[#f3edd0] rounded-md">Certificate&nbsp;&gt;</button>
               </div>
             </div>
 

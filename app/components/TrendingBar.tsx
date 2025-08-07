@@ -33,7 +33,7 @@ export default function TrendingBar() {
           />
 
           {/* This container will take up the rest of the available space. */}
-          <div className="flex-1 relative flex items-center overflow-hidden h-full">
+          <div className="flex-1 relative flex items-center overflow-hidden w-2 h-full">
             {/* Left fade overlay */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#F7F0D4] to-transparent pointer-events-none" />
             
