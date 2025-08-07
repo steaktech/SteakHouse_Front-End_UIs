@@ -32,10 +32,12 @@ export const MetadataAndSocialsSection: FC<MetadataAndSocialsSectionProps> = ({
                     height={30} 
                     className="inline-block"
                 /> Metadata & Socials
+                <span className="mt-1 md:mt-1 ml-2">
                 <InfoIcon 
                     title="Metadata & Socials"
                     content="Add your website and social links, upload a banner and logo, and write a short description. Let your community know who you are and why you're cooking."
                 />
+                </span>
             </h3>
             <div className="w-full md:w-3/4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

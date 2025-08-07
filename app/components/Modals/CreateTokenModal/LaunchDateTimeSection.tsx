@@ -32,10 +32,12 @@ export const LaunchDateTimeSection: FC<LaunchDateTimeSectionProps> = ({
           className="inline-block"
         />
         Launch DateTime
+        <span className="mt-1 md:mt-8">
         <InfoIcon
           title="Launch DateTime"
           content="Set when your token will launch on the bonding curve. You can schedule it for immediate launch or set a future date and time for a coordinated release."
         />
+        </span>
       </h3>
       <div className="w-full md:w-3/4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

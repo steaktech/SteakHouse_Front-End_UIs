@@ -46,6 +46,7 @@ export const LiquiditySection: FC<LiquiditySectionProps> = ({ formData, handleCh
                     height={30} 
                     className="inline-block"
                 /> Liquidity
+                <span className="mt-1 md:mt-1 ml-2">
                 <InfoIcon 
                     title="Liquidity"
                     content="Decide what happens to your LP tokens once V2 launches:
@@ -54,6 +55,7 @@ Burn (irrecoverable), great for pure meme vibes.
 
 Lock (min. 30 days; we recommend ≥ 90 days), your full liquidity pool and ETH raised during the curve returns to you once unlocked."
                 />
+                </span>
             </h3>
             <div className="w-full md:w-3/4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

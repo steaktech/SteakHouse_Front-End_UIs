@@ -27,10 +27,12 @@ export const GraduationMarketCapSection: FC<
         />
 
         Graduation Market Cap
+        <span className="mt-1 md:mt-8">
         <InfoIcon
           title="Graduation Market Cap"
           content={`Choose the on-chain cap at which your token graduates (e.g. $30K – $200K). This sets your V2 'market cap to liquidity' ratio and remember, a higher cap means proportionally less liquidity on launch.`}
         />
+        </span>
       </h3>
       <div className="w-full md:w-3/4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
