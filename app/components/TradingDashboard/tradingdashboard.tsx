@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Flame, BarChart, DollarSign, Search, Star, Wrench, Smile } from 'lucide-react';
-import { StatCard } from './StatCard';
-import { FilterButton } from './FilterButton';
-import { TokenCard } from './TokenCard';
-import { StatCardProps, TokenCardProps } from './types';
-import TrendingSearchModal from '../Modals/TrendingSearchModal';
+import React, { useState, useEffect } from "react";
+import {
+  Flame,
+  BarChart,
+  DollarSign,
+  Search,
+  Star,
+  Wrench,
+  Smile,
+} from "lucide-react";
+import { StatCard } from "./StatCard";
+import { FilterButton } from "./FilterButton";
+import { TokenCard } from "./TokenCard";
+import { StatCardProps, TokenCardProps } from "./types";
+import TrendingSearchModal from "../Modals/TrendingSearchModal";
+import SmartVideo from "../UI/SmartVideo";
 
 export default function TradingDashboard() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -39,7 +48,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -51,7 +61,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -63,7 +74,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -76,7 +88,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -88,7 +101,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -100,7 +114,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -112,7 +127,8 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
@@ -124,12 +140,13 @@ export default function TradingDashboard() {
       symbol: "SPACE",
       tag: "Meme",
       tagColor: "bg-[#fade79] text-black",
-      description: "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
+      description:
+        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
       mcap: "$21.5k",
       liquidity: "$100.3k",
       volume: "$6.2k",
       progress: 91.5,
-    }
+    },
   ];
 
   return (
@@ -138,19 +155,26 @@ export default function TradingDashboard() {
         It uses the desired max-width and padding to align everything within it.
       */}
       <div className="max-w-full xl:max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header Section (now inside the unified container) */}
         <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[5px] md:mt-20">
           {/* Left Side - Text Content */}
           {/* MODIFICATION: Added `z-10` to ensure text stays on top of the video */}
           <div className="md:w-2/3 text-center md:text-left z-10">
-            <h1 className="text-7xl md:text-[6rem] lg:text-[7rem] xl:text-[9rem] 2xl:text-[9rem] font-bold text-[#fdfdfb]" style={{ textShadow: '-2px 5px 5px rgba(116,109,93,0.5 )' }}>
-              The <span className="2xl:text-[10rem]">Dev's</span> <span className="2xl:text-[7rem]">Kitchen</span>
+            <h1
+              className="text-7xl md:text-[6rem] lg:text-[7rem] xl:text-[9rem] 2xl:text-[9rem] font-bold text-[#fdfdfb]"
+              style={{ textShadow: "-2px 5px 5px rgba(116,109,93,0.5 )" }}
+            >
+              The <span className="2xl:text-[10rem]">Dev's</span>{" "}
+              <span className="2xl:text-[7rem]">Kitchen</span>
             </h1>
             <p className="mt-6 text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#3c1c03]">
-              Launch A Token For{' '}
+              Launch A Token For{" "}
               <span className="font-bold">
-                <img src="/images/3d.png" alt="$3" className="h-15 md:h-12 lg:h-14 xl:h-28 inline-block" />
+                <img
+                  src="/images/3d.png"
+                  alt="$3"
+                  className="h-15 md:h-12 lg:h-14 xl:h-28 inline-block"
+                />
               </span>
             </p>
           </div>
@@ -159,7 +183,7 @@ export default function TradingDashboard() {
           {/* MODIFICATION: Changed classes to make the video larger and positioned absolutely on medium screens and up */}
           <div className="w-full md:absolute -md:top-10 md:w-5/6 lg:w-3/4 -right-30 overflow-hidden">
             <div className="aspect-video overflow-hidden">
-              <video 
+              {/* <video 
                 className="w-full h-full object-cover"
                 autoPlay 
                 muted 
@@ -171,7 +195,11 @@ export default function TradingDashboard() {
                 <p className="text-gray-200 font-semibold text-xl flex items-center justify-center h-full">
                   Your browser does not support the video tag.
                 </p>
-              </video>
+              </video> */}
+              <SmartVideo
+                base="/videos/pan-animation" // will try .webm then .mp4
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </header>
@@ -182,7 +210,7 @@ export default function TradingDashboard() {
             <StatCard key={index} title={stat.title} value={stat.value} />
           ))}
         </div>
-        
+
         {/* Filter and Token Cards Section.
           The original wrapper div around this section was removed,
           and its contents are now direct children of the unified container.
@@ -195,11 +223,14 @@ export default function TradingDashboard() {
               <FilterButton icon={<DollarSign size={16} />} label="MCAP" />
               <FilterButton icon={<Flame size={16} />} label="Trending" />
             </div>
-            
+
             <div className="relative flex-grow sm:flex-grow-0 sm:w-auto ">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white pointer-events-none " size={20} />
-              <input 
-                type="text" 
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-white pointer-events-none "
+                size={20}
+              />
+              <input
+                type="text"
                 placeholder="Search..."
                 onClick={handleSearchClick}
                 readOnly
