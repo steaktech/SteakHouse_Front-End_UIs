@@ -49,8 +49,8 @@ export const KitchenSection: FC<KitchenSectionProps> = ({
       <Image
           src="/images/modal-icons/meat-website-webp.webp"
           alt="Token Type"
-          width={30}
-          height={30}
+          width={38}
+          height={38}
           className="inline-block"
         /> Kitchen (Virtual Curve)
         <span className="mt-1 sm:mt-8 ml-2">

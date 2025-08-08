@@ -21,8 +21,8 @@ export const GraduationMarketCapSection: FC<
         <Image
           src="/images/modal-icons/graduation-website-webp.webp"
           alt="Token Type"
-          width={30}
-          height={30}
+          width={38}
+          height={38}
           className="inline-block"
         />
 

@@ -42,11 +42,11 @@ export const LiquiditySection: FC<LiquiditySectionProps> = ({ formData, handleCh
                 <Image 
                     src="/images/modal-icons/liquidity-website.webp" 
                     alt="Token Type" 
-                    width={30} 
-                    height={30} 
+                    width={38} 
+                    height={38} 
                     className="inline-block"
-                /> Liquidity
-                <span className="mt-1 md:mt-1 ml-2">
+                /> <span className="mt-1">Liquidity</span>
+                <span className="mt-2 ml-2">
                 <InfoIcon 
                     title="Liquidity"
                     content="Decide what happens to your LP tokens once V2 launches:

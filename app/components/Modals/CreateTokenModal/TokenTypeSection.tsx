@@ -15,11 +15,12 @@ export const TokenTypeSection: FC<TokenTypeSectionProps> = ({ tokenType, setToke
                 <Image 
                     src="/images/modal-icons/meat-website-webp.webp" 
                     alt="Token Type" 
-                    width={30} 
-                    height={30} 
+                    width={38} 
+                    height={38} 
                     className="inline-block"
                 />
-                <span className="-mt-1">Token Type</span>
+                <span className="mt-1">Token Type</span>
+                <span className="mt-3">
                 <InfoIcon 
                     title="Token Type"
                     content={`This determines which V2 contract you'll get once your project "graduates" and adds real liquidity. You have two choices ...
@@ -28,6 +29,7 @@ TAX: your V2 token charges a buy/sell tax (1–5%) that goes straight to your wa
 
 NO-TAX: zero tax on V2 trades.`}
                 />
+                </span>
             </h3>
             <div className="w-full md:w-3/4 flex items-center gap-4">
                 <div

@@ -28,8 +28,8 @@ export const MetadataAndSocialsSection: FC<MetadataAndSocialsSectionProps> = ({
                 <Image 
                     src="/images/modal-icons/metadata-website-webp.webp" 
                     alt="Token Type" 
-                    width={30} 
-                    height={30} 
+                    width={38} 
+                    height={38} 
                     className="inline-block"
                 /> Metadata & Socials
                 <span className="mt-1 md:mt-1 ml-2">
