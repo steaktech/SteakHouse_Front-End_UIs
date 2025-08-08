@@ -25,6 +25,7 @@ const ProfileMarquee: React.FC<ProfileMarqueeProps> = ({ profiles }) => {
           name={profile.name}
           percentage={profile.percentage}
           showArrow={profile.showArrow}
+          arrowDirection={profile.arrowDirection}
         />
       ))}
     </div>

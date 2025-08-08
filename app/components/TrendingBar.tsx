@@ -1,14 +1,15 @@
 import Image from 'next/image';
 import ProfileMarquee from './TrendingWidget/ProfileMarquee';
+import type { ProfileWidgetProps } from './TrendingWidget/ProfileWidget';
 
 export default function TrendingBar() {
   // Define your profile data here. This could also come from an API.
-  const trendingProfiles = [
-    { imageUrl: '/images/info_icon.jpg', name: 'Zeus', percentage: 89, showArrow: true },
-    { imageUrl: '/images/info_icon.jpg', name: 'Apollo', percentage: 76, showArrow: true },
-    { imageUrl: '/images/info_icon.jpg', name: 'Hades', percentage: 92, showArrow: true },
-    { imageUrl: '/images/info_icon.jpg', name: 'Hera', percentage: 85, showArrow: false },
-    { imageUrl: '/images/info_icon.jpg', name: 'Ares', percentage: 70, showArrow: true },
+  const trendingProfiles: ProfileWidgetProps[] = [
+    { imageUrl: '/images/info_icon.jpg', name: 'Zeus', percentage: 89, showArrow: true, arrowDirection: 'up' },
+    { imageUrl: '/images/info_icon.jpg', name: 'Apollo', percentage: 76, showArrow: true, arrowDirection: 'up' },
+    { imageUrl: '/images/info_icon.jpg', name: 'Hades', percentage: 92, showArrow: true, arrowDirection: 'up' },
+    { imageUrl: '/images/info_icon.jpg', name: 'Hera', percentage: 85, showArrow: true, arrowDirection: 'down' },
+    { imageUrl: '/images/info_icon.jpg', name: 'Ares', percentage: 70, showArrow: true, arrowDirection: 'down' },
   ];
 
   return (
