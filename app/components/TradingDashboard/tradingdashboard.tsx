@@ -150,7 +150,7 @@ export default function TradingDashboard() {
   ];
 
   return (
-    <div className="bg-[#ebd6b4] min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="bg-transparent min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
       {/* This is the new single container for all content. 
         It uses the desired max-width and padding to align everything within it.
       */}

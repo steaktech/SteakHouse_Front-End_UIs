@@ -5,7 +5,7 @@ export const FilterButton: React.FC<FilterButtonProps> = ({ icon, label, active 
   <button
     className={`
       flex items-center justify-center space-x-2 
-      px-4 py-2 rounded-lg font-bold border-3
+      px-3 py-1.5 rounded-md text-sm border-2 md:px-4 md:py-2 md:rounded-lg md:text-base md:border-3 font-bold
       transition-all duration-150 ease-in-out
       ${
         active

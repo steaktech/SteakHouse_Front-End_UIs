@@ -13,7 +13,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="relative w-full h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md">
+      {/* <header className="relative w-full h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md"> */}
+      <header className="relative w-full h-20 bg-gradient-to-b from-[#4c2001] to-transparent shadow-md">
         {/* Header Content */}
         <div className="relative z-10 flex items-center justify-between h-full px-2 sm:px-4 md:px-6 lg:px-12">
           {/* Logo & Socials Section */}
