@@ -1,249 +1,173 @@
-import React, { useState } from "react";
-import Image from "next/image";
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import styles from './UI/Footer.module.css';
 
-// --- Footer Component ---
+const CreateTokenModal = dynamic(() => import('./Modals/CreateTokenModal/CreateTokenModal'), { ssr: false });
+
 const Footer: React.FC = () => {
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-
-  const footerLinks = [
-    { href: "#", text: "Documentation" },
-    { href: "#", text: "Create Token" },
-    { href: "#", text: "Contact" },
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    // The main footer is now a wrapper for the two sections
-    <footer className="text-white">
-      {/* Section 1: Your original content and layout. Unchanged. */}
-      <div style={{ backgroundColor: "#3d1e01" }} className="py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Mobile Layout: Stack vertically - Logo, Links, Social Icons */}
-          <div className="flex flex-col items-center space-y-6 sm:hidden">
-            {/* Footer Logo */}
-            <div className="flex items-center">
-              <Image
-                src="/images/header-logo-lg.png"
-                alt="Footer Logo"
-                width={250}
-                height={250}
-                className="object-contain"
-              />
-            </div>
-
-            <div className="flex flex-row items-center ml-2">
-                <Image
-                  src="/images/footer-certik_main.png"
-                  alt="Footer Logo"
-                  width={200}
-                  height={200}
-                  className="object-contain"
-                />
-                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 hover:bg-[#df6400] hover:text-[#f3edd0] rounded-md">Certificate&nbsp;&gt;</button>
+    <>
+    <footer className={styles.enterpriseFooter} role="contentinfo">
+      <div className={styles.container}>
+        {/* Top */}
+        <div className={styles.footerTop}>
+          <div>
+            <div className={styles.brandRow} aria-label="SteakHouse">
+              <div className={styles.brandBlock}>
+                <h2>
+                  SteakHouse
+                  <img
+                    className={styles.brandMark}
+                    src="/images/steakhouse-logo-v2.png"
+                    alt="SteakHouse logo"
+                  />
+                </h2>
+                <p>
+                  ERC‑20 launchpad on Ethereum focused on fair, customizable
+                  launches.
+                </p>
               </div>
+            </div>
+          </div>
 
-            {/* Footer Links - Mobile: Vertical List */}
-            <nav>
-              <ul className="flex flex-col items-center space-y-2 text-sm text-[#e1a73a]">
-                {footerLinks.map((link) => (
-                  <li key={link.text}>
-                    <a
-                      href={link.href}
-                      className="hover:text-[#df6400] transition-colors duration-300"
-                    >
-                      {link.text}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+          <div className={styles.topActions} aria-label="Social and quick actions">
+            <nav className={styles.social} aria-label="Social media">
+              <a href="#" aria-label="YouTube" title="YouTube">
+                <i className="ri-youtube-fill" aria-hidden="true"></i>
+              </a>
+              <a href="#" aria-label="Medium" title="Medium">
+                <i className="ri-medium-fill" aria-hidden="true"></i>
+              </a>
+              <a href="#" aria-label="GitHub" title="GitHub">
+                <i className="ri-github-fill" aria-hidden="true"></i>
+              </a>
+              <a href="#" aria-label="Twitter" title="Twitter">
+                <i className="ri-twitter-x-fill" aria-hidden="true"></i>
+              </a>
+              <a href="#" aria-label="Discord" title="Discord">
+                <i className="ri-discord-fill" aria-hidden="true"></i>
+              </a>
+              <a href="#" aria-label="Telegram" title="Telegram">
+                <i className="ri-telegram-fill" aria-hidden="true"></i>
+              </a>
             </nav>
 
-            {/* Social Icons */}
-            <div className="flex items-center space-x-2">
-              {/* Discord Icon */}
-              <a
-                href="#"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/images/discord.png"
-                  alt="Discord"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* Telegram Icon */}
-              <a
-                href="#"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/images/telegram.png"
-                  alt="Telegram"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* Twitter/X Icon */}
-              <a
-                href="#"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/images/twitter.png"
-                  alt="Twitter"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* Info Icon */}
-              <div
-                onClick={() => setIsInfoModalOpen(true)}
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-              >
-                <Image
-                  src="/images/info.png"
-                  alt="Info"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Desktop Layout: Logo left, content pushed right */}
-          <div className="hidden sm:flex flex-row justify-between items-center">
-            {/* Footer Logo - Positioned more to the left */}
-            <div className="flex flex-col items-center">
-              <div className="flex items-center -ml-8">
-                <Image
-                  src="/images/footer_main_logo.png"
-                  alt="Footer Logo"
-                  width={400}
-                  height={400}
-                  className="object-contain"
-                />
-              </div>
-
-              <div className="flex flex-row items-center -ml-17">
-                <Image
-                  src="/images/footer-certik_main.png"
-                  alt="Footer Logo"
-                  width={200}
-                  height={200}
-                  className="object-contain"
-                />
-                <button className="bg-[#f3edd0] text-[#290b00] ml-4 px-4 py-2 hover:bg-[#df6400] hover:text-[#f3edd0] rounded-md">Certificate&nbsp;&gt;</button>
-              </div>
-            </div>
-
-            {/* Right Side Content - Positioned more to the right */}
-            <div className="flex flex-col items-end space-y-8 mr-8">
-              {/* Social Icons */}
-              <div className="flex items-center space-x-2 ml-4">
-                {/* Discord Icon */}
-                <a
-                  href="#"
-                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <Image
-                    src="/images/discord.png"
-                    alt="Discord"
-                    width={28}
-                    height={28}
-                    className="object-contain"
-                  />
-                </a>
-
-                {/* Telegram Icon */}
-                <a
-                  href="#"
-                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <Image
-                    src="/images/telegram.png"
-                    alt="Telegram"
-                    width={28}
-                    height={28}
-                    className="object-contain"
-                  />
-                </a>
-
-                {/* Twitter/X Icon */}
-                <a
-                  href="#"
-                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <Image
-                    src="/images/twitter.png"
-                    alt="Twitter"
-                    width={28}
-                    height={28}
-                    className="object-contain"
-                  />
-                </a>
-
-                {/* Info Icon */}
-                <div
-                  onClick={() => setIsInfoModalOpen(true)}
-                  className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                >
-                  <Image
-                    src="/images/info.png"
-                    alt="Info"
-                    width={28}
-                    height={28}
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-
-              {/* Footer Links */}
-              <nav>
-                <ul className="flex items-center space-x-3 text-sm sm:text-base text-[#e1a73a]">
-                  {footerLinks.map((link, index) => (
-                    <React.Fragment key={link.text}>
-                      <li>
-                        <a
-                          href={link.href}
-                          className="hover:text-[#df6400] transition-colors duration-300"
-                        >
-                          {link.text}
-                        </a>
-                      </li>
-                      {index < footerLinks.length - 1 && (
-                        <li aria-hidden="true">|</li>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </ul>
-              </nav>
-            </div>
+            <button 
+              className={`${styles.btn} ${styles.primary}`} 
+              onClick={() => setIsModalOpen(true)}
+              title="Create ERC‑20"
+            >
+              Create Token
+            </button>
+            <a className={styles.btn} href="#" title="Documentation">
+              Docs
+            </a>
           </div>
         </div>
-      </div>
 
-      {/* Section 2: The new part you requested */}
-      <div
-        style={{
-          backgroundColor: "#2e1906",
-          borderColor: "#401d00",
-        }}
-        className="border-t py-3"
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs text-[#e1a73a]">
-            © SteakHouse Finance LTD
+        {/* Middle: Corporate links */}
+        <div className={styles.footerMiddle}>
+          <nav className={styles.mega} aria-label="Footer site map">
+            <div className={styles.col}>
+              <h3>Solutions</h3>
+              <ul>
+                <li><a href="#">Stealth Launchpad</a></li>
+                <li><a href="#">Fairness Guard (anti‑snipe)</a></li>
+                <li><a href="#">Virtual AMM Trades</a></li>
+                <li><a href="#">Liquidity Lock & Vesting</a></li>
+              </ul>
+
+              {/* CertiK certificate block under Solutions */}
+              <div className={styles.certikBadge} aria-label="CertiK certificate">
+                <img
+                  className={styles.certikMark}
+                  src="/images/certik-logo-v2.png"
+                  alt="CertiK logo"
+                />
+                <span className={styles.spacer}></span>
+                <a
+                  className={`${styles.btn} ${styles.sm}`}
+                  href="#certik"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="View CertiK Certificate"
+                >
+                  <i className="ri-shield-check-line" aria-hidden="true"></i>
+                  Audit Certificate
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.col}>
+              <h3>Products</h3>
+              <ul>
+                <li><a href="#">$3 Token Generator</a></li>
+                <li><a href="#">Tax Manager</a></li>
+                <li><a href="#">Migration & Ownership</a></li>
+              </ul>
+            </div>
+
+            <div className={styles.col}>
+              <h3>Developers</h3>
+              <ul>
+                <li><a href="#">Kitchen Docs</a></li>
+                <li><a href="#">SDK / API</a></li>
+                <li><a href="#">Minimal ERC‑20 Templates</a></li>
+                <li><a href="#">Verify on Etherscan</a></li>
+                <li><a href="#">Changelog</a></li>
+                <li><a href="#">Status</a></li>
+              </ul>
+            </div>
+
+            <div className={styles.col}>
+              <h3>Policies</h3>
+              <ul>
+                <li><a href="#">Fair Distribution Policy</a></li>
+                <li><a href="#">Anti‑Bot & Anti‑Snipe Standard</a></li>
+                <li><a href="#">Fee Schedule</a></li>
+                <li><a href="#">Security & Responsible Disclosure</a></li>
+              </ul>
+            </div>
+
+            <div className={styles.col}>
+              <h3>Company</h3>
+              <ul>
+                <li><a href="#">About SteakHouse</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Brand & Press</a></li>
+                <li><a href="#">Contact</a></li>
+              </ul>
+            </div>
+
+            <div className={styles.col}>
+              <h3>Legal</h3>
+              <ul>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Cookie Policy</a></li>
+                <li><a href="#">Risk Disclosure</a></li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        {/* Bottom: only disclaimer and copyright */}
+        <div className={styles.footerBottom} aria-label="Legal">
+          <p className={styles.disclaimer}>
+            SteakHouse provides a non‑custodial interface to open‑source smart
+            contracts on Ethereum. No investment advice. Launch responsibly and
+            DYOR.
           </p>
+          <p className={styles.copyright}>© 2025 SteakHouse</p>
         </div>
       </div>
     </footer>
+    
+    {/* Create Token Modal */}
+    <CreateTokenModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+  </>
   );
 };
 
