@@ -24,24 +24,24 @@ export default function TrendingBar() {
         </div>
 
         {/* Main bar with bull image and scrolling profiles */}
-        <div className="flex-grow bg-black/20 backdrop-blur-lg border border-white/20 rounded-l-full -ml-8 z-10 h-18 -mt-1 flex items-center">
+        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-8 z-10 h-18 -mt-1 flex items-center z-12">
           <Image
             src="/images/bull.png"
             alt="Bull"
-            width={120}
+            width={130}
             height={110}
             className="-ml-6 -mt-3 h-full w-auto object-contain flex-shrink-0"
           />
 
           {/* This container will take up the rest of the available space. */}
-          <div className="flex-1 relative flex items-center overflow-hidden w-2 h-full">
+          <div className="flex-1 bg-transparent bg-blur relative flex items-center overflow-hidden w-2 h-full">
             {/* Left fade overlay */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#351700] to-transparent pointer-events-none" />
             
             <ProfileMarquee profiles={trendingProfiles} />
             
             {/* Right fade overlay */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#F7F0D4] to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#120702] to-transparent pointer-events-none" />
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import Footer from "@/app/components/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[url('/images/homepage-bg.webp')] bg-cover bg-center bg-no-repeat">
+    <div className="min-h-screen">
       <Header />
       <TrendingBar />
       <TradingDashboard />

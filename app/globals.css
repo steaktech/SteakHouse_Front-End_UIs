@@ -19,11 +19,6 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
 
 /* Profile Widget Fire Border Styles - moved here for better performance */
 .profile-widget-fire-border {
