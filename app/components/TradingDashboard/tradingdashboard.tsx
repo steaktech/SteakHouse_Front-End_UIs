@@ -8,7 +8,7 @@ import {
   Wrench,
   Smile,
 } from "lucide-react";
-import DashboardStatCard from "../UI/DashboardStatCard";
+import DashboardStatCard from "./DashboardStatCard";
 import { FilterButton } from "./FilterButton";
 import { TokenCard } from "./TokenCard";
 import { StatCardProps, TokenCardProps } from "./types";
@@ -235,7 +235,7 @@ export default function TradingDashboard() {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-4 sm:p-6">
+          <div className="bg-[#1b0a03]/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-4 sm:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {tokenData.map((token, index) => (
                 <div key={index} className="h-full">

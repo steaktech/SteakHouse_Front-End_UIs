@@ -16,7 +16,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   volume, 
   progress 
 }) => (
-  <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
+  <div className="box-shadow-1 bg-gradient-to-b from-[#4f2101] to-[#7e3904] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
                  border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
     
     {/* Top rounded image */}
@@ -37,7 +37,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           <p className="font-bold text-xs sm:text-sm text-[#f8ead3]">{symbol}</p>
         </div>
       </div>
-      <div className="px-3 py-1 text-xl font-semibold rounded-md bg-[#fade79] text-black box-shadow-3">
+      <div className="px-3 py-1 text-xl font-semibold rounded-md bg-[#FADD69] text-[#612a02] box-shadow-3"
+           style={{ textShadow: '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4)' }}>
         {tag}
       </div>
     </div>
@@ -60,7 +61,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     </div>
 
     <div className="mt-4 relative">
-      <div className="bg-[#b15821] rounded-3xl">
+      <div className="bg-[#7f4108] rounded-3xl">
         <div className="rounded-3xl p-3 relative overflow-hidden box-shadow-3 bg-amber-950/50">
           <div className="absolute inset-0 bg-gradient-radial from-white/10 via-transparent to-transparent 
                         bg-[radial-gradient(circle_at_100%_-40%,rgba(255,255,255,0.2),rgba(255,255,255,0)_22%)] 
