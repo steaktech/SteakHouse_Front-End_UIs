@@ -47,7 +47,7 @@ export const KitchenSection: FC<KitchenSectionProps> = ({
       <h3 className="font-bold text-amber-300/90 w-full md:w-1/4 text-lg whitespace-pre-wrap flex items-start">
   
       <Image
-          src="/images/modal-icons/meat-website-webp.webp"
+          src="/images/modal-icons/chart-website-webp.webp"
           alt="Token Type"
           width={38}
           height={38}

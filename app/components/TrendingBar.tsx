@@ -24,7 +24,7 @@ export default function TrendingBar() {
         </div>
 
         {/* Main bar with bull image and scrolling profiles */}
-        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-13 z-10 h-18 -mt-1 flex items-center">
+        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center">
           {/* <Image
             src="/images/bull.png"
             alt="Bull"
