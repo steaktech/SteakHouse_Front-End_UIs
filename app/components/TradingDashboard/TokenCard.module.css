@@ -1,4 +1,5 @@
-:root {
+/* CSS Variables scoped to the token card */
+.tokenCard {
   /* Lighter, caramel/amber palette closer to the reference */
   --bg-0: #160c06;
   --bg-1: #231308;
@@ -36,10 +37,8 @@
   --spark-dur: 1800ms;
 
   --tip: 0; /* 0..1, set by JS */
-}
 
-/* Card */
-.tokenCard {
+  /* Card styles */
   width: 100%;
   max-width: 420px;
   position: relative;
@@ -64,6 +63,9 @@
   color: var(--text);
   height: auto;
   min-height: 450px;
+
+  /* OPTIMIZATION: Prepare the card for transform changes on hover */
+  will-change: transform, box-shadow;
 }
 
 /* Subtle edge lights + slow sheen */
@@ -100,6 +102,7 @@
     transparent 55%
   );
   animation: cardSheen 9s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes cardSheen {
@@ -440,6 +443,7 @@
   mix-blend-mode: soft-light;
   animation: glint var(--glint-dur) linear infinite;
   pointer-events: none;
+  will-change: background-position;
 }
 
 @keyframes glint {
@@ -540,6 +544,7 @@
   opacity: 0;
   animation: rise var(--spark-dur) linear forwards;
   z-index: 2;
+  will-change: transform, opacity;
 }
 
 @keyframes rise {
@@ -574,7 +579,7 @@
   z-index: 3;
 }
 
-/* Hot zone + tip */
+/* OPTIMIZED Hot zone + tip */
 .score .hotzone {
   position: absolute;
   inset: 0 0 0 auto;
@@ -582,32 +587,14 @@
   pointer-events: none;
   z-index: 2;
   opacity: var(--tip);
-  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1), filter 420ms ease;
-  filter: saturate(calc(1 + var(--tip) * 1))
-    brightness(calc(1 + var(--tip) * 0.25));
+  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
   background: radial-gradient(
-      95% 150% at 100% 50%,
-      rgb(255 64 34 / calc(0.78 * var(--tip))) 0 40%,
-      rgb(255 80 36 / calc(0.55 * var(--tip))) 46%,
-      transparent 72%
-    ),
-    radial-gradient(
-      130% 180% at 100% 50%,
-      rgb(255 160 80 / calc(0.65 * var(--tip))) 0 22%,
-      transparent 65%
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgb(255 240 220 / calc(0.2 * var(--tip))) 0 7px,
-      rgba(255, 240, 220, 0) 7px 14px
-    ),
-    linear-gradient(
-      90deg,
-      transparent,
-      rgb(255 255 255 / calc(0.8 * var(--tip))) 94%,
-      rgb(255 255 255 / calc(1 * var(--tip))) 99%
-    );
-  mix-blend-mode: overlay;
+    120% 150% at 100% 50%,
+    rgba(255, 64, 34, 0.5) 0%,
+    transparent 70%
+  );
+  mix-blend-mode: color-dodge; /* Lighter on performance than multiple overlays */
+  will-change: opacity;
 }
 
 .score .endcap {
@@ -651,6 +638,7 @@
     drop-shadow(0 0 64px rgba(255, 0, 0, calc(0.28 + var(--tip) * 0.45)));
   transition: opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 520ms cubic-bezier(0.22, 1, 0.36, 1), filter 520ms ease;
+  will-change: transform, opacity, filter;
 }
 
 .score .tip::before {
@@ -687,6 +675,7 @@
   border-bottom-right-radius: 50% 80%;
   animation: tipFlicker 1080ms ease-in-out infinite;
   transform-origin: 50% 100%;
+  will-change: transform, opacity;
 }
 
 .score .tip .tongue {
@@ -708,6 +697,7 @@
   filter: blur(0.15px);
   animation: tipFlicker 960ms ease-in-out infinite;
   transform-origin: 50% 100%;
+  will-change: transform, opacity;
 }
 
 .score .tip .tongue.t2 {
