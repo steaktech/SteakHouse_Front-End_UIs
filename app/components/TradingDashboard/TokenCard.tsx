@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Globe, Send } from 'lucide-react';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
+import styles from './TokenCard.module.css';
 
 export const TokenCard: React.FC<TokenCardProps> = ({ 
   isOneStop, 
@@ -9,99 +10,285 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   name, 
   symbol, 
   tag, 
-  tagColor, // Note: This prop is now overridden by the new design's static style
+  tagColor, 
   description, 
   mcap, 
   liquidity, 
   volume, 
   progress 
-}) => (
-  <div className="box-shadow-1 bg-gradient-to-b from-[#4f2101] to-[#7e3904] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
-                 border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
+}) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const flamesRef = useRef<HTMLDivElement>(null);
+  const sparkTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Normalize percentage (0-1 or 0-100 to 0-100)
+  const normalizePercent = (val: number) => {
+    if (val == null || isNaN(val)) return 0;
+    return val <= 1 ? val * 100 : val;
+  };
+
+  // Format percentage with locale
+  const formatPercent = (v: number) => {
+    return v.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    }) + '%';
+  };
+
+  // Seed flames along current fill width
+  const seedFlames = () => {
+    if (!flamesRef.current || !fillRef.current) return;
     
-    {/* Top rounded image */}
-    <div className="absolute top-0 left-0 right-0 mb-4">
-      <img 
-        src="/images/info_banner.jpg" 
-        alt="Token Header" 
-        className="w-full h-32 object-cover rounded-t-3xl"
-      />
-    </div>
-    <div className="mt-32 mb-4"></div>
-
-    <div className="flex items-start justify-between">
-      <div className="flex items-center space-x-3">
-        <img src={imageUrl} alt={name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-amber-300" />
-        <div>
-          <h3 className="font-bold text-base sm:text-lg text-[#fade79]">{name}</h3>
-          <p className="font-bold text-xs sm:text-sm text-[#f8ead3]">{symbol}</p>
-        </div>
-      </div>
-      <div className="px-3 py-1 text-xl font-semibold rounded-md bg-[#FADD69] text-[#612a02] box-shadow-3"
-           style={{ textShadow: '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4)' }}>
-        {tag}
-      </div>
-    </div>
+    flamesRef.current.innerHTML = '';
+    const w = fillRef.current.clientWidth || 1;
+    const FLAME_COUNT = 16;
     
-    <div className="mt-4 text-amber-200 text-xs sm:text-sm space-y-2">
-      <p>TAX: 3/3</p>
-      <p className="text-[#f8ead3] font-bold font-1.2rem">{description}</p>
-    </div>
+    for (let i = 0; i < FLAME_COUNT; i++) {
+      const flame = document.createElement('span');
+      flame.className = styles.flame;
+      const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - 26);
+      flame.style.left = `${left}px`;
+      flame.style.animationDuration = `${900 + Math.random() * 700}ms`;
+      flame.style.animationDelay = `${-Math.random() * 900}ms`;
+      flame.style.transform = `translateY(${Math.random() * 2}px) scale(${0.9 + Math.random() * 0.35})`;
+      flamesRef.current.appendChild(flame);
+    }
+  };
 
-    <div className="flex items-center space-x-2 sm:space-x-3 mt-4 text-yellow-200">
-      <div className="bg-[#f8ead3]/80 rounded-full p-1.5 sm:p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
-        <Send className="h-4 w-4 sm:h-5 sm:w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
-      </div>
-      <div className="bg-[#f8ead3]/80 rounded-full p-1.5 sm:p-2 flex items-center justify-center text-amber-800 border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
-        <TwitterIcon />
-      </div>
-      <div className="bg-[#f8ead3]/80 rounded-full p-1.5 sm:p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
-        <Globe className="h-4 w-4 sm:h-5 sm:w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
-      </div>
-    </div>
+  // Start sparks animation
+  const startSparks = () => {
+    stopSparks();
+    sparkTimer.current = setInterval(() => {
+      if (!fillRef.current) return;
+      if (document.querySelectorAll(`.${styles.spark}`).length > 40) return;
+      
+      const spark = document.createElement('span');
+      spark.className = styles.spark;
+      const w = fillRef.current.clientWidth;
+      const maxLeft = Math.max(0, w - 8);
 
-    <div className="mt-4 relative">
-      <div className="bg-[#7f4108] rounded-3xl">
-        <div className="rounded-3xl p-3 relative overflow-hidden box-shadow-3 bg-amber-950/50">
-          <div className="absolute inset-0 bg-gradient-radial from-white/10 via-transparent to-transparent 
-                        bg-[radial-gradient(circle_at_100%_-40%,rgba(255,255,255,0.2),rgba(255,255,255,0)_22%)] 
-                        rounded-xl pointer-events-none"></div>
-          
-          <div className="flex justify-around text-center relative z-10">
-            <div>
-              <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">MCAP</p>
-              <p className="font-bold text-xs sm:text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">{mcap}</p>
-            </div>
-            <div>
-              <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">LIQ</p>
-              <p className="font-bold text-xs sm:text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">{liquidity}</p>
-            </div>
-            <div>
-              <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">VOL</p>
-              <p className="font-bold text-xs sm:text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">{volume}</p>
-            </div>
+      const tipStrength = parseFloat(fillRef.current.style.getPropertyValue('--tip') || '0');
+      let x;
+      if (tipStrength > 0) {
+        const zone = Math.min(120, w);
+        const start = Math.max(0, w - zone);
+        x = start + Math.random() * zone;
+      } else {
+        x = Math.random() * maxLeft;
+      }
+
+      const drift = (Math.random() * 24 - 8).toFixed(1);
+      spark.style.left = `${x}px`;
+      spark.style.setProperty('--drift', `${drift}px`);
+      spark.style.animationDuration = `${1100 + Math.random() * 900}ms`;
+
+      fillRef.current.appendChild(spark);
+      spark.addEventListener('animationend', () => spark.remove(), { once: true });
+    }, 150);
+  };
+
+  const stopSparks = () => {
+    if (sparkTimer.current) clearInterval(sparkTimer.current);
+    sparkTimer.current = null;
+  };
+
+  // Set progress bar
+  const setProgress = (percent: number) => {
+    if (!fillRef.current || !trackRef.current || !labelRef.current) return;
+    
+    const clamped = Math.max(0, Math.min(100, percent));
+    fillRef.current.style.width = `${clamped}%`;
+    trackRef.current.setAttribute('aria-valuenow', clamped.toFixed(1));
+    labelRef.current.textContent = formatPercent(clamped);
+
+    const tipStrength = Math.max(0, (clamped - 90) / 10);
+    fillRef.current.style.setProperty('--tip', tipStrength.toFixed(3));
+  };
+
+  // Animate progress bar
+  const animateTo = (target: number, ms = 1600) => {
+    if (!fillRef.current) return;
+    
+    const startWidth = parseFloat(fillRef.current.style.width) || 0;
+    const t0 = performance.now();
+    
+    const frame = (t: number) => {
+      const k = Math.min(1, (t - t0) / ms);
+      const eased = 1 - Math.pow(1 - k, 3);
+      const value = startWidth + (target - startWidth) * eased;
+      setProgress(value);
+      if (k < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        seedFlames();
+      }
+    };
+    requestAnimationFrame(frame);
+  };
+
+  // Parallax effect
+  const enableParallax = (elem: HTMLElement, { maxTilt = 5, perspective = 800 } = {}) => {
+    elem.style.transform = `perspective(${perspective}px)`;
+    
+    const onMove = (e: MouseEvent) => {
+      const r = elem.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = (e.clientX - cx) / (r.width / 2);
+      const dy = (e.clientY - cy) / (r.height / 2);
+      const rx = Math.max(-maxTilt, Math.min(maxTilt, -dy * maxTilt));
+      const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
+      elem.style.transform = `perspective(${perspective}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    };
+    
+    const reset = () => {
+      elem.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
+    };
+    
+    elem.addEventListener('mousemove', onMove);
+    elem.addEventListener('mouseleave', reset);
+    
+    return () => {
+      elem.removeEventListener('mousemove', onMove);
+      elem.removeEventListener('mouseleave', reset);
+    };
+  };
+
+  useEffect(() => {
+    let cleanupParallax: (() => void) | undefined;
+    
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (!prefersReducedMotion && cardRef.current) {
+      cleanupParallax = enableParallax(cardRef.current, { maxTilt: 6, perspective: 900 });
+    }
+
+    // Initialize progress bar
+    setProgress(0);
+    seedFlames();
+    
+    if (!prefersReducedMotion) {
+      startSparks();
+    }
+
+    // Animate to target progress
+    const normalizedProgress = normalizePercent(progress);
+    setTimeout(() => {
+      animateTo(normalizedProgress, 1800);
+    }, 100);
+
+    // Cleanup
+    return () => {
+      stopSparks();
+      if (cleanupParallax) cleanupParallax();
+    };
+  }, [progress]);
+
+  return (
+    <article 
+      ref={cardRef}
+      className={styles.tokenCard}
+      role="article"
+      aria-label={`${name} token card`}
+    >
+      {/* Token banner */}
+      <div className={styles.tokenBanner} aria-hidden="true">
+        <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
+        <div className={`${styles.bannerLayer} ${styles.texture}`}></div>
+        <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
+        <div className={`${styles.bannerLayer} ${styles.rimGlow}`}></div>
+      </div>
+
+      {/* Identity row */}
+      <header className={styles.header}>
+        <div className={styles.identity}>
+          <div className={styles.avatar}>
+            <img 
+              src={imageUrl} 
+              alt={name} 
+              className={styles.avatarImage} 
+            />
           </div>
-          
-          <div className="mt-3 relative">
-            <div className="bg-[#a07b24] rounded-full p-[2px] shadow-sm box-shadow-3">
-              <div className="bg-[#a07b24] rounded-full h-6 sm:h-8 relative overflow-hidden
-                                shadow-[inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-2px_0_3px_rgba(0,0,0,0.3),inset_0_-2px_3px_rgba(0,0,0,0.4)]">
-                <div className="bg-[#a07b24] rounded-full p-[1px] h-full">
-                  <div 
-                    className="bg-gradient-to-r from-[#fbc710] via-[#f8d96e] to-[#f8d96e] h-full rounded-full 
-                                flex items-center justify-center relative overflow-hidden
-                                shadow-[inset_1px_1px_2px_rgba(255,255,255,0.3),inset_-1px_0_2px_rgba(0,0,0,0.1)] box-shadow-3" 
-                    style={{ width: `${progress}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent rounded-full"></div>
-                    <span className="text-black font-bold text-xs sm:text-sm relative z-10">{progress}%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className={styles.nameBlock}>
+            <h1 className={styles.name}>{name}</h1>
+            <div className={styles.ticker}>{symbol}</div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-);
+
+        <div className={styles.badge}>{tag}</div>
+      </header>
+
+      <section className={styles.taxLine}>
+        <div className={styles.taxStrong}>Tax: 3/3</div>
+        <div className={styles.taxChips}>
+          <span className={styles.chip}>Current Tax: 3/3</span>
+          <span className={styles.chip}>MaxTX: 2,1%</span>
+        </div>
+      </section>
+
+      <p className={styles.desc}>
+        {description}
+      </p>
+
+      <nav className={styles.socials} aria-label="Social links">
+        <button className={`${styles.socialBtn} ${styles.tg}`} aria-label="Telegram" title="Telegram">
+          <Send size={18} />
+        </button>
+        <button className={`${styles.socialBtn} ${styles.x}`} aria-label="X (Twitter)" title="X">
+          <TwitterIcon />
+        </button>
+        <button className={`${styles.socialBtn} ${styles.web}`} aria-label="Website" title="Website">
+          <Globe size={18} />
+        </button>
+      </nav>
+
+      {/* Bottom panel: stats row + searing progress bar */}
+      <section className={styles.score}>
+        <div className={styles.scoreStats} aria-label="Token stats">
+          <div className={styles.stat}>
+            <div className={styles.statLabel}>MCAP</div>
+            <div className={styles.statValue}>{mcap}</div>
+          </div>
+          <div className={styles.stat}>
+            <div className={styles.statLabel}>VOLUME</div>
+            <div className={styles.statValue}>{volume}</div>
+          </div>
+          <div className={styles.stat}>
+            <div className={styles.statLabel}>LP</div>
+            <div className={styles.statValue}>{liquidity}</div>
+          </div>
+        </div>
+
+        {/* Searing progress bar */}
+        <div
+          ref={trackRef}
+          className={styles.track}
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={0}
+        >
+          <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
+            <div ref={labelRef} className={styles.label}>0%</div>
+
+            <div className={styles.hotzone} aria-hidden="true"></div>
+            <div className={styles.endcap} aria-hidden="true"></div>
+
+            <div className={styles.tip} aria-hidden="true">
+              <span className={styles.plume}></span>
+              <span className={`${styles.tongue} ${styles.t1}`}></span>
+              <span className={`${styles.tongue} ${styles.t2}`}></span>
+            </div>
+
+            <div ref={flamesRef} className={styles.flames}></div>
+            <div className={styles.heat} aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+    </article>
+  );
+};
