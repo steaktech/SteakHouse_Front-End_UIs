@@ -226,7 +226,8 @@
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #ffd9a1;
+  color: #e9d07e;
+  font-weight: 800;
   opacity: 0.95;
   text-shadow: 0 0 12px rgba(255, 150, 60, 0.08);
 }
@@ -255,12 +256,21 @@
 .certikBadge {
   margin-top: 10px;
   padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 125px;
+  max-height: 40px;
+  justify-content: center;
+}
+
+.certikBadgeimg {
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   background: var(--chip);
   border: 1px solid var(--line);
   display: flex;
   align-items: center;
-  gap: 15px;
   max-width: 125px;
   max-height: 40px;
 }

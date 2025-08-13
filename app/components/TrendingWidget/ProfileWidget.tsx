@@ -58,6 +58,7 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = memo(
               mp4Src={arrowMp4Src}
               className="w-6 h-6 drop-shadow-md object-contain"
               aria-hidden
+              lazyLoad={true}
             />
           )}
         </span>
