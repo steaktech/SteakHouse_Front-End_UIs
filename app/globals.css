@@ -1,6 +1,21 @@
 @import "tailwindcss";
 
 
+/* Global color variables for button styles */
+:root {
+  --cream: #f6e7b5;
+  --gold-300: #f3cc76;
+  --gold-400: #e8b35c;
+  --orange-400: #d9853a;
+  --orange-500: #c06e2e;
+  --brown-500: #9e5c28;
+  --brown-600: #6e3a18;
+  --brown-700: #4d2814;
+  --brown-800: #3b1e10;
+  --brown-900: #1e0e07;
+}
+
+
 /* Profile Widget Fire Border Styles - moved here for better performance */
 .profile-widget-fire-border {
   position: relative;
