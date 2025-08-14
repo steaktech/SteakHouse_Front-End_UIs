@@ -56,14 +56,14 @@ export default function TrendingBar() {
         </div>
 
         {/* Marquee section (full width, below title) */}
-        <div className="h-16 bg-[#F7F0D4] relative flex items-center overflow-hidden">
+        <div className="h-16 bg-black/20 backdrop-blur-lg relative flex items-center overflow-hidden">
           {/* Left fade overlay (full height) */}
-          <div className="absolute left-0 top-0 z-10 w-24 h-full bg-gradient-to-r from-[#F7F0D4] to-transparent pointer-events-none" />
+          <div className="absolute left-0 top-0 z-10 w-24 h-full bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
 
           <ProfileMarquee profiles={trendingProfiles} />
 
           {/* Right fade overlay (full height) */}
-          <div className="absolute right-0 top-0 z-10 w-24 h-full bg-gradient-to-l from-[#F7F0D4] to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 z-10 w-24 h-full bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
         </div>
       </div>
     </div>

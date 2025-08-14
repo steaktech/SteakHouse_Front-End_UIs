@@ -14,6 +14,7 @@ import { TokenCard } from "./TokenCard";
 import { StatCardProps, TokenCardProps } from "./types";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SmartVideo from "../UI/SmartVideo";
+import styles from "../UI/Botton.module.css";
 
 export default function TradingDashboard() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -214,18 +215,15 @@ export default function TradingDashboard() {
               <FilterButton icon={<Flame size={16} />} label="Trending" />
             </div>
 
-            <div className="relative flex-grow sm:flex-grow-0 sm:w-auto ">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500 pointer-events-none "
-                size={20}
-              />
-              <input
-                type="text"
-                placeholder="Search..."
+            <div className="sm:w-auto ">
+              <button
+                type="button"
                 onClick={handleSearchClick}
-                readOnly
-                className="border border-gray-500 rounded-xl pl-10 pr-4 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer bg-gradient-to-b from-[#472005]/80 to-[#451f02]/50 text-yellow-500 border-[#925929] shadow-[inset_0_2px_4px_rgba(253,224,71,0.5),_inset_0_-2px_4px_rgba(118,69,10,0.4)] hover:from-yellow-500 hover:to-yellow-600 active:shadow-[inset_0_3px_5px_rgba(118,69,10,0.5)] active:from-yellow-600 active:to-yellow-700 placeholder-yellow-500"
-              />
+                className={`${styles["btn-5"]} flex items-center gap-2`}
+              >
+                <Search size={18} />
+                <span>Search...</span>
+              </button>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">

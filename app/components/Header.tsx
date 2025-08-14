@@ -1,11 +1,18 @@
 "use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import dynamic from 'next/dynamic';
+import Image from "next/image";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import styles from "./UI/Botton.module.css";
 
-const CreateTokenModal = dynamic(() => import('./Modals/CreateTokenModal/CreateTokenModal'), { ssr: false });
-const SteakHouseInfoModal = dynamic(() => import('./Modals/SteakHouseInfoModal'), { ssr: false });
+const CreateTokenModal = dynamic(
+  () => import("./Modals/CreateTokenModal/CreateTokenModal"),
+  { ssr: false }
+);
+const SteakHouseInfoModal = dynamic(
+  () => import("./Modals/SteakHouseInfoModal"),
+  { ssr: false }
+);
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,12 +41,15 @@ export default function Header() {
                 className="object-contain pointer-events-auto hidden md:block"
               />
             </div>
-            
+
             {/* Social Icons */}
             {/* MODIFIED: Icons are hidden by default, and appear as a flex container on 'sm' screens and larger */}
             <div className="hidden sm:flex items-center space-x-2 ml-4">
               {/* Discord Icon */}
-              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a
+                href="#"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/discord.png"
                   alt="Discord"
@@ -48,9 +58,12 @@ export default function Header() {
                   className="object-contain"
                 />
               </a>
-              
+
               {/* Telegram Icon */}
-              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a
+                href="#"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/telegram.png"
                   alt="Telegram"
@@ -61,7 +74,10 @@ export default function Header() {
               </a>
 
               {/* Twitter/X Icon */}
-              <a href="#" className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <a
+                href="#"
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/twitter.png"
                   alt="Twitter"
@@ -70,9 +86,12 @@ export default function Header() {
                   className="object-contain"
                 />
               </a>
-              
+
               {/* Info Icon */}
-              <div onClick={() => setIsInfoModalOpen(true)} className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+              <div
+                onClick={() => setIsInfoModalOpen(true)}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <Image
                   src="/images/info.png"
                   alt="Info"
@@ -83,32 +102,52 @@ export default function Header() {
               </div>
             </div>
           </div>
-          
+
           {/* Buttons Section (using the most compact version) */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 mb-2">
             {/* Create Token Button */}
-            <div className="outer-button header-button cursor-pointer" onClick={() => setIsModalOpen(true)}>
-              <div className="inner-button px-1.5 py-1 sm:px-2 md:px-3 text-[#e9af5a] font-bold text-xs sm:text-sm md:text-base">
+            <button
+              className={`${styles.baseButton} ${styles["btn-2"]} cursor-pointer`}
+              onClick={() => setIsModalOpen(true)}
+              style={{ width: "180px", height: "50px", minWidth: "120px" }}
+            >
+              <div className={styles["btn-2-inner"]}>
                 <span className="text-xs sm:text-sm font-bold mr-1">+</span>
                 <span className="hidden sm:inline">Create Token</span>
                 <span className="sm:hidden">Create</span>
               </div>
-            </div>
+            </button>
 
-            {/* Connect Wallet Button */}
-            <div className="outer-button header-button cursor-pointer" onClick={() => { /* wallet logic */ }}>
-              <div className="inner-button golden px-1.5 py-1 sm:px-2 md:px-3 text-[#000000] font-bold text-xs sm:text-sm md:text-base">
-                <span className="hidden sm:inline">Connect Wallet</span>
-                <span className="sm:hidden">Connect</span>
+            {/* Connect Wallet Button (Updated Structure) */}
+            <button
+              className={`${styles.baseButton} ${styles["btn-2"]} cursor-pointer`}
+              onClick={() => {
+                /* wallet logic */
+              }}
+              style={{ width: "180px", height: "50px", minWidth: "120px" }}
+            >
+              <div className={styles["btn-2-inner"]}>
+                <span className="hidden sm:inline text-xs sm:text-sm font-bold">
+                  Connect Wallet
+                </span>
+                <span className="sm:hidden text-xs sm:text-sm font-bold">
+                  Connect
+                </span>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </header>
-      
+
       {/* Modals */}
-      <CreateTokenModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      <SteakHouseInfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} />
+      <CreateTokenModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+      <SteakHouseInfoModal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+      />
     </>
   );
 }
