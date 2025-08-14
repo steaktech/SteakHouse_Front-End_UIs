@@ -1,4 +1,4 @@
-:root {
+:global(:root) {
 	--cream: #f6e7b5;
 	--gold-300: #f3cc76;
 	--gold-400: #e8b35c;
