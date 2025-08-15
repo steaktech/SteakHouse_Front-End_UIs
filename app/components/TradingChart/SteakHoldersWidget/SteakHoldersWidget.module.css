@@ -125,6 +125,7 @@
   overscroll-behavior: contain;
 }
 
+/* ADJUSTED: Left side wider (1fr), right side thinner (1.6fr) - matching original */
 .grid {
   display: grid;
   gap: 16px;
@@ -221,7 +222,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1200px) {
   .kpis {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -236,13 +237,15 @@
   overflow: hidden;
 }
 
-.kpi .lbl {
+.kpi .lbl,
+.lbl {
   color: var(--hw-muted);
   font-size: 12px;
   margin-bottom: 4px;
 }
 
-.kpi .val {
+.kpi .val,
+.val {
   font-weight: 900;
   margin-top: 6px;
   font-size: 14px;
@@ -266,29 +269,40 @@
 }
 
 .legend {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.legend .item {
+.legend .item,
+.legendItem,
+.item {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.legend .lbl {
+.legend .lbl,
+.legendLbl {
   color: var(--hw-muted);
   font-size: 12px;
+  flex: 1;
 }
 
-.legend .val {
+.legend .val,
+.legendVal {
   font-weight: 900;
+  font-size: 12px;
+  color: var(--hw-ink);
+  margin-left: auto;
 }
 
 /* Controls */

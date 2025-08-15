@@ -58,7 +58,96 @@ const demoData = {
       tx: 21,
       balance: 35_800_000,
     },
-    // Add more demo data as needed...
+    {
+      address: "0x55cD672309b5F55F2a1A54c0aC0c3d19dA220006",
+      label: "normal" as const,
+      tx: 10,
+      balance: 25_300_000,
+    },
+    {
+      address: "0x44AA7FfE11cB055857Cab072aAb0c17010F00007",
+      label: "exchange" as const,
+      tx: 75,
+      balance: 22_000_000,
+    },
+    {
+      address: "0x33cCeE88a0b7dD3b9fAa50C0BBe811C0eEaa0008",
+      label: "normal" as const,
+      tx: 3,
+      balance: 18_450_000,
+    },
+    {
+      address: "0x22fA0B18F8810023bB3E003AfF2211900Baa0009",
+      label: "normal" as const,
+      tx: 15,
+      balance: 15_000_000,
+    },
+    {
+      address: "0x1111aAaA1111aaAA1111aaaa1111AaAa11110010",
+      label: "normal" as const,
+      tx: 9,
+      balance: 12_300_000,
+    },
+    {
+      address: "0x0fAa0a0B0C0d0E0F1029384756AaBbCcDdEe0011",
+      label: "normal" as const,
+      tx: 5,
+      balance: 10_000_000,
+    },
+    {
+      address: "0x19a2b3c4d5e6f7081928374655647382910e0012",
+      label: "contract" as const,
+      tx: 2,
+      balance: 9_000_000,
+    },
+    {
+      address: "0x20A1b2C3D4E5F60718273645aBcDeFf012340013",
+      label: "normal" as const,
+      tx: 1,
+      balance: 8_200_000,
+    },
+    {
+      address: "0x21BBB2222CcC3333ddd4444EEE5555fff6660014",
+      label: "normal" as const,
+      tx: 3,
+      balance: 6_000_000,
+    },
+    {
+      address: "0x22CcDD33eeFF44aA55bB66Cc77Dd88Ee99Ff0015",
+      label: "normal" as const,
+      tx: 2,
+      balance: 5_500_000,
+    },
+    {
+      address: "0x23a1a1a1a1b2b2b2c3c3c3d4d4e5e5f6f6f60016",
+      label: "normal" as const,
+      tx: 4,
+      balance: 3_000_000,
+    },
+    {
+      address: "0x24dddd1111eeee2222ffff3333aaaa4444bbbb17",
+      label: "normal" as const,
+      tx: 2,
+      balance: 2_100_000,
+    },
+    {
+      address: "0x25cafeBabe000111222333444555666777888018",
+      label: "normal" as const,
+      tx: 1,
+      balance: 1_600_000,
+    },
+    {
+      address: "0x26deADbeef00112233445566778899aabbcc0019",
+      label: "normal" as const,
+      tx: 1,
+      balance: 1_250_000,
+    },
+    {
+      address: "0x27abCD1234ef5678ABcd9012EF34567890ab0020",
+      label: "normal" as const,
+      tx: 1,
+      balance: 890_000,
+    },
   ],
 };
 
@@ -388,20 +477,20 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
 
               <div className={styles.kpis}>
                 <div className={styles.kpi}>
-                  <div className="lbl">Price</div>
-                  <div className="val">{USD.format(token.priceUSD)}</div>
+                  <div className={`${styles.lbl} lbl`}>Price</div>
+                  <div className={`${styles.val} val`}>{USD.format(token.priceUSD)}</div>
                 </div>
                 <div className={styles.kpi}>
-                  <div className="lbl">Market Cap</div>
-                  <div className="val">{formatCompactCurrency(token.priceUSD * token.totalSupply)}</div>
+                  <div className={`${styles.lbl} lbl`}>Market Cap</div>
+                  <div className={`${styles.val} val`}>{formatCompactCurrency(token.priceUSD * token.totalSupply)}</div>
                 </div>
                 <div className={styles.kpi}>
-                  <div className="lbl">Total Supply</div>
-                  <div className="val">{formatCompactNumber(token.totalSupply)} {token.symbol}</div>
+                  <div className={`${styles.lbl} lbl`}>Total Supply</div>
+                  <div className={`${styles.val} val`}>{formatCompactNumber(token.totalSupply)} {token.symbol}</div>
                 </div>
                 <div className={styles.kpi}>
-                  <div className="lbl">Top 10 share</div>
-                  <div className="val">{PCT(top10Share)}</div>
+                  <div className={`${styles.lbl} lbl`}>Top 10 share</div>
+                  <div className={`${styles.val} val`}>{PCT(top10Share)}</div>
                 </div>
               </div>
 
@@ -410,11 +499,10 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                   {renderDonut()}
                   <div className={styles.legend}>
                     {distributionSegments.map((segment, index) => (
-                      <div key={index} className="item">
+                      <div key={index} className={styles.item}>
                         <div className={styles.dot} style={{ background: segment.color }} />
-                        <div className={`${styles.legend} lbl`}>{segment.label}</div>
-                        <div style={{ flex: 1 }} />
-                        <div className={`${styles.legend} val`}>{PCT(segment.value)}</div>
+                        <span className={styles.legendLbl}>{segment.label}</span>
+                        <span className={styles.legendVal}>{PCT(segment.value)}</span>
                       </div>
                     ))}
                   </div>
