@@ -1,9 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 // Icons from lucide-react, including X for the mobile close button
 import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
+import { SteakHoldersWidget } from './SteakHoldersWidget';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -11,9 +12,10 @@ interface WidgetItemProps {
   text: string;
   expanded: boolean;
   active?: boolean;
+  onClick?: () => void;
 }
 
-const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active }) => {
+const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, onClick }) => {
   // Base classes for all items
   const baseClasses = "flex items-center h-[36px] py-2 px-3 mx-2 mb-[6px] rounded-[10px] cursor-pointer transition-all duration-200 ease-in-out relative";
   
@@ -22,7 +24,10 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active })
   const inactiveClasses = "hover:bg-[rgba(0,0,0,0.178)]";
 
   return (
-    <div className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}>
+    <div 
+      className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}
+      onClick={onClick}
+    >
       {/* Icon */}
       <div className={`flex-shrink-0 ${active ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]' : 'opacity-80'}`}>
         {icon}
@@ -53,12 +58,18 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active })
 
 
 export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
+  const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
+
+  const handleHoldersClick = () => {
+    setIsHoldersWidgetOpen(true);
+  };
+
   const widgets = [
     // Updated icon size to 18px to match the CSS
     { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },
     { icon: <Coins size={18} className="text-[#d29900]" />, text: 'Token' },
     { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade' },
-    { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders' },
+    { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat' },
     { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved' },
   ];
@@ -119,10 +130,17 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
               text={widget.text}
               expanded={expanded}
               active={widget.active}
+              onClick={widget.onClick}
             />
           ))}
         </nav>
       </aside>
+
+      {/* SteakHolders Widget */}
+      <SteakHoldersWidget 
+        isOpen={isHoldersWidgetOpen}
+        onClose={() => setIsHoldersWidgetOpen(false)}
+      />
     </>
   );
 };
