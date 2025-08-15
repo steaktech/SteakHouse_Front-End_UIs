@@ -275,15 +275,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
             <div ref={labelRef} className={styles.label}>0%</div>
 
-            <div className={styles.hotzone} aria-hidden="true"></div>
-            <div className={styles.endcap} aria-hidden="true"></div>
-
-            <div className={styles.tip} aria-hidden="true">
-              <span className={styles.plume}></span>
-              <span className={`${styles.tongue} ${styles.t1}`}></span>
-              <span className={`${styles.tongue} ${styles.t2}`}></span>
-            </div>
-
             <div ref={flamesRef} className={styles.flames}></div>
             <div className={styles.heat} aria-hidden="true"></div>
           </div>

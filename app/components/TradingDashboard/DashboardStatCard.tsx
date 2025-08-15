@@ -54,32 +54,7 @@ export default function DashboardStatCard({ title, value }: DashboardStatCardPro
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     resetEffects();
   };
-
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-
-    function createSparkle() {
-      const host = cardRef.current;
-      if (!host) return;
-      const sparkle = document.createElement("div");
-      sparkle.className = styles.sparkle;
-      sparkle.style.left = Math.random() * 100 + "%";
-      sparkle.style.top = Math.random() * 100 + "%";
-      host.appendChild(sparkle);
-      window.setTimeout(() => sparkle.remove(), 1500);
-    }
-
-    sparkleIntervalRef.current = window.setInterval(() => {
-      if (Math.random() > 0.7) createSparkle();
-    }, 2000) as unknown as number;
-
-    return () => {
-      if (sparkleIntervalRef.current) window.clearInterval(sparkleIntervalRef.current);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, []);
-
+  
   return (
     <div className="flex items-center justify-center font-sans">
       <div
