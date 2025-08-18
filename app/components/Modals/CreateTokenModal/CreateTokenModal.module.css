@@ -1,4 +1,4 @@
-:root {
+:global(:root) {
   /* Browns replacing previous grays */
   --bg: #0d0704; /* deep backdrop */
   --bg-elev: #1a0f08; /* sidebar/content base */

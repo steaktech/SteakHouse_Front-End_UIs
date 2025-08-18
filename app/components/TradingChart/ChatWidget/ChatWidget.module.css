@@ -1,4 +1,4 @@
-:root {
+:global(:root) {
   --bg-950: #1c0f07;
   --bg-900: #241208;
   --surface-800: #3a1e0e;
