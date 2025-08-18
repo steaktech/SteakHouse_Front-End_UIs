@@ -47,6 +47,9 @@
   border-left: 1px solid var(--border-500);
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
   transition: right 0.28s cubic-bezier(0.2, 0.9, 0.2, 1);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji",
+    "Segoe UI Emoji";
 }
 
 .chatDrawer.show {

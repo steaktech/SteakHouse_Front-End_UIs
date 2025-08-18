@@ -186,6 +186,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
         role="complementary"
         aria-label="Chat"
       >
+        <button 
+          className={styles.closeX} 
+          onClick={onClose} 
+          title="Close"
+          type="button"
+        >
+          ✕
+        </button>
+
         {/* Header */}
         <header className={styles.coinHeader}>
           <div className={styles.centerline}>
