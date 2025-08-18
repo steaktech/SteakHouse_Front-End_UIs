@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
 import { SteakHoldersWidget } from './SteakHoldersWidget';
+import { ChatWidget } from './ChatWidget';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -59,9 +60,14 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, o
 
 export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
+  const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
+  };
+
+  const handleChatClick = () => {
+    setIsChatWidgetOpen(true);
   };
 
   const widgets = [
@@ -70,7 +76,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     { icon: <Coins size={18} className="text-[#d29900]" />, text: 'Token' },
     { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade' },
     { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
-    { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat' },
+    { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved' },
   ];
 
@@ -140,6 +146,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       <SteakHoldersWidget 
         isOpen={isHoldersWidgetOpen}
         onClose={() => setIsHoldersWidgetOpen(false)}
+      />
+
+      {/* Chat Widget */}
+      <ChatWidget 
+        isOpen={isChatWidgetOpen}
+        onClose={() => setIsChatWidgetOpen(false)}
       />
     </>
   );

@@ -107,32 +107,26 @@ export default function Header() {
           <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 mb-2">
             {/* Create Token Button */}
             <button
-              className={`${styles.baseButton} ${styles["btn-2"]} cursor-pointer`}
+              className={`${styles.headerBtn}`}
               onClick={() => setIsModalOpen(true)}
-              style={{ width: "180px", height: "50px", minWidth: "120px" }}
             >
-              <div className={styles["btn-2-inner"]}>
+              <div className={styles.headerBtnInner}>
                 <span className="text-xs sm:text-sm font-bold mr-1">+</span>
                 <span className="hidden sm:inline">Create Token</span>
                 <span className="sm:hidden">Create</span>
               </div>
             </button>
 
-            {/* Connect Wallet Button (Updated Structure) */}
+            {/* Connect Wallet Button */}
             <button
-              className={`${styles.baseButton} ${styles["btn-2"]} cursor-pointer`}
+              className={`${styles.headerBtnGolden}`}
               onClick={() => {
                 /* wallet logic */
               }}
-              style={{ width: "180px", height: "50px", minWidth: "120px" }}
             >
-              <div className={styles["btn-2-inner"]}>
-                <span className="hidden sm:inline text-xs sm:text-sm font-bold">
-                  Connect Wallet
-                </span>
-                <span className="sm:hidden text-xs sm:text-sm font-bold">
-                  Connect
-                </span>
+              <div className={styles.headerBtnGoldenInner}>
+                <span className="hidden sm:inline">Connect Wallet</span>
+                <span className="sm:hidden">Connect</span>
               </div>
             </button>
           </div>

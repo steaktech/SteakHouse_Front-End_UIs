@@ -51,7 +51,7 @@ export default function TradingChart() {
           <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
         </div>
         
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 pb-16 lg:pb-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded">
           
           {/* Trading Chart */}
           <div className="order-1 lg:col-start-1 lg:row-start-1">

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, X } from 'lucide-react';
 import { SidebarProps } from './types';
 import { SteakHoldersWidget } from './SteakHoldersWidget';
+import { ChatWidget } from './ChatWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -41,9 +42,15 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
 
 export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
+  const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
+    setExpanded(false); // Close the mobile sidebar when opening the widget
+  };
+
+  const handleChatClick = () => {
+    setIsChatWidgetOpen(true);
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
@@ -52,7 +59,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
     { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token' },
     { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade' },
     { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
-    { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat' },
+    { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved' },
   ];
 
@@ -115,6 +122,12 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <SteakHoldersWidget 
         isOpen={isHoldersWidgetOpen}
         onClose={() => setIsHoldersWidgetOpen(false)}
+      />
+
+      {/* Chat Widget */}
+      <ChatWidget 
+        isOpen={isChatWidgetOpen}
+        onClose={() => setIsChatWidgetOpen(false)}
       />
     </>
   );
