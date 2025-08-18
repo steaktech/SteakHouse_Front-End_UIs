@@ -1,4 +1,4 @@
-:global(:root) {
+.modalOverlay {
   /* Browns replacing previous grays */
   --bg: #0d0704; /* deep backdrop */
   --bg-elev: #1a0f08; /* sidebar/content base */
@@ -22,9 +22,7 @@
   --g2: #ffb347; /* accent-2 */
   --g3: #f28c28; /* deep brown */
   --accent: linear-gradient(135deg, var(--g1), var(--g2) 60%, var(--g3));
-}
 
-.modalOverlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.3);
