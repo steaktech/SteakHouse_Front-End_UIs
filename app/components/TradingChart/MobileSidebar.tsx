@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, X } from 'lucide-react';
 import { SidebarProps } from './types';
-import { SteakHoldersWidget } from './SteakHoldersWidget';
-import { ChatWidget } from './ChatWidget';
+import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
+import { ChatWidget } from '../Widgets/ChatWidget';
 
 // Props for each widget card
 interface WidgetCardProps {

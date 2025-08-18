@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import ProfileMarquee from './TrendingWidget/ProfileMarquee';
-import type { ProfileWidgetProps } from './TrendingWidget/ProfileWidget';
+import ProfileMarquee from './Widgets/TrendingWidget/ProfileMarquee';
+import type { ProfileWidgetProps } from './Widgets/TrendingWidget/ProfileWidget';
 
 export default function TrendingBar() {
   // Define your profile data here. This could also come from an API.

@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo } from "react";
-import SmartVideo from "../UI/SmartVideo";
+import SmartVideo from "../../UI/SmartVideo";
 
 // Define the types for the component props for type safety
 export interface ProfileWidgetProps {
