@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
               >
                 Create Token
               </button>
-              <a className={styles.btn} href="#" title="Documentation">
+              <a className={styles.btn} href="/coming-soon" title="Documentation">
                 Docs
               </a>
             </div>
@@ -80,16 +80,16 @@ const Footer: React.FC = () => {
                 <h3>Solutions</h3>
                 <ul>
                   <li>
-                    <a href="#">Stealth Launchpad</a>
+                    <a href="/coming-soon">Stealth Launchpad</a>
                   </li>
                   <li>
-                    <a href="#">Fairness Guard (anti‑snipe)</a>
+                    <a href="/coming-soon">Fairness Guard (anti‑snipe)</a>
                   </li>
                   <li>
-                    <a href="#">Virtual AMM Trades</a>
+                    <a href="/coming-soon">Virtual AMM Trades</a>
                   </li>
                   <li>
-                    <a href="#">Liquidity Lock & Vesting</a>
+                    <a href="/coming-soon">Liquidity Lock & Vesting</a>
                   </li>
                 </ul>
 
@@ -100,13 +100,13 @@ const Footer: React.FC = () => {
                 <h3>Products</h3>
                 <ul>
                   <li>
-                    <a href="#">$3 Token Generator</a>
+                    <a href="/coming-soon">$3 Token Generator</a>
                   </li>
                   <li>
-                    <a href="#">Tax Manager</a>
+                    <a href="/coming-soon">Tax Manager</a>
                   </li>
                   <li>
-                    <a href="#">Migration & Ownership</a>
+                    <a href="/coming-soon">Migration & Ownership</a>
                   </li>
                 </ul>
               </div>
@@ -115,22 +115,22 @@ const Footer: React.FC = () => {
                 <h3>Developers</h3>
                 <ul>
                   <li>
-                    <a href="#">Kitchen Docs</a>
+                    <a href="/coming-soon">Kitchen Docs</a>
                   </li>
                   <li>
-                    <a href="#">SDK / API</a>
+                    <a href="/coming-soon">SDK / API</a>
                   </li>
                   <li>
-                    <a href="#">Minimal ERC‑20 Templates</a>
+                    <a href="/coming-soon">Minimal ERC‑20 Templates</a>
                   </li>
                   <li>
-                    <a href="#">Verify on Etherscan</a>
+                    <a href="/coming-soon">Verify on Etherscan</a>
                   </li>
                   <li>
-                    <a href="#">Changelog</a>
+                    <a href="/coming-soon">Changelog</a>
                   </li>
                   <li>
-                    <a href="#">Status</a>
+                    <a href="/coming-soon">Status</a>
                   </li>
                 </ul>
               </div>
@@ -139,16 +139,16 @@ const Footer: React.FC = () => {
                 <h3>Policies</h3>
                 <ul>
                   <li>
-                    <a href="#">Fair Distribution Policy</a>
+                    <a href="/coming-soon">Fair Distribution Policy</a>
                   </li>
                   <li>
-                    <a href="#">Anti‑Bot & Anti‑Snipe Standard</a>
+                    <a href="/coming-soon">Anti‑Bot & Anti‑Snipe Standard</a>
                   </li>
                   <li>
-                    <a href="#">Fee Schedule</a>
+                    <a href="/coming-soon">Fee Schedule</a>
                   </li>
                   <li>
-                    <a href="#">Security & Responsible Disclosure</a>
+                    <a href="/coming-soon">Security & Responsible Disclosure</a>
                   </li>
                 </ul>
               </div>
@@ -157,16 +157,16 @@ const Footer: React.FC = () => {
                 <h3>Company</h3>
                 <ul>
                   <li>
-                    <a href="#">About SteakHouse</a>
+                    <a href="/coming-soon">About SteakHouse</a>
                   </li>
                   <li>
-                    <a href="#">Careers</a>
+                    <a href="/coming-soon">Careers</a>
                   </li>
                   <li>
-                    <a href="#">Brand & Press</a>
+                    <a href="/coming-soon">Brand & Press</a>
                   </li>
                   <li>
-                    <a href="#">Contact</a>
+                    <a href="/coming-soon">Contact</a>
                   </li>
                 </ul>
               </div>
@@ -175,16 +175,16 @@ const Footer: React.FC = () => {
                 <h3>Legal</h3>
                 <ul>
                   <li>
-                    <a href="#">Terms of Service</a>
+                    <a href="/coming-soon">Terms of Service</a>
                   </li>
                   <li>
-                    <a href="#">Privacy Policy</a>
+                    <a href="/coming-soon">Privacy Policy</a>
                   </li>
                   <li>
-                    <a href="#">Cookie Policy</a>
+                    <a href="/coming-soon">Cookie Policy</a>
                   </li>
                   <li>
-                    <a href="#">Risk Disclosure</a>
+                    <a href="/coming-soon">Risk Disclosure</a>
                   </li>
                 </ul>
               </div>
