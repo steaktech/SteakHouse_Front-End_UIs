@@ -1,22 +1,3 @@
-:root {
-  --bg-950: #1c0f07;
-  --bg-900: #241208;
-  --surface-800: #3a1e0e;
-  --surface-700: #4a2610;
-  --primary-600: #e89909;
-  --primary-500: #ffb020;
-  --primary-400: #ffc24b;
-  --text-100: #fcefd8;
-  --text-300: #e4cba6;
-  --muted-400: #b88957;
-  --border-500: #8b5a2b;
-  --success-500: #21c87a;
-  --error-500: #ff5a52;
-  --radius: 18px;
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
 .overlay {
   position: fixed;
   inset: 0;
@@ -33,6 +14,23 @@
 }
 
 .chatDrawer {
+  --bg-950: #1c0f07;
+  --bg-900: #241208;
+  --surface-800: #3a1e0e;
+  --surface-700: #4a2610;
+  --primary-600: #e89909;
+  --primary-500: #ffb020;
+  --primary-400: #ffc24b;
+  --text-100: #fcefd8;
+  --text-300: #e4cba6;
+  --muted-400: #b88957;
+  --border-500: #8b5a2b;
+  --success-500: #21c87a;
+  --error-500: #ff5a52;
+  --radius: 18px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
   position: fixed;
   top: 0;
   right: -740px;
