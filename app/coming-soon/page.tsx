@@ -78,7 +78,9 @@ const comingSoonData: ComingSoonPageProps = {
     footer: {
         companyName: 'SteakHouse',
         tagline: 'Built with care, heat, and a hint of smoke.'
-    }
+    },
+    showBackButton: true,
+    backButtonHref: '/'
 };
 
 export default function Page() {

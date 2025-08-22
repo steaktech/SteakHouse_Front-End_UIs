@@ -112,6 +112,75 @@
     }
 }
 
+/* Back button */
+.backButton {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 167, 81, 0.35);
+    color: #ffd7a3;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: linear-gradient(
+        180deg,
+        rgba(10, 5, 3, 0.85),
+        rgba(10, 5, 3, 0.65)
+    );
+    backdrop-filter: blur(14px) saturate(110%);
+    -webkit-backdrop-filter: blur(14px) saturate(110%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 107, 53, 0.12) inset;
+    transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease,
+        background 0.2s ease;
+    will-change: transform;
+}
+
+.backButton:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 167, 81, 0.6);
+    background: linear-gradient(
+        180deg,
+        rgba(255, 107, 53, 0.2),
+        rgba(255, 107, 53, 0.1)
+    );
+    box-shadow: 0 12px 32px rgba(255, 107, 53, 0.2);
+}
+
+.backButton:active {
+    transform: translateY(0);
+}
+
+.backButton svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.backButton:hover svg {
+    transform: translateX(-2px);
+}
+
+@media (max-width: 540px) {
+    .backButton {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .backButton svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
 /* Content container */
 .wrap {
     min-height: 100vh;
@@ -423,7 +492,8 @@
 }
 
 /* Focus styles */
-.btn:focus-visible {
+.btn:focus-visible,
+.backButton:focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 3px;
     border-color: var(--focus);

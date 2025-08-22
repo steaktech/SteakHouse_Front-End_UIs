@@ -20,7 +20,9 @@ const ComingSoonPage: FC<ComingSoonPageProps> = ({
     status,
     actionButtons,
     features,
-    footer
+    footer,
+    showBackButton = false,
+    backButtonHref = "/"
 }) => {
     useEffect(() => {
         // Prefetch Iconify icons for better performance
@@ -42,6 +44,26 @@ const ComingSoonPage: FC<ComingSoonPageProps> = ({
             
             <div className={styles.root}>
                 <EffectsCanvas />
+                
+                {/* Back Button */}
+                {showBackButton && (
+                    <a 
+                        href={backButtonHref} 
+                        className={styles.backButton}
+                        aria-label="Go back to home page"
+                    >
+                        <svg 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                        >
+                            <path d="M19 12H5" />
+                            <path d="M12 19l-7-7 7-7" />
+                        </svg>
+                        Back
+                    </a>
+                )}
                 
                 <main className={styles.wrap}>
                     <section className={styles.card} aria-label="SteakHouse Coming Soon">

@@ -45,4 +45,6 @@ export interface ComingSoonPageProps {
     actionButtons: ActionButton[];
     features: Feature[];
     footer: FooterProps;
+    showBackButton?: boolean;
+    backButtonHref?: string;
 }
