@@ -99,10 +99,14 @@ export const TradePanel: React.FC = () => {
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full bg-[#07040b] text-[#f8ead3] text-3xl p-6 rounded-xl border border-[#321806] focus:outline-none focus:ring-2 focus:ring-[#2a882f] text-left h-[65px]"
+          className={`w-full bg-[#07040b] text-[#f8ead3] text-3xl p-6 rounded-xl border border-[#321806] focus:outline-none focus:ring-2 text-left h-[65px] overflow-hidden [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-scrollbar]:hidden [-moz-appearance:textfield] ${
+            activeTab === 'buy' 
+              ? 'focus:ring-[#2a882f]' 
+              : 'focus:ring-[#95231e]'
+          }`}
           placeholder="0"
         />
-        <button className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-[#f8ead3] rounded-full p-2 text-gray-700 hover:text-gray-900 transition-colors">
+        <button className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-[#f8ead3] rounded-full p-2 text-gray-700">
           <EthereumIcon />
         </button>
       </div>
