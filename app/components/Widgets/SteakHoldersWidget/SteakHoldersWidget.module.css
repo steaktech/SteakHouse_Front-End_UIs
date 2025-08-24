@@ -340,6 +340,11 @@
   font-size: 14px;
 }
 
+.field select option {
+  color: #000000;
+  background: #ffffff;
+}
+
 .chips {
   display: flex;
   gap: 8px;
