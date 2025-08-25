@@ -38,7 +38,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         interval: interval,
         theme: "dark",
         style: "1",
-        hide_top_toolbar: true,
+        hide_top_toolbar: false,
         backgroundColor: "#07040b",
         hide_side_toolbar: true,
         gridColor: "rgba(2, 2, 2, 0.06)",

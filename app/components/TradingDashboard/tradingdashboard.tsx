@@ -208,32 +208,32 @@ export default function TradingDashboard() {
         </div>
 
         <div>
-          <div className="bg-gradient-to-b from-[#532301] to-transparent p-4 rounded-t-xl mb-0 shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
+          <div className="bg-gradient-to-b from-[#532301] to-transparent p-2 sm:p-4 rounded-t-xl mb-0 shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
             {/* Mobile Layout */}
             <div className="sm:hidden">
               {/* Search bar at top for mobile */}
-              <div className="mb-4">
+              <div className="mb-2">
                 <button
                   type="button"
                   onClick={handleSearchClick}
-                  className={`${styles["btn-5"]} flex items-center gap-2 w-full justify-center`}
+                  className={`${styles["btn-5"]} flex items-center gap-1 w-full justify-center text-xs py-1.5`}
                 >
-                  <Search size={18} />
+                  <Search size={14} />
                   <span>Search...</span>
                 </button>
               </div>
               
               {/* Filter buttons in 2 rows of 3 for mobile */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 justify-between">
-                  <FilterButton icon={<BarChart size={16} />} label="Volume" />
-                  <FilterButton icon={<DollarSign size={16} />} label="MCAP" />
-                  <FilterButton icon={<Flame size={16} />} label="Trending" />
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 justify-between">
+                  <FilterButton icon={<BarChart size={12} />} label="Volume" />
+                  <FilterButton icon={<DollarSign size={12} />} label="MCAP" />
+                  <FilterButton icon={<Flame size={12} />} label="Trending" />
                 </div>
-                <div className="flex items-center gap-2 justify-between">
-                  <FilterButton icon={<Star size={16} />} label="New" />
-                  <FilterButton icon={<Wrench size={16} />} label="Utility" />
-                  <FilterButton icon={<Smile size={16} />} label="Meme" />
+                <div className="flex items-center gap-1 justify-between">
+                  <FilterButton icon={<Star size={12} />} label="New" />
+                  <FilterButton icon={<Wrench size={12} />} label="Utility" />
+                  <FilterButton icon={<Smile size={12} />} label="Meme" />
                 </div>
               </div>
             </div>
