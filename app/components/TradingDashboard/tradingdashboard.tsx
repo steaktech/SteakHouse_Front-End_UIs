@@ -171,7 +171,64 @@ export default function TradingDashboard() {
   ];
 
   return (
-    <div className="bg-transparent min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+    <>
+      <style jsx>{`
+        /* Custom responsive grid for token cards with container-based breakpoints */
+        .token-grid {
+          /* Default: 1 column on mobile, 2 on small screens */
+          grid-template-columns: repeat(1, 1fr);
+        }
+        
+        @media (min-width: 640px) {
+          .token-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        
+        /* 3 cards when container can fit 3 × 367px + gaps + padding */
+        @media (min-width: 1250px) {
+          .token-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+        }
+        
+        /* 4 cards when container can fit 4 × 357px + gaps + padding */
+        @media (min-width: 1650px) {
+          .token-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+          }
+        }
+        
+        /* Ensure container doesn't overflow */
+        .token-container {
+          max-width: 100%;
+          overflow: visible;
+          container-type: inline-size;
+        }
+        
+                /* Use CSS auto-fit for more responsive behavior */
+        @supports (grid-template-columns: repeat(auto-fit, minmax(357px, 1fr))) {
+          .token-grid {
+            grid-template-columns: repeat(auto-fit, minmax(357px, 1fr)) !important;
+            justify-content: center;
+            place-items: center;
+          }
+        }
+        
+        /* Ensure cards don't get too wide when centered */
+        .token-grid > div {
+          max-width: 420px;
+          width: 100%;
+        }
+        
+        /* Override centering on mobile for left alignment */
+        @media (max-width: 639px) {
+          .token-grid {
+            place-items: start !important;
+          }
+        }
+      `}</style>
+      <div className="bg-transparent min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
       <div className="max-w-full xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
         <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[5px] md:mt-20 mb-8">
           <div className="md:w-2/3 text-center md:text-left z-10">
@@ -265,8 +322,8 @@ export default function TradingDashboard() {
             </div>
           </div>
 
-          <div className="bg-[#1b0a03]/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-4 sm:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="token-container bg-[#1b0a03]/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-4 sm:p-6">
+            <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {tokenData.map((token, index) => (
                 <div key={index} className="h-full">
                   <TokenCard {...token} />
@@ -282,6 +339,7 @@ export default function TradingDashboard() {
         onClose={handleSearchModalClose}
         onApply={handleApplyFilters}
       />
-    </div>
+      </div>
+    </>
   );
 }
