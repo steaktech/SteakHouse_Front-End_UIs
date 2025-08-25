@@ -295,7 +295,7 @@
 .btn-5:hover {
 	transform: translateY(-3px) scale(1.02);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
-	padding: 22px 75px;
+	padding: 12px 50px;
 }
 
 /* Responsive */

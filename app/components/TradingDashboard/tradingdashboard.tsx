@@ -266,8 +266,8 @@ export default function TradingDashboard() {
 
         <div>
           <div className="bg-gradient-to-b from-[#532301] to-transparent p-2 sm:p-4 rounded-t-xl mb-0 shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
-            {/* Mobile Layout */}
-            <div className="sm:hidden">
+            {/* Mobile Layout (0px - 639px) */}
+            <div className="block sm:hidden">
               {/* Search bar at top for mobile */}
               <div className="mb-2">
                 <button
@@ -295,8 +295,33 @@ export default function TradingDashboard() {
               </div>
             </div>
 
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex flex-wrap items-center gap-2 justify-between">
+            {/* Tablet/Medium Layout (640px - 1199px) */}
+            <div className="hidden sm:block xl:hidden">
+              {/* Search bar at top for tablet */}
+              <div className="mb-3">
+                <button
+                  type="button"
+                  onClick={handleSearchClick}
+                  className={`${styles["btn-5"]} flex items-center gap-2 w-full justify-center`}
+                >
+                  <Search size={16} />
+                  <span>Search...</span>
+                </button>
+              </div>
+              
+              {/* All filter buttons in one row for tablet */}
+              <div className="flex items-center gap-2 justify-center flex-wrap">
+                <FilterButton icon={<BarChart size={14} />} label="Volume" />
+                <FilterButton icon={<DollarSign size={14} />} label="MCAP" />
+                <FilterButton icon={<Flame size={14} />} label="Trending" />
+                <FilterButton icon={<Star size={14} />} label="New" />
+                <FilterButton icon={<Wrench size={14} />} label="Utility" />
+                <FilterButton icon={<Smile size={14} />} label="Meme" />
+              </div>
+            </div>
+
+            {/* Desktop Layout (1200px+) */}
+            <div className="hidden xl:flex flex-wrap items-center gap-2 justify-between">
               <div className="flex items-center gap-2 flex-wrap">
                 <FilterButton icon={<BarChart size={16} />} label="Volume" />
                 <FilterButton icon={<DollarSign size={16} />} label="MCAP" />
