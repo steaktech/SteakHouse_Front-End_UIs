@@ -27,7 +27,7 @@ export default function Header() {
           {/* Logo & Socials Section */}
           <div className="flex items-center">
             {/* Logo Container */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-65 md:h-65 pointer-events-none">
+            <div className="relative w-20 h-16 sm:w-24 sm:h-16 md:w-65 md:h-16 pointer-events-none overflow-visible">
               <Image
                 src="/images/app-logo.png"
                 alt="Logo"
@@ -38,7 +38,7 @@ export default function Header() {
                 src="/images/header-logo-lg.png"
                 alt="Logo"
                 fill
-                className="object-contain pointer-events-auto hidden md:block"
+                className="object-contain pointer-events-auto hidden md:block overflow-hidden"
               />
             </div>
 

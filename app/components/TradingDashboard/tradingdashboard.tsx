@@ -7,17 +7,32 @@ import {
   Star,
   Wrench,
   Smile,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import DashboardStatCard from "./DashboardStatCard";
 import { FilterButton } from "./FilterButton";
 import { TokenCard } from "./TokenCard";
-import { StatCardProps, TokenCardProps } from "./types";
+import { StatCardProps } from "./types";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SmartVideo from "../UI/SmartVideo";
+import { useTokens } from "@/app/hooks/useTokens";
 import styles from "../UI/Botton.module.css";
 
 export default function TradingDashboard() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const { 
+    tokenCards, 
+    isLoading, 
+    error, 
+    refetch,
+    sortByVolume,
+    sortByMarketCap,
+    sortByAge,
+    filterByType,
+    showAll,
+    filters
+  } = useTokens();
 
   // Style object for the main heading with gradient, stroke, and font
   const headingStyle: React.CSSProperties = {
@@ -61,114 +76,55 @@ export default function TradingDashboard() {
     { title: "AVERAGE X'S", value: "15.8 X" },
   ];
 
-  const tokenData: TokenCardProps[] = [
-    {
-      isOneStop: true,
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      isOneStop: true,
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-    {
-      imageUrl: "/images/info_icon.jpg",
-      name: "SpaceMan",
-      symbol: "SPACE",
-      tag: "Meme",
-      tagColor: "bg-[#fade79] text-black",
-      description:
-        "Spaceman is a meme deflationary token with a finite supply and buyback and burn.",
-      mcap: "$21.5k",
-      liquidity: "$100.3k",
-      volume: "$6.2k",
-      progress: 91.5,
-    },
-  ];
+  // Handle refresh button click
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  // Render loading state
+  const renderLoadingState = () => (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c87414] mb-4"></div>
+      <p className="text-[#c87414] text-lg font-medium">Loading tokens...</p>
+      <p className="text-gray-400 text-sm mt-2">Fetching the latest token data</p>
+    </div>
+  );
+
+  // Render error state
+  const renderErrorState = () => (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
+      <p className="text-red-400 text-lg font-medium mb-2">Failed to load tokens</p>
+      <p className="text-gray-400 text-sm text-center mb-4">
+        {error?.message || 'An error occurred while fetching token data'}
+      </p>
+      <button
+        onClick={handleRefresh}
+        className={`${styles["btn-5"]} flex items-center gap-2`}
+      >
+        <RefreshCw size={16} />
+        <span>Try Again</span>
+      </button>
+    </div>
+  );
+
+  // Render empty state
+  const renderEmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <Star className="h-12 w-12 text-gray-400 mb-4" />
+      <p className="text-gray-400 text-lg font-medium mb-2">No tokens found</p>
+      <p className="text-gray-500 text-sm text-center mb-4">
+        No tokens are available at the moment. Try refreshing the page.
+      </p>
+      <button
+        onClick={handleRefresh}
+        className={`${styles["btn-5"]} flex items-center gap-2`}
+      >
+        <RefreshCw size={16} />
+        <span>Refresh</span>
+      </button>
+    </div>
+  );
 
   return (
     <>
@@ -283,14 +239,43 @@ export default function TradingDashboard() {
               {/* Filter buttons in 2 rows of 3 for mobile */}
               <div className="space-y-1">
                 <div className="flex items-center gap-1 justify-between">
-                  <FilterButton icon={<BarChart size={12} />} label="Volume" />
-                  <FilterButton icon={<DollarSign size={12} />} label="MCAP" />
-                  <FilterButton icon={<Flame size={12} />} label="Trending" />
+                  <FilterButton 
+                    icon={<BarChart size={12} />} 
+                    label="Volume" 
+                    active={filters.sortBy === 'volume'}
+                    onClick={sortByVolume}
+                  />
+                  <FilterButton 
+                    icon={<DollarSign size={12} />} 
+                    label="MCAP" 
+                    active={filters.sortBy === 'mcap'}
+                    onClick={sortByMarketCap}
+                  />
+                  <FilterButton 
+                    icon={<Flame size={12} />} 
+                    label="Trending" 
+                    onClick={showAll}
+                  />
                 </div>
                 <div className="flex items-center gap-1 justify-between">
-                  <FilterButton icon={<Star size={12} />} label="New" />
-                  <FilterButton icon={<Wrench size={12} />} label="Utility" />
-                  <FilterButton icon={<Smile size={12} />} label="Meme" />
+                  <FilterButton 
+                    icon={<Star size={12} />} 
+                    label="New" 
+                    active={filters.sortBy === 'age'}
+                    onClick={sortByAge}
+                  />
+                  <FilterButton 
+                    icon={<Wrench size={12} />} 
+                    label="Utility" 
+                    active={filters.tokenType === 'utility'}
+                    onClick={() => filterByType('utility')}
+                  />
+                  <FilterButton 
+                    icon={<Smile size={12} />} 
+                    label="Meme" 
+                    active={filters.tokenType === 'meme'}
+                    onClick={() => filterByType('meme')}
+                  />
                 </div>
               </div>
             </div>
@@ -311,24 +296,67 @@ export default function TradingDashboard() {
               
               {/* All filter buttons in one row for tablet */}
               <div className="flex items-center gap-2 justify-center flex-wrap">
-                <FilterButton icon={<BarChart size={14} />} label="Volume" />
-                <FilterButton icon={<DollarSign size={14} />} label="MCAP" />
-                <FilterButton icon={<Flame size={14} />} label="Trending" />
-                <FilterButton icon={<Star size={14} />} label="New" />
-                <FilterButton icon={<Wrench size={14} />} label="Utility" />
-                <FilterButton icon={<Smile size={14} />} label="Meme" />
+                <FilterButton 
+                  icon={<BarChart size={14} />} 
+                  label="Volume" 
+                  active={filters.sortBy === 'volume'}
+                  onClick={sortByVolume}
+                />
+                <FilterButton 
+                  icon={<DollarSign size={14} />} 
+                  label="MCAP" 
+                  active={filters.sortBy === 'mcap'}
+                  onClick={sortByMarketCap}
+                />
+                <FilterButton 
+                  icon={<Flame size={14} />} 
+                  label="Trending" 
+                  onClick={showAll}
+                />
+                <FilterButton 
+                  icon={<Star size={14} />} 
+                  label="New" 
+                  active={filters.sortBy === 'age'}
+                  onClick={sortByAge}
+                />
+                <FilterButton 
+                  icon={<Wrench size={14} />} 
+                  label="Utility" 
+                  active={filters.tokenType === 'utility'}
+                  onClick={() => filterByType('utility')}
+                />
+                <FilterButton 
+                  icon={<Smile size={14} />} 
+                  label="Meme" 
+                  active={filters.tokenType === 'meme'}
+                  onClick={() => filterByType('meme')}
+                />
               </div>
             </div>
 
             {/* Desktop Layout (1200px+) */}
             <div className="hidden xl:flex flex-wrap items-center gap-2 justify-between">
               <div className="flex items-center gap-2 flex-wrap">
-                <FilterButton icon={<BarChart size={16} />} label="Volume" />
-                <FilterButton icon={<DollarSign size={16} />} label="MCAP" />
-                <FilterButton icon={<Flame size={16} />} label="Trending" />
+                <FilterButton 
+                  icon={<BarChart size={16} />} 
+                  label="Volume" 
+                  active={filters.sortBy === 'volume'}
+                  onClick={sortByVolume}
+                />
+                <FilterButton 
+                  icon={<DollarSign size={16} />} 
+                  label="MCAP" 
+                  active={filters.sortBy === 'mcap'}
+                  onClick={sortByMarketCap}
+                />
+                <FilterButton 
+                  icon={<Flame size={16} />} 
+                  label="Trending" 
+                  onClick={showAll}
+                />
               </div>
 
-              <div className="sm:w-auto">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleSearchClick}
@@ -337,24 +365,57 @@ export default function TradingDashboard() {
                   <Search size={18} />
                   <span>Search...</span>
                 </button>
+                {/* <button
+                  type="button"
+                  onClick={handleRefresh}
+                  disabled={isLoading}
+                  className={`${styles["btn-5"]} flex items-center gap-2 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title="Refresh tokens"
+                >
+                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+                  <span>Refresh</span>
+                </button> */}
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <FilterButton icon={<Star size={16} />} label="New" />
-                <FilterButton icon={<Wrench size={16} />} label="Utility" />
-                <FilterButton icon={<Smile size={16} />} label="Meme" />
+                <FilterButton 
+                  icon={<Star size={16} />} 
+                  label="New" 
+                  active={filters.sortBy === 'age'}
+                  onClick={sortByAge}
+                />
+                <FilterButton 
+                  icon={<Wrench size={16} />} 
+                  label="Utility" 
+                  active={filters.tokenType === 'utility'}
+                  onClick={() => filterByType('utility')}
+                />
+                <FilterButton 
+                  icon={<Smile size={16} />} 
+                  label="Meme" 
+                  active={filters.tokenType === 'meme'}
+                  onClick={() => filterByType('meme')}
+                />
               </div>
             </div>
           </div>
 
           <div className="token-container bg-[#1b0a03]/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-4 sm:p-6">
-            <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              {tokenData.map((token, index) => (
-                <div key={index} className="h-full">
-                  <TokenCard {...token} />
-                </div>
-              ))}
-            </div>
+            {isLoading ? (
+              renderLoadingState()
+            ) : error ? (
+              renderErrorState()
+            ) : tokenCards.length === 0 ? (
+              renderEmptyState()
+            ) : (
+              <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                {tokenCards.map((token, index) => (
+                  <div key={`${token.symbol}-${index}`} className="h-full">
+                    <TokenCard {...token} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
