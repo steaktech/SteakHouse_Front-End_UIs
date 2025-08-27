@@ -351,3 +351,76 @@
   scrollbar-width: thin;
   scrollbar-color: #efb95e rgb(49 25 0 / 0.8);
 }
+
+/* Steakhouse Loading Animation Styles */
+.steakhouse-loader-perspective {
+  perspective: 1000px;
+}
+
+.steakhouse-flipper {
+  width: 200px;
+  height: 200px;
+  transform-style: preserve-3d;
+  animation: steakhouse-flip 2.5s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  .steakhouse-flipper {
+    width: 224px;
+    height: 224px;
+  }
+}
+
+.steakhouse-image {
+  filter: drop-shadow(8px 8px 15px rgba(0, 0, 0, 0.3));
+}
+
+.steakhouse-image:hover {
+  filter: drop-shadow(8px 8px 20px rgba(0, 0, 0, 0.3)) 
+          drop-shadow(0 0 15px rgba(217, 133, 58, 0.3));
+}
+
+.steakhouse-loading-text {
+  animation: steakhouse-pulse 2.5s ease-in-out infinite;
+}
+
+/* Keyframe Animations */
+@keyframes steakhouse-flip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  50% {
+    transform: rotateX(180deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+@keyframes steakhouse-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 640px) {
+  .steakhouse-flipper {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .steakhouse-image {
+    width: 150px !important;
+    height: 150px !important;
+  }
+  
+  .steakhouse-loading-text {
+    font-size: 1.2rem;
+  }
+}

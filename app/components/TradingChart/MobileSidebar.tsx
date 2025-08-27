@@ -5,6 +5,7 @@ import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark,
 import { SidebarProps } from './types';
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
+import { SavedTokenWidget } from '../Widgets/SavedToken';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -43,6 +44,7 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
 export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
+  const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -54,13 +56,18 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
+  const handleSavedTokenClick = () => {
+    setIsSavedTokenWidgetOpen(true);
+    setExpanded(false); // Close the mobile sidebar when opening the widget
+  };
+
   const widgets = [
     { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true },
     { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token' },
     { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade' },
     { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
-    { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved' },
+    { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
   ];
 
   return (
@@ -128,6 +135,12 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <ChatWidget 
         isOpen={isChatWidgetOpen}
         onClose={() => setIsChatWidgetOpen(false)}
+      />
+
+      {/* Saved Token Widget */}
+      <SavedTokenWidget 
+        isOpen={isSavedTokenWidgetOpen}
+        onClose={() => setIsSavedTokenWidgetOpen(false)}
       />
     </>
   );

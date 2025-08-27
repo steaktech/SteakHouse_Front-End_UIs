@@ -6,6 +6,7 @@ import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark,
 import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
+import { SavedTokenWidget } from '../Widgets/SavedToken';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -61,6 +62,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, o
 export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
+  const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -70,6 +72,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     setIsChatWidgetOpen(true);
   };
 
+  const handleSavedTokenClick = () => {
+    setIsSavedTokenWidgetOpen(true);
+  };
+
   const widgets = [
     // Updated icon size to 18px to match the CSS
     { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },
@@ -77,7 +83,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade' },
     { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
-    { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved' },
+    { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
   ];
 
   return (
@@ -152,6 +158,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       <ChatWidget 
         isOpen={isChatWidgetOpen}
         onClose={() => setIsChatWidgetOpen(false)}
+      />
+
+      {/* Saved Token Widget */}
+      <SavedTokenWidget 
+        isOpen={isSavedTokenWidgetOpen}
+        onClose={() => setIsSavedTokenWidgetOpen(false)}
       />
     </>
   );
