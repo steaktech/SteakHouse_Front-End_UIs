@@ -82,11 +82,8 @@ export function useWallet(): WalletState {
 
   // Format connectors for easier use
   const formattedConnectors = useMemo(() => {
-    // Debug logging to see what connectors we have
-    console.log('Raw connectors:', connectors.map(c => ({ id: c.id, name: c.name })));
-    
     // Remove duplicates by creating a unique set based on connector functionality
-    const uniqueConnectors: typeof connectors = [];
+    const uniqueConnectors: any[] = [];
     const seenTypes = new Set<string>();
     
     connectors.forEach(connector => {
@@ -103,11 +100,9 @@ export function useWallet(): WalletState {
       }
     });
     
-    console.log('Unique connectors:', uniqueConnectors.map(c => ({ id: c.id, name: c.name })));
-    
     return uniqueConnectors.map(connector => {
       const isReady = connector.id === 'walletConnect' ? true : // WalletConnect is always ready
-        connector.id === 'coinbaseWallet' ? true : // Coinbase wallet is always ready
+        connector.id === 'coinbaseWallet' || connector.id === 'coinbaseWalletSDK' ? true : // Coinbase wallet is always ready
         typeof window !== 'undefined' && window.ethereum !== undefined; // Injected wallets
 
       return {
