@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import styles from "./UI/Botton.module.css";
+import { useWallet } from "@/app/hooks/useWallet";
 
 const CreateTokenModal = dynamic(
   () => import("./Modals/CreateTokenModal/CreateTokenModal"),
@@ -13,10 +14,21 @@ const SteakHouseInfoModal = dynamic(
   () => import("./Modals/SteakHouseInfoModal"),
   { ssr: false }
 );
+const WalletModal = dynamic(
+  () => import("./Wallet/WalletModal"),
+  { ssr: false }
+);
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  
+  const { isConnected, address, isConnecting } = useWallet();
+
+  const formatAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
 
   return (
     <>
@@ -120,13 +132,26 @@ export default function Header() {
             {/* Connect Wallet Button */}
             <button
               className={`${styles.headerBtnGolden}`}
-              onClick={() => {
-                /* wallet logic */
-              }}
+              onClick={() => setIsWalletModalOpen(true)}
+              disabled={isConnecting}
             >
               <div className={styles.headerBtnGoldenInner}>
-                <span className="hidden sm:inline">Connect Wallet</span>
-                <span className="sm:hidden">Connect</span>
+                {isConnecting ? (
+                  <>
+                    <span className="hidden sm:inline">Connecting...</span>
+                    <span className="sm:hidden">...</span>
+                  </>
+                ) : isConnected && address ? (
+                  <>
+                    <span className="hidden sm:inline">{formatAddress(address)}</span>
+                    <span className="sm:hidden">●</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Connect Wallet</span>
+                    <span className="sm:hidden">Connect</span>
+                  </>
+                )}
               </div>
             </button>
           </div>
@@ -141,6 +166,11 @@ export default function Header() {
       <SteakHouseInfoModal
         isOpen={isInfoModalOpen}
         onClose={() => setIsInfoModalOpen(false)}
+      />
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={isConnected}
       />
     </>
   );

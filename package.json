@@ -9,12 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.85.5",
+    "@walletconnect/ethereum-provider": "^2.21.8",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
     "next": "15.4.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "tailwind-scrollbar": "^4.0.2"
+    "tailwind-scrollbar": "^4.0.2",
+    "viem": "^2.36.0",
+    "wagmi": "^2.16.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
