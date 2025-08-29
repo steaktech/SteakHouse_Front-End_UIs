@@ -15,6 +15,9 @@ import { ChevronUp } from 'lucide-react';
 export default function TradingChart() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
+  
+  // For now using the example token address - this should be made dynamic via URL params
+  const tokenAddress = "0x0e1ae35046d6d54bb3ee10e4e85e689ca970fe89";
 
   return (
     <div className="flex flex-col h-screen bg-[#07040b]">
@@ -60,7 +63,7 @@ export default function TradingChart() {
 
           {/* Market Info */}
           <div className="order-4 lg:col-start-2 lg:row-start-1 ">
-            <MarketInfo />
+            <MarketInfo tokenAddress={tokenAddress} />
           </div>
 
           {/* Trade Panel */}
@@ -70,7 +73,7 @@ export default function TradingChart() {
 
           {/* Trade History */}
           <div className="order-3 lg:col-start-1 lg:row-start-2">
-            <TradeHistory />
+            <TradeHistory tokenAddress={tokenAddress} />
           </div>
 
         </main>

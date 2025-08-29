@@ -70,22 +70,37 @@ export interface PaginatedTokenResponse {
 export interface Trade {
   type: 'BUY' | 'SELL';
   token: string;
+  name: string;
+  symbol: string;
+  total_supply: number | string;
   trader: string;
   amountEth: number;
   amountTokens: number;
   price: number;
-  usdValue: number;
+  usdValue: string | number;
   marketCap: number;
   txHash: string;
+  virtualEth?: number;
+  circulatingSupply?: number;
   timestamp: number;
 }
 
 export interface Candle {
-  token: string;
   timestamp: number;
-  open: string;
+  open: number;
   high: number;
   low: number;
-  close: string;
+  close: number;
   volume: number;
+}
+
+// Full token data API response interface
+export interface FullTokenDataResponse {
+  token: string;
+  price: number;
+  marketCap: number;
+  lastTrade: Trade;
+  recentTrades: Trade[];
+  candles: Candle[];
+  interval: string;
 }

@@ -1,6 +1,6 @@
 // lib/api/services/tokenService.ts
 import { apiClient } from '../client';
-import type { Token, Candle, Trade, PaginatedTokenResponse } from '@/app/types/token';
+import type { Token, Candle, Trade, PaginatedTokenResponse, FullTokenDataResponse } from '@/app/types/token';
 
 type ApiResponse<T> = T | { error: string };
 
@@ -33,8 +33,8 @@ export async function getTokensByVolume(params?: URLSearchParams): Promise<Pagin
  * Fetches the complete data set for a single token page.
  * [cite_start]GET /api/token/:address/full [cite: 436]
  */
-export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<{ token: string; candles: Candle[]; trades: Trade[] }> {
-  return apiClient<{ token: string; candles: Candle[]; trades: Trade[] }>(`/api/token/${address}/full?interval=${interval}&limit=${limit}`);
+export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<FullTokenDataResponse> {
+  return apiClient<FullTokenDataResponse>(`/token/${address}/full?interval=${interval}&limit=${limit}`);
 }
 
 /**
@@ -42,5 +42,5 @@ export async function getFullTokenData(address: string, interval = '1m', limit =
  * [cite_start]GET /api/token/:address/chart [cite: 462]
  */
 export async function getChartData(address: string, timeframe = '1m', limit = 100): Promise<{ token: string; candles: Candle[] }> {
-  return apiClient<{ token: string; candles: Candle[] }>(`/api/token/${address}/chart?timeframe=${timeframe}&limit=${limit}`);
+  return apiClient<{ token: string; candles: Candle[] }>(`/token/${address}/chart?timeframe=${timeframe}&limit=${limit}`);
 }
