@@ -14,7 +14,9 @@ export interface TokenCardProps {
   mcap: string;
   liquidity: string;
   volume: string;
-  progress: number;
+  progress?: number;
+  circulating_supply?: string;
+  graduation_cap?: string;
 }
 
 export interface FilterButtonProps {

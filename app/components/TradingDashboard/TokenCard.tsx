@@ -15,7 +15,9 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   mcap, 
   liquidity, 
   volume, 
-  progress 
+  progress,
+  circulating_supply,
+  graduation_cap
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -36,6 +38,30 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       minimumFractionDigits: 0,
       maximumFractionDigits: 1,
     }) + '%';
+  };
+
+  // Calculate progress percentage
+  const calculateProgress = (): number => {
+    // If progress is explicitly provided, use it
+    if (progress !== undefined && progress !== null) {
+      return progress;
+    }
+    
+    // Calculate progress from circulating supply and graduation cap
+    if (circulating_supply && graduation_cap) {
+      const circulatingSupplyNum = parseFloat(circulating_supply);
+      const graduationCapNum = parseFloat(graduation_cap);
+      
+      // Handle edge cases
+      if (isNaN(circulatingSupplyNum) || isNaN(graduationCapNum) || graduationCapNum === 0) {
+        return 0;
+      }
+      
+      return (circulatingSupplyNum / graduationCapNum) * 100;
+    }
+    
+    // Default to 0 if no data available
+    return 0;
   };
 
   // Seed flames along current fill width
@@ -176,7 +202,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     }
 
     // Animate to target progress
-    const normalizedProgress = normalizePercent(progress);
+    const calculatedProgress = calculateProgress();
+    const normalizedProgress = normalizePercent(calculatedProgress);
     setTimeout(() => {
       animateTo(normalizedProgress, 1800);
     }, 100);
@@ -186,7 +213,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       stopSparks();
       if (cleanupParallax) cleanupParallax();
     };
-  }, [progress]);
+  }, [progress, circulating_supply, graduation_cap]);
 
   return (
     <article 

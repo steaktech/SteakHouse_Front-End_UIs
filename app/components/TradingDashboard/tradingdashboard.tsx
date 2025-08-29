@@ -16,6 +16,7 @@ import { TokenCard } from "./TokenCard";
 import { StatCardProps } from "./types";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SmartVideo from "../UI/SmartVideo";
+import BottomControlBar from "../BottomControlBar";
 import { useTokens } from "@/app/hooks/useTokens";
 import styles from "../UI/Botton.module.css";
 
@@ -31,7 +32,13 @@ export default function TradingDashboard() {
     sortByAge,
     filterByType,
     showAll,
-    filters
+    applySearchFilters,
+    clearAllFilters,
+    filters,
+    pagination,
+    goToPage,
+    nextPage,
+    previousPage
   } = useTokens();
 
   // Style object for the main heading with gradient, stroke, and font
@@ -64,7 +71,21 @@ export default function TradingDashboard() {
 
   const handleApplyFilters = (filters: Record<string, string>) => {
     console.log("Applied Filters:", filters);
-    // Logic to apply filters would go here
+    
+    // Convert string values to numbers for numeric filters
+    const numericFilters: Record<string, any> = {};
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue)) {
+        numericFilters[key] = numericValue;
+      } else {
+        numericFilters[key] = value;
+      }
+    });
+    
+    // Apply the search filters using the hook
+    applySearchFilters(numericFilters);
   };
 
   const statsData: StatCardProps[] = [
@@ -424,8 +445,17 @@ export default function TradingDashboard() {
         isOpen={isSearchModalOpen}
         onClose={handleSearchModalClose}
         onApply={handleApplyFilters}
+        onClearAll={clearAllFilters}
       />
       </div>
+
+      <BottomControlBar
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={goToPage}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+      />
     </>
   );
 }

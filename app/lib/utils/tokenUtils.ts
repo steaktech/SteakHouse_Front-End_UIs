@@ -122,10 +122,11 @@ export function getTaxInfo(token: Token): { current: string; final: string } {
 }
 
 /**
- * Gets volume from API response
+ * Gets volume from API response (now string format)
  */
 export function getVolume24h(token: Token): number {
-  return token.volume_24h || 0;
+  const volume = parseFloat(token.volume_24h);
+  return isNaN(volume) ? 0 : volume;
 }
 
 /**
@@ -133,7 +134,8 @@ export function getVolume24h(token: Token): number {
  */
 export function transformTokenToCardProps(token: Token): TokenCardProps {
   const marketCap = getMarketCap(token);
-  const progress = calculateGraduationProgress(token.eth_pool, token.graduation_cap);
+  // Use the progress from API response if available, otherwise calculate it
+  const progress = token.progress !== undefined ? token.progress : calculateGraduationProgress(token.eth_pool, token.graduation_cap);
   const tag = getTokenTag(token);
   const tagColor = getTokenTagColor(tag);
   const volume24h = getVolume24h(token);
@@ -143,6 +145,9 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
   const ethPriceUSD = 2000;
   const liquidityValue = isNaN(ethPoolValue) ? 0 : ethPoolValue * ethPriceUSD;
   
+  // Use bio from API if available, otherwise generate description
+  const description = token.bio || generateTokenDescription(token);
+  
   return {
     isOneStop: token.graduated, // Graduated tokens get special treatment
     imageUrl: token.image_url || DEFAULT_TOKEN_IMAGE,
@@ -150,11 +155,13 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
     symbol: token.symbol,
     tag,
     tagColor,
-    description: generateTokenDescription(token),
+    description,
     mcap: formatNumber(marketCap, { prefix: '$', compact: true }),
     liquidity: formatNumber(liquidityValue, { prefix: '$', compact: true }),
     volume: formatNumber(volume24h, { prefix: '$', compact: true }),
-    progress: Math.round(progress * 10) / 10 // Round to 1 decimal place
+    progress: Math.round(progress * 10) / 10, // Round to 1 decimal place
+    circulating_supply: token.circulating_supply,
+    graduation_cap: token.graduation_cap
   };
 }
 

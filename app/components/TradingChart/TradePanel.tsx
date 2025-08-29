@@ -1,6 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useWallet } from '@/app/hooks/useWallet';
+
+const WalletModal = dynamic(
+  () => import("../Wallet/WalletModal"),
+  { ssr: false }
+);
 
 // EthereumIcon component remains the same
 const EthereumIcon = () => (
@@ -17,6 +24,9 @@ const EthereumIcon = () => (
 export const TradePanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [amount, setAmount] = useState('0');
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  
+  const { isConnected, isConnecting } = useWallet();
 
   const quickAmounts = ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'];
 
@@ -135,13 +145,29 @@ export const TradePanel: React.FC = () => {
       </div>
               
       {/* Confirm Button */}
-      <button className={`w-full font-bold py-4 rounded-lg text-lg transition-colors duration-300 ${
-        activeTab === 'buy'
-          ? 'bg-[#0a8834] hover:bg-green-700 text-[#2f1805]' // Changed background and text color
-          : 'bg-[#a71c1c] hover:bg-red-700 text-[#2f1805]'
-      }`}>
-        CONFIRM TRADE
+      <button 
+        onClick={() => !isConnected && setIsWalletModalOpen(true)}
+        disabled={isConnecting}
+        className={`w-full font-bold py-4 rounded-lg text-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+          !isConnected 
+            ? 'bg-[#d4af37] hover:bg-[#b8941f] text-[#2f1805]'
+            : activeTab === 'buy'
+              ? 'bg-[#0a8834] hover:bg-green-700 text-[#2f1805]' // Changed background and text color
+              : 'bg-[#a71c1c] hover:bg-red-700 text-[#2f1805]'
+        }`}
+      >
+        {!isConnected 
+          ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
+          : 'CONFIRM TRADE'
+        }
       </button>
+
+      {/* Wallet Modal */}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={isConnected}
+      />
     </div>
   );
 };

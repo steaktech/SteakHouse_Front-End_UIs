@@ -44,14 +44,28 @@ export interface Token {
     updated_at: string; // ISO 8601 date string
     image_url: string | null;
     banner_url?: string | null;
+    bio: string | null;
+    telegram: string | null;
+    twitter: string | null;
+    website: string | null;
   
     // Derived Fields - Now included in getFilteredTokens response
     age_hours: string;
-    volume_24h: number | null;
+    volume_24h: string;
     market_cap: string;
-    tax_rate: string;
+    tax_rate: string | null;
     price_change_24h: number | null;
-  }
+    progress: number;
+}
+
+// Paginated API response structure
+export interface PaginatedTokenResponse {
+    page: number;
+    page_size: number;
+    total_count: number;
+    total_pages: number;
+    items: Token[];
+}
   
 export interface Trade {
   type: 'BUY' | 'SELL';

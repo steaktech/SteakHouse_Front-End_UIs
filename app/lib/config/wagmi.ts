@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi';
+import { createConfig, http, Config } from 'wagmi';
 import { mainnet, sepolia, polygon, bsc, arbitrum } from 'wagmi/chains';
 import { walletConnect, injected, coinbaseWallet } from 'wagmi/connectors';
 
@@ -16,24 +16,64 @@ const metadata = {
 // Configure supported chains
 export const chains = [mainnet, sepolia, polygon, bsc, arbitrum] as const;
 
-// Configure connectors
-const connectors = [
-  injected(),
-  walletConnect({
-    projectId,
-    metadata,
-    showQrModal: true,
-  }),
-  coinbaseWallet({
-    appName: metadata.name,
-    appLogoUrl: metadata.icons[0],
-  }),
-];
+// Cache for the config
+let _config: Config | null = null;
 
-// Create and export Wagmi config
-export const wagmiConfig = createConfig({
+// Function to create wagmi config dynamically
+export function getWagmiConfig(): Config {
+  if (_config) {
+    return _config;
+  }
+
+  const connectors = [];
+  
+  // Always include injected connector (MetaMask, etc.)
+  connectors.push(injected());
+  
+  // Only add WalletConnect and Coinbase on client side
+  if (typeof window !== 'undefined') {
+    try {
+      // Add WalletConnect
+      connectors.push(
+        walletConnect({
+          projectId,
+          metadata,
+          showQrModal: true,
+        })
+      );
+      
+      // Add Coinbase Wallet
+      connectors.push(
+        coinbaseWallet({
+          appName: metadata.name,
+          appLogoUrl: metadata.icons[0],
+        })
+      );
+    } catch (error) {
+      console.warn('Failed to initialize some wallet connectors:', error);
+    }
+  }
+
+  _config = createConfig({
+    chains,
+    connectors,
+    transports: {
+      [mainnet.id]: http(),
+      [sepolia.id]: http(),
+      [polygon.id]: http(),
+      [bsc.id]: http(),
+      [arbitrum.id]: http(),
+    },
+    ssr: true,
+  });
+
+  return _config;
+}
+
+// Create a basic config for SSR (server-side) with minimal connectors
+const ssrConfig = createConfig({
   chains,
-  connectors,
+  connectors: [injected()], // Only injected connector for SSR
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
@@ -41,8 +81,11 @@ export const wagmiConfig = createConfig({
     [bsc.id]: http(),
     [arbitrum.id]: http(),
   },
-  ssr: true, // Enable SSR support for Next.js
+  ssr: true,
 });
+
+// Export the appropriate config based on environment
+export const wagmiConfig = typeof window !== 'undefined' ? getWagmiConfig() : ssrConfig;
 
 // Export types for better TypeScript support
 export type SupportedChain = typeof chains[number];
