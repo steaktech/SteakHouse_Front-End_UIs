@@ -1,20 +1,28 @@
 import React from 'react';
-import { MetaData } from './types';
+import { MetaData, FileUploads } from './types';
 import styles from './CreateTokenModal.module.css';
 
 interface Step5MetadataSocialsProps {
   meta: MetaData;
+  files: FileUploads;
   onMetaChange: (field: string, value: string) => void;
+  onFileChange: (field: 'logo' | 'banner', file: File | undefined) => void;
   onBack: () => void;
   onContinue: () => void;
 }
 
 const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
   meta,
+  files,
   onMetaChange,
+  onFileChange,
   onBack,
   onContinue
 }) => {
+  const handleFileChange = (field: 'logo' | 'banner') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    onFileChange(field, file);
+  };
   return (
     <div className={styles.panel}>
       <div className={styles.grid2}>
@@ -55,6 +63,21 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
       <div className={styles.grid2} style={{marginTop: '8px'}}>
         <div className={styles.card}>
           <div className={styles.label}>Logo (500×500)</div>
+          <div style={{ marginBottom: '8px' }}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange('logo')}
+              className={styles.fileInput}
+              id="logo-upload"
+            />
+            <label htmlFor="logo-upload" className={styles.fileLabel}>
+              {files.logo ? files.logo.name : 'Choose Logo File'}
+            </label>
+          </div>
+          <div className={styles.hint} style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+            Or provide URL:
+          </div>
           <input 
             className={styles.input}
             value={meta.logo}
@@ -64,6 +87,21 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
         </div>
         <div className={styles.card}>
           <div className={styles.label}>Banner (1500×500)</div>
+          <div style={{ marginBottom: '8px' }}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange('banner')}
+              className={styles.fileInput}
+              id="banner-upload"
+            />
+            <label htmlFor="banner-upload" className={styles.fileLabel}>
+              {files.banner ? files.banner.name : 'Choose Banner File'}
+            </label>
+          </div>
+          <div className={styles.hint} style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+            Or provide URL:
+          </div>
           <input 
             className={styles.input}
             value={meta.banner}

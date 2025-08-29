@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { CreateTokenModalProps, TokenState, ProfileType, TaxMode, FinalTokenType } from './types';
 import { initialState, updateCreationFee, getPlatformFee, validateBasics, validateCurve, fmt, generateFakeHash } from './utils';
+import { CreateTokenService } from '@/app/lib/api/services/createTokenService';
+import { transformTokenStateToApiData } from './apiTransform';
 import Step1ChooseType from './Step1ChooseType';
 import Step2TokenBasics from './Step2TokenBasics';
 import Step3CurveSettings from './Step3CurveSettings';
@@ -146,14 +148,70 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     }));
   }, []);
 
-  const handleConfirm = useCallback(async () => {
-    setState(prev => ({ ...prev, txHash: 'pending' }));
-    
-    // Simulate transaction
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    const fakeHash = generateFakeHash();
-    setState(prev => ({ ...prev, txHash: fakeHash }));
+  const handleFileChange = useCallback((field: 'logo' | 'banner', file: File | undefined) => {
+    setState(prev => ({
+      ...prev,
+      files: { ...prev.files, [field]: file }
+    }));
   }, []);
+
+  const handleConfirm = useCallback(async () => {
+    console.log('🎯 handleConfirm called');
+    setState(prev => ({ ...prev, isCreating: true, txHash: 'pending' }));
+    
+    try {
+      // Generate temporary token address (in production, get from wallet/contract)
+      const tokenAddress = CreateTokenService.generateTempTokenAddress();
+      console.log('🏷️ Generated token address:', tokenAddress);
+      
+      // Transform state to API format
+      const apiData = transformTokenStateToApiData(
+        state,
+        tokenAddress,
+        state.files.logo,
+        state.files.banner
+      );
+      console.log('🔄 Transformed API data:', apiData);
+      
+      // Validate data
+      const validationErrors = CreateTokenService.validateTokenData(apiData);
+      if (validationErrors.length > 0) {
+        console.error('❌ Validation errors:', validationErrors);
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      }
+      console.log('✅ Validation passed');
+      
+      // Call API
+      console.log('🚀 About to call API...');
+      const result = await CreateTokenService.createToken(apiData);
+      console.log('✅ API call completed:', result);
+      
+      // Success - generate transaction hash
+      const fakeHash = generateFakeHash();
+      setState(prev => ({
+        ...prev,
+        txHash: fakeHash,
+        isCreating: false,
+        creationResult: {
+          success: true,
+          data: result,
+          txHash: fakeHash
+        }
+      }));
+      
+    } catch (error) {
+      console.error('Token creation failed:', error);
+      setState(prev => ({
+        ...prev,
+        txHash: null,
+        isCreating: false,
+        creationResult: {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred'
+        }
+      }));
+    }
+  }, [state]);
 
   const stepTitles = {
     1: '1) Choose type',
@@ -291,7 +349,9 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             {state.step === 5 && (
               <Step5MetadataSocials
                 meta={state.meta}
+                files={state.files}
                 onMetaChange={handleMetaChange}
+                onFileChange={handleFileChange}
                 onBack={() => goToStep(4)}
                 onContinue={() => goToStep(6)}
               />

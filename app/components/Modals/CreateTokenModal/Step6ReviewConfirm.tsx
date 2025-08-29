@@ -171,34 +171,60 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         </button>
         <button 
           className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-          disabled={!understandFees}
+          disabled={!understandFees || state.isCreating}
           onClick={onConfirm}
         >
-          Confirm & Create
+          {state.isCreating ? 'Creating Token...' : 'Confirm & Create'}
         </button>
       </div>
 
+      {/* API Error Display */}
+      {state.creationResult?.error && (
+        <div className={`${styles.card}`} style={{marginTop: '12px', borderColor: 'var(--danger)', backgroundColor: 'rgba(255, 71, 87, 0.1)'}}>
+          <div className={styles.row}>
+            <div className={styles.pill} style={{backgroundColor: 'var(--danger)', color: 'white'}}>
+              Error
+            </div>
+            <div style={{color: 'var(--danger)'}}>
+              {state.creationResult.error}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction Status Display */}
       {state.txHash && (
         <div className={styles.card} style={{marginTop: '12px'}}>
           <div className={styles.row}>
-            <div className={styles.pill}>
-              {state.txHash === 'pending' ? 'Pending' : 'Sent'}
+            <div className={styles.pill} style={{
+              backgroundColor: state.txHash === 'pending' ? 'var(--warn)' : 'var(--success)',
+              color: state.txHash === 'pending' ? 'black' : 'white'
+            }}>
+              {state.txHash === 'pending' ? 'Creating...' : 'Success'}
             </div>
             <div>
-              {state.txHash === 'pending' ? 'Submitting transaction…' : 'Transaction submitted!'}
+              {state.txHash === 'pending' ? 'Creating token via API...' : 'Token created successfully!'}
             </div>
           </div>
           {state.txHash !== 'pending' && (
             <div className={styles.hint}>
-              Explorer: 
+              Transaction Hash: 
               <a 
                 href={`https://etherscan.io/tx/${state.txHash}`}
                 target="_blank" 
                 rel="noreferrer"
-                style={{marginLeft: '8px', color: 'var(--primary-400)'}}
+                style={{marginLeft: '8px', color: 'var(--focus)'}}
               >
                 {state.txHash.slice(0, 10)}…{state.txHash.slice(-8)}
               </a>
+            </div>
+          )}
+          {state.creationResult?.success && state.creationResult.data && (
+            <div className={styles.hint} style={{marginTop: '8px'}}>
+              Token Address: 
+              <span style={{marginLeft: '8px', color: 'var(--focus)', fontFamily: 'monospace'}}>
+                {state.creationResult.data.token_address || 'Generated'}
+              </span>
             </div>
           )}
         </div>

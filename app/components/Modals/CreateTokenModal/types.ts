@@ -81,7 +81,22 @@ export interface TokenState {
   basics: TokenBasics;
   curves: CurveSettings;
   meta: MetaData;
+  files: FileUploads;
   txHash: string | null;
+  creationResult?: CreateTokenResult;
+  isCreating?: boolean;
+}
+
+export interface CreateTokenResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+  txHash?: string;
+}
+
+export interface FileUploads {
+  logo?: File;
+  banner?: File;
 }
 
 export type ProfileType = 'ZERO' | 'SUPER' | 'BASIC' | 'ADVANCED';

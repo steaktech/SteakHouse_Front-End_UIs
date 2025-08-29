@@ -57,6 +57,7 @@ export const initialState: TokenState = {
     },
   },
   meta: { desc: "", website: "", tg: "", tw: "", logo: "", banner: "" },
+  files: {},
   txHash: null,
 };
 
