@@ -14,10 +14,10 @@ export interface CreateTokenApiRequest {
   
   // Status & timing
   graduated?: boolean;
-  graduation_timestamp?: number;
-  start_time?: number;
+  graduation_timestamp?: number; // seconds
+  start_time?: number; // seconds
   created_at_block?: number;
-  created_at_timestamp?: number;
+  created_at_timestamp?: number; // milliseconds
   
   // Identity & media
   name?: string;
@@ -37,19 +37,25 @@ export interface CreateTokenApiRequest {
   is_super_simple?: boolean;
   is_zero_simple?: boolean;
   
-  // Curve & policy params
-  final_tax_rate?: number;
-  lp_lock_duration?: number;
+  // Curve & policy params - CORRECTED FIELD NAMES
+  curve_starting_tax?: number; // percent (was curve_start_tax)
+  curve_tax_duration?: number; // seconds
+  curve_max_wallet?: string; // tokens (uint256)
+  curve_max_wallet_duration?: number; // seconds
+  curve_max_tx?: string; // tokens (uint256) 
+  curve_max_tx_duration?: number; // seconds
+  final_tax_rate?: number; // percent
+  lp_lock_duration?: number; // seconds
   burn_lp?: boolean;
-  limit_removal_time?: number;
+  limit_removal_time?: number; // seconds
   
-  // Curve limits (using naming convention from API docs)
-  curve_max_wallet?: string;
-  curve_max_tx?: string;
-  curve_start_tax?: string;
-  curve_tax_duration?: string;
-  curve_tax_step?: string;
-  curve_tax_interval?: string;
+  // Step-down configs - MISSING FIELDS ADDED
+  tax_drop_step?: number; // percent step
+  tax_drop_interval?: number; // seconds
+  max_wallet_step?: string; // tokens (uint256)
+  max_wallet_interval?: number; // seconds
+  max_tx_step?: string; // tokens (uint256)
+  max_tx_interval?: number; // seconds
   
   // Social/meta
   bio?: string;

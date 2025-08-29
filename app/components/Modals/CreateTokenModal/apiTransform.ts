@@ -26,6 +26,9 @@ export function transformTokenStateToApiData(
     // Required field
     token_address: tokenAddress,
     
+    // Optional addresses - set virtual to token_address if not provided (per client logic)
+    virtual_token_address: tokenAddress, // default to token_address per client
+    
     // Basic token info
     name: basics.name || undefined,
     symbol: basics.symbol || undefined,
@@ -39,14 +42,19 @@ export function transformTokenStateToApiData(
     // Token type mapping based on profile
     token_type: mapProfileToTokenType(profile),
     
-    // Boolean flags
-    is_stealth: basics.stealth || undefined,
-    is_super_simple: profile === 'SUPER' || undefined,
-    is_zero_simple: profile === 'ZERO' || undefined,
+    // Boolean flags - only set if true (per client logic)
+    is_stealth: basics.stealth ? basics.stealth : undefined,
+    is_super_simple: profile === 'SUPER' ? true : undefined,
+    is_zero_simple: profile === 'ZERO' ? true : undefined,
     
     // LP handling
-    burn_lp: basics.lpMode === 'BURN' || undefined,
+    burn_lp: basics.lpMode === 'BURN' ? true : undefined,
     lp_lock_duration: basics.lpMode === 'LOCK' ? basics.lockDays * 24 * 60 * 60 : undefined, // convert days to seconds
+    
+    // State fields - initialize as per client
+    eth_pool: "0",
+    circulating_supply: "0",
+    graduated: false,
     
     // Social media and metadata
     bio: meta.desc || undefined,
@@ -106,23 +114,33 @@ function addProfileSpecificSettings(apiData: CreateTokenFormData, state: TokenSt
     apiData.final_tax_rate = parseFloatOrUndefined(curves.finalTax.SUPER);
     
   } else if (profile === 'BASIC') {
-    // Basic profile settings
-    apiData.curve_start_tax = curves.basic.startTax || undefined;
-    apiData.curve_tax_duration = curves.basic.taxDuration || undefined;
+    // Basic profile settings - CORRECTED FIELD NAMES
+    apiData.curve_starting_tax = parseFloatOrUndefined(curves.basic.startTax);
+    apiData.curve_tax_duration = parseIntOrUndefined(curves.basic.taxDuration);
     apiData.curve_max_wallet = curves.basic.maxWallet || undefined;
+    apiData.curve_max_wallet_duration = parseIntOrUndefined(curves.basic.maxWalletDuration);
     apiData.curve_max_tx = curves.basic.maxTx || undefined;
+    apiData.curve_max_tx_duration = parseIntOrUndefined(curves.basic.maxTxDuration);
     apiData.final_tax_rate = parseFloatOrUndefined(curves.finalTax.BASIC);
     
   } else if (profile === 'ADVANCED') {
-    // Advanced profile settings
+    // Advanced profile settings - CORRECTED AND ADDED FIELDS
     const adv = curves.advanced;
-    apiData.curve_start_tax = adv.startTax || undefined;
-    apiData.curve_tax_step = adv.taxStep || undefined;
-    apiData.curve_tax_interval = adv.taxInterval || undefined;
+    apiData.curve_starting_tax = parseFloatOrUndefined(adv.startTax);
+    apiData.curve_tax_duration = parseIntOrUndefined(adv.taxInterval); // tax interval = tax duration for advanced
     apiData.curve_max_wallet = adv.maxWStart || undefined;
+    apiData.curve_max_tx = adv.maxTStart || undefined;
     apiData.limit_removal_time = parseIntOrUndefined(adv.removeAfter);
     apiData.tax_wallet = adv.taxReceiver || undefined;
     apiData.final_tax_rate = parseFloatOrUndefined(curves.finalTax.ADVANCED);
+    
+    // Step-down configs - NEWLY ADDED
+    apiData.tax_drop_step = parseFloatOrUndefined(adv.taxStep);
+    apiData.tax_drop_interval = parseIntOrUndefined(adv.taxInterval);
+    apiData.max_wallet_step = adv.maxWStep || undefined;
+    apiData.max_wallet_interval = parseIntOrUndefined(adv.maxWInterval);
+    apiData.max_tx_step = adv.maxTStep || undefined;
+    apiData.max_tx_interval = parseIntOrUndefined(adv.maxTInterval);
   }
 }
 

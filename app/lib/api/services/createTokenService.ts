@@ -18,17 +18,22 @@ export class CreateTokenService {
   static async createToken(tokenData: CreateTokenFormData): Promise<CreateTokenApiResponse> {
     const formData = new FormData();
 
-    // Add all text fields to FormData
+    // Helper function to append values (following client's pattern)
+    const append = (k: string, v: string | number | boolean | undefined | null) => {
+      if (v !== undefined && v !== null && v !== '') {
+        formData.append(k, String(v));
+      }
+    };
+
+    // Add all fields following client's pattern
     Object.entries(tokenData).forEach(([key, value]) => {
       if (key === 'logo' || key === 'banner') {
         // Handle file uploads separately
         if (value instanceof File) {
           formData.append(key, value);
         }
-      } else if (value !== undefined && value !== null && value !== '') {
-        // Convert all values to strings and skip empty values
-        // Following API docs: don't send empty strings or nulls
-        formData.append(key, String(value));
+      } else {
+        append(key, value);
       }
     });
 
