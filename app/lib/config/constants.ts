@@ -3,6 +3,28 @@
 // API Configuration
 export const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
+// External API Endpoints
+export const EXTERNAL_APIS = {
+  COINGECKO: {
+    BASE_URL: 'https://api.coingecko.com/api/v3',
+    ENDPOINTS: {
+      SIMPLE_PRICE: '/simple/price',
+    },
+  },
+  ETHEREUM: {
+    MAINNET_RPC: 'https://mainnet.infura.io/v3',
+    METHODS: {
+      GAS_PRICE: 'eth_gasPrice',
+    },
+  },
+} as const;
+
+// Price refresh intervals (in milliseconds)
+export const PRICE_REFRESH_INTERVALS = {
+  GAS_PRICE: 30000, // 30 seconds
+  ETH_PRICE: 30000, // 30 seconds
+} as const;
+
 // Default placeholder image for tokens
 export const DEFAULT_TOKEN_IMAGE = '/images/info_icon.jpg';
 

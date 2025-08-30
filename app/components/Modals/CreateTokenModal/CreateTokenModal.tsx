@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { CreateTokenModalProps, TokenState, ProfileType, TaxMode, FinalTokenType } from './types';
 import { initialState, updateCreationFee, getPlatformFee, validateBasics, validateCurve, fmt, generateFakeHash } from './utils';
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 import { CreateTokenService } from '@/app/lib/api/services/createTokenService';
 import { transformTokenStateToApiData } from './apiTransform';
 import Step1ChooseType from './Step1ChooseType';
@@ -18,6 +19,9 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<TokenState>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Use stable price data hook - only fetch when modal is open
+  const { formattedGasPrice, formattedEthPrice, loading: priceLoading } = useStablePriceData(isOpen);
 
   useEffect(() => {
     setMounted(true);
@@ -260,6 +264,24 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
           </div>
           <div>
             <h1 className={styles.heroTitle}>Create Token Wizard</h1>
+            {/* Price information display */}
+            <div className={styles.priceInfo}>
+              {priceLoading ? (
+                <span className={styles.priceLoading}>Loading prices...</span>
+              ) : (
+                <div className={styles.priceContainer}>
+                  <span className={styles.priceItem}>
+                    ⛽ Gas: {formattedGasPrice}
+                  </span>
+                  <span className={styles.priceItem}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="inline mr-1">
+                      <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z"/>
+                    </svg>
+                    ETH: {formattedEthPrice}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
