@@ -138,7 +138,7 @@ export class PriceService {
     if (!gasPrice || gasPrice === '0' || gasPrice === 'null' || gasPrice === 'undefined') {
       return 'N/A';
     }
-    return `${gasPrice} Gwei`;
+    return `${gasPrice} GWEI`;
   }
 
   /**
