@@ -6,13 +6,13 @@ interface LoadingWrapperProps {
 }
 
 const LoadingScreen = () => (
-  <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden font-sans bg-gradient-to-br from-[#1d1107] via-[#2a1f0a] to-[#1d1107] z-50">
+  <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden font-sans bg-gradient-to-br from-[#1a0e08] via-[#2d1810] to-[#1a0e08] z-50">
     {/* Animated Background Particles */}
     <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-[#d7c400] rounded-full opacity-20 animate-pulse"></div>
-      <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-[#ffd700] rounded-full opacity-30 animate-ping"></div>
-      <div className="absolute top-1/2 left-1/6 w-1.5 h-1.5 bg-[#d7c400] rounded-full opacity-25 animate-bounce"></div>
-      <div className="absolute bottom-1/4 right-1/3 w-1 h-1 bg-[#ffd700] rounded-full opacity-20 animate-pulse"></div>
+      <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-[#e8b35c] rounded-full opacity-20 animate-pulse"></div>
+      <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-[#f3cc76] rounded-full opacity-30 animate-ping"></div>
+      <div className="absolute top-1/2 left-1/6 w-1.5 h-1.5 bg-[#e8b35c] rounded-full opacity-25 animate-bounce"></div>
+      <div className="absolute bottom-1/4 right-1/3 w-1 h-1 bg-[#f3cc76] rounded-full opacity-20 animate-pulse"></div>
     </div>
 
     {/* Main Loading Container */}
@@ -26,34 +26,34 @@ const LoadingScreen = () => (
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.onerror = null;
-            target.src = 'https://placehold.co/200x200/d7c400/1d1107?text=🚀';
+            target.src = 'https://placehold.co/200x200/e8b35c/1d1107?text=🚀';
           }}
         />
       </div>
       
       {/* Enhanced Loading Text */}
       <div className="flex flex-col items-center gap-4 mt-8">
-        <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-[#d7c400] via-[#ffd700] to-[#d7c400] bg-clip-text text-transparent animate-shimmer tracking-wider">
+        <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-[#e8b35c] via-[#f3cc76] to-[#e8b35c] bg-clip-text text-transparent animate-shimmer tracking-wider">
           Steakhouse
         </h1>
         
         <div className="flex items-center gap-3">
-          <p className="text-xl md:text-2xl font-medium text-[#d7c400] animate-pulse">
+          <p className="text-xl md:text-2xl font-medium text-[#e8b35c] animate-pulse">
             Loading
           </p>
           <div className="flex gap-1">
-            <div className="w-2 h-2 bg-[#d7c400] rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-[#d7c400] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-[#d7c400] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-[#e8b35c] rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-[#e8b35c] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-[#e8b35c] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
         
         {/* Progress Bar */}
-        <div className="w-64 md:w-80 h-1 bg-[#d7c400]/20 rounded-full overflow-hidden mt-4">
-          <div className="h-full bg-gradient-to-r from-[#d7c400] to-[#ffd700] rounded-full animate-progress"></div>
+        <div className="w-64 md:w-80 h-1 bg-[#e8b35c]/20 rounded-full overflow-hidden mt-4">
+          <div className="h-full bg-gradient-to-r from-[#e8b35c] to-[#f3cc76] rounded-full animate-progress"></div>
         </div>
         
-        <p className="text-sm text-[#d7c400]/60 mt-2 animate-fade-in-delayed">
+        <p className="text-sm text-[#e8b35c]/60 mt-2 animate-fade-in-delayed">
           Preparing your trading experience...
         </p>
       </div>
