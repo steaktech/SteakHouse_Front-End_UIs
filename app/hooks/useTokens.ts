@@ -1,6 +1,6 @@
 // hooks/useTokens.ts
 import { useState, useEffect, useCallback } from 'react';
-import { getFilteredTokens, getTokensByVolume } from '@/app/lib/api/services/tokenService';
+import { getFilteredTokens, getTokensByVolume, getTokensByMarketCap } from '@/app/lib/api/services/tokenService';
 import { transformTokensToCardProps } from '@/app/lib/utils/tokenUtils';
 import type { Token, PaginatedTokenResponse } from '@/app/types/token';
 import type { TokenCardProps } from '@/app/components/TradingDashboard/types';
@@ -96,8 +96,8 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       // Build URLSearchParams from filters
       const params = new URLSearchParams();
       
-      // Only add sortBy and sortOrder for non-search operations
-      if (!isSearchFilter) {
+      // Only add sortBy and sortOrder for non-search operations and non-mcap/non-volume operations
+      if (!isSearchFilter && currentFilters.sortBy !== 'mcap' && currentFilters.sortBy !== 'volume') {
         if (currentFilters.sortBy) params.append('sortBy', currentFilters.sortBy);
         if (currentFilters.sortOrder) params.append('sortOrder', currentFilters.sortOrder);
       }
@@ -140,13 +140,19 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       let response: PaginatedTokenResponse;
       
       // For search filters, always use getFilteredTokens
-      // For regular filters, use volume endpoint if sorting by volume
-      if (isSearchFilter || currentFilters.sortBy !== 'volume') {
+      // For regular filters, use specific endpoints based on sortBy
+      if (isSearchFilter) {
         console.log('Fetching filtered tokens from API with params:', params.toString());
         response = await getFilteredTokens(params);
-      } else {
+      } else if (currentFilters.sortBy === 'volume') {
         console.log('Fetching tokens by volume from API with params:', params.toString());
         response = await getTokensByVolume(params);
+      } else if (currentFilters.sortBy === 'mcap') {
+        console.log('Fetching tokens by market cap from API with params:', params.toString());
+        response = await getTokensByMarketCap(params);
+      } else {
+        console.log('Fetching filtered tokens from API with params:', params.toString());
+        response = await getFilteredTokens(params);
       }
       
       console.log('Received paginated response:', response);
@@ -179,8 +185,8 @@ export function useTokens(initialFilters: TokenFilters = {}) {
   const updateFilters = useCallback((newFilters: Partial<TokenFilters>) => {
     const updatedFilters = { ...filters, ...newFilters };
     setFilters(updatedFilters);
-    fetchTokens(updatedFilters);
-  }, [filters, fetchTokens]);
+    // Don't call fetchTokens here - let the useEffect handle it when filters change
+  }, [filters]);
 
   // Refetch function for manual refresh
   const refetch = useCallback(() => {
@@ -222,8 +228,8 @@ export function useTokens(initialFilters: TokenFilters = {}) {
     };
     
     setFilters(cleanSearchFilters);
-    fetchTokens(cleanSearchFilters);
-  }, [fetchTokens]);
+    // Don't call fetchTokens here - let the useEffect handle it when filters change
+  }, []);
 
   // Clear all filters function - resets to default dashboard state
   const clearAllFilters = useCallback(() => {
@@ -234,8 +240,8 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       page: 1,
     };
     setFilters(defaultFilters);
-    fetchTokens(defaultFilters);
-  }, [fetchTokens]);
+    // Don't call fetchTokens here - let the useEffect handle it when filters change
+  }, []);
 
   // Pagination functions
   const goToPage = useCallback((page: number) => {

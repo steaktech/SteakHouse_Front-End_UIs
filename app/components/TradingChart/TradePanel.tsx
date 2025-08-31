@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 
 const WalletModal = dynamic(
-  () => import("../Wallet/WalletModal"),
+  () => import("../Modals/WalletModal/WalletModal"),
   { ssr: false }
 );
 

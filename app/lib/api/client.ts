@@ -9,7 +9,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
  * @returns The JSON response from the API.
  */
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const fullUrl = `${API_URL}${endpoint}`;
+  console.log('API Request:', {
+    url: fullUrl,
+    method: options?.method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+    body: options?.body
+  });
+
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -17,10 +28,20 @@ export async function apiClient<T>(endpoint: string, options?: RequestInit): Pro
     },
   });
 
+  console.log('API Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    ok: response.ok,
+    url: response.url
+  });
+
   if (!response.ok) {
-    // You can add more robust error handling here
-    throw new Error(`API call to ${endpoint} failed: ${response.statusText}`);
+    const errorText = await response.text();
+    console.error('API Error Details:', errorText);
+    throw new Error(`API call to ${endpoint} failed: ${response.statusText} - ${errorText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  console.log('API Result:', result);
+  return result;
 }

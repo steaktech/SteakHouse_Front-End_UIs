@@ -15,7 +15,7 @@ const SteakHouseInfoModal = dynamic(
   { ssr: false }
 );
 const WalletModal = dynamic(
-  () => import("./Wallet/WalletModal"),
+  () => import("./Modals/WalletModal/WalletModal"),
   { ssr: false }
 );
 

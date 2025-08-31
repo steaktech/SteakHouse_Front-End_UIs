@@ -166,19 +166,19 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
       errors.basicStartTax = "Enter 0-100%.";
     }
     if (!isInt(curves.basic.taxDuration)) {
-      errors.basicTaxDuration = "Enter seconds (integer).";
+      errors.basicTaxDuration = "Enter minutes (integer).";
     }
     if (!isInt(curves.basic.maxWallet)) {
       errors.basicMaxWallet = "Enter integer tokens.";
     }
     if (!isInt(curves.basic.maxWalletDuration)) {
-      errors.basicMaxWalletDuration = "Enter seconds (integer).";
+      errors.basicMaxWalletDuration = "Enter minutes (integer).";
     }
     if (!isInt(curves.basic.maxTx)) {
       errors.basicMaxTx = "Enter integer tokens.";
     }
     if (!isInt(curves.basic.maxTxDuration)) {
-      errors.basicMaxTxDuration = "Enter seconds (integer).";
+      errors.basicMaxTxDuration = "Enter minutes (integer).";
     }
     if (finalType.BASIC === "TAX") {
       const v = pct(curves.finalTax.BASIC);
@@ -215,7 +215,7 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
       errors.advMaxT = "Enter integers; if step > 0, interval > 0.";
     }
     if (!isInt(curves.advanced.removeAfter)) {
-      errors.advRemoveAfter = "Enter seconds (integer).";
+      errors.advRemoveAfter = "Enter minutes (integer).";
     }
     if (!/^0x[a-fA-F0-9]{40}$/.test(curves.advanced.taxReceiver)) {
       errors.advTaxReceiver = "Enter a valid address (0x…40 hex).";

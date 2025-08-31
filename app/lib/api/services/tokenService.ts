@@ -30,6 +30,15 @@ export async function getTokensByVolume(params?: URLSearchParams): Promise<Pagin
 }
 
 /**
+ * Fetches all tokens ranked by market cap - now returns paginated response.
+ * [cite_start]GET /filtered/mcap [cite: 302-304]
+ */
+export async function getTokensByMarketCap(params?: URLSearchParams): Promise<PaginatedTokenResponse> {
+  const queryString = params ? `?${params.toString()}` : '';
+  return apiClient<PaginatedTokenResponse>(`/filtered/mcap${queryString}`);
+}
+
+/**
  * Fetches the complete data set for a single token page.
  * [cite_start]GET /api/token/:address/full [cite: 436]
  */

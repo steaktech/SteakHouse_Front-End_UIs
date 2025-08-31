@@ -21,6 +21,26 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
   onBack,
   onContinue
 }) => {
+  // Helper functions to convert between seconds and minutes for display
+  const secondsToMinutes = (seconds: string): string => {
+    if (!seconds || seconds === '') return '';
+    const numSeconds = parseInt(seconds);
+    if (isNaN(numSeconds)) return seconds;
+    return (numSeconds / 60).toString();
+  };
+
+  const minutesToSeconds = (minutes: string): string => {
+    if (!minutes || minutes === '') return '';
+    const numMinutes = parseFloat(minutes);
+    if (isNaN(numMinutes)) return minutes;
+    return (numMinutes * 60).toString();
+  };
+
+  // Wrapper function to handle time field changes (convert minutes to seconds)
+  const handleTimeFieldChange = (section: string, field: string, minutesValue: string) => {
+    const secondsValue = minutesToSeconds(minutesValue);
+    onCurveChange(section, field, secondsValue);
+  };
   if (!profile) {
     return (
       <div className={styles.panel}>
@@ -153,12 +173,12 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
           {errors.basicStartTax && <div className={styles.error}>{errors.basicStartTax}</div>}
         </div>
         <div>
-          <div className={styles.label}>Tax active for (seconds)</div>
+          <div className={styles.label}>Tax active for (minutes)</div>
           <input
             className={`${styles.input} ${errors.basicTaxDuration ? styles.fieldError : ''}`}
-            value={curves.basic.taxDuration}
-            onChange={(e) => onCurveChange('basic', 'taxDuration', e.target.value)}
-            placeholder="e.g., 3600"
+            value={secondsToMinutes(curves.basic.taxDuration)}
+            onChange={(e) => handleTimeFieldChange('basic', 'taxDuration', e.target.value)}
+            placeholder="e.g., 60"
           />
           {errors.basicTaxDuration && <div className={styles.error}>{errors.basicTaxDuration}</div>}
         </div>
@@ -199,12 +219,12 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             onChange={(e) => onCurveChange('basic', 'maxWallet', e.target.value)}
             placeholder="tokens"
           />
-          <div className={styles.hint}>Active for duration (seconds)</div>
+          <div className={styles.hint}>Active for duration (minutes)</div>
           <input
             className={`${styles.input} ${errors.basicMaxWalletDuration ? styles.fieldError : ''}`}
-            value={curves.basic.maxWalletDuration}
-            onChange={(e) => onCurveChange('basic', 'maxWalletDuration', e.target.value)}
-            placeholder="duration"
+            value={secondsToMinutes(curves.basic.maxWalletDuration)}
+            onChange={(e) => handleTimeFieldChange('basic', 'maxWalletDuration', e.target.value)}
+            placeholder="duration in minutes"
             style={{marginTop: '8px'}}
           />
           {errors.basicMaxWallet && <div className={styles.error}>{errors.basicMaxWallet}</div>}
@@ -218,12 +238,12 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             onChange={(e) => onCurveChange('basic', 'maxTx', e.target.value)}
             placeholder="tokens"
           />
-          <div className={styles.hint}>Active for duration (seconds)</div>
+          <div className={styles.hint}>Active for duration (minutes)</div>
           <input
             className={`${styles.input} ${errors.basicMaxTxDuration ? styles.fieldError : ''}`}
-            value={curves.basic.maxTxDuration}
-            onChange={(e) => onCurveChange('basic', 'maxTxDuration', e.target.value)}
-            placeholder="duration"
+            value={secondsToMinutes(curves.basic.maxTxDuration)}
+            onChange={(e) => handleTimeFieldChange('basic', 'maxTxDuration', e.target.value)}
+            placeholder="duration in minutes"
             style={{marginTop: '8px'}}
           />
           {errors.basicMaxTx && <div className={styles.error}>{errors.basicMaxTx}</div>}
@@ -264,12 +284,12 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
           {errors.advTaxStep && <div className={styles.error}>{errors.advTaxStep}</div>}
         </div>
         <div>
-          <div className={styles.label}>Tax drop interval (seconds)</div>
+          <div className={styles.label}>Tax drop interval (minutes)</div>
           <input
             className={`${styles.input} ${errors.advTaxInterval ? styles.fieldError : ''}`}
-            value={curves.advanced.taxInterval}
-            onChange={(e) => onCurveChange('advanced', 'taxInterval', e.target.value)}
-            placeholder="e.g., 300"
+            value={secondsToMinutes(curves.advanced.taxInterval)}
+            onChange={(e) => handleTimeFieldChange('advanced', 'taxInterval', e.target.value)}
+            placeholder="e.g., 5"
           />
           {errors.advTaxInterval && <div className={styles.error}>{errors.advTaxInterval}</div>}
         </div>
@@ -292,12 +312,12 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             placeholder="tokens/step"
             style={{marginTop: '8px'}}
           />
-          <div className={styles.hint}>Step interval (seconds)</div>
+          <div className={styles.hint}>Step interval (minutes)</div>
           <input
             className={`${styles.input} ${errors.advMaxWInterval ? styles.fieldError : ''}`}
-            value={curves.advanced.maxWInterval}
-            onChange={(e) => onCurveChange('advanced', 'maxWInterval', e.target.value)}
-            placeholder="e.g., 300"
+            value={secondsToMinutes(curves.advanced.maxWInterval)}
+            onChange={(e) => handleTimeFieldChange('advanced', 'maxWInterval', e.target.value)}
+            placeholder="e.g., 5"
             style={{marginTop: '8px'}}
           />
           {errors.advMaxW && <div className={styles.error}>{errors.advMaxW}</div>}
@@ -318,23 +338,23 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             placeholder="tokens/step"
             style={{marginTop: '8px'}}
           />
-          <div className={styles.hint}>Step interval (seconds)</div>
+          <div className={styles.hint}>Step interval (minutes)</div>
           <input
             className={`${styles.input} ${errors.advMaxTInterval ? styles.fieldError : ''}`}
-            value={curves.advanced.maxTInterval}
-            onChange={(e) => onCurveChange('advanced', 'maxTInterval', e.target.value)}
-            placeholder="e.g., 300"
+            value={secondsToMinutes(curves.advanced.maxTInterval)}
+            onChange={(e) => handleTimeFieldChange('advanced', 'maxTInterval', e.target.value)}
+            placeholder="e.g., 5"
             style={{marginTop: '8px'}}
           />
           {errors.advMaxT && <div className={styles.error}>{errors.advMaxT}</div>}
         </div>
         <div>
-          <div className={styles.label}>Remove all limits after (seconds)</div>
+          <div className={styles.label}>Remove all limits after (minutes)</div>
           <input
             className={`${styles.input} ${errors.advRemoveAfter ? styles.fieldError : ''}`}
-            value={curves.advanced.removeAfter}
-            onChange={(e) => onCurveChange('advanced', 'removeAfter', e.target.value)}
-            placeholder="e.g., 3600"
+            value={secondsToMinutes(curves.advanced.removeAfter)}
+            onChange={(e) => handleTimeFieldChange('advanced', 'removeAfter', e.target.value)}
+            placeholder="e.g. 1"
           />
           <div className={styles.label} style={{marginTop: '10px'}}>Tax receiver (address)</div>
           <input

@@ -104,3 +104,37 @@ export interface FullTokenDataResponse {
   candles: Candle[];
   interval: string;
 }
+
+// WebSocket Event Types
+export interface WebSocketTrade {
+  type: 'BUY' | 'SELL';
+  token: string;
+  name: string;
+  symbol: string;
+  total_supply: number;
+  trader: string;
+  amountEth: number;
+  amountTokens: number;
+  price: number;
+  usdValue: number;
+  marketCap: number;
+  txHash: string;
+  virtualEth: number;
+  circulatingSupply: number;
+  timestamp: number;
+}
+
+export interface WebSocketCandle {
+  token: string;
+  timestamp: number;
+  open: string;
+  high: number;
+  low: number;
+  close: string;
+  volume: number;
+}
+
+export interface ChartUpdateEvent {
+  timeframe: string;
+  candle: WebSocketCandle;
+}

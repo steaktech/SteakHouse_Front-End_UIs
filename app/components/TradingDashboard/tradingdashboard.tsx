@@ -257,7 +257,7 @@ export default function TradingDashboard() {
                 </button>
               </div>
               
-              {/* Filter buttons in 2 rows of 3 for mobile */}
+              {/* Filter buttons in 3 rows for mobile to accommodate all buttons */}
               <div className="space-y-1">
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
@@ -293,7 +293,15 @@ export default function TradingDashboard() {
                   />
                   <FilterButton 
                     icon={<Smile size={12} />} 
-                    label="Meme" 
+                    label="AI" 
+                    active={filters.tokenType === 'meme'}
+                    onClick={() => filterByType('meme')}
+                  />
+                </div>
+                <div className="flex items-center justify-center">
+                  <FilterButton 
+                    icon={<Smile size={12} />} 
+                    label="X-post" 
                     active={filters.tokenType === 'meme'}
                     onClick={() => filterByType('meme')}
                   />
@@ -315,7 +323,7 @@ export default function TradingDashboard() {
                 </button>
               </div>
               
-              {/* All filter buttons in one row for tablet */}
+              {/* All filter buttons with flex-wrap for tablet */}
               <div className="flex items-center gap-2 justify-center flex-wrap">
                 <FilterButton 
                   icon={<BarChart size={14} />} 
@@ -348,7 +356,13 @@ export default function TradingDashboard() {
                 />
                 <FilterButton 
                   icon={<Smile size={14} />} 
-                  label="Meme" 
+                  label="AI" 
+                  active={filters.tokenType === 'meme'}
+                  onClick={() => filterByType('meme')}
+                />
+                <FilterButton 
+                  icon={<Smile size={14} />} 
+                  label="X-post" 
                   active={filters.tokenType === 'meme'}
                   onClick={() => filterByType('meme')}
                 />
@@ -401,7 +415,7 @@ export default function TradingDashboard() {
               <div className="flex items-center gap-2 flex-wrap">
                 <FilterButton 
                   icon={<Star size={16} />} 
-                  label="New" 
+                  label="Meme" 
                   active={filters.sortBy === 'age'}
                   onClick={sortByAge}
                 />
@@ -413,7 +427,13 @@ export default function TradingDashboard() {
                 />
                 <FilterButton 
                   icon={<Smile size={16} />} 
-                  label="Meme" 
+                  label="AI" 
+                  active={filters.tokenType === 'meme'}
+                  onClick={() => filterByType('meme')}
+                />
+                <FilterButton 
+                  icon={<Smile size={16} />} 
+                  label="X-post" 
                   active={filters.tokenType === 'meme'}
                   onClick={() => filterByType('meme')}
                 />
