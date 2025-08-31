@@ -31,6 +31,7 @@ export default function TradingDashboard() {
     sortByMarketCap,
     sortByAge,
     filterByType,
+    filterByCategory,
     showAll,
     applySearchFilters,
     clearAllFilters,
@@ -281,29 +282,29 @@ export default function TradingDashboard() {
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
                     icon={<Star size={12} />} 
-                    label="New" 
-                    active={filters.sortBy === 'age'}
-                    onClick={sortByAge}
+                    label="Meme" 
+                    active={filters.category === 'meme'}
+                    onClick={() => filterByCategory('meme')}
                   />
                   <FilterButton 
                     icon={<Wrench size={12} />} 
                     label="Utility" 
-                    active={filters.tokenType === 'utility'}
-                    onClick={() => filterByType('utility')}
+                    active={filters.category === 'utility'}
+                    onClick={() => filterByCategory('utility')}
                   />
                   <FilterButton 
                     icon={<Smile size={12} />} 
                     label="AI" 
-                    active={filters.tokenType === 'meme'}
-                    onClick={() => filterByType('meme')}
+                    active={filters.category === 'ai'}
+                    onClick={() => filterByCategory('ai')}
                   />
                 </div>
                 <div className="flex items-center justify-center">
                   <FilterButton 
                     icon={<Smile size={12} />} 
                     label="X-post" 
-                    active={filters.tokenType === 'meme'}
-                    onClick={() => filterByType('meme')}
+                    active={filters.category === 'x-post'}
+                    onClick={() => filterByCategory('x-post')}
                   />
                 </div>
               </div>
@@ -344,27 +345,27 @@ export default function TradingDashboard() {
                 />
                 <FilterButton 
                   icon={<Star size={14} />} 
-                  label="New" 
-                  active={filters.sortBy === 'age'}
-                  onClick={sortByAge}
+                  label="Meme" 
+                  active={filters.category === 'meme'}
+                  onClick={() => filterByCategory('meme')}
                 />
                 <FilterButton 
                   icon={<Wrench size={14} />} 
                   label="Utility" 
-                  active={filters.tokenType === 'utility'}
-                  onClick={() => filterByType('utility')}
+                  active={filters.category === 'utility'}
+                  onClick={() => filterByCategory('utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={14} />} 
                   label="AI" 
-                  active={filters.tokenType === 'meme'}
-                  onClick={() => filterByType('meme')}
+                  active={filters.category === 'ai'}
+                  onClick={() => filterByCategory('ai')}
                 />
                 <FilterButton 
                   icon={<Smile size={14} />} 
                   label="X-post" 
-                  active={filters.tokenType === 'meme'}
-                  onClick={() => filterByType('meme')}
+                  active={filters.category === 'x-post'}
+                  onClick={() => filterByCategory('x-post')}
                 />
               </div>
             </div>
@@ -416,26 +417,26 @@ export default function TradingDashboard() {
                 <FilterButton 
                   icon={<Star size={16} />} 
                   label="Meme" 
-                  active={filters.sortBy === 'age'}
-                  onClick={sortByAge}
+                  active={filters.category === 'meme'}
+                  onClick={() => filterByCategory('meme')}
                 />
                 <FilterButton 
                   icon={<Wrench size={16} />} 
                   label="Utility" 
-                  active={filters.tokenType === 'utility'}
-                  onClick={() => filterByType('utility')}
+                  active={filters.category === 'utility'}
+                  onClick={() => filterByCategory('utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={16} />} 
                   label="AI" 
-                  active={filters.tokenType === 'meme'}
-                  onClick={() => filterByType('meme')}
+                  active={filters.category === 'ai'}
+                  onClick={() => filterByCategory('ai')}
                 />
                 <FilterButton 
                   icon={<Smile size={16} />} 
                   label="X-post" 
-                  active={filters.tokenType === 'meme'}
-                  onClick={() => filterByType('meme')}
+                  active={filters.category === 'x-post'}
+                  onClick={() => filterByCategory('x-post')}
                 />
               </div>
             </div>

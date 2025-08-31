@@ -1,6 +1,7 @@
 // lib/api/services/tokenService.ts
 import { apiClient } from '../client';
 import type { Token, Candle, Trade, PaginatedTokenResponse, FullTokenDataResponse } from '@/app/types/token';
+import { getTokensByCategory, type CategoryType, type CategoryParams } from './categoryService';
 
 type ApiResponse<T> = T | { error: string };
 
@@ -53,3 +54,6 @@ export async function getFullTokenData(address: string, interval = '1m', limit =
 export async function getChartData(address: string, timeframe = '1m', limit = 100): Promise<{ token: string; candles: Candle[] }> {
   return apiClient<{ token: string; candles: Candle[] }>(`/token/${address}/chart?timeframe=${timeframe}&limit=${limit}`);
 }
+
+// Re-export category service functions for easier imports
+export { getTokensByCategory, type CategoryType, type CategoryParams } from './categoryService';

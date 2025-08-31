@@ -1,6 +1,6 @@
 // hooks/useTokens.ts
 import { useState, useEffect, useCallback } from 'react';
-import { getFilteredTokens, getTokensByVolume, getTokensByMarketCap } from '@/app/lib/api/services/tokenService';
+import { getFilteredTokens, getTokensByVolume, getTokensByMarketCap, getTokensByCategory, type CategoryType } from '@/app/lib/api/services/tokenService';
 import { transformTokensToCardProps } from '@/app/lib/utils/tokenUtils';
 import type { Token, PaginatedTokenResponse } from '@/app/types/token';
 import type { TokenCardProps } from '@/app/components/TradingDashboard/types';
@@ -9,6 +9,7 @@ export interface TokenFilters {
   sortBy?: 'volume' | 'mcap' | 'age' | 'name';
   sortOrder?: 'asc' | 'desc';
   tokenType?: string;
+  category?: CategoryType;
   graduated?: boolean;
   
   // Age filters (in hours)
@@ -139,9 +140,25 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       
       let response: PaginatedTokenResponse;
       
+      // For category filters, use the category API endpoint
+      if (currentFilters.category) {
+        console.log('Fetching tokens by category from API:', currentFilters.category, 'with params:', params.toString());
+        
+        // Convert URLSearchParams to CategoryParams for the category API
+        const categoryParams = {
+          page: currentFilters.page,
+          pageSize: currentFilters.limit,
+          sortBy: currentFilters.sortBy === 'age' ? 'created_at_timestamp' as const :
+                  currentFilters.sortBy === 'mcap' ? 'circulating_supply' as const :
+                  currentFilters.sortBy === 'volume' ? 'eth_pool' as const :
+                  'inserted_at' as const
+        };
+        
+        response = await getTokensByCategory(currentFilters.category, categoryParams);
+      }
       // For search filters, always use getFilteredTokens
       // For regular filters, use specific endpoints based on sortBy
-      if (isSearchFilter) {
+      else if (isSearchFilter) {
         console.log('Fetching filtered tokens from API with params:', params.toString());
         response = await getFilteredTokens(params);
       } else if (currentFilters.sortBy === 'volume') {
@@ -210,12 +227,16 @@ export function useTokens(initialFilters: TokenFilters = {}) {
     updateFilters({ tokenType, page: 1 });
   }, [updateFilters]);
 
+  const filterByCategory = useCallback((category: CategoryType) => {
+    updateFilters({ category, page: 1 });
+  }, [updateFilters]);
+
   const showOnlyGraduated = useCallback(() => {
     updateFilters({ graduated: true, page: 1 });
   }, [updateFilters]);
 
   const showAll = useCallback(() => {
-    updateFilters({ graduated: undefined, tokenType: undefined, page: 1 });
+    updateFilters({ graduated: undefined, tokenType: undefined, category: undefined, page: 1 });
   }, [updateFilters]);
 
   // Search function - replaces existing filters with search filters only
@@ -275,6 +296,7 @@ export function useTokens(initialFilters: TokenFilters = {}) {
     sortByMarketCap,
     sortByAge,
     filterByType,
+    filterByCategory,
     showOnlyGraduated,
     showAll,
     applySearchFilters,
