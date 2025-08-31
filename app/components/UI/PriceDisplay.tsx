@@ -1,7 +1,7 @@
 // components/UI/PriceDisplay.tsx
 
 import React from 'react';
-import { useBasicPriceData } from '@/app/hooks/usePriceData';
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 interface PriceDisplayProps {
   /** Whether to show the price data */
@@ -24,7 +24,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   orientation = 'horizontal',
   showLoading = true,
 }) => {
-  const { formattedGasPrice, formattedEthPrice, loading, error } = useBasicPriceData(enabled);
+  const { formattedGasPrice, formattedEthPrice, loading, error } = useStablePriceData(enabled);
 
   if (!enabled) return null;
 
