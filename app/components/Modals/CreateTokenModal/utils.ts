@@ -3,13 +3,15 @@ import { TokenState, ProfileType } from './types';
 export const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 });
 
 export const initialState: TokenState = {
-  step: 1,
+  step: 0,
+  deploymentMode: null,
   taxMode: null,
   profile: null,
   fees: {
     creation: null,
     platformPct: 0.3,
-    headerless: 0.003,
+    headerless: 0.001,
+    stealth: 0.003,
     graduation: 0.1,
     locker: 0.08,
   },
@@ -18,6 +20,7 @@ export const initialState: TokenState = {
     symbol: "",
     totalSupply: "1000000000",
     gradCap: "",
+    tokenCategory: null,
     startMode: "NOW",
     startTime: 0,
     lpMode: "LOCK",
@@ -56,8 +59,21 @@ export const initialState: TokenState = {
       taxReceiver: "",
     },
   },
+  v2Settings: {
+    enableTradingMode: 'DEPLOY_ONLY',
+    initialLiquidityETH: '1.0',
+    taxSettings: {
+      buyTax: '0',
+      sellTax: '0',
+      taxReceiver: ''
+    },
+    limits: {
+      maxWallet: '2',
+      maxTx: '2',
+      enableLimits: false
+    }
+  },
   meta: { desc: "", website: "", tg: "", tw: "", logo: "", banner: "" },
-  files: {},
   txHash: null,
 };
 
@@ -65,13 +81,13 @@ export function updateCreationFee(profile: ProfileType | null, taxMode: string |
   let fee = null;
   switch (profile) {
     case "ZERO":
-      fee = 0.0;
+      fee = 0.0005;
       break;
     case "SUPER":
-      fee = 0.0;
+      fee = 0.001;
       break;
     case "BASIC":
-      fee = taxMode === "BASIC" ? 0.003 : 0.001;
+      fee = 0.003;
       break;
     case "ADVANCED":
       fee = 0.01;
@@ -96,6 +112,10 @@ export function validateBasics(basics: any): { isValid: boolean; errors: Record<
 
   if (!basics.symbol?.trim()) {
     errors.symbol = "Symbol is required.";
+  }
+
+  if (!basics.tokenCategory) {
+    errors.tokenCategory = "Please select a token category.";
   }
 
   const totalSupply = basics.totalSupply?.trim() || "1000000000";
@@ -142,21 +162,25 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
   const pct = (v: string) => (v === "" ? null : Number(String(v).replace(",", ".")));
   const isInt = (s: string) => /^[0-9]+$/.test(s);
 
+  // Zero and Simple profiles are always tax-free, no validation needed for tax settings
   if (profile === "ZERO") {
-    if (finalType.ZERO === "TAX") {
-      const v = pct(curves.finalTax.ZERO);
-      if (!(v != null && inRange(v, 0, 5))) {
-        errors.zeroFinalTax = "Enter 0-5%.";
-      }
-    }
+    // Zero profiles have no configurable settings, always valid
+    return {
+      isValid: true,
+      errors: {}
+    };
   }
 
   if (profile === "SUPER") {
-    if (finalType.SUPER === "TAX") {
-      const v = pct(curves.finalTax.SUPER);
-      if (!(v != null && inRange(v, 0, 5))) {
-        errors.superFinalTax = "Enter 0-5%.";
-      }
+    // Simple profiles only need wallet and transaction limit validation
+    const maxWallet = pct(curves.super.maxWallet);
+    if (!(maxWallet != null && maxWallet > 0 && maxWallet <= 100)) {
+      errors.superMaxWallet = "Enter a value between 0.1-100%.";
+    }
+    
+    const maxTx = pct(curves.super.maxTx);
+    if (!(maxTx != null && maxTx > 0 && maxTx <= 100)) {
+      errors.superMaxTx = "Enter a value between 0.1-100%.";
     }
   }
 
@@ -166,19 +190,19 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
       errors.basicStartTax = "Enter 0-100%.";
     }
     if (!isInt(curves.basic.taxDuration)) {
-      errors.basicTaxDuration = "Enter minutes (integer).";
+      errors.basicTaxDuration = "Enter seconds (integer).";
     }
     if (!isInt(curves.basic.maxWallet)) {
       errors.basicMaxWallet = "Enter integer tokens.";
     }
     if (!isInt(curves.basic.maxWalletDuration)) {
-      errors.basicMaxWalletDuration = "Enter minutes (integer).";
+      errors.basicMaxWalletDuration = "Enter seconds (integer).";
     }
     if (!isInt(curves.basic.maxTx)) {
       errors.basicMaxTx = "Enter integer tokens.";
     }
     if (!isInt(curves.basic.maxTxDuration)) {
-      errors.basicMaxTxDuration = "Enter minutes (integer).";
+      errors.basicMaxTxDuration = "Enter seconds (integer).";
     }
     if (finalType.BASIC === "TAX") {
       const v = pct(curves.finalTax.BASIC);
@@ -215,7 +239,7 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
       errors.advMaxT = "Enter integers; if step > 0, interval > 0.";
     }
     if (!isInt(curves.advanced.removeAfter)) {
-      errors.advRemoveAfter = "Enter minutes (integer).";
+      errors.advRemoveAfter = "Enter seconds (integer).";
     }
     if (!/^0x[a-fA-F0-9]{40}$/.test(curves.advanced.taxReceiver)) {
       errors.advTaxReceiver = "Enter a valid address (0x…40 hex).";
@@ -226,6 +250,50 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
       if (!(v >= 0 && v <= 5)) {
         errors.advFinalTax = "Enter 0-5%.";
       }
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+}
+
+export function validateV2Settings(v2Settings: any): { isValid: boolean; errors: Record<string, string> } {
+  const errors: Record<string, string> = {};
+  const isValidNumber = (s: string) => !isNaN(Number(s)) && Number(s) >= 0;
+  const isValidPercent = (s: string) => isValidNumber(s) && Number(s) >= 0 && Number(s) <= 100;
+
+  // Validate liquidity amount for full launch mode
+  if (v2Settings.enableTradingMode === 'FULL_LAUNCH') {
+    if (!v2Settings.initialLiquidityETH || !isValidNumber(v2Settings.initialLiquidityETH) || Number(v2Settings.initialLiquidityETH) <= 0) {
+      errors.initialLiquidityETH = 'Initial liquidity must be greater than 0 ETH';
+    }
+  }
+
+  // Validate tax settings
+  if (!isValidPercent(v2Settings.taxSettings.buyTax)) {
+    errors.buyTax = 'Buy tax must be between 0-100%';
+  }
+  if (!isValidPercent(v2Settings.taxSettings.sellTax)) {
+    errors.sellTax = 'Sell tax must be between 0-100%';
+  }
+
+  // Validate tax receiver if taxes are set
+  const hasTax = Number(v2Settings.taxSettings.buyTax) > 0 || Number(v2Settings.taxSettings.sellTax) > 0;
+  if (hasTax) {
+    if (!v2Settings.taxSettings.taxReceiver || !/^0x[a-fA-F0-9]{40}$/.test(v2Settings.taxSettings.taxReceiver)) {
+      errors.taxReceiver = 'Valid tax receiver address required when taxes > 0';
+    }
+  }
+
+  // Validate limits if enabled
+  if (v2Settings.limits.enableLimits) {
+    if (!isValidPercent(v2Settings.limits.maxWallet)) {
+      errors.maxWallet = 'Max wallet must be between 0-100% of supply';
+    }
+    if (!isValidPercent(v2Settings.limits.maxTx)) {
+      errors.maxTx = 'Max transaction must be between 0-100% of supply';
     }
   }
 

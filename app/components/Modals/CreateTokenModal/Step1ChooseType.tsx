@@ -1,6 +1,7 @@
 import React from 'react';
 import { ProfileType, TaxMode } from './types';
 import { fmt } from './utils';
+import HelpTooltip from '../../UI/HelpTooltip';
 import styles from './CreateTokenModal.module.css';
 
 interface Step1ChooseTypeProps {
@@ -23,18 +24,14 @@ const Step1ChooseType: React.FC<Step1ChooseTypeProps> = ({
   onContinue
 }) => {
   const isProfileAllowed = (profileType: ProfileType) => {
-    if (taxMode === 'NO_TAX') {
-      return profileType === 'ZERO' || profileType === 'SUPER';
-    } else if (taxMode === 'BASIC') {
-      return profileType === 'BASIC' || profileType === 'ADVANCED';
-    }
+    // Since we removed the Trading Style selection, all profiles are available
     return true;
   };
 
   const getProfileTitle = (profileType: ProfileType) => {
     switch (profileType) {
-      case 'ZERO': return 'Zero Simple';
-      case 'SUPER': return 'Super Simple';
+      case 'ZERO': return 'Zero';
+      case 'SUPER': return 'Simple';
       case 'BASIC': return 'Basic';
       case 'ADVANCED': return 'Advanced';
     }
@@ -42,108 +39,59 @@ const Step1ChooseType: React.FC<Step1ChooseTypeProps> = ({
 
   const getProfileDescription = (profileType: ProfileType) => {
     switch (profileType) {
-      case 'ZERO': return '0% curve tax, no limits. Fast and frictionless.';
-      case 'SUPER': return '0% curve tax with static Max Tx/Wallet.';
-      case 'BASIC': return 'Static curve tax and static limits for a fixed duration.';
-      case 'ADVANCED': return 'Decaying tax & limits, timed removal; highly configurable.';
+      case 'ZERO': return 'No tax, no limits, no max wallet';
+      case 'SUPER': return 'No tax, limits and max wallet apply';
+      case 'BASIC': return 'Static tax and limits for a set duration of time then lifted';
+      case 'ADVANCED': return 'Block based incremental tax decrease and limits increase';
+    }
+  };
+
+  const getProfileTooltip = (profileType: ProfileType) => {
+    switch (profileType) {
+      case 'ZERO': return '0% curve tax, no limits. Fast and frictionless trading for maximum accessibility.';
+      case 'SUPER': return '0% curve tax with static Max Tx/Wallet limits for basic bot protection.';
+      case 'BASIC': return 'Static curve tax and static limits for a fixed duration. Good balance of protection and simplicity.';
+      case 'ADVANCED': return 'Decaying tax & limits with timed removal. Highly configurable with maximum flexibility.';
     }
   };
 
   return (
     <div className={styles.panel}>
-      <div className={`${styles.card} ${styles.cardAlt}`}>
-        <div className={styles.label}>Goal</div>
-        <div className={styles.row}>
-          Branch early; we'll only show the inputs you need later.
-          <span className={styles.pill}>Profiles: Zero / Super / Basic / Advanced</span>
-        </div>
-      </div>
 
-      <div className={styles.grid2}>
-        <div className={styles.card}>
-          <div className={styles.label}>Token tax</div>
-          <div className={styles.radioCards}>
-            <div 
-              className={`${styles.radioCard} ${taxMode === 'BASIC' ? styles.active : ''}`}
-              onClick={() => onTaxModeChange('BASIC')}
-            >
-              <div className="title">TAX</div>
-              <div className="desc">
-                Pick Basic or Advanced. Final token can end TAX/NO-TAX via Final Token Type + Final tax rate.
-              </div>
-            </div>
-            <div 
-              className={`${styles.radioCard} ${taxMode === 'NO_TAX' ? styles.active : ''}`}
-              onClick={() => onTaxModeChange('NO_TAX')}
-            >
-              <div className="title">NO-TAX</div>
-              <div className="desc">
-                Pick Zero Simple (no limits) or Super Simple (static limits).
-              </div>
-            </div>
-          </div>
-          {errors.step1 && <div className={styles.error}>{errors.step1}</div>}
-        </div>
-
-        <div className={styles.card}>
-          <div className={styles.label}>Profile</div>
-          <div className={styles.radioCards}>
-            {(['ZERO', 'SUPER', 'BASIC', 'ADVANCED'] as ProfileType[]).map(profileType => (
-              <div 
-                key={profileType}
-                className={`${styles.radioCard} ${profile === profileType ? styles.active : ''}`}
-                style={{ 
-                  opacity: isProfileAllowed(profileType) ? 1 : 0.35,
-                  pointerEvents: isProfileAllowed(profileType) ? 'auto' : 'none'
-                }}
-                onClick={() => isProfileAllowed(profileType) && onProfileChange(profileType)}
-              >
-                <div className="title">{getProfileTitle(profileType)}</div>
-                <div className="desc">{getProfileDescription(profileType)}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
+      {/* Simplified Profile Selection */}
       <div className={styles.card}>
-        <div className={styles.label}>Tiny compare</div>
-        <div className={styles.compare}>
-          <div className={styles.compareMini}>
-            <div className={styles.row}>
-              <strong>Zero</strong><span className={styles.pill}>0% curve tax</span>
+        <div className={styles.label}>
+          Complexity Level 
+          <HelpTooltip content="Choose your preferred level of control. Beginners should start with 'Zero' or 'Simple'. Advanced users can choose 'Advanced' for maximum customization." />
+        </div>
+        <div className={styles.radioCards}>
+          {(['ZERO', 'SUPER', 'BASIC', 'ADVANCED'] as ProfileType[]).map(profileType => (
+            <div 
+              key={profileType}
+              className={`${styles.radioCard} ${profile === profileType ? styles.active : ''}`}
+              style={{ 
+                opacity: isProfileAllowed(profileType) ? 1 : 0.35,
+                pointerEvents: isProfileAllowed(profileType) ? 'auto' : 'none'
+              }}
+              onClick={() => isProfileAllowed(profileType) && onProfileChange(profileType)}
+            >
+              <div className="title">
+                {getProfileTitle(profileType)}
+                <HelpTooltip content={getProfileTooltip(profileType)} className="ml-2" />
+              </div>
+              <div className="desc">{getProfileDescription(profileType)}</div>
             </div>
-            <div className={styles.hint}>No limits.</div>
-          </div>
-          <div className={styles.compareMini}>
-            <div className={styles.row}>
-              <strong>Super</strong><span className={styles.pill}>0% curve tax</span>
-            </div>
-            <div className={styles.hint}>Static limits.</div>
-          </div>
-          <div className={styles.compareMini}>
-            <div className={styles.row}>
-              <strong>Basic</strong><span className={styles.pill}>Static curve tax</span>
-            </div>
-            <div className={styles.hint}>Static limits.</div>
-          </div>
-          <div className={styles.compareMini}>
-            <div className={styles.row}>
-              <strong>Advanced</strong><span className={styles.pill}>Decaying tax</span>
-            </div>
-            <div className={styles.hint}>Limits with timed removal.</div>
-          </div>
+          ))}
         </div>
       </div>
 
+      {/* Simplified Fee Information */}
       <div className={styles.inline}>
         <div className={styles.row}>
           <span className={styles.feePill}>
             <span className={styles.feeDot}></span> Creation fee: 
             <strong>{creationFee !== null ? `${fmt.format(creationFee)} ETH` : '—'}</strong>
-          </span>
-          <span className={styles.kicker}>
-            Auto-updates by profile: Basic 0,001/0,003, Advanced 0,01 etc.
+            <HelpTooltip content="Fee varies by complexity: Zero costs 0.0005 ETH, Simple costs 0.001 ETH, Basic costs 0.003 ETH, Advanced costs 0.01 ETH." className="ml-2" />
           </span>
         </div>
       </div>
