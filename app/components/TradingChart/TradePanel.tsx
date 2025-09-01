@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
+import { useTrading } from '@/app/hooks/useTrading';
 
 const WalletModal = dynamic(
   () => import("../Modals/WalletModal/WalletModal"),
@@ -27,6 +28,10 @@ export const TradePanel: React.FC = () => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   
   const { isConnected, isConnecting } = useWallet();
+  const { tradingState, buyToken, sellToken, clearStatus, isReady } = useTrading();
+
+  // Demo token address - replace with actual token from props or context
+  const tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db";
 
   const quickAmounts = ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'];
 
@@ -37,6 +42,75 @@ export const TradePanel: React.FC = () => {
       setAmount('10.0'); // Example max amount
     } else {
       setAmount(value.split(' ')[0]);
+    }
+  };
+
+  // Handle the actual trading when user confirms
+  const handleConfirmTrade = async () => {
+    console.log('🎯 Trade button clicked', {
+      activeTab,
+      amount,
+      tokenAddress,
+      isConnected,
+      isReady,
+      tradingState: tradingState.isTrading
+    });
+
+    // If wallet not connected, open wallet modal
+    if (!isConnected) {
+      console.log('👛 Wallet not connected, opening modal');
+      setIsWalletModalOpen(true);
+      return;
+    }
+
+    // If already trading, ignore click
+    if (tradingState.isTrading) {
+      console.log('⏳ Already trading, ignoring click');
+      return;
+    }
+
+    // If no amount entered, ignore
+    if (!amount || parseFloat(amount) <= 0) {
+      console.log('❌ No valid amount entered:', amount);
+      return;
+    }
+
+    // Clear any previous status
+    clearStatus();
+
+    try {
+      if (activeTab === 'buy') {
+        console.log('🟢 Executing BUY transaction...');
+        
+        // 🔍 DEBUG: Test basic conversions before calling buyToken
+        console.log('🧪 Pre-transaction Debug:', {
+          inputAmount: amount,
+          inputType: typeof amount,
+          parsedAmount: parseFloat(amount),
+          isValidNumber: !isNaN(parseFloat(amount)),
+          tokenAddress: tokenAddress,
+          addressLength: tokenAddress?.length
+        });
+        
+        await buyToken(tokenAddress, amount);
+      } else {
+        console.log('🔴 Executing SELL transaction...');
+        
+        // 🔍 DEBUG: Test ETH amount conversion for sell
+        console.log('🧪 Pre-sell Debug:', {
+          inputAmount: amount,
+          inputType: typeof amount,
+          parsedAmount: parseFloat(amount),
+          isValidNumber: !isNaN(parseFloat(amount)),
+          tokenAddress: tokenAddress,
+          note: 'Selling with ETH amount - will be converted to token amount in service'
+        });
+        
+        // For sell, we pass the ETH amount and let the service handle the conversion
+        await sellToken(tokenAddress, amount);
+      }
+    } catch (error) {
+      console.error('❌ Trade execution failed:', error);
     }
   };
 
@@ -146,8 +220,8 @@ export const TradePanel: React.FC = () => {
               
       {/* Confirm Button */}
       <button 
-        onClick={() => !isConnected && setIsWalletModalOpen(true)}
-        disabled={isConnecting}
+        onClick={handleConfirmTrade}
+        disabled={isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)}
         className={`w-full font-bold py-4 rounded-lg text-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
           !isConnected 
             ? 'bg-[#d4af37] hover:bg-[#b8941f] text-[#2f1805]'
@@ -158,7 +232,9 @@ export const TradePanel: React.FC = () => {
       >
         {!isConnected 
           ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
-          : 'CONFIRM TRADE'
+          : tradingState.isTrading
+            ? `${activeTab.toUpperCase()}ING...`
+            : 'CONFIRM TRADE'
         }
       </button>
 

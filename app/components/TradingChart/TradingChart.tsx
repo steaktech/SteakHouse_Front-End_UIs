@@ -17,7 +17,7 @@ export default function TradingChart() {
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
   
   // For now using the example token address - this should be made dynamic via URL params
-  const tokenAddress = "0x0e1ae35046d6d54bb3ee10e4e85e689ca970fe89";
+  const tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db";
 
   return (
     <div className="flex flex-col h-screen bg-[#07040b]">

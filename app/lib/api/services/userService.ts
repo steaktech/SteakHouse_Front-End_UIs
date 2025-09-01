@@ -16,10 +16,23 @@ interface SuccessResponse {
  * [cite_start]POST /addUser [cite: 7]
  */
 export async function addUser(payload: AddUserPayload): Promise<SuccessResponse> {
-  return apiClient<SuccessResponse>('/addUser', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+  console.log('addUser called with:', payload);
+  try {
+    const result = await apiClient<SuccessResponse>('/addUser', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    console.log('addUser success:', result);
+    return result;
+  } catch (error) {
+    console.error('addUser error:', error);
+    // If the user already exists, treat it as success to prevent repeated calls
+    if (error instanceof Error && error.message.includes('already exists')) {
+      console.log('User already exists, treating as success');
+      return { success: true };
+    }
+    throw error;
+  }
 }
 
 /**

@@ -18,8 +18,21 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
   const [isConnecting, setIsConnecting] = useState(false);
   const [isRegisteringUser, setIsRegisteringUser] = useState(false);
   const [userRegistrationError, setUserRegistrationError] = useState<string | null>(null);
-  const [hasTriedRegistration, setHasTriedRegistration] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Check if user has already been registered for this address
+  const getRegistrationKey = (walletAddress: string) => `user_registered_${walletAddress}`;
+  
+  const hasTriedRegistration = (walletAddress: string): boolean => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(getRegistrationKey(walletAddress)) === 'true';
+  };
+
+  const setRegistrationComplete = (walletAddress: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(getRegistrationKey(walletAddress), 'true');
+    }
+  };
 
   // Define registerUser function with useCallback to prevent unnecessary re-renders
   const registerUser = useCallback(async (walletAddress: string) => {
@@ -33,6 +46,9 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
       
       const response = await addUser(payload);
       console.log('User registered successfully:', walletAddress, response);
+      
+      // Mark registration as complete for this wallet address
+      setRegistrationComplete(walletAddress);
     } catch (error) {
       console.error('User registration failed:', error);
       setUserRegistrationError(error instanceof Error ? error.message : 'Failed to register user');
@@ -43,16 +59,14 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
 
   // Register user when wallet connects and we have an address
   useEffect(() => {
-    if (isConnected && address && !hasTriedRegistration && !isRegisteringUser) {
+    if (isConnected && address && !hasTriedRegistration(address) && !isRegisteringUser) {
       registerUser(address);
-      setHasTriedRegistration(true);
     }
-  }, [isConnected, address, hasTriedRegistration, isRegisteringUser, registerUser]);
+  }, [isConnected, address, isRegisteringUser, registerUser]);
 
-  // Reset registration state when modal opens/closes
+  // Clear error state when modal closes
   useEffect(() => {
     if (!isOpen) {
-      setHasTriedRegistration(false);
       setUserRegistrationError(null);
     }
   }, [isOpen]);
