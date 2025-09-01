@@ -44,74 +44,18 @@ export interface Token {
     updated_at: string; // ISO 8601 date string
     image_url: string | null;
     banner_url?: string | null;
-    bio: string | null;
-    telegram: string | null;
-    twitter: string | null;
-    website: string | null;
   
     // Derived Fields - Now included in getFilteredTokens response
     age_hours: string;
-    volume_24h: string;
+    volume_24h: number | null;
     market_cap: string;
-    tax_rate: string | null;
+    tax_rate: string;
     price_change_24h: number | null;
-    progress: number;
-}
-
-// Paginated API response structure
-export interface PaginatedTokenResponse {
-    page: number;
-    page_size: number;
-    total_count: number;
-    total_pages: number;
-    items: Token[];
-}
+  }
   
 export interface Trade {
   type: 'BUY' | 'SELL';
   token: string;
-  name: string;
-  symbol: string;
-  total_supply: number | string;
-  trader: string;
-  amountEth: number;
-  amountTokens: number;
-  price: number;
-  usdValue: string | number;
-  marketCap: number;
-  txHash: string;
-  virtualEth?: number;
-  circulatingSupply?: number;
-  timestamp: number;
-}
-
-export interface Candle {
-  timestamp: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
-
-// Full token data API response interface
-export interface FullTokenDataResponse {
-  token: string;
-  price: number;
-  marketCap: number;
-  lastTrade: Trade;
-  recentTrades: Trade[];
-  candles: Candle[];
-  interval: string;
-}
-
-// WebSocket Event Types
-export interface WebSocketTrade {
-  type: 'BUY' | 'SELL';
-  token: string;
-  name: string;
-  symbol: string;
-  total_supply: number;
   trader: string;
   amountEth: number;
   amountTokens: number;
@@ -119,12 +63,10 @@ export interface WebSocketTrade {
   usdValue: number;
   marketCap: number;
   txHash: string;
-  virtualEth: number;
-  circulatingSupply: number;
   timestamp: number;
 }
 
-export interface WebSocketCandle {
+export interface Candle {
   token: string;
   timestamp: number;
   open: string;
@@ -132,9 +74,4 @@ export interface WebSocketCandle {
   low: number;
   close: string;
   volume: number;
-}
-
-export interface ChartUpdateEvent {
-  timeframe: string;
-  candle: WebSocketCandle;
 }

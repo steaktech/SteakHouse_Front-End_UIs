@@ -16,7 +16,6 @@ import { TokenCard } from "./TokenCard";
 import { StatCardProps } from "./types";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SmartVideo from "../UI/SmartVideo";
-import BottomControlBar from "../BottomControlBar";
 import { useTokens } from "@/app/hooks/useTokens";
 import styles from "../UI/Botton.module.css";
 
@@ -31,15 +30,8 @@ export default function TradingDashboard() {
     sortByMarketCap,
     sortByAge,
     filterByType,
-    filterByCategory,
     showAll,
-    applySearchFilters,
-    clearAllFilters,
-    filters,
-    pagination,
-    goToPage,
-    nextPage,
-    previousPage
+    filters
   } = useTokens();
 
   // Style object for the main heading with gradient, stroke, and font
@@ -72,21 +64,7 @@ export default function TradingDashboard() {
 
   const handleApplyFilters = (filters: Record<string, string>) => {
     console.log("Applied Filters:", filters);
-    
-    // Convert string values to numbers for numeric filters
-    const numericFilters: Record<string, any> = {};
-    
-    Object.entries(filters).forEach(([key, value]) => {
-      const numericValue = parseFloat(value);
-      if (!isNaN(numericValue)) {
-        numericFilters[key] = numericValue;
-      } else {
-        numericFilters[key] = value;
-      }
-    });
-    
-    // Apply the search filters using the hook
-    applySearchFilters(numericFilters);
+    // Logic to apply filters would go here
   };
 
   const statsData: StatCardProps[] = [
@@ -258,7 +236,7 @@ export default function TradingDashboard() {
                 </button>
               </div>
               
-              {/* Filter buttons in 3 rows for mobile to accommodate all buttons */}
+              {/* Filter buttons in 2 rows of 3 for mobile */}
               <div className="space-y-1">
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
@@ -282,29 +260,21 @@ export default function TradingDashboard() {
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
                     icon={<Star size={12} />} 
-                    label="Meme" 
-                    active={filters.category === 'meme'}
-                    onClick={() => filterByCategory('meme')}
+                    label="New" 
+                    active={filters.sortBy === 'age'}
+                    onClick={sortByAge}
                   />
                   <FilterButton 
                     icon={<Wrench size={12} />} 
                     label="Utility" 
-                    active={filters.category === 'utility'}
-                    onClick={() => filterByCategory('utility')}
+                    active={filters.tokenType === 'utility'}
+                    onClick={() => filterByType('utility')}
                   />
                   <FilterButton 
                     icon={<Smile size={12} />} 
-                    label="AI" 
-                    active={filters.category === 'ai'}
-                    onClick={() => filterByCategory('ai')}
-                  />
-                </div>
-                <div className="flex items-center justify-center">
-                  <FilterButton 
-                    icon={<Smile size={12} />} 
-                    label="X-post" 
-                    active={filters.category === 'x-post'}
-                    onClick={() => filterByCategory('x-post')}
+                    label="Meme" 
+                    active={filters.tokenType === 'meme'}
+                    onClick={() => filterByType('meme')}
                   />
                 </div>
               </div>
@@ -324,7 +294,7 @@ export default function TradingDashboard() {
                 </button>
               </div>
               
-              {/* All filter buttons with flex-wrap for tablet */}
+              {/* All filter buttons in one row for tablet */}
               <div className="flex items-center gap-2 justify-center flex-wrap">
                 <FilterButton 
                   icon={<BarChart size={14} />} 
@@ -345,27 +315,21 @@ export default function TradingDashboard() {
                 />
                 <FilterButton 
                   icon={<Star size={14} />} 
-                  label="Meme" 
-                  active={filters.category === 'meme'}
-                  onClick={() => filterByCategory('meme')}
+                  label="New" 
+                  active={filters.sortBy === 'age'}
+                  onClick={sortByAge}
                 />
                 <FilterButton 
                   icon={<Wrench size={14} />} 
                   label="Utility" 
-                  active={filters.category === 'utility'}
-                  onClick={() => filterByCategory('utility')}
+                  active={filters.tokenType === 'utility'}
+                  onClick={() => filterByType('utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={14} />} 
-                  label="AI" 
-                  active={filters.category === 'ai'}
-                  onClick={() => filterByCategory('ai')}
-                />
-                <FilterButton 
-                  icon={<Smile size={14} />} 
-                  label="X-post" 
-                  active={filters.category === 'x-post'}
-                  onClick={() => filterByCategory('x-post')}
+                  label="Meme" 
+                  active={filters.tokenType === 'meme'}
+                  onClick={() => filterByType('meme')}
                 />
               </div>
             </div>
@@ -416,27 +380,21 @@ export default function TradingDashboard() {
               <div className="flex items-center gap-2 flex-wrap">
                 <FilterButton 
                   icon={<Star size={16} />} 
-                  label="Meme" 
-                  active={filters.category === 'meme'}
-                  onClick={() => filterByCategory('meme')}
+                  label="New" 
+                  active={filters.sortBy === 'age'}
+                  onClick={sortByAge}
                 />
                 <FilterButton 
                   icon={<Wrench size={16} />} 
                   label="Utility" 
-                  active={filters.category === 'utility'}
-                  onClick={() => filterByCategory('utility')}
+                  active={filters.tokenType === 'utility'}
+                  onClick={() => filterByType('utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={16} />} 
-                  label="AI" 
-                  active={filters.category === 'ai'}
-                  onClick={() => filterByCategory('ai')}
-                />
-                <FilterButton 
-                  icon={<Smile size={16} />} 
-                  label="X-post" 
-                  active={filters.category === 'x-post'}
-                  onClick={() => filterByCategory('x-post')}
+                  label="Meme" 
+                  active={filters.tokenType === 'meme'}
+                  onClick={() => filterByType('meme')}
                 />
               </div>
             </div>
@@ -466,17 +424,8 @@ export default function TradingDashboard() {
         isOpen={isSearchModalOpen}
         onClose={handleSearchModalClose}
         onApply={handleApplyFilters}
-        onClearAll={clearAllFilters}
       />
       </div>
-
-      <BottomControlBar
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={goToPage}
-        onNextPage={nextPage}
-        onPreviousPage={previousPage}
-      />
     </>
   );
 }

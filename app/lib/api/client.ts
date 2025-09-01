@@ -9,39 +9,30 @@ const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
  * @returns The JSON response from the API.
  */
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const fullUrl = `${API_URL}${endpoint}`;
-  console.log('API Request:', {
-    url: fullUrl,
-    method: options?.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    body: options?.body
-  });
+  console.log(`Making API call to: ${API_URL}${endpoint}`);
+  
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    });
 
-  const response = await fetch(fullUrl, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
+    console.log(`API response status: ${response.status} ${response.statusText}`);
 
-  console.log('API Response:', {
-    status: response.status,
-    statusText: response.statusText,
-    ok: response.ok,
-    url: response.url
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error response:`, errorText);
+      throw new Error(`API call to ${endpoint} failed: ${response.statusText}`);
+    }
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('API Error Details:', errorText);
-    throw new Error(`API call to ${endpoint} failed: ${response.statusText} - ${errorText}`);
+    const data = await response.json();
+    console.log(`API response data length:`, Array.isArray(data) ? data.length : 'Not an array');
+    return data;
+  } catch (error) {
+    console.error(`API client error for ${endpoint}:`, error);
+    throw error;
   }
-
-  const result = await response.json();
-  console.log('API Result:', result);
-  return result;
 }

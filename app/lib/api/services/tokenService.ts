@@ -1,16 +1,15 @@
 // lib/api/services/tokenService.ts
 import { apiClient } from '../client';
-import type { Token, Candle, Trade, PaginatedTokenResponse, FullTokenDataResponse } from '@/app/types/token';
-import { getTokensByCategory, type CategoryType, type CategoryParams } from './categoryService';
+import type { Token, Candle, Trade } from '@/app/types/token';
 
 type ApiResponse<T> = T | { error: string };
 
 /**
- * Fetches tokens with filters applied - now returns paginated response.
+ * Fetches tokens with filters applied.
  * [cite_start]GET /filteredTokens [cite: 182-192]
  */
-export async function getFilteredTokens(params: URLSearchParams): Promise<PaginatedTokenResponse> {
-  return apiClient<PaginatedTokenResponse>(`/filteredTokens?${params.toString()}`);
+export async function getFilteredTokens(params: URLSearchParams): Promise<Token[]> {
+  return apiClient<Token[]>(`/filteredTokens?${params.toString()}`);
 }
 
 /**
@@ -22,29 +21,19 @@ export async function getAllTokens(): Promise<Token[]> {
 }
 
 /**
- * Fetches all tokens ranked by 24h volume - now returns paginated response.
+ * Fetches all tokens ranked by 24h volume.
  * [cite_start]GET /all-tokens-by-volume [cite: 299-301]
  */
-export async function getTokensByVolume(params?: URLSearchParams): Promise<PaginatedTokenResponse> {
-  const queryString = params ? `?${params.toString()}` : '';
-  return apiClient<PaginatedTokenResponse>(`/all-tokens-by-volume${queryString}`);
-}
-
-/**
- * Fetches all tokens ranked by market cap - now returns paginated response.
- * [cite_start]GET /filtered/mcap [cite: 302-304]
- */
-export async function getTokensByMarketCap(params?: URLSearchParams): Promise<PaginatedTokenResponse> {
-  const queryString = params ? `?${params.toString()}` : '';
-  return apiClient<PaginatedTokenResponse>(`/filtered/mcap${queryString}`);
+export async function getTokensByVolume(): Promise<Token[]> {
+  return apiClient<Token[]>('/all-tokens-by-volume');
 }
 
 /**
  * Fetches the complete data set for a single token page.
  * [cite_start]GET /api/token/:address/full [cite: 436]
  */
-export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<FullTokenDataResponse> {
-  return apiClient<FullTokenDataResponse>(`/token/${address}/full?interval=${interval}&limit=${limit}`);
+export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<{ token: string; candles: Candle[]; trades: Trade[] }> {
+  return apiClient<{ token: string; candles: Candle[]; trades: Trade[] }>(`/api/token/${address}/full?interval=${interval}&limit=${limit}`);
 }
 
 /**
@@ -52,8 +41,5 @@ export async function getFullTokenData(address: string, interval = '1m', limit =
  * [cite_start]GET /api/token/:address/chart [cite: 462]
  */
 export async function getChartData(address: string, timeframe = '1m', limit = 100): Promise<{ token: string; candles: Candle[] }> {
-  return apiClient<{ token: string; candles: Candle[] }>(`/token/${address}/chart?timeframe=${timeframe}&limit=${limit}`);
+  return apiClient<{ token: string; candles: Candle[] }>(`/api/token/${address}/chart?timeframe=${timeframe}&limit=${limit}`);
 }
-
-// Re-export category service functions for easier imports
-export { getTokensByCategory, type CategoryType, type CategoryParams } from './categoryService';

@@ -18,12 +18,13 @@ import {
 
 // Data for rendering the filter input fields dynamically
 const filterFields: FilterField[] = [
-    { id: 'age_hours', label: 'Age', unit: 'hrs', step: MODAL_CONSTANTS.DEFAULT_STEP },
-    { id: 'liquidity', label: 'Liquidity', unit: '$', step: '1000' },
-    { id: 'volume', label: 'Volume', unit: '$', step: '1000' },
-    { id: 'marketcap', label: 'Market Cap', unit: '$', step: '1000' },
+    { id: 'liquidity', label: 'Liquidity', unit: '$', step: MODAL_CONSTANTS.DEFAULT_STEP },
+    { id: 'marketCap', label: 'Market cap', unit: '', step: MODAL_CONSTANTS.DEFAULT_STEP },
     { id: 'tax', label: 'Tax', unit: '%', step: MODAL_CONSTANTS.DECIMAL_STEP },
-    { id: 'price_change', label: 'Price Change', unit: '%', step: MODAL_CONSTANTS.DECIMAL_STEP },
+    { id: 'pairAge', label: 'Pair Age', unit: 'min', step: MODAL_CONSTANTS.DEFAULT_STEP },
+    { id: 'txns', label: 'Txns', unit: '', step: MODAL_CONSTANTS.DEFAULT_STEP },
+    { id: 'volume', label: 'Volume', unit: '$', step: MODAL_CONSTANTS.DEFAULT_STEP },
+    { id: 'change', label: 'Change', unit: '%', step: MODAL_CONSTANTS.DECIMAL_STEP },
 ];
 
 /**
@@ -275,7 +276,7 @@ const StepperButton: FC<{
 /**
  * Custom hook for modal state management
  */
-const useModalState = (onClose: () => void, onClearAll?: () => void): SearchModalState & ModalEventHandlers => {
+const useModalState = (onClose: () => void): SearchModalState & ModalEventHandlers => {
     const [mounted, setMounted] = useState(false);
     const [filters, setFilters] = useState<FilterValues>({});
     const [searchTerm, setSearchTerm] = useState('');
@@ -303,25 +304,11 @@ const useModalState = (onClose: () => void, onClearAll?: () => void): SearchModa
 
     const handleApply = useCallback(() => {
         const payload: FilterValues = {};
-        
-        // Convert filter values to the format expected by the API
         Object.entries(filters).forEach(([key, value]) => {
             if (value.trim()) {
-                // Convert field names to API format
-                if (key.endsWith('Min')) {
-                    const fieldName = key.replace('Min', '');
-                    const apiKey = `min_${fieldName}`;
-                    payload[apiKey] = value;
-                } else if (key.endsWith('Max')) {
-                    const fieldName = key.replace('Max', '');
-                    const apiKey = `max_${fieldName}`;
-                    payload[apiKey] = value;
-                } else {
-                    payload[key] = value;
-                }
+                payload[key] = value;
             }
         });
-        
         console.log('Apply filters:', payload);
         return payload;
     }, [filters]);
@@ -330,14 +317,6 @@ const useModalState = (onClose: () => void, onClearAll?: () => void): SearchModa
         onClose();
     }, [onClose]);
 
-    const handleClearFilters = useCallback(() => {
-        setFilters({});
-        if (onClearAll) {
-            onClearAll();
-            onClose();
-        }
-    }, [onClearAll, onClose]);
-
     return {
         mounted,
         filters,
@@ -345,7 +324,6 @@ const useModalState = (onClose: () => void, onClearAll?: () => void): SearchModa
         handleFilterChange,
         handleApply,
         handleCancel,
-        handleClearFilters,
         handleSearchChange
     };
 };
@@ -371,7 +349,7 @@ const useFilteredFields = (searchTerm: string): FilterField[] => {
  *
  * This component renders the filter selection modal based on the exact reference design.
  */
-const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, onApply, onClearAll }) => {
+const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, onApply }) => {
     const {
         mounted,
         filters,
@@ -379,9 +357,8 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
         handleFilterChange,
         handleApply,
         handleCancel,
-        handleClearFilters,
         handleSearchChange
-    } = useModalState(onClose, onClearAll);
+    } = useModalState(onClose);
 
     const filteredFields = useFilteredFields(searchTerm);
 
@@ -477,26 +454,17 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                     <button 
                         className={`${styles.btn} ${styles.btnGhost}`} 
                         type="button" 
-                        onClick={handleClearFilters}
+                        onClick={handleCancel}
                     >
-                        Clear All
+                        Cancel
                     </button>
-                    <div className="flex gap-2">
-                        <button 
-                            className={`${styles.btn} ${styles.btnGhost}`} 
-                            type="button" 
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            className={`${styles.btn} ${styles.btnPrimary}`}
-                            type="button"
-                            onClick={onApplyWithCallback}
-                        >
-                            Apply
-                        </button>
-                    </div>
+                    <button 
+                        className={`${styles.btn} ${styles.btnPrimary}`}
+                        type="button"
+                        onClick={onApplyWithCallback}
+                    >
+                        Apply
+                    </button>
                 </div>
             </section>
         </div>

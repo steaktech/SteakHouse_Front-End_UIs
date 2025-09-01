@@ -1,6 +1,5 @@
 import React from 'react';
 import { Globe, Send } from 'lucide-react';
-import { useTokenData } from '@/app/hooks/useTokenData';
 
 const TwitterIcon = () => (
   <svg className="w-5 h-5 cursor-pointer hover:text-yellow-400" viewBox="0 0 1200 1227" fill="currentColor">
@@ -8,58 +7,7 @@ const TwitterIcon = () => (
   </svg>
 );
 
-interface MarketInfoProps {
-  tokenAddress: string;
-}
-
-export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
-  const { data: tokenData, isLoading, error } = useTokenData(tokenAddress);
-
-  // Helper function to format numbers
-  const formatNumber = (value: number | string | undefined): string => {
-    if (!value) return '0';
-    const num = typeof value === 'string' ? parseFloat(value) : value;
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toFixed(2);
-  };
-
-  // Helper function to format price
-  const formatPrice = (price: number | undefined): string => {
-    if (!price) return '$0.00';
-    if (price < 0.001) return `$${price.toExponential(2)}`;
-    return `$${price.toFixed(6)}`;
-  };
-
-  // Helper function to format USD value
-  const formatUSD = (value: string | number | undefined): string => {
-    if (!value) return '$0';
-    const num = typeof value === 'string' ? parseFloat(value.replace('$', '')) : value;
-    if (isNaN(num)) return '$0';
-    return `$${num.toFixed(2)}`;
-  };
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#fade79]"></div>
-        <p className="mt-4 text-[#fade79]">Loading token data...</p>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col items-center justify-center">
-        <div className="text-red-400 text-center">
-          <p className="font-bold">Error loading token data</p>
-          <p className="text-sm mt-2">{error}</p>
-        </div>
-      </div>
-    );
-  }
+export const MarketInfo: React.FC = () => {
   return (
     <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
                    border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
@@ -91,12 +39,8 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
         <div className="flex items-center space-x-3">
           <img src="/images/info_icon.jpg" alt="Market Token" className="w-16 h-16 rounded-full border-2 border-amber-300" />
           <div>
-            <h3 className="font-bold text-xl text-[#fade79] font-1.4rem">
-              {tokenData?.lastTrade?.name || 'Unknown Token'}
-            </h3>
-            <p className="font-bold text-xl text-[#f8ead3] font-1.4rem">
-              {tokenData?.lastTrade?.symbol || 'UNKNOWN'}
-            </p>
+            <h3 className="font-bold text-xl text-[#fade79] font-1.4rem">SpaceMan</h3>
+            <p className="font-bold text-xl text-[#f8ead3] font-1.4rem">SPACE</p>
           </div>
         </div>
         <div className="px-3 py-1 text-xl font-semibold rounded-md bg-[#fade79] text-black box-shadow-3">
@@ -106,14 +50,14 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
       
       <div className="mt-4 text-amber-200 space-y-2">
         <div className="flex items-center space-x-2 text-xs">
-          <p className='font-1.2rem font-bold'>Price: {formatPrice(tokenData?.price)}</p>
+          <p className='font-1.2rem font-bold'>TAX: 3/3</p>
           <div className="bg-[#2d1300] border border-amber-600/30 rounded-full px-2 py-1">
             <p className="text-white">
-              Market Cap: <span className="text-yellow-400 font-semibold">{formatUSD(tokenData?.marketCap)}</span>
+              Current TAX: <span className="text-yellow-400 font-semibold">16/16</span> MaxTX: <span className="text-yellow-400 font-semibold">2.1%</span>
             </p>
           </div>
         </div>
-        <p className="text-[#f8ead3] font-1.2rem">Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</p>
+        <p className="text-[#f8ead3] font-1.2rem">Spaceman is a meme deflationary token with a finite supply and buyback and burn.</p>
       </div>
 
       <div className="flex items-center space-x-3 mt-4 text-yellow-200">
@@ -141,21 +85,15 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
             <div className="flex justify-around text-center relative z-10">
               <div>
                 <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">MCAP</p>
-                <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">
-                  {formatUSD(tokenData?.marketCap)}
-                </p>
+                <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">$21.5K</p>
               </div>
               <div>
-                <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">PRICE</p>
-                <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">
-                  {formatPrice(tokenData?.price)}
-                </p>
+                <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">VOLUME</p>
+                <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">$6.2K</p>
               </div>
               <div>
-                <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">SUPPLY</p>
-                <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">
-                  {formatNumber(tokenData?.lastTrade?.circulatingSupply)}
-                </p>
+                <p className="text-xs text-amber-300/90 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">LP</p>
+                <p className="font-bold text-sm text-white/95 [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)] font-1rem">2.3K</p>
               </div>
             </div>
             
@@ -169,12 +107,10 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
                       className="bg-gradient-to-r from-[#fbc710] via-[#f8d96e] to-[#f8d96e] h-full rounded-full 
                                  flex items-center justify-center relative overflow-hidden
                                  shadow-[inset_1px_1px_2px_rgba(255,255,255,0.3),inset_-1px_0_2px_rgba(0,0,0,0.1)] box-shadow-3" 
-                      style={{ width: `${Math.min(100, Math.max(0, (tokenData?.lastTrade?.virtualEth || 0) * 100))}%` }}
+                      style={{ width: `82%` }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent rounded-full"></div>
-                      <span className="text-black font-bold text-lg relative z-10">
-                        {Math.round(Math.min(100, Math.max(0, (tokenData?.lastTrade?.virtualEth || 0) * 100)))}%
-                      </span>
+                      <span className="text-black font-bold text-lg relative z-10">82%</span>
                     </div>
                   </div>
                 </div>

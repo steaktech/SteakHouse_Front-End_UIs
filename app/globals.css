@@ -149,36 +149,6 @@
   scrollbar-color: #374151 rgba(255, 255, 255, 0.1);
 }
 
-/* Trade History specific scrollbar styling */
-.trade-history-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.trade-history-scrollbar::-webkit-scrollbar-track {
-  background: rgba(25, 9, 0, 0.8);
-  border-radius: 4px;
-  border: 1px solid rgba(218, 165, 32, 0.2);
-}
-
-.trade-history-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #d97706, #b45309);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
-}
-
-.trade-history-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #f59e0b, #d97706);
-  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3);
-}
-
-/* Firefox scrollbar support for trade history */
-.trade-history-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #d97706 rgba(25, 9, 0, 0.8);
-}
-
 /* Sidebar Animations and Vertical Text */
 .writing-mode-vertical {
   writing-mode: vertical-rl;

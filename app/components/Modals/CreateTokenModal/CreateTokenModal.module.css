@@ -268,7 +268,18 @@
   font-size: 12px;
   color: var(--muted);
   margin-bottom: 8px;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.labelWithTooltip {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .input,
@@ -762,35 +773,5 @@
 .sidebar::-webkit-scrollbar-thumb:hover,
 .panel::-webkit-scrollbar-thumb:hover {
   background: #4a2e1f;
-}
-
-/* File Input Styles */
-.fileInput {
-  display: none;
-}
-
-.fileLabel {
-  display: inline-block;
-  width: 100%;
-  background: #1a1009;
-  color: var(--text);
-  border: 1px solid #3a2418;
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
-  font-family: inherit;
-  text-align: center;
-  font-size: 14px;
-}
-
-.fileLabel:hover {
-  background: #231611;
-  border-color: var(--focus);
-}
-
-.fileLabel:focus-within {
-  border-color: var(--focus);
-  box-shadow: 0 0 0 4px rgba(255, 179, 71, 0.16);
 }
 

@@ -14,8 +14,6 @@ export interface TrendingSearchModalProps {
     onClose: () => void;
     /** Function to call with the filter values when the user clicks "Apply" */
     onApply: (filters: FilterValues) => void;
-    /** Function to call when the user clicks "Clear All" to reset all filters */
-    onClearAll?: () => void;
 }
 
 /**
@@ -134,8 +132,6 @@ export interface ModalEventHandlers {
     handleApply: () => FilterValues;
     /** Handle cancel button click */
     handleCancel: () => void;
-    /** Handle clear all filters button click */
-    handleClearFilters: () => void;
     /** Handle search term changes */
     handleSearchChange: (searchTerm: string) => void;
 }

@@ -65,10 +65,10 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidityETH} ETH`]);
       entries.push(['Buy tax', `${state.v2Settings.taxSettings.buyTax}%`]);
       entries.push(['Sell tax', `${state.v2Settings.taxSettings.sellTax}%`]);
-      entries.push(['Tax receiver', state.v2Settings.taxSettings.taxReceiver || 'Default']);
-      entries.push(['Max wallet', `${state.v2Settings.limits.maxWallet}%`]);
-      entries.push(['Max transaction', `${state.v2Settings.limits.maxTx}%`]);
-      entries.push(['Limits enabled', state.v2Settings.limits.enableLimits ? 'Yes' : 'No']);
+      if (state.v2Settings.limits.enableLimits) {
+        entries.push(['Max wallet', `${state.v2Settings.limits.maxWallet}%`]);
+        entries.push(['Max transaction', `${state.v2Settings.limits.maxTx}%`]);
+      }
     }
     
     // Common token info
@@ -108,19 +108,17 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         'createV2Token(',
         '  meta: { name, symbol, totalSupply, removeHeader },',
         `  enableTradingMode: ${v2.enableTradingMode},`,
-        `  initialLiquidityETH: ${v2.initialLiquidityETH} ETH,`,
-        '  taxSettings: {',
+        v2.enableTradingMode === 'FULL_LAUNCH' ? `  initialLiquidity: ${v2.initialLiquidityETH} ETH,` : '',
+        '  taxes: {',
         `    buyTax: ${v2.taxSettings.buyTax}%,`,
-        `    sellTax: ${v2.taxSettings.sellTax}%,`,
-        `    taxReceiver: "${v2.taxSettings.taxReceiver}"`,
+        `    sellTax: ${v2.taxSettings.sellTax}%`,
         '  },',
-        '  limits: {',
-        `    maxWallet: ${v2.limits.maxWallet}%,`,
-        `    maxTx: ${v2.limits.maxTx}%,`,
-        `    enableLimits: ${v2.limits.enableLimits}`,
-        '  }',
+        v2.limits.enableLimits ? '  limits: {' : '',
+        v2.limits.enableLimits ? `    maxWallet: ${v2.limits.maxWallet}%,` : '',
+        v2.limits.enableLimits ? `    maxTx: ${v2.limits.maxTx}%` : '',
+        v2.limits.enableLimits ? '  }' : '',
         ')'
-      ].join('\n');
+      ].filter(line => line !== '').join('\n');
     }
 
     // Handle virtual curve mode

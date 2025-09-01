@@ -9,15 +9,6 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-// Define the types for the BottomControlBar component's props
-interface BottomControlBarProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  onNextPage: () => void;
-  onPreviousPage: () => void;
-}
-
 // Reusable Button component with styles matching the control bar's theme
 const PaginationButton: React.FC<{
   onClick: () => void;
@@ -112,13 +103,14 @@ type IconProps = {
 
 
 // The Bottom Control Bar component
-export default function BottomControlBar({
-  currentPage,
-  totalPages,
-  onPageChange,
-  onNextPage,
-  onPreviousPage
-}: BottomControlBarProps) {
+export default function BottomControlBar() {
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const TOTAL_PAGES = 12; // Example total pages
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="w-full relative">
@@ -129,7 +121,7 @@ export default function BottomControlBar({
       />
 
       {/* Control buttons section with gradient background */}
-      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] py-4 flex items-center justify-between">
+      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 flex items-center justify-between border-b border-white/20">
         {/* Left section - Social Icons */}
         <div className="flex-1 flex items-center justify-start space-x-4 pl-4">
         </div>
@@ -138,8 +130,8 @@ export default function BottomControlBar({
         <div className="flex justify-center items-center">
           <Pagination
             currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
+            totalPages={TOTAL_PAGES}
+            onPageChange={handlePageChange}
           />
         </div>
         

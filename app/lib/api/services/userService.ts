@@ -1,11 +1,6 @@
 // lib/api/services/userService.ts
 import { apiClient } from '../client';
-import type { 
-  UserProfile, 
-  AddUserPayload, 
-  UpdateProfilePayload, 
-  UpdateProfileResponse
-} from '@/app/types/user';
+import type { UserProfile, AddUserPayload } from '@/app/types/user';
 
 interface SuccessResponse {
   success: boolean;
@@ -27,15 +22,7 @@ export async function addUser(payload: AddUserPayload): Promise<SuccessResponse>
  * [cite_start]GET /users/:wallet [cite: 21]
  */
 export async function fetchUserProfile(walletAddress: string): Promise<UserProfile> {
-  console.log('fetchUserProfile called with:', walletAddress);
-  try {
-    const result = await apiClient<UserProfile>(`/users/${walletAddress}`);
-    console.log('fetchUserProfile success:', result);
-    return result;
-  } catch (error) {
-    console.error('fetchUserProfile error:', error);
-    throw error;
-  }
+  return apiClient<UserProfile>(`/users/${walletAddress}`);
 }
 
 /**
@@ -80,77 +67,5 @@ export async function removeLikedToken(walletAddress: string, tokenAddress: stri
   });
 }
 
-/**
- * Updates a user's profile information.
- * Supports both JSON and multipart form data depending on whether a file is included.
- * POST /users/:wallet/updateProfile
- */
-export async function updateUserProfile(walletAddress: string, payload: UpdateProfilePayload): Promise<UpdateProfileResponse> {
-  console.log('updateUserProfile called with:', { walletAddress, payload });
-  
-  try {
-    // Check if payload contains a File object for profile_picture
-    const hasFile = payload.profile_picture instanceof File;
-    const hasProfilePictureUpdate = 'profile_picture' in payload;
-    
-    if (hasFile || (hasProfilePictureUpdate && payload.profile_picture === null)) {
-      // Use multipart form data when uploading a file or deleting profile picture
-      const formData = new FormData();
-      
-      // Add text fields
-      if (payload.username !== undefined) {
-        formData.append('username', payload.username);
-      }
-      if (payload.bio !== undefined) {
-        formData.append('bio', payload.bio);
-      }
-      
-      // Add file
-      if (payload.profile_picture instanceof File) {
-        formData.append('profile_picture', payload.profile_picture);
-      }
-      
-      // Handle profile picture deletion
-      if (hasProfilePictureUpdate && payload.profile_picture === null) {
-        formData.append('delete_profile_picture', 'true');
-      }
-      
-      // Use fetch directly for multipart form data
-      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const response = await fetch(`${API_URL}/users/${walletAddress}/updateProfile`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Profile update failed: ${response.statusText} - ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('updateUserProfile success (multipart):', result);
-      return result;
-    } else {
-      // Use JSON for text-only updates
-      const result = await apiClient<UpdateProfileResponse>(`/users/${walletAddress}/updateProfile`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      console.log('updateUserProfile success (json):', result);
-      return result;
-    }
-  } catch (error) {
-    console.error('updateUserProfile error:', error);
-    throw error;
-  }
-}
-
-
-
-/**
- * Deletes a user's profile picture by updating profile with null.
- * Uses the unified updateUserProfile function.
- */
-export async function deleteProfilePicture(walletAddress: string): Promise<UpdateProfileResponse> {
-  return updateUserProfile(walletAddress, { profile_picture: null });
-}
+// Note: Functions for file uploads (profile picture) would require a different
+// client setup that handles multipart/form-data and are omitted here for simplicity.
