@@ -27,7 +27,7 @@ const Step4FeesNetwork: React.FC<Step4FeesNetworkProps> = ({
       <div className={styles.card}>
         <div className={styles.label}>
           Creation Cost
-          <HelpTooltip content="One-time fee to deploy your token to the blockchain. Free for beginner profiles!" />
+          <HelpTooltip content="One-time fee to deploy your token to the blockchain." />
         </div>
         <div className={styles.row} style={{ alignItems: 'flex-end' }}>
           <div style={{ fontSize: '32px', fontWeight: '800', color: '#e8b35c' }}>
@@ -52,7 +52,7 @@ const Step4FeesNetwork: React.FC<Step4FeesNetworkProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <span className={`${styles.pill} ${removeHeader ? styles.active : ''}`}>
               Remove Header: {removeHeader ? `+${fmt.format(fees.headerless)} ETH` : 'Not selected'}
-              <HelpTooltip content="Removes the Steakhouse branding for a cleaner token page." className="ml-2" />
+              <HelpTooltip content="Removes the Steakhouse header for a cleaner contract address." className="ml-2" />
             </span>
             <span className={`${styles.pill} ${stealth ? styles.active : ''}`}>
               Stealth Mode: {stealth ? `+${fmt.format(fees.stealth)} ETH` : 'Not selected'}
@@ -64,7 +64,7 @@ const Step4FeesNetwork: React.FC<Step4FeesNetworkProps> = ({
         <div className={styles.card}>
           <div className={styles.label}>
             Network Info
-            <HelpTooltip content="Your token will be deployed on the Ethereum blockchain for maximum compatibility." />
+            <HelpTooltip content="Your token will be deployed on the Ethereum blockchain." />
           </div>
           <div className={styles.row}>
             <span className={styles.pill}>⟠ Ethereum Mainnet</span>
