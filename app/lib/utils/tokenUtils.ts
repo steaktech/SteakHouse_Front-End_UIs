@@ -1,7 +1,7 @@
 // lib/utils/tokenUtils.ts
 import { Token } from '@/app/types/token';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
-import { DEFAULT_TOKEN_IMAGE, TOKEN_TYPE_LABELS, TOKEN_TAG_COLORS } from '../config/constants';
+import { DEFAULT_TOKEN_IMAGE, TOKEN_LAUNCH_TYPES, TOKEN_TAG_COLORS, TOKEN_TYPE_LABELS } from '../config/constants';
 
 /**
  * Formats a number to a human-readable string with appropriate suffixes
@@ -70,16 +70,24 @@ export function calculateGraduationProgress(ethPool: string, graduationCap: stri
  * Gets token tag based on token properties
  */
 export function getTokenTag(token: Token): string {
-  if (token.is_super_simple) return 'Super Simple';
-  if (token.is_zero_simple) return 'Zero Simple';
+  // Priority 1: Use boolean flags for launch types
+  if (token.is_zero_simple) return 'Zero';
+  if (token.is_super_simple) return 'Simple';
   if (token.is_advanced) return 'Advanced';
-  if (token.is_stealth) return 'Stealth';
   
-  if (token.token_type !== null) {
-    const typeLabel = TOKEN_TYPE_LABELS[token.token_type as keyof typeof TOKEN_TYPE_LABELS];
-    if (typeLabel) return typeLabel;
+  // Priority 2: Use token_type for launch types (if available)
+  if (token.token_type !== null && token.token_type !== undefined) {
+    const launchType = TOKEN_LAUNCH_TYPES[token.token_type as keyof typeof TOKEN_LAUNCH_TYPES];
+    if (launchType) return launchType;
   }
   
+  // Priority 3: Fallback to token category labels if needed
+  if (token.token_type !== null && token.token_type !== undefined) {
+    const tokenTypeLabel = TOKEN_TYPE_LABELS[token.token_type as keyof typeof TOKEN_TYPE_LABELS];
+    if (tokenTypeLabel) return tokenTypeLabel;
+  }
+  
+  // Default fallback - assume Basic if no clear indicators
   return 'Basic';
 }
 
@@ -122,11 +130,10 @@ export function getTaxInfo(token: Token): { current: string; final: string } {
 }
 
 /**
- * Gets volume from API response (now string format)
+ * Gets volume from API response
  */
 export function getVolume24h(token: Token): number {
-  const volume = parseFloat(token.volume_24h);
-  return isNaN(volume) ? 0 : volume;
+  return token.volume_24h || 0;
 }
 
 /**
@@ -134,8 +141,7 @@ export function getVolume24h(token: Token): number {
  */
 export function transformTokenToCardProps(token: Token): TokenCardProps {
   const marketCap = getMarketCap(token);
-  // Use the progress from API response if available, otherwise calculate it
-  const progress = token.progress !== undefined ? token.progress : calculateGraduationProgress(token.eth_pool, token.graduation_cap);
+  const progress = calculateGraduationProgress(token.eth_pool, token.graduation_cap);
   const tag = getTokenTag(token);
   const tagColor = getTokenTagColor(tag);
   const volume24h = getVolume24h(token);
@@ -145,9 +151,6 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
   const ethPriceUSD = 2000;
   const liquidityValue = isNaN(ethPoolValue) ? 0 : ethPoolValue * ethPriceUSD;
   
-  // Use bio from API if available, otherwise generate description
-  const description = token.bio || generateTokenDescription(token);
-  
   return {
     isOneStop: token.graduated, // Graduated tokens get special treatment
     imageUrl: token.image_url || DEFAULT_TOKEN_IMAGE,
@@ -155,13 +158,11 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
     symbol: token.symbol,
     tag,
     tagColor,
-    description,
+    description: generateTokenDescription(token),
     mcap: formatNumber(marketCap, { prefix: '$', compact: true }),
     liquidity: formatNumber(liquidityValue, { prefix: '$', compact: true }),
     volume: formatNumber(volume24h, { prefix: '$', compact: true }),
-    progress: Math.round(progress * 10) / 10, // Round to 1 decimal place
-    circulating_supply: token.circulating_supply,
-    graduation_cap: token.graduation_cap
+    progress: Math.round(progress * 10) / 10 // Round to 1 decimal place
   };
 }
 
