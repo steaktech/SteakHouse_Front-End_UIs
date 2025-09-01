@@ -16,6 +16,17 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
 }) => {
   const [understandFees, setUnderstandFees] = useState(false);
 
+  const getProfileDisplayName = (profile: string | null) => {
+    if (!profile) return '—';
+    switch (profile) {
+      case 'ZERO': return 'Zero';
+      case 'SUPER': return 'Simple';
+      case 'BASIC': return 'Basic';
+      case 'ADVANCED': return 'Advanced';
+      default: return '—';
+    }
+  };
+
   const renderOverviewTable = (entries: [string, string][]) => {
     return (
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -40,24 +51,48 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const generateOverview = () => {
     const b = state.basics;
     const p = state.profile;
-    const taxMode = state.taxMode === 'BASIC' ? 'TAX' : 'NO-TAX';
+    const entries: [string, string][] = [];
+
+    // Add deployment mode
+    entries.push(['Deployment mode', state.deploymentMode === 'VIRTUAL_CURVE' ? 'Virtual Curve' : 'Direct V2 Launch']);
+
+    if (state.deploymentMode === 'VIRTUAL_CURVE') {
+      const taxMode = state.taxMode === 'BASIC' ? 'TAX' : 'NO-TAX';
+      entries.push(['Tax mode', taxMode]);
+      entries.push(['Profile', getProfileDisplayName(p)]);
+    } else if (state.deploymentMode === 'V2_LAUNCH') {
+      entries.push(['Trading mode', state.v2Settings.tradingMode === 'IMMEDIATE' ? 'Immediate' : 'At time']);
+      if (state.v2Settings.tradingMode === 'AT_TIME') {
+        entries.push(['Trading start', state.v2Settings.tradingStartTime || '—']);
+      }
+      entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidity} ETH`]);
+      entries.push(['Buy tax', `${state.v2Settings.buyTax}%`]);
+      entries.push(['Sell tax', `${state.v2Settings.sellTax}%`]);
+      entries.push(['Max wallet', `${state.v2Settings.maxWallet}%`]);
+      entries.push(['Max transaction', `${state.v2Settings.maxTx}%`]);
+    }
     
-    const entries: [string, string][] = [
-      ['Tax mode', taxMode],
-      ['Profile', p || '—'],
-      ['Name', b.name],
-      ['Symbol', b.symbol],
-      ['Total supply', `${b.totalSupply} (raw) × 1e18`],
-      ['Graduation cap', b.gradCap],
-      ['Start time', b.startMode === 'NOW' ? 'Now (0)' : `At ${b.startTime} (epoch seconds)`],
-      ['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn'],
-      ['Stealth', b.stealth ? 'Yes' : 'No'],
-      ['Remove header', b.removeHeader ? 'Yes' : 'No'],
-      ['Creation fee', state.fees.creation !== null ? `${fmt.format(state.fees.creation)} ETH` : '—'],
-      ['Platform fee', `${fmt.format(state.fees.platformPct)}%`],
-      ['Graduation fee', `${fmt.format(state.fees.graduation)} ETH`],
-      ['Locker fee', b.lpMode === 'LOCK' ? `${fmt.format(state.fees.locker)} ETH` : '—']
-    ];
+    // Common token info
+    entries.push(['Name', b.name]);
+    entries.push(['Symbol', b.symbol]);
+    entries.push(['Total supply', `${b.totalSupply} (raw) × 1e18`]);
+    
+    if (state.deploymentMode === 'VIRTUAL_CURVE') {
+      entries.push(['Graduation cap', b.gradCap]);
+      entries.push(['Start time', b.startMode === 'NOW' ? 'Now (0)' : `At ${b.startTime} (epoch seconds)`]);
+      entries.push(['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn']);
+      entries.push(['Stealth', b.stealth ? 'Yes' : 'No']);
+    }
+    
+    entries.push(['Remove header', b.removeHeader ? 'Yes' : 'No']);
+    
+    // Fee info
+    if (state.deploymentMode === 'VIRTUAL_CURVE') {
+      entries.push(['Creation fee', state.fees.creation !== null ? `${fmt.format(state.fees.creation)} ETH` : '—']);
+      entries.push(['Platform fee', `${fmt.format(state.fees.platformPct)}%`]);
+      entries.push(['Graduation fee', `${fmt.format(state.fees.graduation)} ETH`]);
+      entries.push(['Locker fee', b.lpMode === 'LOCK' ? `${fmt.format(state.fees.locker)} ETH` : '—']);
+    }
 
     return entries;
   };
@@ -67,6 +102,28 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     const p = state.profile;
     const startTime = b.startTime;
 
+    // Handle V2 launch mode
+    if (state.deploymentMode === 'V2_LAUNCH') {
+      const v2 = state.v2Settings;
+      return [
+        'createV2Token(',
+        '  meta: { name, symbol, totalSupply, removeHeader },',
+        `  tradingMode: ${v2.tradingMode},`,
+        v2.tradingMode === 'AT_TIME' ? `  tradingStartTime: ${v2.tradingStartTime || 0},` : '',
+        `  initialLiquidity: ${v2.initialLiquidity} ETH,`,
+        '  taxes: {',
+        `    buyTax: ${v2.buyTax}%,`,
+        `    sellTax: ${v2.sellTax}%`,
+        '  },',
+        '  limits: {',
+        `    maxWallet: ${v2.maxWallet}%,`,
+        `    maxTx: ${v2.maxTx}%`,
+        '  }',
+        ')'
+      ].filter(line => line !== '').join('\n');
+    }
+
+    // Handle virtual curve mode
     if (p === 'ZERO') {
       return [
         'createZeroSimpleToken(',
@@ -115,14 +172,14 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         `    startTaxPct: ${a.startTax}, taxStepPct: ${a.taxStep || 0}, taxStepInterval: ${a.taxInterval || 0},`,
         `    maxWalletStart: ${a.maxWStart}, maxWalletStep: ${a.maxWStep || 0}, maxWalletStepInterval: ${a.maxWInterval || 0},`,
         `    maxTxStart: ${a.maxTStart}, maxTxStep: ${a.maxTStep || 0}, maxTxStepInterval: ${a.maxTInterval || 0},`,
-        `    removeAllLimitsAfter: ${a.removeAfter}, taxReceiver: "${a.taxReceiver}",`,
+        `    removeAllLimitsAfter: ${a.removeAfter}, taxReceiver: \"${a.taxReceiver}\",`,
         `    finalType: ${state.curves.finalType.ADVANCED}, finalTax: ${state.curves.finalTax.ADVANCED || 0}`,
         '  }',
         ')'
       ].join('\n');
     }
 
-    return 'No profile selected';
+    return state.deploymentMode === 'V2_LAUNCH' ? 'V2 launch configuration' : 'No profile selected';
   };
 
   const overviewEntries = generateOverview();
@@ -171,60 +228,34 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         </button>
         <button 
           className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-          disabled={!understandFees || state.isCreating}
+          disabled={!understandFees}
           onClick={onConfirm}
         >
-          {state.isCreating ? 'Creating Token...' : 'Confirm & Create'}
+          Confirm & Create
         </button>
       </div>
 
-      {/* API Error Display */}
-      {state.creationResult?.error && (
-        <div className={`${styles.card}`} style={{marginTop: '12px', borderColor: 'var(--danger)', backgroundColor: 'rgba(255, 71, 87, 0.1)'}}>
-          <div className={styles.row}>
-            <div className={styles.pill} style={{backgroundColor: 'var(--danger)', color: 'white'}}>
-              Error
-            </div>
-            <div style={{color: 'var(--danger)'}}>
-              {state.creationResult.error}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Transaction Status Display */}
       {state.txHash && (
         <div className={styles.card} style={{marginTop: '12px'}}>
           <div className={styles.row}>
-            <div className={styles.pill} style={{
-              backgroundColor: state.txHash === 'pending' ? 'var(--warn)' : 'var(--success)',
-              color: state.txHash === 'pending' ? 'black' : 'white'
-            }}>
-              {state.txHash === 'pending' ? 'Creating...' : 'Success'}
+            <div className={styles.pill}>
+              {state.txHash === 'pending' ? 'Pending' : 'Sent'}
             </div>
             <div>
-              {state.txHash === 'pending' ? 'Creating token via API...' : 'Token created successfully!'}
+              {state.txHash === 'pending' ? 'Submitting transaction…' : 'Transaction submitted!'}
             </div>
           </div>
           {state.txHash !== 'pending' && (
             <div className={styles.hint}>
-              Transaction Hash: 
+              Explorer: 
               <a 
                 href={`https://etherscan.io/tx/${state.txHash}`}
                 target="_blank" 
                 rel="noreferrer"
-                style={{marginLeft: '8px', color: 'var(--focus)'}}
+                style={{marginLeft: '8px', color: 'var(--primary-400)'}}
               >
                 {state.txHash.slice(0, 10)}…{state.txHash.slice(-8)}
               </a>
-            </div>
-          )}
-          {state.creationResult?.success && state.creationResult.data && (
-            <div className={styles.hint} style={{marginTop: '8px'}}>
-              Token Address: 
-              <span style={{marginLeft: '8px', color: 'var(--focus)', fontFamily: 'monospace'}}>
-                {state.creationResult.data.token_address || 'Generated'}
-              </span>
             </div>
           )}
         </div>
