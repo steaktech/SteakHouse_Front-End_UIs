@@ -8,7 +8,6 @@ export interface TokenBasics {
   symbol: string;
   totalSupply: string;
   gradCap: string;
-  tokenCategory: 'Meme' | 'Utility' | 'AI' | 'X-post' | null;
   startMode: 'NOW' | 'SCHEDULE';
   startTime: number;
   lpMode: 'LOCK' | 'BURN';
@@ -57,21 +56,6 @@ export interface CurveSettings {
   };
 }
 
-export interface V2LaunchSettings {
-  enableTradingMode: 'DEPLOY_ONLY' | 'FULL_LAUNCH';
-  initialLiquidityETH: string;
-  taxSettings: {
-    buyTax: string;
-    sellTax: string;
-    taxReceiver: string;
-  };
-  limits: {
-    maxWallet: string;
-    maxTx: string;
-    enableLimits: boolean;
-  };
-}
-
 export interface MetaData {
   desc: string;
   website: string;
@@ -85,27 +69,37 @@ export interface Fees {
   creation: number | null;
   platformPct: number;
   headerless: number;
-  stealth: number;
   graduation: number;
   locker: number;
 }
 
 export interface TokenState {
   step: number;
-  deploymentMode: 'VIRTUAL_CURVE' | 'V2_LAUNCH' | null;
   taxMode: 'BASIC' | 'NO_TAX' | null;
   profile: 'ZERO' | 'SUPER' | 'BASIC' | 'ADVANCED' | null;
   fees: Fees;
   basics: TokenBasics;
   curves: CurveSettings;
-  v2Settings: V2LaunchSettings;
   meta: MetaData;
+  files: FileUploads;
   txHash: string | null;
+  creationResult?: CreateTokenResult;
+  isCreating?: boolean;
 }
 
-export type DeploymentMode = 'VIRTUAL_CURVE' | 'V2_LAUNCH';
+export interface CreateTokenResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+  txHash?: string;
+}
+
+export interface FileUploads {
+  logo?: File;
+  banner?: File;
+}
+
 export type ProfileType = 'ZERO' | 'SUPER' | 'BASIC' | 'ADVANCED';
 export type TaxMode = 'BASIC' | 'NO_TAX';
 export type FinalTokenType = 'NO_TAX' | 'TAX';
-export type V2EnableTradingMode = 'DEPLOY_ONLY' | 'FULL_LAUNCH';
 
