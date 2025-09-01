@@ -1,117 +1,113 @@
 import React from 'react';
-import { MetaData } from './types';
-import HelpTooltip from '../../UI/HelpTooltip';
+import { MetaData, FileUploads } from './types';
 import styles from './CreateTokenModal.module.css';
 
 interface Step5MetadataSocialsProps {
   meta: MetaData;
+  files: FileUploads;
   onMetaChange: (field: string, value: string) => void;
+  onFileChange: (field: 'logo' | 'banner', file: File | undefined) => void;
   onBack: () => void;
   onContinue: () => void;
 }
 
 const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
   meta,
+  files,
   onMetaChange,
+  onFileChange,
   onBack,
   onContinue
 }) => {
+  const handleFileChange = (field: 'logo' | 'banner') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    onFileChange(field, file);
+  };
   return (
     <div className={styles.panel}>
-      {/* Optional Notice */}
-      <div className={`${styles.card} ${styles.cardAlt}`} style={{marginBottom: '20px'}}>
-        <div style={{textAlign: 'center', color: '#e8b35c'}}>
-          🎨 <strong>All fields are optional!</strong> You can always add this information later.
-        </div>
-      </div>
-
-      {/* Description */}
-      <div className={styles.card}>
-        <div className={styles.label}>
-          Project Description 
-          <HelpTooltip content="Tell people what your token is about! This helps build trust and community." />
-        </div>
-        <textarea
-          className={styles.textarea}
-          value={meta.desc}
-          onChange={(e) => onMetaChange('desc', e.target.value)}
-          placeholder="e.g., A community-driven meme token bringing fun to DeFi..."
-          rows={3}
-        />
-      </div>
-
-      {/* Social Links */}
       <div className={styles.grid2}>
         <div className={styles.card}>
-          <div className={styles.label}>
-            Website 
-            <HelpTooltip content="Your official website. Helps establish credibility and provides more info to users." />
-          </div>
+          <div className={styles.label}>Description</div>
+          <textarea
+            className={styles.textarea}
+            value={meta.desc}
+            onChange={(e) => onMetaChange('desc', e.target.value)}
+            placeholder="What is your project about?"
+          />
+        </div>
+        <div className={styles.card}>
+          <div className={styles.label}>Website</div>
           <input
             className={styles.input}
             value={meta.website}
             onChange={(e) => onMetaChange('website', e.target.value)}
-            placeholder="https://yourtoken.com"
+            placeholder="https://yoursite.xyz"
           />
-          
-          <div className={styles.label} style={{marginTop: '16px'}}>
-            Telegram 
-            <HelpTooltip content="Telegram community link. Great for building an active community around your token." />
-          </div>
+          <div className={styles.label} style={{marginTop: '10px'}}>Telegram</div>
           <input
             className={styles.input}
             value={meta.tg}
             onChange={(e) => onMetaChange('tg', e.target.value)}
-            placeholder="https://t.me/yourtoken"
+            placeholder="https://t.me/yourchannel"
           />
-        </div>
-        
-        <div className={styles.card}>
-          <div className={styles.label}>
-            X (Twitter) 
-            <HelpTooltip content="Twitter/X account for announcements and community updates." />
-          </div>
+          <div className={styles.label} style={{marginTop: '10px'}}>X / Twitter</div>
           <input
             className={styles.input}
             value={meta.tw}
             onChange={(e) => onMetaChange('tw', e.target.value)}
-            placeholder="https://x.com/yourtoken"
+            placeholder="https://x.com/yourhandle"
           />
         </div>
       </div>
 
-      {/* Visual Assets */}
-      <div className={styles.grid2} style={{marginTop: '16px'}}>
+      <div className={styles.grid2} style={{marginTop: '8px'}}>
         <div className={styles.card}>
-          <div className={styles.label}>
-            Token Logo 
-            <HelpTooltip content="Square image (500x500px recommended) that represents your token. Shows up in wallets and exchanges." />
+          <div className={styles.label}>Logo (500×500)</div>
+          <div style={{ marginBottom: '8px' }}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange('logo')}
+              className={styles.fileInput}
+              id="logo-upload"
+            />
+            <label htmlFor="logo-upload" className={styles.fileLabel}>
+              {files.logo ? files.logo.name : 'Choose Logo File'}
+            </label>
+          </div>
+          <div className={styles.hint} style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+            Or provide URL:
           </div>
           <input 
             className={styles.input}
             value={meta.logo}
             onChange={(e) => onMetaChange('logo', e.target.value)}
-            placeholder="https://yoursite.com/logo.png" 
+            placeholder="Image URL" 
           />
-          <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
-            Recommended: 500x500px, PNG/JPG
-          </div>
         </div>
-        
         <div className={styles.card}>
-          <div className={styles.label}>
-            Banner Image 
-            <HelpTooltip content="Wide banner image (1500x500px recommended) for your token's page header. Makes your token look professional!" />
+          <div className={styles.label}>Banner (1500×500)</div>
+          <div style={{ marginBottom: '8px' }}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange('banner')}
+              className={styles.fileInput}
+              id="banner-upload"
+            />
+            <label htmlFor="banner-upload" className={styles.fileLabel}>
+              {files.banner ? files.banner.name : 'Choose Banner File'}
+            </label>
+          </div>
+          <div className={styles.hint} style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
+            Or provide URL:
           </div>
           <input 
             className={styles.input}
             value={meta.banner}
             onChange={(e) => onMetaChange('banner', e.target.value)}
-            placeholder="https://yoursite.com/banner.png" 
+            placeholder="Image URL" 
           />
-          <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
-            Recommended: 1500x500px, PNG/JPG
-          </div>
         </div>
       </div>
 

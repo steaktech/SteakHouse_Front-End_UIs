@@ -1,6 +1,5 @@
 import React from 'react';
 import { TokenBasics } from './types';
-import HelpTooltip from '../../UI/HelpTooltip';
 import styles from './CreateTokenModal.module.css';
 
 interface Step2TokenBasicsProps {
@@ -22,128 +21,93 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
     <div className={styles.panel}>
       <div className={styles.grid2}>
         <div className={styles.card}>
-          <label className={styles.label}>Token Name</label>
-          <input
+          <label className={styles.label}>Name</label>
+          <input 
             className={`${styles.input} ${errors.name ? styles.fieldError : ''}`}
             value={basics.name}
             onChange={(e) => onBasicsChange('name', e.target.value)}
-            placeholder="e.g., MoonCoin"
+            placeholder="My Token" 
           />
           {errors.name && <div className={styles.error}>{errors.name}</div>}
         </div>
         <div className={styles.card}>
-          <label className={styles.label}>
-            Symbol
-            <HelpTooltip content="Short identifier for your token, typically 3-5 characters. This will appear on exchanges and wallets." />
-          </label>
-          <input
+          <label className={styles.label}>Symbol</label>
+          <input 
             className={`${styles.input} ${errors.symbol ? styles.fieldError : ''}`}
             value={basics.symbol}
             onChange={(e) => onBasicsChange('symbol', e.target.value)}
-            placeholder="e.g., MOON"
+            placeholder="MTK"
             maxLength={12}
           />
           {errors.symbol && <div className={styles.error}>{errors.symbol}</div>}
         </div>
 
         <div className={styles.card}>
-          <label className={styles.label}>
-            Category
-            <HelpTooltip content="Choose the type that best describes your token's purpose. This helps users understand what your token is for." />
-          </label>
-          <div className={styles.radioCards}>
-            {(['Meme', 'Utility', 'AI', 'X-post'] as const).map(category => (
-              <div
-                key={category}
-                className={`${styles.radioCard} ${basics.tokenCategory === category ? styles.active : ''}`}
-                onClick={() => onBasicsChange('tokenCategory', category)}
-              >
-                <div className="title">{category}</div>
-                <div className="desc">
-                  {category === 'Meme' && 'Fun & community'}
-                  {category === 'Utility' && 'Practical use'}
-                  {category === 'AI' && 'AI-powered'}
-                  {category === 'X-post' && 'Social platform'}
-                </div>
-              </div>
-            ))}
-          </div>
-          {errors.tokenCategory && <div className={styles.error}>{errors.tokenCategory}</div>}
-        </div>
-
-        <div className={styles.card}>
-          <label className={styles.label}>
-            Total Supply
-            <HelpTooltip content="The total number of tokens that will exist. Default is 1 billion tokens. Use whole numbers only." />
-          </label>
-          <input
+          <label className={styles.label}>Total Supply (tokens)</label>
+          <input 
             className={`${styles.input} ${errors.totalSupply ? styles.fieldError : ''}`}
             value={basics.totalSupply}
             onChange={(e) => onBasicsChange('totalSupply', e.target.value)}
-            placeholder="1000000000"
+            placeholder="1.000.000.000"
           />
+          <div className={styles.hint}>
+            Default: 1.000.000.000 × 1e18 (use integers; we'll parseUnits).
+          </div>
           {errors.totalSupply && <div className={styles.error}>{errors.totalSupply}</div>}
         </div>
         <div className={styles.card}>
-          <label className={styles.label}>
-            Graduation Cap
-            <HelpTooltip content="How many tokens need to be bought before your token graduates to a full exchange. Leave empty to use total supply." />
-          </label>
-          <input
+          <label className={styles.label}>Graduation Cap (tokens)</label>
+          <input 
             className={`${styles.input} ${errors.gradCap ? styles.fieldError : ''}`}
             value={basics.gradCap}
             onChange={(e) => onBasicsChange('gradCap', e.target.value)}
-            placeholder="Leave empty for default"
+            placeholder="≤ total supply"
           />
+          <div className={styles.hint}>Must be ≤ total supply.</div>
           {errors.gradCap && <div className={styles.error}>{errors.gradCap}</div>}
         </div>
       </div>
 
       <div className={styles.grid3}>
         <div className={styles.card}>
-          <div className={styles.label}>
-            Launch Time
-            <HelpTooltip content="Choose when your token will become available for trading. Most tokens start immediately." />
-          </div>
+          <div className={styles.label}>Launch time</div>
           <div className={styles.segmented}>
-            <div
+            <div 
               className={`${styles.segment} ${basics.startMode === 'NOW' ? styles.active : ''}`}
               onClick={() => onBasicsChange('startMode', 'NOW')}
             >
-              Launch Now
+              Start now
             </div>
-            <div
+            <div 
               className={`${styles.segment} ${basics.startMode === 'SCHEDULE' ? styles.active : ''}`}
               onClick={() => onBasicsChange('startMode', 'SCHEDULE')}
             >
-              Schedule Launch
+              Pick time
             </div>
           </div>
           {basics.startMode === 'SCHEDULE' && (
-            <div className={styles.row} style={{ marginTop: '10px' }}>
-              <input
+            <div className={styles.row} style={{marginTop: '10px'}}>
+              <input 
                 className={`${styles.input} ${errors.startTime ? styles.fieldError : ''}`}
                 type="datetime-local"
                 onChange={(e) => onBasicsChange('launchDateTime', e.target.value)}
               />
+              <span className={styles.hint}>UTC; must be now or later.</span>
             </div>
           )}
           {errors.startTime && <div className={styles.error}>{errors.startTime}</div>}
         </div>
 
         <div className={styles.card}>
-          <div className={styles.label}>
-            Liquidity
-            <HelpTooltip content="Choose what happens to liquidity tokens after graduation. Lock = secure but recoverable, Burn = permanent and trustless." />
-          </div>
+          <div className={styles.label}>LP handling</div>
           <div className={styles.segmented}>
-            <div
+            <div 
               className={`${styles.segment} ${basics.lpMode === 'LOCK' ? styles.active : ''}`}
               onClick={() => onBasicsChange('lpMode', 'LOCK')}
             >
-              Lock (Recommended)
+              Lock
             </div>
-            <div
+            <div 
               className={`${styles.segment} ${basics.lpMode === 'BURN' ? styles.active : ''}`}
               onClick={() => onBasicsChange('lpMode', 'BURN')}
             >
@@ -151,15 +115,15 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
             </div>
           </div>
           {basics.lpMode === 'LOCK' && (
-            <div style={{ marginTop: '10px' }}>
+            <div style={{marginTop: '10px'}}>
               <div className={styles.inline}>
-                <input
+                <input 
                   className={`${styles.input} ${errors.lockDays ? styles.fieldError : ''}`}
                   value={basics.lockDays}
                   onChange={(e) => onBasicsChange('lockDays', Number(e.target.value))}
-                  placeholder="30"
+                  placeholder="Lock duration (days)"
                 />
-                <span className={styles.unit}>days</span>
+                <span className={styles.unit}>min 30 days</span>
               </div>
               {errors.lockDays && <div className={styles.error}>{errors.lockDays}</div>}
             </div>
@@ -167,35 +131,30 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
         </div>
 
         <div className={styles.card}>
-          <div className={styles.label}>
-            Options
-            <HelpTooltip content="Additional features for your token launch. Most users can leave these unchecked." />
-          </div>
-          <div className={styles.row} style={{ gap: '16px' }}>
+          <div className={styles.label}>Extras</div>
+          <div className={styles.row} style={{gap: '16px'}}>
             <label className={styles.switch}>
-              <input
-                type="checkbox"
+              <input 
+                type="checkbox" 
                 className={styles.switchInput}
                 checked={basics.removeHeader}
                 onChange={(e) => onBasicsChange('removeHeader', e.target.checked)}
               />
               <span className={styles.switchLabel}>
-                Remove Header
-                <HelpTooltip content="Removes the Steakhouse header from your token contract address for a cleaner look. Additional fee applies." className="ml-2" />
+                Remove Steak header (headerless add-on)
               </span>
             </label>
           </div>
-          <div className={styles.row} style={{ gap: '16px', marginTop: '8px' }}>
+          <div className={styles.row} style={{gap: '16px', marginTop: '8px'}}>
             <label className={styles.switch}>
-              <input
-                type="checkbox"
+              <input 
+                type="checkbox" 
                 className={styles.switchInput}
                 checked={basics.stealth}
                 onChange={(e) => onBasicsChange('stealth', e.target.checked)}
               />
               <span className={styles.switchLabel}>
-                Stealth Mode
-                <HelpTooltip content="Your token won't appear in public listings until you're ready to reveal it. Good for building hype." className="ml-2" />
+                Stealth launch (hidden from listings)
               </span>
             </label>
           </div>
@@ -203,13 +162,13 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
       </div>
 
       <div className={styles.footerNav}>
-        <button
+        <button 
           className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
           onClick={onBack}
         >
           Back
         </button>
-        <button
+        <button 
           className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
           onClick={onContinue}
         >
