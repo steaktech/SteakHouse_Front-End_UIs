@@ -1,7 +1,7 @@
 // lib/utils/tokenUtils.ts
 import { Token } from '@/app/types/token';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
-import { DEFAULT_TOKEN_IMAGE, TOKEN_LAUNCH_TYPES, TOKEN_TAG_COLORS, TOKEN_TYPE_LABELS } from '../config/constants';
+import { DEFAULT_TOKEN_IMAGE, TOKEN_LAUNCH_TYPES, TOKEN_TAG_COLORS, LEGACY_TOKEN_TYPE_LABELS } from '../config/constants';
 
 /**
  * Formats a number to a human-readable string with appropriate suffixes
@@ -81,10 +81,10 @@ export function getTokenTag(token: Token): string {
     if (launchType) return launchType;
   }
   
-  // Priority 3: Fallback to token category labels if needed
+  // Priority 3: Fallback to legacy system if needed
   if (token.token_type !== null && token.token_type !== undefined) {
-    const tokenTypeLabel = TOKEN_TYPE_LABELS[token.token_type as keyof typeof TOKEN_TYPE_LABELS];
-    if (tokenTypeLabel) return tokenTypeLabel;
+    const legacyType = LEGACY_TOKEN_TYPE_LABELS[token.token_type as keyof typeof LEGACY_TOKEN_TYPE_LABELS];
+    if (legacyType) return legacyType;
   }
   
   // Default fallback - assume Basic if no clear indicators
@@ -133,7 +133,8 @@ export function getTaxInfo(token: Token): { current: string; final: string } {
  * Gets volume from API response
  */
 export function getVolume24h(token: Token): number {
-  return token.volume_24h || 0;
+  const volume = parseFloat(token.volume_24h);
+  return isNaN(volume) ? 0 : volume;
 }
 
 /**

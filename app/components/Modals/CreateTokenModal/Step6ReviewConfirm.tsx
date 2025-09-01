@@ -61,15 +61,14 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       entries.push(['Tax mode', taxMode]);
       entries.push(['Profile', getProfileDisplayName(p)]);
     } else if (state.deploymentMode === 'V2_LAUNCH') {
-      entries.push(['Trading mode', state.v2Settings.tradingMode === 'IMMEDIATE' ? 'Immediate' : 'At time']);
-      if (state.v2Settings.tradingMode === 'AT_TIME') {
-        entries.push(['Trading start', state.v2Settings.tradingStartTime || '—']);
-      }
-      entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidity} ETH`]);
-      entries.push(['Buy tax', `${state.v2Settings.buyTax}%`]);
-      entries.push(['Sell tax', `${state.v2Settings.sellTax}%`]);
-      entries.push(['Max wallet', `${state.v2Settings.maxWallet}%`]);
-      entries.push(['Max transaction', `${state.v2Settings.maxTx}%`]);
+      entries.push(['Trading mode', state.v2Settings.enableTradingMode === 'FULL_LAUNCH' ? 'Full Launch' : 'Deploy Only']);
+      entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidityETH} ETH`]);
+      entries.push(['Buy tax', `${state.v2Settings.taxSettings.buyTax}%`]);
+      entries.push(['Sell tax', `${state.v2Settings.taxSettings.sellTax}%`]);
+      entries.push(['Tax receiver', state.v2Settings.taxSettings.taxReceiver || 'Default']);
+      entries.push(['Max wallet', `${state.v2Settings.limits.maxWallet}%`]);
+      entries.push(['Max transaction', `${state.v2Settings.limits.maxTx}%`]);
+      entries.push(['Limits enabled', state.v2Settings.limits.enableLimits ? 'Yes' : 'No']);
     }
     
     // Common token info
@@ -108,19 +107,20 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       return [
         'createV2Token(',
         '  meta: { name, symbol, totalSupply, removeHeader },',
-        `  tradingMode: ${v2.tradingMode},`,
-        v2.tradingMode === 'AT_TIME' ? `  tradingStartTime: ${v2.tradingStartTime || 0},` : '',
-        `  initialLiquidity: ${v2.initialLiquidity} ETH,`,
-        '  taxes: {',
-        `    buyTax: ${v2.buyTax}%,`,
-        `    sellTax: ${v2.sellTax}%`,
+        `  enableTradingMode: ${v2.enableTradingMode},`,
+        `  initialLiquidityETH: ${v2.initialLiquidityETH} ETH,`,
+        '  taxSettings: {',
+        `    buyTax: ${v2.taxSettings.buyTax}%,`,
+        `    sellTax: ${v2.taxSettings.sellTax}%,`,
+        `    taxReceiver: "${v2.taxSettings.taxReceiver}"`,
         '  },',
         '  limits: {',
-        `    maxWallet: ${v2.maxWallet}%,`,
-        `    maxTx: ${v2.maxTx}%`,
+        `    maxWallet: ${v2.limits.maxWallet}%,`,
+        `    maxTx: ${v2.limits.maxTx}%,`,
+        `    enableLimits: ${v2.limits.enableLimits}`,
         '  }',
         ')'
-      ].filter(line => line !== '').join('\n');
+      ].join('\n');
     }
 
     // Handle virtual curve mode
@@ -179,7 +179,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       ].join('\n');
     }
 
-    return state.deploymentMode === 'V2_LAUNCH' ? 'V2 launch configuration' : 'No profile selected';
+    return 'No profile selected';
   };
 
   const overviewEntries = generateOverview();
