@@ -47,31 +47,31 @@ export const TradePanel: React.FC = () => {
 
   // Handle the actual trading when user confirms
   const handleConfirmTrade = async () => {
-    console.log('🎯 Trade button clicked', {
-      activeTab,
-      amount,
-      tokenAddress,
-      isConnected,
-      isReady,
-      tradingState: tradingState.isTrading
-    });
+    // console.log('🎯 Trade button clicked', {
+    //   activeTab,
+    //   amount,
+    //   tokenAddress,
+    //   isConnected,
+    //   isReady,
+    //   tradingState: tradingState.isTrading
+    // });
 
     // If wallet not connected, open wallet modal
     if (!isConnected) {
-      console.log('👛 Wallet not connected, opening modal');
+      //console.log('👛 Wallet not connected, opening modal');
       setIsWalletModalOpen(true);
       return;
     }
 
     // If already trading, ignore click
     if (tradingState.isTrading) {
-      console.log('⏳ Already trading, ignoring click');
+      //console.log('⏳ Already trading, ignoring click');
       return;
     }
 
     // If no amount entered, ignore
     if (!amount || parseFloat(amount) <= 0) {
-      console.log('❌ No valid amount entered:', amount);
+      //console.log('❌ No valid amount entered:', amount);
       return;
     }
 
@@ -80,31 +80,31 @@ export const TradePanel: React.FC = () => {
 
     try {
       if (activeTab === 'buy') {
-        console.log('🟢 Executing BUY transaction...');
+        //console.log('🟢 Executing BUY transaction...');
         
         // 🔍 DEBUG: Test basic conversions before calling buyToken
-        console.log('🧪 Pre-transaction Debug:', {
-          inputAmount: amount,
-          inputType: typeof amount,
-          parsedAmount: parseFloat(amount),
-          isValidNumber: !isNaN(parseFloat(amount)),
-          tokenAddress: tokenAddress,
-          addressLength: tokenAddress?.length
-        });
+        // console.log('🧪 Pre-transaction Debug:', {
+        //   inputAmount: amount,
+        //   inputType: typeof amount,
+        //   parsedAmount: parseFloat(amount),
+        //   isValidNumber: !isNaN(parseFloat(amount)),
+        //   tokenAddress: tokenAddress,
+        //   addressLength: tokenAddress?.length
+        // });
         
         await buyToken(tokenAddress, amount);
       } else {
-        console.log('🔴 Executing SELL transaction...');
+        //console.log('🔴 Executing SELL transaction...');
         
         // 🔍 DEBUG: Test ETH amount conversion for sell
-        console.log('🧪 Pre-sell Debug:', {
-          inputAmount: amount,
-          inputType: typeof amount,
-          parsedAmount: parseFloat(amount),
-          isValidNumber: !isNaN(parseFloat(amount)),
-          tokenAddress: tokenAddress,
-          note: 'Selling with ETH amount - will be converted to token amount in service'
-        });
+        // console.log('🧪 Pre-sell Debug:', {
+        //   inputAmount: amount,
+        //   inputType: typeof amount,
+        //   parsedAmount: parseFloat(amount),
+        //   isValidNumber: !isNaN(parseFloat(amount)),
+        //   tokenAddress: tokenAddress,
+        //   note: 'Selling with ETH amount - will be converted to token amount in service'
+        // });
         
         // For sell, we pass the ETH amount and let the service handle the conversion
         await sellToken(tokenAddress, amount);

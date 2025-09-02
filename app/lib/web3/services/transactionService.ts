@@ -182,7 +182,7 @@ export const signAndSubmitTransaction = async (
     }
   } catch (error: any) {
     const errorMsg = `Error: ${error.message || error.data?.message || 'Unknown error occurred'}`;
-    console.error('❌ Transaction submission failed:', error);
+    //console.error('❌ Transaction submission failed:', error);
     callbacks?.onStatusUpdate?.(errorMsg);
     callbacks?.onError?.(errorMsg);
     return null;

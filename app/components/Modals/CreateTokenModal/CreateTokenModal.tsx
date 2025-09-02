@@ -160,13 +160,13 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   }, []);
 
   const handleConfirm = useCallback(async () => {
-    console.log('🎯 handleConfirm called');
+    //console.log('🎯 handleConfirm called');
     setState(prev => ({ ...prev, isCreating: true, txHash: 'pending' }));
     
     try {
       // Generate temporary token address (in production, get from wallet/contract)
       const tokenAddress = CreateTokenService.generateTempTokenAddress();
-      console.log('🏷️ Generated token address:', tokenAddress);
+      //console.log('🏷️ Generated token address:', tokenAddress);
       
       // Transform state to API format
       const apiData = transformTokenStateToApiData(
@@ -175,7 +175,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
         state.files.logo,
         state.files.banner
       );
-      console.log('🔄 Transformed API data:', apiData);
+      //console.log('🔄 Transformed API data:', apiData);
       
       // Validate data
       const validationErrors = CreateTokenService.validateTokenData(apiData);

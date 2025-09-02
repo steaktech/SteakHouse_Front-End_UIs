@@ -50,14 +50,14 @@ export const useTrading = (): UseTrading => {
 
   // Initialize Web3 and KitchenService when wallet connects
   useEffect(() => {
-    console.log('🔄 useTrading: Wallet state changed', {
-      isConnected,
-      address,
-      chainId
-    });
+    // console.log('🔄 useTrading: Wallet state changed', {
+    //   isConnected,
+    //   address,
+    //   chainId
+    // });
 
     if (isConnected && address && window.ethereum) {
-      console.log('🚀 Initializing Web3 and Kitchen service...');
+      //console.log('🚀 Initializing Web3 and Kitchen service...');
       setTradingState(prev => ({ ...prev, isInitializing: true }));
       
       try {
@@ -67,8 +67,8 @@ export const useTrading = (): UseTrading => {
         const service = new KitchenService(web3Instance, address, chainId);
         setKitchenService(service);
         
-        console.log('✅ Trading services initialized');
-        console.log('🏭 Kitchen service info:', service.getContractInfo());
+        //console.log('✅ Trading services initialized');
+        //console.log('🏭 Kitchen service info:', service.getContractInfo());
         
         setTradingState(prev => ({ 
           ...prev, 
@@ -84,7 +84,7 @@ export const useTrading = (): UseTrading => {
         }));
       }
     } else {
-      console.log('🔌 Wallet disconnected or not ready, cleaning up services');
+      //console.log('🔌 Wallet disconnected or not ready, cleaning up services');
       setWeb3(null);
       setKitchenService(null);
       setTradingState(prev => ({ 
@@ -96,7 +96,7 @@ export const useTrading = (): UseTrading => {
 
   // Clear status and reset state
   const clearStatus = useCallback(() => {
-    console.log('🧹 Clearing trading status');
+    //console.log('🧹 Clearing trading status');
     setTradingState(prev => ({
       ...prev,
       error: null,
@@ -109,14 +109,14 @@ export const useTrading = (): UseTrading => {
   // Create transaction callbacks for status updates
   const createTransactionCallbacks = useCallback((tradeType: 'buy' | 'sell'): TransactionCallbacks => ({
     onStatusUpdate: (message: string) => {
-      console.log(`📢 ${tradeType.toUpperCase()} Status:`, message);
+      //console.log(`📢 ${tradeType.toUpperCase()} Status:`, message);
       setTradingState(prev => ({
         ...prev,
         statusMessage: message,
       }));
     },
     onSuccess: (contractAddress: string) => {
-      console.log(`✅ ${tradeType.toUpperCase()} Transaction successful:`, contractAddress);
+      //console.log(`✅ ${tradeType.toUpperCase()} Transaction successful:`, contractAddress);
       setTradingState(prev => ({
         ...prev,
         isTrading: false,
@@ -138,8 +138,8 @@ export const useTrading = (): UseTrading => {
 
   // Buy Token function
   const buyToken = useCallback(async (tokenAddress: string, ethAmount: string): Promise<string | null> => {
-    console.log('🟢 Starting BUY transaction...');
-    console.log(`🎯 Token: ${tokenAddress}, Amount: ${ethAmount} ${getCurrentCurrencySymbol()}`);
+    //console.log('🟢 Starting BUY transaction...');
+    //console.log(`🎯 Token: ${tokenAddress}, Amount: ${ethAmount} ${getCurrentCurrencySymbol()}`);
 
     if (!kitchenService || !isConnected) {
       const error = "Trading service not ready - please ensure wallet is connected";
@@ -175,10 +175,10 @@ export const useTrading = (): UseTrading => {
     }));
 
     try {
-      console.log('🔨 Building buy transaction...');
+      //console.log('🔨 Building buy transaction...');
       const unsignedTx = await kitchenService.buildBuyTokenTx(tokenAddress, ethAmount);
       
-      console.log('📤 Submitting buy transaction to MetaMask...');
+      //console.log('📤 Submitting buy transaction to MetaMask...');
       const callbacks = createTransactionCallbacks('buy');
       
       const result = await signAndSubmitTransaction(
@@ -187,11 +187,11 @@ export const useTrading = (): UseTrading => {
         callbacks
       );
 
-      console.log('🎯 Buy transaction result:', result);
+      //console.log('🎯 Buy transaction result:', result);
       return result;
     } catch (error) {
       const errorMsg = `Buy transaction failed: ${(error as Error).message}`;
-      console.error('❌', errorMsg, error);
+      //console.error('❌', errorMsg, error);
       setTradingState(prev => ({
         ...prev,
         isTrading: false,
@@ -204,8 +204,8 @@ export const useTrading = (): UseTrading => {
 
   // Sell Token function
   const sellToken = useCallback(async (tokenAddress: string, ethAmount: string): Promise<string | null> => {
-    console.log('🔴 Starting SELL transaction...');
-    console.log(`🎯 Token: ${tokenAddress}, ETH Amount: ${ethAmount} ${getCurrentCurrencySymbol()}`);
+    //console.log('🔴 Starting SELL transaction...');
+    //console.log(`🎯 Token: ${tokenAddress}, ETH Amount: ${ethAmount} ${getCurrentCurrencySymbol()}`);
 
     if (!kitchenService || !isConnected) {
       const error = "Trading service not ready - please ensure wallet is connected";
@@ -241,10 +241,10 @@ export const useTrading = (): UseTrading => {
     }));
 
     try {
-      console.log('🔨 Building sell transaction...');
+      //console.log('🔨 Building sell transaction...');
       const unsignedTx = await kitchenService.buildSellTokenTx(tokenAddress, ethAmount);
       
-      console.log('📤 Submitting sell transaction to MetaMask...');
+      //console.log('📤 Submitting sell transaction to MetaMask...');
       const callbacks = createTransactionCallbacks('sell');
       
       const result = await signAndSubmitTransaction(
@@ -253,7 +253,7 @@ export const useTrading = (): UseTrading => {
         callbacks
       );
 
-      console.log('🎯 Sell transaction result:', result);
+      //console.log('🎯 Sell transaction result:', result);
       return result;
     } catch (error) {
       const errorMsg = `Sell transaction failed: ${(error as Error).message}`;
@@ -273,17 +273,17 @@ export const useTrading = (): UseTrading => {
 
   // Log current state for debugging
   useEffect(() => {
-    console.log('📊 useTrading state update:', {
-      isConnected,
-      hasKitchenService: !!kitchenService,
-      isReady,
-      tradingState: {
-        isTrading: tradingState.isTrading,
-        isInitializing: tradingState.isInitializing,
-        hasError: !!tradingState.error,
-        lastTradeType: tradingState.lastTradeType,
-      }
-    });
+    // console.log('📊 useTrading state update:', {
+    //   isConnected,
+    //   hasKitchenService: !!kitchenService,
+    //   isReady,
+    //   tradingState: {
+    //     isTrading: tradingState.isTrading,
+    //     isInitializing: tradingState.isInitializing,
+    //     hasError: !!tradingState.error,
+    //     lastTradeType: tradingState.lastTradeType,
+    //   }
+    // });
   }, [isConnected, kitchenService, isReady, tradingState]);
 
   return {

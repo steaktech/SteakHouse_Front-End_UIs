@@ -95,7 +95,7 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       if (lastCallRef.current && 
           now - lastCallRef.current.timestamp < 100 && 
           lastCallRef.current.filters === filtersString) {
-        console.log('Skipping duplicate API call within 100ms:', filtersToUse);
+        //('Skipping duplicate API call within 100ms:', filtersToUse);
         return;
       }
       
@@ -175,7 +175,7 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       
       // For category filters, use the category API endpoint
       if (filtersToUse.category) {
-        console.log('Fetching tokens by category from API:', filtersToUse.category, 'with params:', params.toString());
+        //console.log('Fetching tokens by category from API:', filtersToUse.category, 'with params:', params.toString());
         
         // Convert URLSearchParams to CategoryParams for the category API
         const categoryParams = {
@@ -192,16 +192,16 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       // For search filters, always use getFilteredTokens
       // For regular filters, use specific endpoints based on sortBy
       else if (isSearchFilter) {
-        console.log('Fetching filtered tokens from API with params:', params.toString());
+        //console.log('Fetching filtered tokens from API with params:', params.toString());
         response = await getFilteredTokens(params);
       } else if (filtersToUse.sortBy === 'volume') {
-        console.log('Fetching tokens by volume from API with params:', params.toString());
+       // console.log('Fetching tokens by volume from API with params:', params.toString());
         response = await getTokensByVolume(params);
       } else if (filtersToUse.sortBy === 'mcap') {
-        console.log('Fetching tokens by market cap from API with params:', params.toString());
+        //console.log('Fetching tokens by market cap from API with params:', params.toString());
         response = await getTokensByMarketCap(params);
       } else {
-        console.log('Fetching filtered tokens from API with params:', params.toString());
+        //console.log('Fetching filtered tokens from API with params:', params.toString());
         response = await getFilteredTokens(params);
       }
       
