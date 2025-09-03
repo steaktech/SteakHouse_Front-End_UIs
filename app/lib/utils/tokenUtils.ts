@@ -147,9 +147,11 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
   const volume24h = getVolume24h(token);
   
   // Calculate liquidity from ETH pool (assuming ETH = $2000)
-  const ethPoolValue = parseFloat(token.eth_pool);
+  const ethPoolValueWei = parseFloat(token.eth_pool);
   const ethPriceUSD = 2000;
-  const liquidityValue = isNaN(ethPoolValue) ? 0 : ethPoolValue * ethPriceUSD;
+  // Convert from wei to ETH (divide by 1e18), then multiply by USD price
+  const ethPoolValueETH = ethPoolValueWei / 1e18;
+  const liquidityValue = isNaN(ethPoolValueWei) ? 0 : ethPoolValueETH * ethPriceUSD;
   
   return {
     isOneStop: token.graduated, // Graduated tokens get special treatment

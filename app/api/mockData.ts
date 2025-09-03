@@ -37,7 +37,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.25',
     max_tx_interval: '150',
     limit_removal_time: '7200',
-    eth_pool: '50000000000000000',
+    eth_pool: '125000000000000000000', // $250K liquidity (MC 2.5M / 10 = 250K, 250K/2000 = 125 ETH)
     circulating_supply: '800000000',
     created_at_block: '19234567',
     created_at_timestamp: '2024-01-15T10:30:00Z',
@@ -86,7 +86,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.25',
     max_tx_interval: '150',
     limit_removal_time: '7200',
-    eth_pool: '35000000000000000',
+    eth_pool: '90000000000000000000', // $180K liquidity (MC 1.8M / 10 = 180K, 180K/2000 = 90 ETH)
     circulating_supply: '400000000',
     created_at_block: '19234565',
     created_at_timestamp: '2024-01-14T15:20:00Z',
@@ -135,7 +135,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.25',
     max_tx_interval: '150',
     limit_removal_time: '7200',
-    eth_pool: '75000000000000000',
+    eth_pool: '210000000000000000000', // $420K liquidity (MC 4.2M / 10 = 420K, 420K/2000 = 210 ETH)
     circulating_supply: '900000000',
     created_at_block: '19234560',
     created_at_timestamp: '2024-01-10T09:00:00Z',
@@ -184,7 +184,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.25',
     max_tx_interval: '75',
     limit_removal_time: '3600',
-    eth_pool: '25000000000000000',
+    eth_pool: '49000000000000000000', // $98K liquidity (MC 980K / 10 = 98K, 98K/2000 = 49 ETH)
     circulating_supply: '1600000000',
     created_at_block: '19234562',
     created_at_timestamp: '2024-01-13T09:45:00Z',
@@ -233,7 +233,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.25',
     max_tx_interval: '45',
     limit_removal_time: '1800',
-    eth_pool: '15000000000000000',
+    eth_pool: '60000000000000000000', // $120K liquidity (MC 1.2M / 10 = 120K, 120K/2000 = 60 ETH)
     circulating_supply: '600000000',
     created_at_block: '19234558',
     created_at_timestamp: '2024-01-12T14:15:00Z',
@@ -282,7 +282,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.1',
     max_tx_interval: '300',
     limit_removal_time: '14400',
-    eth_pool: '120000000000000000',
+    eth_pool: '390000000000000000000', // $780K liquidity (MC 7.8M / 10 = 780K, 780K/2000 = 390 ETH)
     circulating_supply: '1200000000',
     created_at_block: '19234550',
     created_at_timestamp: '2024-01-08T12:00:00Z',
@@ -331,7 +331,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.05',
     max_tx_interval: '225',
     limit_removal_time: '10800',
-    eth_pool: '95000000000000000',
+    eth_pool: '280000000000000000000', // $560K liquidity (MC 5.6M / 10 = 560K, 560K/2000 = 280 ETH)
     circulating_supply: '240000000',
     created_at_block: '19234570',
     created_at_timestamp: '2024-01-16T08:00:00Z',
@@ -380,7 +380,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.25',
     max_tx_interval: '112',
     limit_removal_time: '5400',
-    eth_pool: '18000000000000000',
+    eth_pool: '32500000000000000000', // $65K liquidity (MC 650K / 10 = 65K, 65K/2000 = 32.5 ETH)
     circulating_supply: '2000000000',
     created_at_block: '19234555',
     created_at_timestamp: '2024-01-11T11:30:00Z',
@@ -429,7 +429,7 @@ export const mockTokens: Token[] = [
     max_tx_step: '0.5',
     max_tx_interval: '75',
     limit_removal_time: '3600',
-    eth_pool: '8000000000000000',
+    eth_pool: '9000000000000000000', // $18K liquidity (MC 180K / 10 = 18K, 18K/2000 = 9 ETH)
     circulating_supply: '4000000000',
     created_at_block: '19234575',
     created_at_timestamp: '2024-01-17T16:45:00Z',
