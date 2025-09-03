@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getFilteredTokens } from '@/app/lib/api/services/tokenService';
 import { transformTokensToCardProps } from '@/app/lib/utils/tokenUtils';
+import { TOKEN_TYPE_LABELS } from '@/app/lib/config/constants';
 import type { Token } from '@/app/types/token';
 import type { TokenCardProps } from '@/app/components/TradingDashboard/types';
 
@@ -13,6 +14,20 @@ export interface TokenFilters {
   minMarketCap?: number;
   maxMarketCap?: number;
   limit?: number;
+}
+
+// Helper function to convert string token type to numeric ID
+function getTokenTypeId(tokenTypeString: string): string | undefined {
+  const lowercaseType = tokenTypeString.toLowerCase();
+  
+  // Find the numeric key that corresponds to the string value
+  for (const [key, value] of Object.entries(TOKEN_TYPE_LABELS)) {
+    if (value.toLowerCase() === lowercaseType) {
+      return key;
+    }
+  }
+  
+  return undefined;
 }
 
 export function useTokens(initialFilters: TokenFilters = {}) {
@@ -38,7 +53,13 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       
       if (currentFilters.sortBy) params.append('sortBy', currentFilters.sortBy);
       if (currentFilters.sortOrder) params.append('sortOrder', currentFilters.sortOrder);
-      if (currentFilters.tokenType) params.append('tokenType', currentFilters.tokenType);
+      if (currentFilters.tokenType) {
+        // Convert string token type to numeric ID for API
+        const numericTokenType = getTokenTypeId(currentFilters.tokenType);
+        if (numericTokenType) {
+          params.append('tokenType', numericTokenType);
+        }
+      }
       if (currentFilters.graduated !== undefined) params.append('graduated', currentFilters.graduated.toString());
       if (currentFilters.minMarketCap) params.append('minMarketCap', currentFilters.minMarketCap.toString());
       if (currentFilters.maxMarketCap) params.append('maxMarketCap', currentFilters.maxMarketCap.toString());

@@ -34,8 +34,8 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[url('/images/homepage-bg.webp')] bg-cover bg-no-repeat flex flex-col min-h-screen`}
-        style={{ backgroundPosition: 'center -100px' }}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[url('/images/homepage-bg.webp')] bg-cover bg-no-repeat bg-fixed flex flex-col min-h-screen`}
+        style={{ backgroundPosition: 'center -50px' }}
       >
         <WagmiProviderWrapper>
           <LoadingWrapper>

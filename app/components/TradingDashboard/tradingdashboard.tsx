@@ -129,58 +129,64 @@ export default function TradingDashboard() {
   return (
     <>
       <style jsx>{`
-        /* Custom responsive grid for token cards with container-based breakpoints */
+        /* Custom responsive grid for token cards with fixed columns */
         .token-grid {
-          /* Default: 1 column on mobile, 2 on small screens */
-          grid-template-columns: repeat(1, 1fr);
+          display: grid;
+          gap: 1rem;
+          justify-items: start;
+          align-items: start;
+          grid-template-columns: 1fr;
         }
         
+        /* Tablet: 2 columns */
         @media (min-width: 640px) {
           .token-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
           }
         }
         
-        /* 3 cards when container can fit 3 × 367px + gaps + padding */
+        /* Desktop: 3 columns */
         @media (min-width: 1250px) {
           .token-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
+            grid-template-columns: repeat(3, 1fr);
           }
         }
         
-        /* 4 cards when container can fit 4 × 357px + gaps + padding */
+        /* Large desktop: 4 columns */
         @media (min-width: 1650px) {
           .token-grid {
-            grid-template-columns: repeat(4, 1fr) !important;
+            grid-template-columns: repeat(4, 1fr);
           }
         }
         
-        /* Ensure container doesn't overflow */
+        /* Container styling with consistent minimum height */
         .token-container {
+          min-height: 800px;
           max-width: 100%;
           overflow: visible;
-          container-type: inline-size;
         }
         
-                /* Use CSS auto-fit for more responsive behavior */
-        @supports (grid-template-columns: repeat(auto-fit, minmax(357px, 1fr))) {
-          .token-grid {
-            grid-template-columns: repeat(auto-fit, minmax(357px, 1fr)) !important;
-            justify-content: center;
-            place-items: center;
-          }
-        }
-        
-        /* Ensure cards don't get too wide when centered */
+        /* Ensure cards maintain consistent sizing */
         .token-grid > div {
-          max-width: 420px;
           width: 100%;
+          max-width: 420px;
+          justify-self: start;
         }
         
-        /* Override centering on mobile for left alignment */
+        /* Center cards when there are fewer than grid columns */
+        .token-grid.few-items {
+          justify-content: start;
+          justify-items: start;
+        }
+        
+        /* On mobile, always align to start */
         @media (max-width: 639px) {
           .token-grid {
-            place-items: start !important;
+            justify-items: start;
+          }
+          .token-grid > div {
+            justify-self: start;
           }
         }
       `}</style>
@@ -267,14 +273,14 @@ export default function TradingDashboard() {
                   <FilterButton 
                     icon={<Wrench size={12} />} 
                     label="Utility" 
-                    active={filters.tokenType === 'utility'}
-                    onClick={() => filterByType('utility')}
+                    active={filters.tokenType === 'Utility'}
+                    onClick={() => filterByType('Utility')}
                   />
                   <FilterButton 
                     icon={<Smile size={12} />} 
                     label="Meme" 
-                    active={filters.tokenType === 'meme'}
-                    onClick={() => filterByType('meme')}
+                    active={filters.tokenType === 'Meme'}
+                    onClick={() => filterByType('Meme')}
                   />
                 </div>
               </div>
@@ -322,14 +328,14 @@ export default function TradingDashboard() {
                 <FilterButton 
                   icon={<Wrench size={14} />} 
                   label="Utility" 
-                  active={filters.tokenType === 'utility'}
-                  onClick={() => filterByType('utility')}
+                  active={filters.tokenType === 'Utility'}
+                  onClick={() => filterByType('Utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={14} />} 
                   label="Meme" 
-                  active={filters.tokenType === 'meme'}
-                  onClick={() => filterByType('meme')}
+                  active={filters.tokenType === 'Meme'}
+                  onClick={() => filterByType('Meme')}
                 />
               </div>
             </div>
@@ -387,14 +393,14 @@ export default function TradingDashboard() {
                 <FilterButton 
                   icon={<Wrench size={16} />} 
                   label="Utility" 
-                  active={filters.tokenType === 'utility'}
-                  onClick={() => filterByType('utility')}
+                  active={filters.tokenType === 'Utility'}
+                  onClick={() => filterByType('Utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={16} />} 
                   label="Meme" 
-                  active={filters.tokenType === 'meme'}
-                  onClick={() => filterByType('meme')}
+                  active={filters.tokenType === 'Meme'}
+                  onClick={() => filterByType('Meme')}
                 />
               </div>
             </div>
@@ -408,9 +414,9 @@ export default function TradingDashboard() {
             ) : tokenCards.length === 0 ? (
               renderEmptyState()
             ) : (
-              <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="token-grid">
                 {tokenCards.map((token, index) => (
-                  <div key={`${token.symbol}-${index}`} className="h-full">
+                  <div key={`${token.symbol}-${index}`}>
                     <TokenCard {...token} />
                   </div>
                 ))}

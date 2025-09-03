@@ -70,25 +70,25 @@ export function calculateGraduationProgress(ethPool: string, graduationCap: stri
  * Gets token tag based on token properties
  */
 export function getTokenTag(token: Token): string {
-  // Priority 1: Use boolean flags for launch types
+  // Priority 1: Use token_type for content categories (Meme, Utility, AI, X-post)
+  if (token.token_type !== null && token.token_type !== undefined) {
+    const contentTypeLabel = TOKEN_TYPE_LABELS[token.token_type as keyof typeof TOKEN_TYPE_LABELS];
+    if (contentTypeLabel) return contentTypeLabel;
+  }
+  
+  // Priority 2: Use boolean flags for launch types (fallback only)
   if (token.is_zero_simple) return 'Zero';
   if (token.is_super_simple) return 'Simple';
   if (token.is_advanced) return 'Advanced';
   
-  // Priority 2: Use token_type for launch types (if available)
+  // Priority 3: Use token_type for launch types (if token_type doesn't match content categories)
   if (token.token_type !== null && token.token_type !== undefined) {
     const launchType = TOKEN_LAUNCH_TYPES[token.token_type as keyof typeof TOKEN_LAUNCH_TYPES];
     if (launchType) return launchType;
   }
   
-  // Priority 3: Fallback to token category labels if needed
-  if (token.token_type !== null && token.token_type !== undefined) {
-    const tokenTypeLabel = TOKEN_TYPE_LABELS[token.token_type as keyof typeof TOKEN_TYPE_LABELS];
-    if (tokenTypeLabel) return tokenTypeLabel;
-  }
-  
-  // Default fallback - assume Basic if no clear indicators
-  return 'Basic';
+  // Default fallback - assume Meme if no clear indicators
+  return 'Meme';
 }
 
 /**

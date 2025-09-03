@@ -53,5 +53,7 @@ export const TOKEN_TAG_COLORS = {
   'Super Simple': 'bg-green-500/20 text-green-300',
   'Zero Simple': 'bg-yellow-500/20 text-yellow-300',
   'Meme': 'bg-[#fade79] text-black',
-  'Utility': 'bg-orange-500/20 text-orange-300'
+  'Utility': 'bg-orange-500/20 text-orange-300',
+  'AI': 'bg-cyan-500/20 text-cyan-300',
+  'X-post': 'bg-violet-500/20 text-violet-300'
 } as const;
