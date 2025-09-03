@@ -17,7 +17,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   volume, 
   progress 
 }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -129,44 +128,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     requestAnimationFrame(frame);
   };
 
-  // Parallax effect
-  const enableParallax = (elem: HTMLElement, { maxTilt = 5, perspective = 800 } = {}) => {
-    elem.style.transform = `perspective(${perspective}px)`;
-    
-    const onMove = (e: MouseEvent) => {
-      const r = elem.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = (e.clientX - cx) / (r.width / 2);
-      const dy = (e.clientY - cy) / (r.height / 2);
-      const rx = Math.max(-maxTilt, Math.min(maxTilt, -dy * maxTilt));
-      const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
-      elem.style.transform = `perspective(${perspective}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-    };
-    
-    const reset = () => {
-      elem.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
-    };
-    
-    elem.addEventListener('mousemove', onMove);
-    elem.addEventListener('mouseleave', reset);
-    
-    return () => {
-      elem.removeEventListener('mousemove', onMove);
-      elem.removeEventListener('mouseleave', reset);
-    };
-  };
 
   useEffect(() => {
-    let cleanupParallax: (() => void) | undefined;
-    
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
-    if (!prefersReducedMotion && cardRef.current) {
-      cleanupParallax = enableParallax(cardRef.current, { maxTilt: 6, perspective: 900 });
-    }
-
     // Initialize progress bar
     setProgress(0);
     seedFlames();
@@ -184,13 +150,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     // Cleanup
     return () => {
       stopSparks();
-      if (cleanupParallax) cleanupParallax();
     };
   }, [progress]);
 
   return (
     <article 
-      ref={cardRef}
       className={styles.tokenCard}
       role="article"
       aria-label={`${name} token card`}
@@ -198,9 +162,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       {/* Token banner */}
       <div className={styles.tokenBanner} aria-hidden="true">
         <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
-        <div className={`${styles.bannerLayer} ${styles.texture}`}></div>
         <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
-        <div className={`${styles.bannerLayer} ${styles.rimGlow}`}></div>
       </div>
 
       {/* Identity row */}
