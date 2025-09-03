@@ -129,6 +129,18 @@ export default function TradingDashboard() {
   return (
     <>
       <style jsx>{`
+        /* Prevent overscroll behavior */
+        :global(html) {
+          overscroll-behavior: none;
+          overflow-x: hidden;
+        }
+        
+        :global(body) {
+          overscroll-behavior: none;
+          overflow-x: hidden;
+          position: relative;
+        }
+        
         /* Custom responsive grid for token cards with fixed columns */
         .token-grid {
           display: grid;
