@@ -146,15 +146,9 @@ export default function BottomControlBar() {
   };
 
   return (
-    <div className="w-full relative">
-      {/* The fade effect, positioned absolutely above the main content block */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-full inset-x-0 h-32 bg-gradient-to-t from-[#ebd6b4] to-transparent pointer-events-none"
-      />
-
+    <div className="w-full relative" style={{marginTop: '0', paddingTop: '0'}}>
       {/* Control buttons section with gradient background */}
-      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 flex items-center justify-between border-b border-white/20">
+      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 flex items-center justify-between border-b border-white/20" style={{marginTop: '0'}}>
         {/* Left section - Social Icons */}
         <div className="flex-1 flex items-center justify-start space-x-4 pl-4">
         </div>
