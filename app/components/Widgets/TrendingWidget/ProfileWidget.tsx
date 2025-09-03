@@ -51,7 +51,7 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = memo(
     return (
       /* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */
       <div className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans">
-        <span className="-mt-3">
+        <div className="flex items-center justify-center">
           {showArrow && (
             <SmartVideo
               webmSrc={arrowWebmSrc}
@@ -61,7 +61,7 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = memo(
               lazyLoad={true}
             />
           )}
-        </span>
+        </div>
         <div className="profile-widget-fire-border">
           <img
             src={imageUrl}
@@ -80,7 +80,7 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = memo(
             {uppercaseName}
           </span>
           <span
-            className="text-lg font-bold text-green-500"
+            className={`text-lg font-bold ${arrowDirection === 'down' ? 'text-red-500' : 'text-green-500'}`}
             style={textShadowStyle}
           >
             {percentage}%
