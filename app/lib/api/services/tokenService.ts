@@ -6,26 +6,26 @@ type ApiResponse<T> = T | { error: string };
 
 /**
  * Fetches tokens with filters applied.
- * [cite_start]GET /filteredTokens [cite: 182-192]
+ * [cite_start]GET /api/filteredTokens [cite: 182-192]
  */
 export async function getFilteredTokens(params: URLSearchParams): Promise<Token[]> {
-  return apiClient<Token[]>(`/filteredTokens?${params.toString()}`);
+  return apiClient<Token[]>(`/api/filteredTokens?${params.toString()}`);
 }
 
 /**
  * Fetches all tokens (base fields only).
- * [cite_start]GET /all-tokens [cite: 247-249]
+ * [cite_start]GET /api/all-tokens [cite: 247-249]
  */
 export async function getAllTokens(): Promise<Token[]> {
-  return apiClient<Token[]>('/all-tokens');
+  return apiClient<Token[]>('/api/all-tokens');
 }
 
 /**
  * Fetches all tokens ranked by 24h volume.
- * [cite_start]GET /all-tokens-by-volume [cite: 299-301]
+ * [cite_start]GET /api/all-tokens-by-volume [cite: 299-301]
  */
 export async function getTokensByVolume(): Promise<Token[]> {
-  return apiClient<Token[]>('/all-tokens-by-volume');
+  return apiClient<Token[]>('/api/all-tokens-by-volume');
 }
 
 /**
