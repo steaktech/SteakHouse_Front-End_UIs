@@ -36,6 +36,27 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
     });
   };
 
+  const handleAdvancedTaxConfigChange = (field: string, value: any) => {
+    onV2SettingsChange('advancedTaxConfig', {
+      ...v2Settings.advancedTaxConfig,
+      [field]: value
+    });
+  };
+
+  const handleAdvancedLimitsConfigChange = (field: string, value: any) => {
+    onV2SettingsChange('advancedLimitsConfig', {
+      ...v2Settings.advancedLimitsConfig,
+      [field]: value
+    });
+  };
+
+  const handleStealthConfigChange = (field: string, value: any) => {
+    onV2SettingsChange('stealthConfig', {
+      ...v2Settings.stealthConfig,
+      [field]: value
+    });
+  };
+
   return (
     <div className={styles.panel}>
       {/* Trading Mode Selection */}
@@ -120,6 +141,63 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             {errors.taxReceiver && <div className={styles.error}>{errors.taxReceiver}</div>}
           </div>
         )}
+        
+        {/* Advanced Tax Configuration Toggle */}
+        <label className={styles.switch} style={{ marginTop: '16px' }}>
+          <input
+            type="checkbox"
+            className={styles.switchInput}
+            checked={v2Settings.advancedTaxConfig.enabled}
+            onChange={(e) => handleAdvancedTaxConfigChange('enabled', e.target.checked)}
+          />
+          <span className={styles.switchLabel}>Enable Advanced Tax Configuration (Dynamic Tax Reduction)</span>
+        </label>
+        
+        {/* Advanced Tax Configuration Fields */}
+        {v2Settings.advancedTaxConfig.enabled && (
+          <div className={styles.grid2} style={{ marginTop: '12px' }}>
+            <div>
+              <label className={styles.label}>Start Tax (%)</label>
+              <input
+                className={`${styles.input} ${errors.advStartTax ? styles.fieldError : ''}`}
+                value={v2Settings.advancedTaxConfig.startTax}
+                onChange={(e) => handleAdvancedTaxConfigChange('startTax', e.target.value)}
+                placeholder="20"
+              />
+              {errors.advStartTax && <div className={styles.error}>{errors.advStartTax}</div>}
+            </div>
+            <div>
+              <label className={styles.label}>Final Tax (%)</label>
+              <input
+                className={`${styles.input} ${errors.advFinalTax ? styles.fieldError : ''}`}
+                value={v2Settings.advancedTaxConfig.finalTax}
+                onChange={(e) => handleAdvancedTaxConfigChange('finalTax', e.target.value)}
+                placeholder="3"
+              />
+              {errors.advFinalTax && <div className={styles.error}>{errors.advFinalTax}</div>}
+            </div>
+            <div>
+              <label className={styles.label}>Tax Drop Interval (seconds)</label>
+              <input
+                className={`${styles.input} ${errors.advTaxDropInterval ? styles.fieldError : ''}`}
+                value={v2Settings.advancedTaxConfig.taxDropInterval}
+                onChange={(e) => handleAdvancedTaxConfigChange('taxDropInterval', e.target.value)}
+                placeholder="3600"
+              />
+              {errors.advTaxDropInterval && <div className={styles.error}>{errors.advTaxDropInterval}</div>}
+            </div>
+            <div>
+              <label className={styles.label}>Tax Drop Step (%)</label>
+              <input
+                className={`${styles.input} ${errors.advTaxDropStep ? styles.fieldError : ''}`}
+                value={v2Settings.advancedTaxConfig.taxDropStep}
+                onChange={(e) => handleAdvancedTaxConfigChange('taxDropStep', e.target.value)}
+                placeholder="1"
+              />
+              {errors.advTaxDropStep && <div className={styles.error}>{errors.advTaxDropStep}</div>}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Trading Limits */}
@@ -163,7 +241,109 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             </div>
           </div>
         )}
+        
+        {/* Advanced Limits Configuration Toggle */}
+        <label className={styles.switch} style={{ marginTop: '12px' }}>
+          <input
+            type="checkbox"
+            className={styles.switchInput}
+            checked={v2Settings.advancedLimitsConfig.enabled}
+            onChange={(e) => handleAdvancedLimitsConfigChange('enabled', e.target.checked)}
+          />
+          <span className={styles.switchLabel}>Enable Dynamic Limits (Progressive Limit Increases)</span>
+        </label>
+        
+        {/* Advanced Limits Configuration Fields */}
+        {v2Settings.advancedLimitsConfig.enabled && (
+          <div style={{ marginTop: '12px' }}>
+            <div className={styles.grid2}>
+              <div>
+                <label className={styles.label}>Start Max Transaction (% of supply)</label>
+                <input
+                  className={`${styles.input} ${errors.advStartMaxTx ? styles.fieldError : ''}`}
+                  value={v2Settings.advancedLimitsConfig.startMaxTx}
+                  onChange={(e) => handleAdvancedLimitsConfigChange('startMaxTx', e.target.value)}
+                  placeholder="1"
+                />
+                {errors.advStartMaxTx && <div className={styles.error}>{errors.advStartMaxTx}</div>}
+              </div>
+              <div>
+                <label className={styles.label}>Max Transaction Step (% increase)</label>
+                <input
+                  className={`${styles.input} ${errors.advMaxTxStep ? styles.fieldError : ''}`}
+                  value={v2Settings.advancedLimitsConfig.maxTxStep}
+                  onChange={(e) => handleAdvancedLimitsConfigChange('maxTxStep', e.target.value)}
+                  placeholder="0.5"
+                />
+                {errors.advMaxTxStep && <div className={styles.error}>{errors.advMaxTxStep}</div>}
+              </div>
+              <div>
+                <label className={styles.label}>Start Max Wallet (% of supply)</label>
+                <input
+                  className={`${styles.input} ${errors.advStartMaxWallet ? styles.fieldError : ''}`}
+                  value={v2Settings.advancedLimitsConfig.startMaxWallet}
+                  onChange={(e) => handleAdvancedLimitsConfigChange('startMaxWallet', e.target.value)}
+                  placeholder="2"
+                />
+                {errors.advStartMaxWallet && <div className={styles.error}>{errors.advStartMaxWallet}</div>}
+              </div>
+              <div>
+                <label className={styles.label}>Max Wallet Step (% increase)</label>
+                <input
+                  className={`${styles.input} ${errors.advMaxWalletStep ? styles.fieldError : ''}`}
+                  value={v2Settings.advancedLimitsConfig.maxWalletStep}
+                  onChange={(e) => handleAdvancedLimitsConfigChange('maxWalletStep', e.target.value)}
+                  placeholder="0.1"
+                />
+                {errors.advMaxWalletStep && <div className={styles.error}>{errors.advMaxWalletStep}</div>}
+              </div>
+            </div>
+            <div style={{ marginTop: '8px' }}>
+              <label className={styles.label}>Limits Increase Interval (seconds)</label>
+              <input
+                className={`${styles.input} ${errors.advLimitsInterval ? styles.fieldError : ''}`}
+                value={v2Settings.advancedLimitsConfig.limitsInterval}
+                onChange={(e) => handleAdvancedLimitsConfigChange('limitsInterval', e.target.value)}
+                placeholder="3600"
+              />
+              {errors.advLimitsInterval && <div className={styles.error}>{errors.advLimitsInterval}</div>}
+            </div>
+          </div>
+        )}
       </div>
+      
+      {/* Stealth Launch Configuration - Only show for Deploy Only mode */}
+      {v2Settings.enableTradingMode === 'DEPLOY_ONLY' && (
+        <div className={styles.card}>
+          <div className={styles.label}>
+            Stealth Launch
+            <HelpTooltip content="Enable stealth launch to automatically add liquidity with a specified ETH amount when the token is deployed. Useful for immediate trading availability." />
+          </div>
+          
+          <label className={styles.switch}>
+            <input
+              type="checkbox"
+              className={styles.switchInput}
+              checked={v2Settings.stealthConfig.enabled}
+              onChange={(e) => handleStealthConfigChange('enabled', e.target.checked)}
+            />
+            <span className={styles.switchLabel}>Enable Stealth Launch</span>
+          </label>
+          
+          {v2Settings.stealthConfig.enabled && (
+            <div style={{ marginTop: '12px' }}>
+              <label className={styles.label}>ETH Amount for Initial Liquidity</label>
+              <input
+                className={`${styles.input} ${errors.stealthEthAmount ? styles.fieldError : ''}`}
+                value={v2Settings.stealthConfig.ethAmount}
+                onChange={(e) => handleStealthConfigChange('ethAmount', e.target.value)}
+                placeholder="1.0"
+              />
+              {errors.stealthEthAmount && <div className={styles.error}>{errors.stealthEthAmount}</div>}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className={styles.footerNav}>
         <button

@@ -70,6 +70,28 @@ export interface V2LaunchSettings {
     maxTx: string;
     enableLimits: boolean;
   };
+  // Advanced tax configuration for manual deploy
+  advancedTaxConfig: {
+    enabled: boolean;
+    startTax: string;        // Starting tax percentage (e.g., "20" for 20%)
+    finalTax: string;        // Final tax percentage (e.g., "3" for 3%)
+    taxDropInterval: string; // Interval in seconds for tax drops
+    taxDropStep: string;     // Tax reduction per interval (e.g., "1" for -1%)
+  };
+  // Advanced limits configuration
+  advancedLimitsConfig: {
+    enabled: boolean;
+    startMaxTx: string;      // Starting max transaction in tokens
+    maxTxStep: string;       // Transaction limit increase per interval
+    startMaxWallet: string;  // Starting max wallet in tokens
+    maxWalletStep: string;   // Wallet limit increase per interval
+    limitsInterval: string;  // Interval in seconds for limit increases
+  };
+  // Stealth launch configuration
+  stealthConfig: {
+    enabled: boolean;
+    ethAmount: string;       // ETH amount to use for LP if stealth
+  };
 }
 
 export interface MetaData {

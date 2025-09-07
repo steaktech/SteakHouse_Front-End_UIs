@@ -71,6 +71,25 @@ export const initialState: TokenState = {
       maxWallet: '2',
       maxTx: '2',
       enableLimits: false
+    },
+    advancedTaxConfig: {
+      enabled: false,
+      startTax: '20',        // 20%
+      finalTax: '3',         // 3%
+      taxDropInterval: '3600', // 1 hour
+      taxDropStep: '1'       // -1% per interval
+    },
+    advancedLimitsConfig: {
+      enabled: false,
+      startMaxTx: '1',         // 1% of supply
+      maxTxStep: '0.5',        // +0.5% per interval
+      startMaxWallet: '2',     // 2% of supply
+      maxWalletStep: '0.1',    // +0.1% per interval
+      limitsInterval: '3600'   // 1 hour intervals
+    },
+    stealthConfig: {
+      enabled: false,
+      ethAmount: '1.0'         // 1 ETH for stealth LP
     }
   },
   meta: { desc: "", website: "", tg: "", tw: "", logo: "", banner: "" },
@@ -263,6 +282,7 @@ export function validateV2Settings(v2Settings: any): { isValid: boolean; errors:
   const errors: Record<string, string> = {};
   const isValidNumber = (s: string) => !isNaN(Number(s)) && Number(s) >= 0;
   const isValidPercent = (s: string) => isValidNumber(s) && Number(s) >= 0 && Number(s) <= 100;
+  const isInt = (s: string) => /^[0-9]+$/.test(s);
 
   // Validate liquidity amount for full launch mode
   if (v2Settings.enableTradingMode === 'FULL_LAUNCH') {
@@ -294,6 +314,55 @@ export function validateV2Settings(v2Settings: any): { isValid: boolean; errors:
     }
     if (!isValidPercent(v2Settings.limits.maxTx)) {
       errors.maxTx = 'Max transaction must be between 0-100% of supply';
+    }
+  }
+
+  // Validate advanced tax configuration if enabled
+  if (v2Settings.advancedTaxConfig.enabled) {
+    if (!isValidPercent(v2Settings.advancedTaxConfig.startTax)) {
+      errors.advStartTax = 'Start tax must be between 0-100%';
+    }
+    if (!isValidPercent(v2Settings.advancedTaxConfig.finalTax)) {
+      errors.advFinalTax = 'Final tax must be between 0-100%';
+    }
+    if (!isInt(v2Settings.advancedTaxConfig.taxDropInterval) || Number(v2Settings.advancedTaxConfig.taxDropInterval) <= 0) {
+      errors.advTaxDropInterval = 'Tax drop interval must be a positive integer (seconds)';
+    }
+    if (!isValidPercent(v2Settings.advancedTaxConfig.taxDropStep)) {
+      errors.advTaxDropStep = 'Tax drop step must be between 0-100%';
+    }
+    
+    // Validate that final tax is lower than or equal to start tax
+    const startTax = Number(v2Settings.advancedTaxConfig.startTax);
+    const finalTax = Number(v2Settings.advancedTaxConfig.finalTax);
+    if (finalTax > startTax) {
+      errors.advFinalTax = 'Final tax must be less than or equal to start tax';
+    }
+  }
+
+  // Validate advanced limits configuration if enabled
+  if (v2Settings.advancedLimitsConfig.enabled) {
+    if (!isValidPercent(v2Settings.advancedLimitsConfig.startMaxTx) || Number(v2Settings.advancedLimitsConfig.startMaxTx) <= 0) {
+      errors.advStartMaxTx = 'Starting max transaction must be between 0.1-100% of supply';
+    }
+    if (!isValidNumber(v2Settings.advancedLimitsConfig.maxTxStep) || Number(v2Settings.advancedLimitsConfig.maxTxStep) < 0 || Number(v2Settings.advancedLimitsConfig.maxTxStep) > 100) {
+      errors.advMaxTxStep = 'Max transaction step must be between 0-100%';
+    }
+    if (!isValidPercent(v2Settings.advancedLimitsConfig.startMaxWallet) || Number(v2Settings.advancedLimitsConfig.startMaxWallet) <= 0) {
+      errors.advStartMaxWallet = 'Starting max wallet must be between 0.1-100% of supply';
+    }
+    if (!isValidNumber(v2Settings.advancedLimitsConfig.maxWalletStep) || Number(v2Settings.advancedLimitsConfig.maxWalletStep) < 0 || Number(v2Settings.advancedLimitsConfig.maxWalletStep) > 100) {
+      errors.advMaxWalletStep = 'Max wallet step must be between 0-100%';
+    }
+    if (!isInt(v2Settings.advancedLimitsConfig.limitsInterval) || Number(v2Settings.advancedLimitsConfig.limitsInterval) <= 0) {
+      errors.advLimitsInterval = 'Limits interval must be a positive integer (seconds)';
+    }
+  }
+
+  // Validate stealth configuration if enabled
+  if (v2Settings.stealthConfig.enabled) {
+    if (!v2Settings.stealthConfig.ethAmount || !isValidNumber(v2Settings.stealthConfig.ethAmount) || Number(v2Settings.stealthConfig.ethAmount) <= 0) {
+      errors.stealthEthAmount = 'Stealth ETH amount must be greater than 0';
     }
   }
 

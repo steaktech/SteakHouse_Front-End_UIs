@@ -456,6 +456,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             {state.step === 2 && (
               <Step2TokenBasics
                 basics={state.basics}
+                deploymentMode={state.deploymentMode}
                 errors={errors}
                 onBasicsChange={handleBasicsChange}
                 onBack={() => goToStep(1)}

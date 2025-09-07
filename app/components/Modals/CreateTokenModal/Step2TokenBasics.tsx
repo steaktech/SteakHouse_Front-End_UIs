@@ -1,10 +1,11 @@
 import React from 'react';
-import { TokenBasics } from './types';
+import { TokenBasics, DeploymentMode } from './types';
 import HelpTooltip from '../../UI/HelpTooltip';
 import styles from './CreateTokenModal.module.css';
 
 interface Step2TokenBasicsProps {
   basics: TokenBasics;
+  deploymentMode: DeploymentMode | null;
   errors: Record<string, string>;
   onBasicsChange: (field: string, value: any) => void;
   onBack: () => void;
@@ -13,6 +14,7 @@ interface Step2TokenBasicsProps {
 
 const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
   basics,
+  deploymentMode,
   errors,
   onBasicsChange,
   onBack,
@@ -99,7 +101,8 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
         </div>
       </div>
 
-      <div className={styles.grid3}>
+      {/* Use 2-column layout for V2_LAUNCH, 3-column for VIRTUAL_CURVE */}
+      <div className={deploymentMode === 'V2_LAUNCH' ? styles.grid2 : styles.grid3}>
         <div className={styles.card}>
           <div className={styles.label}>
             Launch Time
@@ -166,40 +169,43 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
           )}
         </div>
 
-        <div className={styles.card}>
-          <div className={styles.label}>
-            Options
-            <HelpTooltip content="Additional features for your token launch. Most users can leave these unchecked." />
+        {/* Only show Options section for Virtual Curve deployment */}
+        {deploymentMode !== 'V2_LAUNCH' && (
+          <div className={styles.card}>
+            <div className={styles.label}>
+              Options
+              <HelpTooltip content="Additional features for your token launch. Most users can leave these unchecked." />
+            </div>
+            <div className={styles.row} style={{ gap: '16px' }}>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  className={styles.switchInput}
+                  checked={basics.removeHeader}
+                  onChange={(e) => onBasicsChange('removeHeader', e.target.checked)}
+                />
+                <span className={styles.switchLabel}>
+                  Remove Header
+                  <HelpTooltip content="Removes the Steakhouse header from your token contract address for a cleaner look. Additional fee applies." className="ml-2" />
+                </span>
+              </label>
+            </div>
+            <div className={styles.row} style={{ gap: '16px', marginTop: '8px' }}>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  className={styles.switchInput}
+                  checked={basics.stealth}
+                  onChange={(e) => onBasicsChange('stealth', e.target.checked)}
+                />
+                <span className={styles.switchLabel}>
+                  Stealth Mode
+                  <HelpTooltip content="Your token won't appear in public listings until you're ready to reveal it. Good for building hype." className="ml-2" />
+                </span>
+              </label>
+            </div>
           </div>
-          <div className={styles.row} style={{ gap: '16px' }}>
-            <label className={styles.switch}>
-              <input
-                type="checkbox"
-                className={styles.switchInput}
-                checked={basics.removeHeader}
-                onChange={(e) => onBasicsChange('removeHeader', e.target.checked)}
-              />
-              <span className={styles.switchLabel}>
-                Remove Header
-                <HelpTooltip content="Removes the Steakhouse header from your token contract address for a cleaner look. Additional fee applies." className="ml-2" />
-              </span>
-            </label>
-          </div>
-          <div className={styles.row} style={{ gap: '16px', marginTop: '8px' }}>
-            <label className={styles.switch}>
-              <input
-                type="checkbox"
-                className={styles.switchInput}
-                checked={basics.stealth}
-                onChange={(e) => onBasicsChange('stealth', e.target.checked)}
-              />
-              <span className={styles.switchLabel}>
-                Stealth Mode
-                <HelpTooltip content="Your token won't appear in public listings until you're ready to reveal it. Good for building hype." className="ml-2" />
-              </span>
-            </label>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className={styles.footerNav}>
