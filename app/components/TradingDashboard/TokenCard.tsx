@@ -22,6 +22,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const labelRef = useRef<HTMLDivElement>(null);
   const flamesRef = useRef<HTMLDivElement>(null);
   const sparkTimer = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   // Normalize percentage (0-1 or 0-100 to 0-100)
   const normalizePercent = (val: number) => {
@@ -41,9 +42,22 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const seedFlames = () => {
     if (!flamesRef.current || !fillRef.current) return;
     
-    flamesRef.current.innerHTML = '';
     const w = fillRef.current.clientWidth || 1;
     const FLAME_COUNT = 16;
+    
+    // Only recreate flames if we don't have the right amount or if width changed significantly
+    const existingFlames = flamesRef.current.querySelectorAll(`.${styles.flame}`);
+    if (existingFlames.length === FLAME_COUNT && w > 0) {
+      // Update positions of existing flames instead of recreating
+      existingFlames.forEach((flame, i) => {
+        const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - 26);
+        (flame as HTMLElement).style.left = `${left}px`;
+      });
+      return;
+    }
+    
+    // Clear and recreate flames only when necessary
+    flamesRef.current.innerHTML = '';
     
     for (let i = 0; i < FLAME_COUNT; i++) {
       const flame = document.createElement('span');
@@ -111,21 +125,36 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const animateTo = (target: number, ms = 1600) => {
     if (!fillRef.current) return;
     
+    // Cancel any existing animation
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    
     const startWidth = parseFloat(fillRef.current.style.width) || 0;
     const t0 = performance.now();
+    let lastFlameUpdate = 0;
     
     const frame = (t: number) => {
       const k = Math.min(1, (t - t0) / ms);
       const eased = 1 - Math.pow(1 - k, 3);
       const value = startWidth + (target - startWidth) * eased;
       setProgress(value);
-      if (k < 1) {
-        requestAnimationFrame(frame);
-      } else {
+      
+      // Update flame positions every 100ms during animation
+      if (t - lastFlameUpdate > 100) {
         seedFlames();
+        lastFlameUpdate = t;
+      }
+      
+      if (k < 1) {
+        animationFrameRef.current = requestAnimationFrame(frame);
+      } else {
+        // Final flame update at the end
+        seedFlames();
+        animationFrameRef.current = null;
       }
     };
-    requestAnimationFrame(frame);
+    animationFrameRef.current = requestAnimationFrame(frame);
   };
 
 
@@ -150,6 +179,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     // Cleanup
     return () => {
       stopSparks();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
     };
   }, [progress]);
 
