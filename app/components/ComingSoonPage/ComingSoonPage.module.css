@@ -243,14 +243,18 @@
     box-shadow: 0 8px 30px rgba(255, 107, 53, 0.35),
         inset 0 1px 0 rgba(255, 255, 255, 0.25);
     transform: translateZ(20px);
+    position: relative;
 }
 
 .logoImg {
-    width: 78%;
-    height: auto;
+    width: 85%;
+    height: 85%;
     display: block;
     object-fit: contain;
-    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+    max-width: 48px;
+    max-height: 48px;
+    transform: translateZ(5px);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .heading {
@@ -295,6 +299,7 @@
         transparent
     );
 }
+
 
 .lead {
     color: var(--text-2);

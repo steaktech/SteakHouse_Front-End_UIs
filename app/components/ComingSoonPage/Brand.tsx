@@ -12,13 +12,12 @@ const Brand: FC<BrandProps> = ({ logoSrc, logoAlt, tag, title }) => {
     return (
         <header className={styles.brand} aria-label="Brand">
             <div className={styles.logo} aria-hidden="true">
-                <Image
+                <img
                     className={styles.logoImg}
                     src={logoSrc}
                     alt={logoAlt}
-                    width={56}
-                    height={56}
-                    priority
+                    width="44"
+                    height="44"
                 />
             </div>
             <div className={styles.heading}>
