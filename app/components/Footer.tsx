@@ -109,8 +109,12 @@ const Footer: React.FC = () => {
                   <li>
                     <a href="/coming-soon">Investor</a>
                   </li>
+                </ul>
+                
+                <h3 style={{ marginTop: '24px' }}>Partner With Us</h3>
+                <ul>
                   <li>
-                    <a href="/coming-soon">Partner</a>
+                    <a href="/coming-soon">Request Form</a>
                   </li>
                 </ul>
               </div>
