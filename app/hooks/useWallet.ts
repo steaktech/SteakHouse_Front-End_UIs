@@ -9,6 +9,15 @@ declare global {
     ethereum?: {
       isMetaMask?: boolean;
       request?: (...args: any[]) => Promise<any>;
+      on?: (eventName: string, callback: (...args: any[]) => void) => void;
+      removeListener?: (eventName: string, callback: (...args: any[]) => void) => void;
+      removeAllListeners?: (eventName?: string) => void;
+      selectedAddress?: string | null;
+      chainId?: string;
+      networkVersion?: string;
+      _metamask?: {
+        isUnlocked?: () => Promise<boolean>;
+      };
     };
   }
 }
