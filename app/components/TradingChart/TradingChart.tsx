@@ -12,12 +12,13 @@ import { TradePanel } from './TradePanel';
 // MODIFIED: Added ChevronUp for the new button icon
 import { ChevronUp } from 'lucide-react';
 
-export default function TradingChart() {
+interface TradingChartProps {
+  tokenAddress?: string;
+}
+
+export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db" }: TradingChartProps) {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
-  
-  // For now using the example token address - this should be made dynamic via URL params
-  const tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db";
 
   return (
     <div className="flex flex-col h-screen bg-[#07040b]">
