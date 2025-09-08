@@ -107,7 +107,7 @@ export const signAndSubmitTransaction = async (
     return null;
   }
 
-  const web3 = new Web3(window.ethereum);
+  const web3 = new Web3(window.ethereum as any);
   
   try {
     console.log("🔐 Requesting account access...");

@@ -6,19 +6,7 @@ import { useCallback, useMemo } from 'react';
 // Extend Window interface for MetaMask detection
 declare global {
   interface Window {
-    ethereum?: {
-      isMetaMask?: boolean;
-      request?: (...args: any[]) => Promise<any>;
-      on?: (eventName: string, callback: (...args: any[]) => void) => void;
-      removeListener?: (eventName: string, callback: (...args: any[]) => void) => void;
-      removeAllListeners?: (eventName?: string) => void;
-      selectedAddress?: string | null;
-      chainId?: string;
-      networkVersion?: string;
-      _metamask?: {
-        isUnlocked?: () => Promise<boolean>;
-      };
-    };
+    ethereum?: any; // Use any to avoid type conflicts with Web3.js v4
   }
 }
 

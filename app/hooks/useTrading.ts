@@ -61,7 +61,7 @@ export const useTrading = (): UseTrading => {
       setTradingState(prev => ({ ...prev, isInitializing: true }));
       
       try {
-        const web3Instance = new Web3(window.ethereum);
+        const web3Instance = new Web3(window.ethereum as any);
         setWeb3(web3Instance);
         
         const service = new KitchenService(web3Instance, address, chainId);

@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@metamask/providers": "^22.1.0",
     "@tanstack/react-query": "^5.85.5",
-    "@types/web3": "^1.2.2",
     "@walletconnect/ethereum-provider": "^2.21.8",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
