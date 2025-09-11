@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
+import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { useToastHelpers } from '@/app/lib/providers/ToastProvider';
 
 const WalletModal = dynamic(
   () => import("../Modals/WalletModal/WalletModal"),
@@ -22,16 +24,21 @@ const EthereumIcon = () => (
   </svg>
 );
 
-export const TradePanel: React.FC = () => {
+interface TradePanelProps {
+  tokenAddress?: string;
+}
+
+export const TradePanel: React.FC<TradePanelProps> = ({ 
+  tokenAddress = "0x9b7E4E284487952c14891865A11C063886e2c6Ce" 
+}) => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [amount, setAmount] = useState('0');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
   
   const { isConnected, isConnecting } = useWallet();
   const { tradingState, buyToken, sellToken, clearStatus, isReady } = useTrading();
-
-  // Demo token address - replace with actual token from props or context
-  const tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db";
+  const { showError, showSuccess } = useToastHelpers();
 
   const quickAmounts = ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'];
 
@@ -42,6 +49,33 @@ export const TradePanel: React.FC = () => {
       setAmount('10.0'); // Example max amount
     } else {
       setAmount(value.split(' ')[0]);
+    }
+  };
+
+  // Handle Buy max TX functionality
+  const handleBuyMaxTx = async () => {
+    setIsLoadingMaxTx(true);
+
+    try {
+      console.log('🔍 Fetching max TX info for token:', tokenAddress);
+      const maxTxData = await getMaxTxInfo(tokenAddress);
+      
+      const ethToCurve = extractEthToCurve(maxTxData);
+      
+      if (ethToCurve) {
+        setAmount(ethToCurve);
+        console.log('✅ Set amount to max TX ethToCurve:', ethToCurve);
+        showSuccess(`Max TX amount set: ${ethToCurve} ETH`, 'Buy Max TX');
+      } else {
+        console.warn('⚠️ No ethToCurve value available in max TX response');
+        showError('Max TX data not available for this token', 'Buy Max TX Failed');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching max TX info:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch max TX data';
+      showError(errorMessage, 'Buy Max TX Failed');
+    } finally {
+      setIsLoadingMaxTx(false);
     }
   };
 
@@ -166,7 +200,13 @@ export const TradePanel: React.FC = () => {
           transition-all duration-150
           shadow-[inset_1px_1px_2px_#4e2a07,inset_-1px_-1px_2px_#1e0e01]
           active:shadow-[inset_1px_1px_3px_#1e0e01]">
-            <button className="preset-btn transition-colors duration-200 active:translate-y-px">Buy max TX</button>
+            <button 
+              onClick={handleBuyMaxTx}
+              disabled={isLoadingMaxTx}
+              className="preset-btn transition-colors duration-200 active:translate-y-px disabled:opacity-50"
+            >
+              {isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}
+            </button>
           </div>
           <div className="bg-[#2c1402] rounded-full px-3 py-1 
           transition-all duration-150

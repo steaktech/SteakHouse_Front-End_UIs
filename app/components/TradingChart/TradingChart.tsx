@@ -69,7 +69,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
           {/* Trade Panel */}
           <div className="order-2 lg:col-start-2 lg:row-start-2">
-            <TradePanel />
+            <TradePanel tokenAddress={tokenAddress} />
           </div>
 
           {/* Trade History */}
