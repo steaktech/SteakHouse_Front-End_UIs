@@ -87,7 +87,7 @@
   mix-blend-mode: screen;
 }
 
-.tokenCard::after {
+.tokenCard:hover::after {
   content: "";
   position: absolute;
   top: 0;
@@ -423,7 +423,7 @@
   --tip: 0;
 }
 
-.score .fill::after {
+.tokenCard:hover .score .fill::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -459,7 +459,7 @@
 }
 
 /* Flames + heat */
-.score .flames {
+.tokenCard:hover .score .flames {
   position: absolute;
   left: 0;
   bottom: -6px;
@@ -472,7 +472,7 @@
   z-index: 2;
 }
 
-.score .flame {
+.tokenCard:hover .score .flame {
   position: absolute;
   bottom: -8%;
   width: 26px;
@@ -528,7 +528,7 @@
 }
 
 /* Sparks */
-.score .spark {
+.tokenCard:hover .score .spark {
   position: absolute;
   bottom: 0;
   width: 6px;

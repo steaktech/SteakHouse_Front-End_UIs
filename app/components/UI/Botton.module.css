@@ -238,7 +238,6 @@
 		var(--orange-500) 100%
 	);
 	background-size: 200% 200%;
-	animation: gradientShift 3s ease infinite;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	overflow: hidden;
 	letter-spacing: 3px;
@@ -296,6 +295,7 @@
 	transform: translateY(-3px) scale(1.02);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	padding: 12px 50px;
+	animation: gradientShift 3s ease infinite;
 }
 
 /* Responsive */
@@ -347,7 +347,6 @@
 		var(--gold-400)
 	);
 	background-size: 300% 300%;
-	animation: smoothGradient 4s ease infinite;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
@@ -361,7 +360,7 @@
 .headerBtn:hover {
 	transform: scale(1.05);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
-	animation-duration: 1.5s;
+	animation: smoothGradient 1.5s ease infinite;
 }
 
 .headerBtnInner {
@@ -411,7 +410,6 @@
 		var(--gold-400)
 	);
 	background-size: 300% 300%;
-	animation: smoothGradient 4s ease infinite;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
@@ -425,7 +423,7 @@
 .headerBtnGolden:hover {
 	transform: scale(1.05);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
-	animation-duration: 1.5s;
+	animation: smoothGradient 1.5s ease infinite;
 }
 
 .headerBtnGoldenInner {

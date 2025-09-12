@@ -189,12 +189,12 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       elem.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
     };
     
-    elem.addEventListener('mousemove', onMove);
-    elem.addEventListener('mouseleave', reset);
+    //elem.addEventListener('mousemove', onMove);
+    //elem.addEventListener('mouseleave', reset);
     
     return () => {
-      elem.removeEventListener('mousemove', onMove);
-      elem.removeEventListener('mouseleave', reset);
+      //elem.removeEventListener('mousemove', onMove);
+      //elem.removeEventListener('mouseleave', reset);
     };
   };
 

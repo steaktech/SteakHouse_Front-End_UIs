@@ -122,7 +122,7 @@
 }
 
 /* Scanning shine */
-.shine {
+.glowCard:hover .shine {
   position: absolute;
   top: 0;
   left: -100%;
