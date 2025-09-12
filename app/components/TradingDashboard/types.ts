@@ -17,6 +17,8 @@ export interface TokenCardProps {
   progress?: number;
   circulating_supply?: string;
   graduation_cap?: string;
+  category?: string | null;
+  token_address: string;
 }
 
 export interface FilterButtonProps {

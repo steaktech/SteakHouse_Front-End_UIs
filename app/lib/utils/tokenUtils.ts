@@ -161,7 +161,9 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
     volume: formatNumber(volume24h, { prefix: '$', compact: true }),
     progress: Math.round(progress * 10) / 10, // Round to 1 decimal place
     circulating_supply: token.circulating_supply,
-    graduation_cap: token.graduation_cap
+    graduation_cap: token.graduation_cap,
+    category: token.catagory,
+    token_address: token.token_address
   };
 }
 

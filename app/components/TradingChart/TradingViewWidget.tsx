@@ -19,6 +19,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<any>(null);
+  const containerIdRef = useRef(`tradingview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     // Ensure the container is ready and the widget isn't already created
@@ -26,11 +27,16 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       return;
     }
 
+    let isMounted = true;
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
+    
     script.onload = () => {
-      if (typeof window.TradingView === 'undefined' || !containerRef.current) return;
+      // Check if component is still mounted and container still exists
+      if (!isMounted || typeof window.TradingView === 'undefined' || !containerRef.current) {
+        return;
+      }
 
       const widgetOptions = {
         autosize: true,
@@ -42,7 +48,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         backgroundColor: "#07040b",
         hide_side_toolbar: true,
         gridColor: "rgba(2, 2, 2, 0.06)",
-        container_id: "tradingview_chart_container", // Must match the container's id
+        container_id: containerIdRef.current, // Use unique container ID
         overrides: {
           "mainSeriesProperties.candleStyle.upColor": "#29f266",
           "mainSeriesProperties.candleStyle.downColor": "#ff3b3b",
@@ -59,8 +65,11 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       };
 
       try {
-        const tvWidget = new window.TradingView.widget(widgetOptions);
-        widgetRef.current = tvWidget;
+        // Double-check container still exists before creating widget
+        if (containerRef.current && isMounted) {
+          const tvWidget = new window.TradingView.widget(widgetOptions);
+          widgetRef.current = tvWidget;
+        }
       } catch (error) {
         console.error('Error creating TradingView widget:', error);
       }
@@ -70,17 +79,47 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       console.error('Failed to load TradingView script');
     };
     
-    document.head.appendChild(script);
+    // Only append script if component is still mounted
+    if (isMounted) {
+      document.head.appendChild(script);
+    }
 
     // Cleanup function to remove widget on component unmount
     return () => {
+      isMounted = false;
+      
+      // Clean up widget with better error handling
       if (widgetRef.current) {
         try {
-          widgetRef.current.remove();
+          // Check if the widget and its methods still exist
+          if (typeof widgetRef.current.remove === 'function') {
+            widgetRef.current.remove();
+          } else if (typeof widgetRef.current.destroy === 'function') {
+            widgetRef.current.destroy();
+          }
         } catch (error) {
-          console.error('Error removing TradingView widget:', error);
+          // Silently handle cleanup errors to prevent console spam
+          console.warn('TradingView widget cleanup warning:', error instanceof Error ? error.message : 'Unknown error');
         }
         widgetRef.current = null;
+      }
+      
+      // Clean up container content if it still exists
+      if (containerRef.current) {
+        try {
+          containerRef.current.innerHTML = '';
+        } catch (error) {
+          // Ignore cleanup errors for unmounted components
+        }
+      }
+      
+      // Remove script if it was added and still exists
+      try {
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      } catch (error) {
+        // Ignore script removal errors
       }
     };
   }, [symbol, interval]);
@@ -90,7 +129,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     <div className="w-full h-full overflow-hidden">
       <div
         ref={containerRef}
-        id="tradingview_chart_container"
+        id={containerIdRef.current}
         // Scale the widget up slightly to push its border outside the visible area.
         className="w-full h-full min-h-145 transform scale-[1.01]"
       />

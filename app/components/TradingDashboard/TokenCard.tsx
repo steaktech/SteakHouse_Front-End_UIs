@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Globe, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
 import styles from './TokenCard.module.css';
@@ -17,14 +18,28 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   volume, 
   progress,
   circulating_supply,
-  graduation_cap
+  graduation_cap,
+  category,
+  token_address
 }) => {
+  const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const flamesRef = useRef<HTMLDivElement>(null);
   const sparkTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle card click for navigation
+  const handleCardClick = () => {
+    router.push(`/trading-chart/${token_address}`);
+  };
+
+  // Handle social button clicks (prevent card navigation)
+  const handleSocialClick = (e: React.MouseEvent, action: () => void) => {
+    e.stopPropagation();
+    action();
+  };
 
   // Normalize percentage (0-1 or 0-100 to 0-100)
   const normalizePercent = (val: number) => {
@@ -221,6 +236,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       className={styles.tokenCard}
       role="article"
       aria-label={`${name} token card`}
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer' }}
     >
       {/* Token banner */}
       <div className={styles.tokenBanner} aria-hidden="true">
@@ -246,7 +263,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           </div>
         </div>
 
-        <div className={styles.badge}>{tag}</div>
+        <div className={styles.badge}>{category || "N/A"}</div>
       </header>
 
       <section className={styles.taxLine}>
@@ -262,13 +279,37 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       </p>
 
       <nav className={styles.socials} aria-label="Social links">
-        <button className={`${styles.socialBtn} ${styles.tg}`} aria-label="Telegram" title="Telegram">
+        <button 
+          className={`${styles.socialBtn} ${styles.tg}`} 
+          aria-label="Telegram" 
+          title="Telegram"
+          onClick={(e) => handleSocialClick(e, () => {
+            // Add telegram link logic here
+            console.log('Telegram clicked');
+          })}
+        >
           <Send size={18} />
         </button>
-        <button className={`${styles.socialBtn} ${styles.x}`} aria-label="X (Twitter)" title="X">
+        <button 
+          className={`${styles.socialBtn} ${styles.x}`} 
+          aria-label="X (Twitter)" 
+          title="X"
+          onClick={(e) => handleSocialClick(e, () => {
+            // Add twitter link logic here
+            console.log('Twitter clicked');
+          })}
+        >
           <TwitterIcon />
         </button>
-        <button className={`${styles.socialBtn} ${styles.web}`} aria-label="Website" title="Website">
+        <button 
+          className={`${styles.socialBtn} ${styles.web}`} 
+          aria-label="Website" 
+          title="Website"
+          onClick={(e) => handleSocialClick(e, () => {
+            // Add website link logic here
+            console.log('Website clicked');
+          })}
+        >
           <Globe size={18} />
         </button>
       </nav>

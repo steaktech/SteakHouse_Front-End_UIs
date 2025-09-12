@@ -48,6 +48,7 @@ export interface Token {
     telegram: string | null;
     twitter: string | null;
     website: string | null;
+    catagory: string | null;
   
     // Derived Fields - Now included in getFilteredTokens response
     age_hours: string;
