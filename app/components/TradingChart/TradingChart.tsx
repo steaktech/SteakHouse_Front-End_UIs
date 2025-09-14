@@ -9,12 +9,30 @@ import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
 import { MarketInfo } from './MarketInfo';
 import { TradePanel } from './TradePanel';
+import { TokenCard } from '@/app/components/TradingDashboard/TokenCard';
+import { TokenCardProps } from '@/app/components/TradingDashboard/types';
+import { TradingTokenCard } from './TradingTokenCard';
 // MODIFIED: Added ChevronUp for the new button icon
 import { ChevronUp } from 'lucide-react';
 
 export default function TradingChart() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
+
+  // Sample token data for the TokenCard
+  const sampleTokenData: TokenCardProps = {
+    isOneStop: false,
+    imageUrl: '/images/info_icon.jpg',
+    name: 'SpaceMan',
+    symbol: 'SPACE',
+    tag: 'Meme',
+    tagColor: '#fade79',
+    description: 'Spaceman is a meme deflationary token with a finite supply and buyback and burn mechanism.',
+    mcap: '$21.5K',
+    liquidity: '$2.3K',
+    volume: '$6.2K',
+    progress: 82
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[#07040b]">
@@ -58,9 +76,9 @@ export default function TradingChart() {
             <TradingView />
           </div>
 
-          {/* Market Info */}
-          <div className="order-4 lg:col-start-2 lg:row-start-1 ">
-            <MarketInfo />
+          {/* Token Card */}
+          <div className="order-4 lg:col-start-2 lg:row-start-1 flex justify-center items-stretch p-0 m-0">
+            <TradingTokenCard {...sampleTokenData} />
           </div>
 
           {/* Trade Panel */}
