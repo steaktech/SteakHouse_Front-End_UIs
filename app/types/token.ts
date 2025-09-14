@@ -139,3 +139,17 @@ export interface ChartUpdateEvent {
   timeframe: string;
   candle: WebSocketCandle;
 }
+
+// Trending Token WebSocket Types
+export interface TrendingToken {
+  token_address: string;
+  trending_score: number;
+  symbol: string;
+  image_url: string | null;
+  price_change_24h: number;
+}
+
+export interface TrendingSnapshot {
+  tokens: TrendingToken[];
+  timestamp: number;
+}
