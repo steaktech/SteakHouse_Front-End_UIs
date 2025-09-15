@@ -158,7 +158,7 @@ const TrendingProfileWidget: React.FC<TrendingProfileWidgetProps> = memo(
     return (
       /* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */
       <div 
-        className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans cursor-pointer hover:bg-white/5 rounded-lg transition-colors duration-200"
+        className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans cursor-pointer hover:scale-105 transition-transform duration-200 ease-out"
         onClick={handleClick}
         role="button"
         tabIndex={0}
