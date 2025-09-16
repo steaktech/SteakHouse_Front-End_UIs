@@ -9,6 +9,9 @@ import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
 import { MarketInfo } from './MarketInfo';
 import { TradePanel } from './TradePanel';
+import { FullscreenChart } from './FullscreenChart';
+import { OrientationPrompt } from './OrientationPrompt';
+import { useDeviceOrientation } from '@/app/hooks/useDeviceOrientation';
 // MODIFIED: Added ChevronUp for the new button icon
 import { ChevronUp } from 'lucide-react';
 
@@ -19,6 +22,38 @@ interface TradingChartProps {
 export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db" }: TradingChartProps) {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
+  const [isFullscreenChart, setIsFullscreenChart] = useState(false);
+  const [showOrientationPrompt, setShowOrientationPrompt] = useState(false);
+  
+  const { isMobile, isLandscape } = useDeviceOrientation();
+
+  // Handle fullscreen chart activation
+  const handleChartFullscreen = () => {
+    if (!isMobile) return; // Only for mobile devices
+    
+    // If device is already in landscape, go directly to fullscreen
+    if (isLandscape) {
+      setIsFullscreenChart(true);
+    } else {
+      // Show orientation prompt for portrait mode
+      setShowOrientationPrompt(true);
+    }
+  };
+
+  // Handle orientation prompt responses
+  const handleOrientationPromptClose = () => {
+    setShowOrientationPrompt(false);
+  };
+
+  const handleContinueInPortrait = () => {
+    setShowOrientationPrompt(false);
+    setIsFullscreenChart(true);
+  };
+
+  // Handle fullscreen chart exit
+  const handleFullscreenExit = () => {
+    setIsFullscreenChart(false);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[#07040b]">
@@ -81,7 +116,27 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       </div>
       
       {/* Mobile Bottom Sidebar */}
-      <MobileBottomBar expanded={mobileSidebarExpanded} setExpanded={setMobileSidebarExpanded} />
+      <MobileBottomBar 
+        expanded={mobileSidebarExpanded} 
+        setExpanded={setMobileSidebarExpanded}
+        onChartFullscreen={handleChartFullscreen}
+      />
+
+      {/* Fullscreen Chart Modal */}
+      <FullscreenChart
+        isOpen={isFullscreenChart}
+        onClose={handleFullscreenExit}
+        tokenAddress={tokenAddress}
+        mobileSidebarExpanded={mobileSidebarExpanded}
+        setMobileSidebarExpanded={setMobileSidebarExpanded}
+      />
+
+      {/* Orientation Prompt Modal */}
+      <OrientationPrompt
+        isOpen={showOrientationPrompt}
+        onClose={handleOrientationPromptClose}
+        onContinuePortrait={handleContinueInPortrait}
+      />
     </div>
   );
 }

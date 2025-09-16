@@ -41,7 +41,15 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
   );
 };
 
-export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
+interface ExtendedSidebarProps extends SidebarProps {
+  onChartFullscreen?: () => void;
+}
+
+export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({ 
+  expanded, 
+  setExpanded, 
+  onChartFullscreen 
+}) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -61,8 +69,15 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
+  const handleChartClick = () => {
+    if (onChartFullscreen) {
+      onChartFullscreen();
+    }
+    setExpanded(false); // Close the mobile sidebar when opening fullscreen chart
+  };
+
   const widgets = [
-    { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true },
+    { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true, onClick: handleChartClick },
     { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token' },
     { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade' },
     { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },

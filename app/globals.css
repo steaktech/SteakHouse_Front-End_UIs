@@ -454,3 +454,161 @@
     font-size: 1.2rem;
   }
 }
+
+/* ======================================
+   FULLSCREEN CHART MOBILE STYLES
+   ====================================== */
+
+/* Mobile landscape fullscreen chart optimization */
+@media screen and (max-width: 1023px) {
+  /* Fullscreen chart container */
+  .fullscreen-chart-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    background-color: #07040b;
+  }
+
+  /* Landscape orientation specific styles */
+  @media (orientation: landscape) {
+    .fullscreen-chart-container {
+      /* Ensure proper height calculation in landscape */
+      height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    }
+
+    /* Optimize chart area for landscape */
+    .fullscreen-chart-area {
+      height: calc(100vh - 60px); /* Account for header */
+      height: calc(100dvh - 60px);
+    }
+
+    /* Hide elements that take up space in landscape */
+    .landscape-hidden {
+      display: none !important;
+    }
+
+    /* Compact header in landscape fullscreen */
+    .fullscreen-header {
+      height: 40px;
+      min-height: 40px;
+      padding: 8px 16px;
+    }
+
+    /* Optimize trading view widget for landscape */
+    .fullscreen-trading-view {
+      width: 100%;
+      height: 100%;
+      min-height: calc(100vh - 100px);
+      min-height: calc(100dvh - 100px);
+    }
+  }
+
+  /* Portrait orientation fallback */
+  @media (orientation: portrait) {
+    .fullscreen-chart-container {
+      /* Standard portrait layout */
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    .portrait-orientation-hint {
+      display: flex !important;
+    }
+  }
+
+  /* Touch optimizations for mobile fullscreen */
+  .fullscreen-chart-container * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Smooth transitions for orientation changes */
+  .fullscreen-chart-container,
+  .fullscreen-chart-area,
+  .fullscreen-trading-view {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Prevent body scroll when fullscreen chart is active */
+body.fullscreen-chart-active {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Enhanced mobile sidebar for fullscreen mode */
+@media screen and (max-width: 1023px) {
+  .fullscreen-mobile-sidebar {
+    /* Ensure sidebar appears above fullscreen content */
+    z-index: 95;
+  }
+
+  /* Compact widget controls for landscape */
+  @media (orientation: landscape) {
+    .fullscreen-widget-controls {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .fullscreen-widget-grid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .fullscreen-widget-card {
+      padding: 8px;
+      min-height: 60px;
+    }
+
+    .fullscreen-widget-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .fullscreen-widget-text {
+      font-size: 10px;
+      margin-top: 4px;
+    }
+  }
+}
+
+/* Responsive breakpoints for fullscreen chart */
+@media screen and (max-width: 1023px) and (max-height: 500px) {
+  /* Very small landscape screens (phones in landscape) */
+  .fullscreen-header {
+    height: 35px;
+    min-height: 35px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .fullscreen-chart-area {
+    height: calc(100vh - 35px);
+    height: calc(100dvh - 35px);
+  }
+}
+
+@media screen and (max-width: 1023px) and (min-height: 500px) and (max-height: 800px) {
+  /* Medium landscape screens (tablets in landscape) */
+  .fullscreen-header {
+    height: 50px;
+    min-height: 50px;
+    padding: 10px 16px;
+  }
+
+  .fullscreen-chart-area {
+    height: calc(100vh - 50px);
+    height: calc(100dvh - 50px);
+  }
+}
