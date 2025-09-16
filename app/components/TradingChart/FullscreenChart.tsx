@@ -25,7 +25,21 @@ export const FullscreenChart: React.FC<FullscreenChartProps> = ({
   mobileSidebarExpanded,
   setMobileSidebarExpanded,
 }) => {
-  const { isLandscape, isMobile } = useDeviceOrientation();
+  const { isLandscape, isMobile, screenWidth, screenHeight, orientation } = useDeviceOrientation();
+
+  // Debug logging for orientation changes
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log('🔄 Orientation Update:', {
+        isLandscape,
+        isMobile,
+        screenWidth,
+        screenHeight,
+        orientation,
+        windowSize: `${window.innerWidth}x${window.innerHeight}`
+      });
+    }
+  }, [isOpen, isLandscape, isMobile, screenWidth, screenHeight, orientation]);
 
   // Add body class for scroll prevention - must be before early return
   React.useEffect(() => {
@@ -44,12 +58,12 @@ export const FullscreenChart: React.FC<FullscreenChartProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fullscreen-chart-container lg:hidden">
+    <div className="fullscreen-chart-true lg:hidden">
       {/* Fullscreen Chart Layout */}
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col w-full h-full">
         
-        {/* Header Bar with Exit Controls */}
-        <div className="fullscreen-header flex items-center justify-between bg-gradient-to-r from-[#472303] to-[#5a2d04] border-b border-[#daa20b]/40 shadow-lg">
+        {/* Compact Header Bar with Exit Controls */}
+        <div className="fullscreen-compact-header flex items-center justify-between bg-gradient-to-r from-[#472303] to-[#5a2d04] border-b border-[#daa20b]/40 shadow-lg">
           
           {/* Left Side - Token Info */}
           <div className="flex items-center gap-3">
@@ -92,41 +106,53 @@ export const FullscreenChart: React.FC<FullscreenChartProps> = ({
         </div>
 
         {/* Chart Container */}
-        <div className="fullscreen-chart-area flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden">
           
           {/* Main Chart Area */}
-          <div className="absolute inset-0 p-2">
-            <div className="fullscreen-trading-view w-full h-full rounded-lg overflow-hidden border border-[#daa20b]/20 shadow-2xl">
+          <div className="absolute inset-0 p-1">
+            <div className="w-full h-full rounded-lg overflow-hidden border border-[#daa20b]/20 shadow-2xl">
               <TradingView />
             </div>
           </div>
 
-          {/* Landscape Optimization Overlay */}
+          {/* Landscape Optimization Overlay - Only show in portrait */}
           {isMobile && !isLandscape && (
-            <div className="portrait-orientation-hint absolute inset-0 bg-black/60 flex items-center justify-center z-10">
-              <div className="text-center p-6">
-                <div className="mb-4 text-[#daa20b] text-4xl">📱➡️📱</div>
+            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
+              <div className="text-center p-6 max-w-xs">
+                <div className="mb-4 flex justify-center items-center gap-2 text-3xl">
+                  <span className="text-[#daa20b]">📱</span>
+                  <span className="text-[#daa20b] animate-pulse">↻</span>
+                  <span className="text-[#daa20b]">📱</span>
+                </div>
                 <h3 className="text-[#daa20b] text-lg font-semibold mb-2">
                   Rotate for Better View
                 </h3>
-                <p className="text-[#e6d4a3]/80 text-sm">
+                <p className="text-[#e6d4a3]/80 text-sm mb-4">
                   Turn your device horizontally for the optimal chart experience
                 </p>
+                <div className="text-xs text-[#e6d4a3]/60 space-y-1">
+                  <div>Current: {orientation} • {screenWidth}x{screenHeight}</div>
+                  <div>Landscape: {isLandscape ? '✅' : '❌'} • Mobile: {isMobile ? '✅' : '❌'}</div>
+                </div>
               </div>
             </div>
           )}
         </div>
 
         {/* Mobile Bottom Controls - Always show in fullscreen */}
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           {/* Quick Access Button */}
           {!mobileSidebarExpanded && (
             <button
               onClick={() => setMobileSidebarExpanded(true)}
-              className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-30 px-4 py-2 bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/40 rounded-full text-[#daa20b] text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+              className={`absolute z-30 px-3 py-1.5 bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/40 rounded-full text-[#daa20b] font-medium shadow-lg hover:shadow-xl transition-all duration-200 ${
+                isLandscape 
+                  ? 'bottom-1 left-1/2 transform -translate-x-1/2 text-xs' 
+                  : 'bottom-2 left-1/2 transform -translate-x-1/2 text-sm'
+              }`}
               type="button"
             >
-              Widget Controls
+              {isLandscape ? 'Controls' : 'Widget Controls'}
             </button>
           )}
 

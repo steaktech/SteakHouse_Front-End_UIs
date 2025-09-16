@@ -46,14 +46,33 @@ export function useDeviceOrientation(): DeviceOrientationState {
     // Initial check
     updateOrientation();
 
-    // Listen for orientation changes
-    window.addEventListener('resize', updateOrientation);
-    window.addEventListener('orientationchange', updateOrientation);
+    // Listen for orientation changes with debounce
+    let timeoutId: NodeJS.Timeout;
+    const debouncedUpdate = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateOrientation, 100);
+    };
+
+    // Multiple event listeners for better orientation detection
+    window.addEventListener('resize', debouncedUpdate);
+    window.addEventListener('orientationchange', () => {
+      // Orientationchange fires before the viewport adjusts, so we need a delay
+      setTimeout(updateOrientation, 200);
+    });
+    
+    // Additional listener for screen orientation API if available
+    if (screen && screen.orientation) {
+      screen.orientation.addEventListener('change', debouncedUpdate);
+    }
 
     // Cleanup listeners
     return () => {
-      window.removeEventListener('resize', updateOrientation);
-      window.removeEventListener('orientationchange', updateOrientation);
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', debouncedUpdate);
+      window.removeEventListener('orientationchange', debouncedUpdate);
+      if (screen && screen.orientation) {
+        screen.orientation.removeEventListener('change', debouncedUpdate);
+      }
     };
   }, []);
 
