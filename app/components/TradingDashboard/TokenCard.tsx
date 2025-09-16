@@ -259,7 +259,44 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           </div>
           <div className={styles.nameBlock}>
             <h1 className={styles.name}>{name}</h1>
-            <div className={styles.ticker}>{symbol}</div>
+            <div className={styles.symbolRow}>
+              <div className={styles.ticker}>{symbol}</div>
+              <nav className={styles.socials} aria-label="Social links">
+                <button 
+                  className={`${styles.socialBtn} ${styles.tg}`} 
+                  aria-label="Telegram" 
+                  title="Telegram"
+                  onClick={(e) => handleSocialClick(e, () => {
+                    // Add telegram link logic here
+                    console.log('Telegram clicked');
+                  })}
+                >
+                  <Send size={16} />
+                </button>
+                <button 
+                  className={`${styles.socialBtn} ${styles.x}`} 
+                  aria-label="X (Twitter)" 
+                  title="X"
+                  onClick={(e) => handleSocialClick(e, () => {
+                    // Add twitter link logic here
+                    console.log('Twitter clicked');
+                  })}
+                >
+                  <TwitterIcon />
+                </button>
+                <button 
+                  className={`${styles.socialBtn} ${styles.web}`} 
+                  aria-label="Website" 
+                  title="Website"
+                  onClick={(e) => handleSocialClick(e, () => {
+                    // Add website link logic here
+                    console.log('Website clicked');
+                  })}
+                >
+                  <Globe size={16} />
+                </button>
+              </nav>
+            </div>
           </div>
         </div>
 
@@ -277,42 +314,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       <p className={styles.desc}>
         {description}
       </p>
-
-      <nav className={styles.socials} aria-label="Social links">
-        <button 
-          className={`${styles.socialBtn} ${styles.tg}`} 
-          aria-label="Telegram" 
-          title="Telegram"
-          onClick={(e) => handleSocialClick(e, () => {
-            // Add telegram link logic here
-            console.log('Telegram clicked');
-          })}
-        >
-          <Send size={18} />
-        </button>
-        <button 
-          className={`${styles.socialBtn} ${styles.x}`} 
-          aria-label="X (Twitter)" 
-          title="X"
-          onClick={(e) => handleSocialClick(e, () => {
-            // Add twitter link logic here
-            console.log('Twitter clicked');
-          })}
-        >
-          <TwitterIcon />
-        </button>
-        <button 
-          className={`${styles.socialBtn} ${styles.web}`} 
-          aria-label="Website" 
-          title="Website"
-          onClick={(e) => handleSocialClick(e, () => {
-            // Add website link logic here
-            console.log('Website clicked');
-          })}
-        >
-          <Globe size={18} />
-        </button>
-      </nav>
 
       {/* Bottom panel: stats row + searing progress bar */}
       <section className={styles.score}>

@@ -62,7 +62,7 @@
     border-color 0.25s ease, background-color 0.25s ease;
   color: var(--text);
   height: auto;
-  min-height: 450px;
+  min-height: 400px;
 
   /* OPTIMIZATION: Prepare the card for transform changes on hover */
   will-change: transform, box-shadow;
@@ -236,8 +236,14 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
 }
 
-.nameBlock .ticker {
+.symbolRow {
   margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nameBlock .ticker {
   font-weight: 800;
   font-size: 12px;
   letter-spacing: 1.2px;
@@ -309,17 +315,16 @@
 
 .socials {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 4px;
 }
 
 .socialBtn {
   color: #fff1dc;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
+  border-radius: 10px;
   background: linear-gradient(
     180deg,
     rgba(255, 230, 195, 0.22),
