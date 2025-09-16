@@ -82,20 +82,36 @@ export function useWallet(): WalletState {
 
   // Format connectors for easier use
   const formattedConnectors = useMemo(() => {
-    // Remove duplicates by creating a unique set based on connector functionality
+    // Create a clean list of unique connectors with MetaMask first
     const uniqueConnectors: any[] = [];
-    const seenTypes = new Set<string>();
+    const seenNames = new Set<string>();
     
+    // Always add MetaMask first if we have an injected connector
+    const injectedConnector = connectors.find(c => 
+      c.id === 'injected' || c.id === 'metaMask' || c.id === 'io.metamask'
+    );
+    
+    if (injectedConnector) {
+      uniqueConnectors.push({
+        ...injectedConnector,
+        _forceName: 'MetaMask', // Force the name to be MetaMask
+        _forceIcon: 'metamask'
+      });
+      seenNames.add('MetaMask');
+    }
+    
+    // Then add other unique connectors - but detect wallet types properly
     connectors.forEach(connector => {
-      let connectorType = connector.id;
-      
-      // Special handling for injected wallets - only keep one
+      // Skip injected wallets since we already added MetaMask
       if (connector.id === 'injected' || connector.id === 'metaMask' || connector.id === 'io.metamask') {
-        connectorType = 'injected';
+        return;
       }
       
-      if (!seenTypes.has(connectorType)) {
-        seenTypes.add(connectorType);
+      const connectorName = getConnectorName(connector.id, connector.name);
+      
+      // Only add if we haven't seen this name before
+      if (!seenNames.has(connectorName)) {
+        seenNames.add(connectorName);
         uniqueConnectors.push(connector);
       }
     });
@@ -107,9 +123,9 @@ export function useWallet(): WalletState {
 
       return {
         id: connector.id,
-        name: getConnectorName(connector.id, connector.name),
+        name: connector._forceName || getConnectorName(connector.id, connector.name),
         ready: isReady,
-        icon: getConnectorIcon(connector.id),
+        icon: getConnectorIcon(connector.id, connector._forceIcon),
       };
     });
   }, [connectors]);
@@ -142,44 +158,87 @@ export function useWallet(): WalletState {
 
 // Helper function to get connector name
 function getConnectorName(connectorId: string, defaultName: string): string {
-  if (connectorId === 'injected') {
-    if (typeof window !== 'undefined' && window.ethereum?.isMetaMask) {
-      return 'MetaMask';
-    }
-    return 'Browser Wallet';
-  }
-  
-  if (connectorId === 'io.metamask') {
-    return 'MetaMask';
-  }
-  
+  // Direct mapping for known connectors
   const nameMap: Record<string, string> = {
     walletConnect: 'WalletConnect',
     coinbaseWallet: 'Coinbase Wallet',
     coinbaseWalletSDK: 'Coinbase Wallet',
+    'io.metamask': 'MetaMask',
+    metaMask: 'MetaMask',
+    injected: 'MetaMask', // Always treat injected as MetaMask
+    rainbow: 'Rainbow',
+    phantom: 'Phantom',
   };
   
-  return nameMap[connectorId] || defaultName;
+  return nameMap[connectorId] || defaultName || 'Unknown Wallet';
 }
 
 // Helper function to get connector icons
-function getConnectorIcon(connectorId: string): string {
-  if (connectorId === 'injected') {
-    if (typeof window !== 'undefined' && window.ethereum?.isMetaMask) {
-      return '/images/metamask.png';
-    }
-    return '/images/wallet.png';
+function getConnectorIcon(connectorId: string, forceIcon?: string): string {
+  // Handle forced icon first
+  if (forceIcon === 'metamask') {
+    return '/images/metamask-wallet.webp';
   }
   
-  if (connectorId === 'io.metamask') {
-    return '/images/metamask.png';
-  }
-  
-  const iconMap: Record<string, string> = {
-    walletConnect: '/images/walletconnect.png',
-    coinbaseWallet: '/images/coinbase.png',
-    coinbaseWalletSDK: '/images/coinbase.png',
+  // Comprehensive mapping of all possible connector identifiers to icons
+  const walletIconMap: Record<string, string> = {
+    // Rainbow wallet variations
+    'rainbow': '/images/rainbow-wallet.webp',
+    'rainbowWallet': '/images/rainbow-wallet.webp',
+    'rainbow-wallet': '/images/rainbow-wallet.webp',
+    'com.rainbow': '/images/rainbow-wallet.webp',
+    'me.rainbow': '/images/rainbow-wallet.webp',
+    
+    // Phantom wallet variations
+    'phantom': '/images/phantom-wallet.webp',
+    'phantomWallet': '/images/phantom-wallet.webp',
+    'phantom-wallet': '/images/phantom-wallet.webp',
+    'app.phantom': '/images/phantom-wallet.webp',
+    
+    // WalletConnect variations
+    'walletConnect': '/images/walletconnect-wallet.webp',
+    'walletconnect': '/images/walletconnect-wallet.webp',
+    'wallet-connect': '/images/walletconnect-wallet.webp',
+    
+    // Coinbase wallet variations
+    'coinbaseWallet': '/images/coinbase-wallet.webp',
+    'coinbaseWalletSDK': '/images/coinbase-wallet.webp',
+    'coinbase-wallet': '/images/coinbase-wallet.webp',
+    'coinbase': '/images/coinbase-wallet.webp',
+    
+    // MetaMask variations
+    'metaMask': '/images/metamask-wallet.webp',
+    'metamask': '/images/metamask-wallet.webp',
+    'io.metamask': '/images/metamask-wallet.webp',
+    'injected': '/images/metamask-wallet.webp',
   };
   
-  return iconMap[connectorId] || '/images/wallet.png';
+  // Check direct connector ID match first
+  if (walletIconMap[connectorId]) {
+    return walletIconMap[connectorId];
+  }
+  
+  // Check by connector name (converted to lowercase)
+  const connectorName = getConnectorName(connectorId, '').toLowerCase().replace(/\s+/g, '');
+  const nameBasedMatch = walletIconMap[connectorName];
+  if (nameBasedMatch) {
+    return nameBasedMatch;
+  }
+  
+  // Check if the name contains any wallet keywords
+  if (connectorName.includes('rainbow')) {
+    return '/images/rainbow-wallet.webp';
+  }
+  if (connectorName.includes('phantom')) {
+    return '/images/phantom-wallet.webp';
+  }
+  if (connectorName.includes('coinbase')) {
+    return '/images/coinbase-wallet.webp';
+  }
+  if (connectorName.includes('walletconnect')) {
+    return '/images/walletconnect-wallet.webp';
+  }
+  
+  // Default fallback to MetaMask
+  return '/images/metamask-wallet.webp';
 }

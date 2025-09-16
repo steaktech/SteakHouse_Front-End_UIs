@@ -331,12 +331,14 @@ export const TradePanel: React.FC = () => {
           letterSpacing: '0.5px'
         }}
         onMouseEnter={(e) => {
-          e.target.style.transform = 'translateY(-1px)';
-          e.target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+          const target = e.target as HTMLButtonElement;
+          target.style.transform = 'translateY(-1px)';
+          target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.transform = 'translateY(0)';
-          e.target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+          const target = e.target as HTMLButtonElement;
+          target.style.transform = 'translateY(0)';
+          target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
         }}
       >
         CONFIRM TRADE

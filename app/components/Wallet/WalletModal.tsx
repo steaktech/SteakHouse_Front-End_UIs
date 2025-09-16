@@ -1,8 +1,10 @@
 'use client';
 
 import { useWallet } from '@/app/hooks/useWallet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import styles from './WalletModal.module.css';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -13,8 +15,39 @@ interface WalletModalProps {
 export default function WalletModal({ isOpen, onClose, isConnected }: WalletModalProps) {
   const { connectors, connect, disconnect, address, balanceFormatted, chainId } = useWallet();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [onClose]);
+
+  // Prevent body scroll when modal is open on mobile
+  useEffect(() => {
+    if (isOpen) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      
+      return () => {
+        document.body.style.overflow = originalStyle;
+        document.body.style.touchAction = 'auto';
+      };
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = 'auto';
+    }
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const handleConnect = async (connectorId: string) => {
     try {
@@ -41,97 +74,127 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+
+  const modalContent = (
+    <div 
+      className={styles.modalOverlay}
+      onClick={handleOverlayClick}
+    >
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="relative bg-gradient-to-b from-[#2d1810] to-[#1a0f08] border border-[#8b4513] rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#d4af37]">
-            {isConnected ? 'Wallet Connected' : 'Connect Wallet'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            ✕
-          </button>
-        </div>
+        className={styles.modalContainer}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className={styles.closeButton}
+        >
+          ✕
+        </button>
 
         {isConnected ? (
           /* Connected State */
-          <div className="space-y-4">
-            <div className="bg-[#1a0f08] rounded-lg p-4 border border-[#8b4513]/30">
-              <div className="text-sm text-gray-400 mb-1">Address</div>
-              <div className="text-white font-mono text-sm break-all">
-                {address && formatAddress(address)}
+          <div>
+            <div className={styles.header}>
+              <div className={styles.walletIcon}>
+                ✓
               </div>
+              <h2 className={styles.title}>Wallet Connected</h2>
             </div>
-            
-            {balanceFormatted && (
-              <div className="bg-[#1a0f08] rounded-lg p-4 border border-[#8b4513]/30">
-                <div className="text-sm text-gray-400 mb-1">Balance</div>
-                <div className="text-white font-semibold">
-                  {parseFloat(balanceFormatted).toFixed(4)} ETH
+
+            <div className={styles.connectedContent}>
+              <div className={styles.infoCard}>
+                <div className={styles.infoLabel}>Address</div>
+                <div className={styles.infoValue}>
+                  {address && formatAddress(address)}
                 </div>
               </div>
-            )}
+              
+              {balanceFormatted && (
+                <div className={styles.infoCard}>
+                  <div className={styles.infoLabel}>Balance</div>
+                  <div className={styles.infoValue}>
+                    {parseFloat(balanceFormatted).toFixed(4)} ETH
+                  </div>
+                </div>
+              )}
 
-            <div className="bg-[#1a0f08] rounded-lg p-4 border border-[#8b4513]/30">
-              <div className="text-sm text-gray-400 mb-1">Network</div>
-              <div className="text-white">
-                Chain ID: {chainId}
+              <div className={styles.infoCard}>
+                <div className={styles.infoLabel}>Network</div>
+                <div className={styles.infoValue}>
+                  Chain ID: {chainId}
+                </div>
               </div>
-            </div>
 
-            <button
-              onClick={handleDisconnect}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors font-semibold"
-            >
-              Disconnect Wallet
-            </button>
+              <button
+                onClick={handleDisconnect}
+                className={styles.disconnectButton}
+              >
+                Disconnect Wallet
+              </button>
+            </div>
           </div>
         ) : (
           /* Connection State */
-          <div className="space-y-3">
-            <p className="text-gray-300 text-sm mb-4">
+          <div>
+            <div className={styles.header}>
+              <div className={styles.walletIcon}>
+                <Image
+                  src="/images/ethereum-logo.svg"
+                  alt="Ethereum logo"
+                  width={24}
+                  height={39}
+                  className="object-contain"
+                />
+              </div>
+              <h2 className={styles.title}>Connect Wallet</h2>
+            </div>
+
+            <p className={styles.description}>
               Choose how you'd like to connect your wallet:
             </p>
-            
-            {connectors.map((connector) => (
-              <button
-                key={connector.id}
-                onClick={() => handleConnect(connector.id)}
-                disabled={!connector.ready || isConnecting}
-                className="w-full flex items-center space-x-3 p-4 bg-[#1a0f08] hover:bg-[#2d1810] border border-[#8b4513]/30 hover:border-[#d4af37]/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center text-black font-bold text-sm">
-                  {connector.name.charAt(0)}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="text-white font-semibold">{connector.name}</div>
-                  <div className="text-sm text-gray-400">
-                    {!connector.ready ? 'Not installed' : 'Ready to connect'}
+
+            <div className={styles.walletList}>
+              {connectors.map((connector) => (
+                <button
+                  key={connector.id}
+                  className={styles.walletButton}
+                  onClick={() => handleConnect(connector.id)}
+                  disabled={!connector.ready || isConnecting}
+                >
+                  <div className={styles.walletButtonIcon}>
+                    <Image
+                      src={connector.icon || '/images/metamask-wallet.webp'}
+                      alt={`${connector.name} logo`}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                      style={{ borderRadius: '12px' }}
+                    />
                   </div>
-                </div>
-                {isConnecting && (
-                  <div className="w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin" />
-                )}
-              </button>
-            ))}
-            
-            {/* <div className="text-xs text-gray-500 mt-4 text-center">
-              By connecting, you agree to our Terms of Service and Privacy Policy
-            </div> */}
+                  <div className={styles.walletButtonContent}>
+                    <div className={styles.walletButtonName}>{connector.name}</div>
+                    <div className={styles.walletButtonStatus}>
+                      {!connector.ready ? 'Not installed' : 'Ready to connect'}
+                    </div>
+                  </div>
+                  {isConnecting && (
+                    <div className={styles.loadingSpinner} />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

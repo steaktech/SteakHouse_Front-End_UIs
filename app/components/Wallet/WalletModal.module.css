@@ -1,0 +1,260 @@
+.modalOverlay {
+  /* Browns replacing previous grays */
+  --bg: #0d0704; /* deep backdrop */
+  --bg-elev: #1a0f08; /* sidebar/content base */
+  --bg-elev-2: #231611; /* header strips */
+  --surface: #2d1e17; /* panels/cards inner */
+  --text: #f5e6d3; /* primary text (warm ivory) */
+  --text-dim: #cbbba6; /* slightly brighter than muted for contrast */
+  --muted: #9b8976; /* muted labels */
+  --success: #4ade80; /* keep semantics */
+  --warn: #f7b500;
+  --danger: #ff4757;
+  --blue: #ffc936; /* accent-2 used as 'blue' highlight */
+  --focus: #ffc936; /* focus ring to match accent */
+  --border: #3a2418; /* warm brown border */
+  --card: #231611; /* card base */
+  --shadow: 0 16px 60px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  /* Gradient accents in brown/orange */
+  --g1: #f28c28; /* accent */
+  --g2: #ffb347; /* accent-2 */
+  --g3: #f28c28; /* deep brown */
+  --accent: linear-gradient(135deg, var(--g1), var(--g2) 60%, var(--g3));
+
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans';
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modalContainer {
+  background: radial-gradient(
+      1200px 800px at 85% -10%,
+      rgba(247, 181, 0, 0.1) 0%,
+      rgba(255, 201, 54, 0.06) 25%,
+      transparent 60%
+    ) no-repeat,
+    var(--bg);
+  color: var(--text);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 500px;
+  padding: 0;
+  position: relative;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 24px 16px;
+  flex-shrink: 0;
+}
+
+.walletIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 40px rgba(205, 120, 40, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #1a0f08;
+  font-weight: 700;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 18px;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  border-color: var(--g2);
+}
+
+.description {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 24px;
+  line-height: 1.4;
+  padding: 0 24px;
+}
+
+.walletList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 24px 24px;
+}
+
+.walletButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.walletButton:hover {
+  border-color: var(--g2);
+  background: linear-gradient(
+      180deg,
+      rgba(255, 179, 71, 0.05),
+      rgba(255, 179, 71, 0.02)
+    ),
+    var(--card);
+}
+
+.walletButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.walletButton:disabled:hover {
+  border-color: var(--border);
+  background: var(--card);
+}
+
+.walletButtonIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.walletButtonContent {
+  flex: 1;
+}
+
+.walletButtonName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.walletButtonStatus {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--g2);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Connected state styles */
+.connectedContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 24px 24px;
+}
+
+.infoCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.infoLabel {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.infoValue {
+  color: var(--text);
+  font-weight: 500;
+  font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+.disconnectButton {
+  background: #dc2626;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: center;
+  font-family: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.disconnectButton:hover {
+  background: #b91c1c;
+}
