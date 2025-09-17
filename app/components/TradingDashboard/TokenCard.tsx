@@ -210,7 +210,20 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           </div>
           <div className={styles.nameBlock}>
             <h1 className={styles.name}>{name}</h1>
-            <div className={styles.ticker}>{symbol}</div>
+            <div className={styles.tickerRow}>
+              <div className={styles.ticker}>{symbol}</div>
+              <nav className={styles.socialsTop} aria-label="Social links">
+                <button className={`${styles.socialBtn} ${styles.tg}`} aria-label="Telegram" title="Telegram">
+                  <Send size={16} />
+                </button>
+                <button className={`${styles.socialBtn} ${styles.x}`} aria-label="X (Twitter)" title="X">
+                  <TwitterIcon />
+                </button>
+                <button className={`${styles.socialBtn} ${styles.web}`} aria-label="Website" title="Website">
+                  <Globe size={16} />
+                </button>
+              </nav>
+            </div>
           </div>
         </div>
 
@@ -228,18 +241,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       <p className={styles.desc}>
         {description}
       </p>
-
-      <nav className={styles.socials} aria-label="Social links">
-        <button className={`${styles.socialBtn} ${styles.tg}`} aria-label="Telegram" title="Telegram">
-          <Send size={18} />
-        </button>
-        <button className={`${styles.socialBtn} ${styles.x}`} aria-label="X (Twitter)" title="X">
-          <TwitterIcon />
-        </button>
-        <button className={`${styles.socialBtn} ${styles.web}`} aria-label="Website" title="Website">
-          <Globe size={18} />
-        </button>
-      </nav>
 
       {/* Bottom panel: stats row + searing progress bar */}
       <section className={styles.score}>

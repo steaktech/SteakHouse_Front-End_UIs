@@ -146,8 +146,15 @@
   margin: 0;
 }
 
-.nameBlock .ticker {
+.nameBlock .tickerRow {
   margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.nameBlock .ticker {
   font-weight: 800;
   font-size: 12px;
   letter-spacing: 1.2px;
@@ -221,6 +228,12 @@
   margin-bottom: 16px;
 }
 
+.socialsTop {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .socialBtn {
   color: #fff1dc;
   width: 36px;
@@ -240,6 +253,13 @@
 
 .socialBtn:hover {
   border-color: rgba(255, 220, 170, 0.75);
+}
+
+/* Smaller social buttons for top position */
+.socialsTop .socialBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
 }
 
 /* Bottom panel: stats row + progress bar */
@@ -665,6 +685,16 @@
   
   .nameBlock .name {
     font-size: 20px;
+  }
+  
+  .nameBlock .tickerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .socialsTop {
+    align-self: stretch;
   }
   
   .scoreStats .statValue {
