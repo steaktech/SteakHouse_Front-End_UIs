@@ -125,10 +125,7 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
 
         <div className="mt-auto relative">
         <div className="bg-[#b15821] rounded-3xl">
-          <div className=" rounded-3xl p-3 
-                         relative overflow-hidden box-shadow-3
-                         bg-amber-950/50"
-          >
+          <div className="rounded-3xl p-3 relative overflow-hidden box-shadow-3 bg-amber-950/50">
             <div className="absolute inset-0 bg-gradient-radial from-white/10 via-transparent to-transparent 
                           bg-[radial-gradient(circle_at_100%_-40%,rgba(255,255,255,0.2),rgba(255,255,255,0)_22%)] 
                           rounded-xl pointer-events-none"></div>
