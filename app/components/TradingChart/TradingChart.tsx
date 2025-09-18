@@ -7,7 +7,7 @@ import { DesktopSidebar } from './DesktopSidebar';
 import { MobileBottomBar } from './MobileSidebar';
 import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
-import { MarketInfo } from './MarketInfo';
+import { TradingTokenCard } from './TradingTokenCard';
 import { TradePanel } from './TradePanel';
 import { FullscreenChart } from './FullscreenChart';
 import { OrientationPrompt } from './OrientationPrompt';
@@ -97,9 +97,21 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             <TradingView />
           </div>
 
-          {/* Market Info */}
+          {/* Token Card */}
           <div className="order-4 lg:col-start-2 lg:row-start-1 ">
-            <MarketInfo tokenAddress={tokenAddress} />
+            <TradingTokenCard 
+              imageUrl="/images/info_icon.jpg"
+              name="SPACE Token"
+              symbol="SPACE"
+              tag="MEME"
+              tagColor="#ffe49c"
+              description="A revolutionary space-themed meme token designed to take your portfolio to the moon and beyond!"
+              mcap="$2.5M"
+              liquidity="$450K"
+              volume="$1.2M"
+              progress={75}
+              token_address={tokenAddress}
+            />
           </div>
 
           {/* Trade Panel */}

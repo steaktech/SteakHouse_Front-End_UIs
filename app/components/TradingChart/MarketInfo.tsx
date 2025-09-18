@@ -64,71 +64,67 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
     <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
                    border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
       
-      {/* --- CHANGES START HERE --- */}
-
-      {/* Market Info Title for Mobile */}
-      <div className="md:hidden absolute top-4 left-1/2 -translate-x-1/2">
-        <h2 className="text-2xl font-bold text-[#fade79] [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">
+      {/* Top rounded image - Hidden on mobile (screens smaller than 'md') */}
+      <div className="hidden md:block absolute top-0 left-0 right-0 z-0">
+        <img 
+          src="/images/info_banner.jpg" 
+          alt="Token Header" 
+          className="w-full h-24 object-cover rounded-t-3xl"
+        />
+      </div>
+      
+      {/* Market Info Title for Mobile - positioned at very top */}
+      <div className="md:hidden mb-3">
+        <h2 className="text-xl font-bold text-[#fade79] text-center [text-shadow:-1px_-1px_1px_rgba(255,255,255,0.2),_1px_1px_2px_rgba(0,0,0,0.5)]">
             Market Info
         </h2>
       </div>
 
-      {/* Top rounded image - Hidden on mobile (screens smaller than 'md') */}
-      <div className="hidden md:block absolute top-0 left-0 right-0 mb-4">
-        <img 
-          src="/images/info_banner.jpg" 
-          alt="Token Header" 
-          className="w-full h-32 object-cover rounded-t-3xl"
-        />
-      </div>
-      
-      {/* Spacer div with responsive margin */}
-      <div className="mt-16 md:mt-32 mb-4"></div>
+      {/* Content container with proper spacing from banner */}
+      <div className="relative z-10 md:mt-20 flex flex-col gap-2 flex-1">
 
-      {/* --- CHANGES END HERE --- */}
-
-      <div className="flex items-center gap-8">
-        <div className="flex items-center space-x-3">
-          <img src="/images/info_icon.jpg" alt="Market Token" className="w-16 h-16 rounded-full border-2 border-amber-300" />
-          <div>
-            <h3 className="font-bold text-xl text-[#fade79] font-1.4rem">
-              {tokenData?.lastTrade?.name || 'Unknown Token'}
-            </h3>
-            <p className="font-bold text-xl text-[#f8ead3] font-1.4rem">
-              {tokenData?.lastTrade?.symbol || 'UNKNOWN'}
-            </p>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center space-x-3">
+            <img src="/images/info_icon.jpg" alt="Market Token" className="w-14 h-14 rounded-full border-2 border-amber-300" />
+            <div>
+              <h3 className="font-bold text-lg text-[#fade79] font-1.4rem">
+                {tokenData?.lastTrade?.name || 'Unknown Token'}
+              </h3>
+              <p className="font-bold text-lg text-[#f8ead3] font-1.4rem">
+                {tokenData?.lastTrade?.symbol || 'UNKNOWN'}
+              </p>
+            </div>
+          </div>
+          <div className="px-3 py-1 text-lg font-semibold rounded-md bg-[#fade79] text-black box-shadow-3">
+            MEME
           </div>
         </div>
-        <div className="px-3 py-1 text-xl font-semibold rounded-md bg-[#fade79] text-black box-shadow-3">
-          MEME
+        
+        <div className="text-amber-200 space-y-1">
+          <div className="flex items-center space-x-2 text-xs">
+            <p className='font-1.2rem font-bold'>Price: {formatPrice(tokenData?.price)}</p>
+            <div className="bg-[#2d1300] border border-amber-600/30 rounded-full px-2 py-1">
+              <p className="text-white">
+                Market Cap: <span className="text-yellow-400 font-semibold">{formatUSD(tokenData?.marketCap)}</span>
+              </p>
+            </div>
+          </div>
+          <p className="text-[#f8ead3] font-1.2rem">Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</p>
         </div>
-      </div>
-      
-      <div className="mt-4 text-amber-200 space-y-2">
-        <div className="flex items-center space-x-2 text-xs">
-          <p className='font-1.2rem font-bold'>Price: {formatPrice(tokenData?.price)}</p>
-          <div className="bg-[#2d1300] border border-amber-600/30 rounded-full px-2 py-1">
-            <p className="text-white">
-              Market Cap: <span className="text-yellow-400 font-semibold">{formatUSD(tokenData?.marketCap)}</span>
-            </p>
+
+        <div className="flex items-center space-x-3 text-yellow-200">
+          <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
+            <Send className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
+          </div>
+          <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center text-amber-800 border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
+            <TwitterIcon />
+          </div>
+          <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
+            <Globe className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
           </div>
         </div>
-        <p className="text-[#f8ead3] font-1.2rem">Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</p>
-      </div>
 
-      <div className="flex items-center space-x-3 mt-4 text-yellow-200">
-        <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
-          <Send className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
-        </div>
-        <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center text-amber-800 border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
-          <TwitterIcon />
-        </div>
-        <div className="bg-[#f8ead3]/80 rounded-full p-2 flex items-center justify-center border border-white/20 shadow-[inset_1px_1px_1px_white,inset_-1px_-1px_2px_rgba(134,60,4,0.7)]">
-          <Globe className="h-5 w-5 cursor-pointer hover:text-yellow-400 text-amber-800" />
-        </div>
-      </div>
-
-      <div className="mt-4 relative">
+        <div className="mt-auto relative">
         <div className="bg-[#b15821] rounded-3xl">
           <div className=" rounded-3xl p-3 
                          relative overflow-hidden box-shadow-3
