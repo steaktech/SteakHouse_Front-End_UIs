@@ -61,8 +61,7 @@ export const MarketInfo: React.FC<MarketInfoProps> = ({ tokenAddress }) => {
     );
   }
   return (
-    <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col 
-                   border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
+    <div className="box-shadow-1 bg-gradient-to-b from-[#532301] to-[#863c04] rounded-3xl p-4 text-white shadow-lg relative overflow-hidden h-full flex flex-col border border-2 border-t-white/10 border-l-white/10 border-b-black/30 border-r-black/30">
       
       {/* Top rounded image - Hidden on mobile (screens smaller than 'md') */}
       <div className="hidden md:block absolute top-0 left-0 right-0 z-0">
