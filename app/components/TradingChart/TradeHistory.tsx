@@ -6,7 +6,6 @@ interface TradeHistoryProps {
   tokenAddress: string;
 }
 
-
 export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
   const { data: tokenData, isLoading, error } = useTokenData(tokenAddress);
 
@@ -99,96 +98,26 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
             <table style={{ width: '100%', textAlign: 'left', fontSize: 'clamp(12px, 2.2vw, 14px)' }}>
               <thead>
                 <tr>
-                  <th style={{
-                    padding: 'clamp(8px, 1.5vh, 12px)',
-                    fontWeight: 800,
-                    fontSize: 'clamp(11px, 1.8vw, 13px)',
-                    color: '#ffe0b6',
-                    borderBottom: '1px solid rgba(255, 215, 165, 0.2)'
-                  }}>Date</th>
-                  <th style={{
-                    padding: 'clamp(8px, 1.5vh, 12px)',
-                    fontWeight: 800,
-                    fontSize: 'clamp(11px, 1.8vw, 13px)',
-                    color: '#ffe0b6',
-                    borderBottom: '1px solid rgba(255, 215, 165, 0.2)'
-                  }}>Type</th>
-                  <th style={{
-                    padding: 'clamp(8px, 1.5vh, 12px)',
-                    fontWeight: 800,
-                    fontSize: 'clamp(11px, 1.8vw, 13px)',
-                    color: '#ffe0b6',
-                    borderBottom: '1px solid rgba(255, 215, 165, 0.2)'
-                  }}>Amount ETH</th>
-                  <th style={{
-                    padding: 'clamp(8px, 1.5vh, 12px)',
-                    fontWeight: 800,
-                    fontSize: 'clamp(11px, 1.8vw, 13px)',
-                    color: '#ffe0b6',
-                    borderBottom: '1px solid rgba(255, 215, 165, 0.2)'
-                  }}>Amount Tokens</th>
-                  <th style={{
-                    padding: 'clamp(8px, 1.5vh, 12px)',
-                    fontWeight: 800,
-                    fontSize: 'clamp(11px, 1.8vw, 13px)',
-                    color: '#ffe0b6',
-                    borderBottom: '1px solid rgba(255, 215, 165, 0.2)'
-                  }}>USD Value</th>
-                  <th style={{
-                    padding: 'clamp(8px, 1.5vh, 12px)',
-                    fontWeight: 800,
-                    fontSize: 'clamp(11px, 1.8vw, 13px)',
-                    color: '#ffe0b6',
-                    borderBottom: '1px solid rgba(255, 215, 165, 0.2)'
-                  }}>TX</th>
+                  <th style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffe0b6', borderBottom: '1px solid rgba(255, 215, 165, 0.2)' }}>Date</th>
+                  <th style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffe0b6', borderBottom: '1px solid rgba(255, 215, 165, 0.2)' }}>Type</th>
+                  <th style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffe0b6', borderBottom: '1px solid rgba(255, 215, 165, 0.2)' }}>Amount ETH</th>
+                  <th style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffe0b6', borderBottom: '1px solid rgba(255, 215, 165, 0.2)' }}>Amount Tokens</th>
+                  <th style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffe0b6', borderBottom: '1px solid rgba(255, 215, 165, 0.2)' }}>USD Value</th>
+                  <th style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: '#ffe0b6', borderBottom: '1px solid rgba(255, 215, 165, 0.2)' }}>TX</th>
                 </tr>
               </thead>
               <tbody>
                 {tokenData?.recentTrades?.length ? (
                   tokenData.recentTrades.map((trade: Trade, index: number) => (
-                    <tr key={`${trade.txHash}-${index}`} style={{
-                      borderBottom: index < tokenData.recentTrades.length - 1 ? '1px solid rgba(255, 215, 165, 0.1)' : 'none'
-                    }}>
-                      <td style={{
-                        padding: 'clamp(8px, 1.5vh, 12px)',
-                        color: '#feea88',
-                        fontWeight: 600,
-                        fontSize: 'clamp(11px, 1.8vw, 13px)'
-                      }}>{formatDate(trade.timestamp)}</td>
-                      <td style={{
-                        padding: 'clamp(8px, 1.5vh, 12px)',
-                        fontWeight: 800,
-                        fontSize: 'clamp(11px, 1.8vw, 13px)',
-                        color: trade.type === 'BUY' ? '#4ade80' : '#f87171',
-                        textTransform: 'uppercase'
-                      }}>
+                    <tr key={`${trade.txHash}-${index}`} style={{ borderBottom: index < tokenData.recentTrades.length - 1 ? '1px solid rgba(255, 215, 165, 0.1)' : 'none' }}>
+                      <td style={{ padding: 'clamp(8px, 1.5vh, 12px)', color: '#feea88', fontWeight: 600, fontSize: 'clamp(11px, 1.8vw, 13px)' }}>{formatDate(trade.timestamp)}</td>
+                      <td style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 800, fontSize: 'clamp(11px, 1.8vw, 13px)', color: trade.type === 'BUY' ? '#4ade80' : '#f87171', textTransform: 'uppercase' }}>
                         {trade.type}
                       </td>
-                      <td style={{
-                        padding: 'clamp(8px, 1.5vh, 12px)',
-                        fontWeight: 700,
-                        fontSize: 'clamp(11px, 1.8vw, 13px)',
-                        color: trade.type === 'BUY' ? '#4ade80' : '#f87171'
-                      }}>{formatNumber(trade.amountEth)}</td>
-                      <td style={{
-                        padding: 'clamp(8px, 1.5vh, 12px)',
-                        fontWeight: 700,
-                        fontSize: 'clamp(11px, 1.8vw, 13px)',
-                        color: trade.type === 'BUY' ? '#4ade80' : '#f87171'
-                      }}>{formatNumber(trade.amountTokens)}</td>
-                      <td style={{
-                        padding: 'clamp(8px, 1.5vh, 12px)',
-                        fontWeight: 700,
-                        fontSize: 'clamp(11px, 1.8vw, 13px)',
-                        color: trade.type === 'BUY' ? '#4ade80' : '#f87171'
-                      }}>{formatUSD(trade.usdValue)}</td>
-                      <td style={{
-                        padding: 'clamp(8px, 1.5vh, 12px)',
-                        color: '#feea88',
-                        fontWeight: 600,
-                        fontSize: 'clamp(10px, 1.6vw, 12px)',
-                        fontFamily: 'monospace'
-                      }}>
+                      <td style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 700, fontSize: 'clamp(11px, 1.8vw, 13px)', color: trade.type === 'BUY' ? '#4ade80' : '#f87171' }}>{formatNumber(trade.amountEth)}</td>
+                      <td style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 700, fontSize: 'clamp(11px, 1.8vw, 13px)', color: trade.type === 'BUY' ? '#4ade80' : '#f87171' }}>{formatNumber(trade.amountTokens)}</td>
+                      <td style={{ padding: 'clamp(8px, 1.5vh, 12px)', fontWeight: 700, fontSize: 'clamp(11px, 1.8vw, 13px)', color: trade.type === 'BUY' ? '#4ade80' : '#f87171' }}>{formatUSD(trade.usdValue)}</td>
+                      <td style={{ padding: 'clamp(8px, 1.5vh, 12px)', color: '#feea88', fontWeight: 600, fontSize: 'clamp(10px, 1.6vw, 12px)', fontFamily: 'monospace' }}>
                         <a 
                           href={`https://etherscan.io/tx/${trade.txHash}`} 
                           target="_blank" 
@@ -198,8 +127,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
                             textDecoration: 'none',
                             cursor: 'pointer'
                           }}
-                          onMouseEnter={(e) => e.target.style.color = '#fff1dc'}
-                          onMouseLeave={(e) => e.target.style.color = '#feea88'}
+                          onMouseEnter={(e) => e.currentTarget.style.color = '#fff1dc'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = '#feea88'}
                         >
                           {formatTxHash(trade.txHash)}
                         </a>
@@ -208,30 +137,11 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} style={{
-                      padding: 'clamp(24px, 4vh, 32px)',
-                      textAlign: 'center',
-                      color: '#ffe0b6',
-                      fontSize: 'clamp(14px, 2.5vw, 16px)',
-                      fontWeight: 600,
-                      opacity: 0.8
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 'clamp(8px, 1.5vh, 12px)'
-                      }}>
-                        <div style={{
-                          fontSize: 'clamp(32px, 5vw, 48px)',
-                          opacity: 0.5
-                        }}>📊</div>
+                    <td colSpan={6} style={{ padding: 'clamp(24px, 4vh, 32px)', textAlign: 'center', color: '#ffe0b6', fontSize: 'clamp(14px, 2.5vw, 16px)', fontWeight: 600, opacity: 0.8 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.5vh, 12px)' }}>
+                        <div style={{ fontSize: 'clamp(32px, 5vw, 48px)', opacity: 0.5 }}>📊</div>
                         <div>No trade history available</div>
-                        <div style={{
-                          fontSize: 'clamp(12px, 2vw, 14px)',
-                          opacity: 0.6,
-                          fontWeight: 400
-                        }}>Trade history will appear here once transactions are made</div>
+                        <div style={{ fontSize: 'clamp(12px, 2vw, 14px)', opacity: 0.6, fontWeight: 400 }}>Trade history will appear here once transactions are made</div>
                       </div>
                     </td>
                   </tr>
@@ -243,4 +153,4 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
       </div>
     </div>
   );
-}; 
+};
