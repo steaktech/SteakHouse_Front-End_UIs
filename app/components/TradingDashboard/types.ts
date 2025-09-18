@@ -19,6 +19,7 @@ export interface TokenCardProps {
   graduation_cap?: string;
   category?: string | null;
   token_address: string;
+  isSaved?: boolean;
 }
 
 export interface FilterButtonProps {

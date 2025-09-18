@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { Globe, Send } from 'lucide-react';
+import { Globe, Send, Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
+import { useSaveToken } from '@/app/hooks/useSaveToken';
+import { useWallet } from '@/app/hooks/useWallet';
 import styles from './TokenCard.module.css';
 
 export const TokenCard: React.FC<TokenCardProps> = ({ 
@@ -20,7 +22,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   circulating_supply,
   graduation_cap,
   category,
-  token_address
+  token_address,
+  isSaved = false
 }) => {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -29,6 +32,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const labelRef = useRef<HTMLDivElement>(null);
   const flamesRef = useRef<HTMLDivElement>(null);
   const sparkTimer = useRef<NodeJS.Timeout | null>(null);
+  
+  // Save token functionality
+  const { isSaved: savedState, isLoading: isSaveLoading, toggleSave } = useSaveToken(token_address, isSaved);
+  const { isConnected } = useWallet();
 
   // Handle card click for navigation
   const handleCardClick = () => {
@@ -39,6 +46,12 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const handleSocialClick = (e: React.MouseEvent, action: () => void) => {
     e.stopPropagation();
     action();
+  };
+
+  // Handle save button click
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleSave();
   };
 
   // Normalize percentage (0-1 or 0-100 to 0-100)
@@ -258,7 +271,27 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             />
           </div>
           <div className={styles.nameBlock}>
+            <div className={styles.nameRow}>
             <h1 className={styles.name}>{name}</h1>
+              <div className={styles.rightSection}>
+                <div className={styles.badge}>{category || "N/A"}</div>
+                {isConnected && (
+                  <button 
+                    className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''}`}
+                    aria-label={savedState ? "Remove from saved" : "Save token"}
+                    title={savedState ? "Remove from saved" : "Save token"}
+                    onClick={handleSaveClick}
+                    disabled={isSaveLoading}
+                    style={{ 
+                      opacity: isSaveLoading ? 0.6 : 1,
+                      color: savedState ? '#ffdd00' : '#fff1dc'
+                    }}
+                  >
+                    <Bookmark size={16} fill={savedState ? 'currentColor' : 'none'} />
+                  </button>
+                )}
+              </div>
+            </div>
             <div className={styles.symbolRow}>
               <div className={styles.ticker}>{symbol}</div>
               <nav className={styles.socials} aria-label="Social links">
@@ -299,9 +332,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             </div>
           </div>
         </div>
-
-        <div className={styles.badge}>{category || "N/A"}</div>
       </header>
+
 
       <section className={styles.taxLine}>
         <div className={styles.taxStrong}>Tax: 3/3</div>
