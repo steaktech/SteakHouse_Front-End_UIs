@@ -81,66 +81,25 @@ export const TradePanel: React.FC<TradePanelProps> = ({
 
   // Handle the actual trading when user confirms
   const handleConfirmTrade = async () => {
-    // console.log('🎯 Trade button clicked', {
-    //   activeTab,
-    //   amount,
-    //   tokenAddress,
-    //   isConnected,
-    //   isReady,
-    //   tradingState: tradingState.isTrading
-    // });
-
-    // If wallet not connected, open wallet modal
     if (!isConnected) {
-      //console.log('👛 Wallet not connected, opening modal');
       setIsWalletModalOpen(true);
       return;
     }
 
-    // If already trading, ignore click
     if (tradingState.isTrading) {
-      //console.log('⏳ Already trading, ignoring click');
       return;
     }
 
-    // If no amount entered, ignore
     if (!amount || parseFloat(amount) <= 0) {
-      //console.log('❌ No valid amount entered:', amount);
       return;
     }
 
-    // Clear any previous status
     clearStatus();
 
     try {
       if (activeTab === 'buy') {
-        //console.log('🟢 Executing BUY transaction...');
-        
-        // 🔍 DEBUG: Test basic conversions before calling buyToken
-        // console.log('🧪 Pre-transaction Debug:', {
-        //   inputAmount: amount,
-        //   inputType: typeof amount,
-        //   parsedAmount: parseFloat(amount),
-        //   isValidNumber: !isNaN(parseFloat(amount)),
-        //   tokenAddress: tokenAddress,
-        //   addressLength: tokenAddress?.length
-        // });
-        
         await buyToken(tokenAddress, amount);
       } else {
-        //console.log('🔴 Executing SELL transaction...');
-        
-        // 🔍 DEBUG: Test ETH amount conversion for sell
-        // console.log('🧪 Pre-sell Debug:', {
-        //   inputAmount: amount,
-        //   inputType: typeof amount,
-        //   parsedAmount: parseFloat(amount),
-        //   isValidNumber: !isNaN(parseFloat(amount)),
-        //   tokenAddress: tokenAddress,
-        //   note: 'Selling with ETH amount - will be converted to token amount in service'
-        // });
-        
-        // For sell, we pass the ETH amount and let the service handle the conversion
         await sellToken(tokenAddress, amount);
       }
     } catch (error) {
@@ -332,7 +291,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             className="no-spinner"
             value={amount}
             onChange={(e) => {
-              // Only allow numbers and decimal point
               const value = e.target.value;
               if (value === '' || /^\d*\.?\d*$/.test(value)) {
                 setAmount(value);
@@ -356,12 +314,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             onWheel={(e) => e.currentTarget.blur()}
             placeholder="0"
             onFocus={(e) => {
-              e.target.style.border = `2px solid ${activeTab === 'buy' ? '#4ade80' : '#f87171'}`;
-              e.target.style.boxShadow = `0 0 0 2px ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+              e.currentTarget.style.border = `2px solid ${activeTab === 'buy' ? '#4ade80' : '#f87171'}`;
+              e.currentTarget.style.boxShadow = `0 0 0 2px ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
             }}
             onBlur={(e) => {
-              e.target.style.border = `2px solid ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
-              e.target.style.boxShadow = 'none';
+              e.currentTarget.style.border = `2px solid ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
+              e.currentTarget.style.boxShadow = 'none';
             }}
           />
           <button style={{
@@ -458,12 +416,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({
           opacity: (isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1
         }}
         onMouseEnter={(e) => {
-          e.target.style.transform = 'translateY(-1px)';
-          e.target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.transform = 'translateY(0)';
-          e.target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
         }}
       >
         {!isConnected 
