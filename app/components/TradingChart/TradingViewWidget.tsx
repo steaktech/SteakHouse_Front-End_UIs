@@ -6,6 +6,21 @@ declare global {
   interface Window {
     TradingView: any;
   }
+  
+  interface ScreenOrientation extends EventTarget {
+    lock(orientation: OrientationLockType): Promise<void>;
+    unlock(): void;
+  }
+  
+  type OrientationLockType = 
+    | "any"
+    | "natural"
+    | "landscape"
+    | "portrait"
+    | "portrait-primary"
+    | "portrait-secondary"
+    | "landscape-primary"
+    | "landscape-secondary";
 }
 
 interface TradingViewWidgetProps {
@@ -133,14 +148,17 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       if (containerRef.current.requestFullscreen) {
         await containerRef.current.requestFullscreen();
       }
-      if (screen.orientation && screen.orientation.lock) {
+      // Type-safe orientation lock
+      if (screen.orientation && typeof (screen.orientation as ScreenOrientation).lock === 'function') {
         try {
-          await screen.orientation.lock("landscape");
+          await (screen.orientation as ScreenOrientation).lock("landscape");
         } catch (err) {
           console.warn("Orientation lock not supported:", err);
         }
       }
-    } catch {}
+    } catch (error) {
+      console.warn("Fullscreen request failed:", error);
+    }
     containerRef.current.classList.add("fullscreen");
     setIsFullscreen(true);
     widgetRef.current?.resize?.();
@@ -152,14 +170,17 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-      if (screen.orientation && (screen.orientation as any).unlock) {
+      // Type-safe orientation unlock
+      if (screen.orientation && typeof (screen.orientation as ScreenOrientation).unlock === 'function') {
         try {
-          (screen.orientation as any).unlock();
+          (screen.orientation as ScreenOrientation).unlock();
         } catch (err) {
           console.warn("Orientation unlock not supported:", err);
         }
       }
-    } catch {}
+    } catch (error) {
+      console.warn("Exit fullscreen failed:", error);
+    }
     containerRef.current.classList.remove("fullscreen");
     setIsFullscreen(false);
     widgetRef.current?.resize?.();
