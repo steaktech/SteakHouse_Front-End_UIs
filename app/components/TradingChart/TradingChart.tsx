@@ -87,7 +87,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <div className="flex flex-1 text-white font-sans overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+          <DesktopSidebar 
+            expanded={sidebarExpanded} 
+            setExpanded={setSidebarExpanded} 
+            tokenAddress={tokenAddress}
+          />
         </div>
         
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 pb-16 lg:pb-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded">
@@ -131,6 +135,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <MobileBottomBar 
         expanded={mobileSidebarExpanded} 
         setExpanded={setMobileSidebarExpanded}
+        tokenAddress={tokenAddress}
         onChartFullscreen={handleChartFullscreen}
       />
 

@@ -30,6 +30,7 @@ export interface DistributionSegment {
   label: string;
   value: number;
   color: string;
+  address?: string;
 }
 
 export interface FilterState {
@@ -55,6 +56,7 @@ export interface SteakHoldersWidgetState {
 export interface SteakHoldersWidgetProps {
   isOpen: boolean;
   onClose: () => void;
+  tokenAddress?: string;
   data?: {
     token: TokenData;
     holders: HolderData[];

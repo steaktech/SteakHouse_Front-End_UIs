@@ -48,6 +48,7 @@ interface ExtendedSidebarProps extends SidebarProps {
 export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({ 
   expanded, 
   setExpanded, 
+  tokenAddress,
   onChartFullscreen 
 }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
@@ -144,6 +145,7 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       <SteakHoldersWidget 
         isOpen={isHoldersWidgetOpen}
         onClose={() => setIsHoldersWidgetOpen(false)}
+        tokenAddress={tokenAddress}
       />
 
       {/* Chat Widget */}

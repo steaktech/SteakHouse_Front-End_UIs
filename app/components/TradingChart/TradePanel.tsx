@@ -221,21 +221,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         gap: 'clamp(4px, 1vw, 8px)',
         flexWrap: 'wrap'
       }}>
-        <button style={{
-          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-          border: '1px solid rgba(255, 210, 160, 0.4)',
-          borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          color: '#feea88',
-          fontSize: 'clamp(8px, 1.4vw, 10px)',
-          fontWeight: 700,
-          cursor: 'pointer',
-          transition: 'all 200ms ease',
-          flex: 1
-        }}>
-          Switch to REAL
-        </button>
 
         <button 
           onClick={handleBuyMaxTx}
@@ -348,24 +333,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         marginBottom: 'clamp(6px, 1.5vh, 14px)',
         gap: 'clamp(3px, 0.8vw, 6px)'
       }}>
-        <button
-          onClick={() => handleQuickAmount('Reset')}
-          style={{
-            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-            border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: 'clamp(8px, 1.8vw, 12px)',
-            padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-            color: '#feea88',
-            fontSize: 'clamp(8px, 1.4vw, 10px)',
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 200ms ease',
-            flex: 1
-          }}
-        >
-          Reset
-        </button>
         {quickAmounts.map((preset) => (
           <button
             key={preset}

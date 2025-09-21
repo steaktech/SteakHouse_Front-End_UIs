@@ -614,3 +614,40 @@ body.fullscreen-chart-active {
     height: calc(100dvh - 50px);
   }
 }
+
+/* ======================================
+   TRADINGVIEW WIDGET FULLSCREEN STYLES
+   ====================================== */
+
+/* Fullscreen styles for TradingView widget */
+.fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  background-color: #07040b !important;
+  overflow: hidden !important;
+}
+
+/* Ensure the TradingView widget fills the fullscreen container */
+.fullscreen .tradingview-widget,
+.fullscreen iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* Hide scrollbars in fullscreen mode */
+.fullscreen::-webkit-scrollbar {
+  display: none;
+}
+
+.fullscreen {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}

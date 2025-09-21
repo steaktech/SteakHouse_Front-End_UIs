@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from './SteakHoldersWidget.module.css';
+import { useHoldersData } from '@/app/hooks/useHoldersData';
 import { 
   SteakHoldersWidgetProps, 
   SteakHoldersWidgetState, 
@@ -191,6 +192,7 @@ const cap = (s: string): string => {
 export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({ 
   isOpen, 
   onClose, 
+  tokenAddress,
   data 
 }) => {
   const [state, setState] = useState<SteakHoldersWidgetState>({
@@ -203,6 +205,17 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
 
   const [filteredHolders, setFilteredHolders] = useState<ProcessedHolderData[]>([]);
   const [distributionSegments, setDistributionSegments] = useState<DistributionSegment[]>([]);
+
+  // Fetch real holders data when tokenAddress is provided
+  const { 
+    data: holdersData, 
+    loading: holdersLoading, 
+    error: holdersError,
+    refetch: refetchHolders
+  } = useHoldersData({
+    tokenAddress,
+    enabled: isOpen && !!tokenAddress
+  });
 
   // Load dataset
   const loadDataset = useCallback((dataset: typeof demoData) => {
@@ -221,46 +234,78 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     setState(prev => ({ ...prev, dataset: newDataset }));
   }, []);
 
-  // Initialize with demo data or provided data
-  useEffect(() => {
-    loadDataset(data || demoData);
-  }, [data, loadDataset]);
+  // Load API data when available
+  const loadApiDataset = useCallback((apiData: NonNullable<typeof holdersData>) => {
+    const total = apiData.token.totalSupply;
+    const holders = apiData.holders.map((h) => ({
+      address: h.address,
+      label: h.label,
+      tx: h.tx,
+      balance: h.balance,
+      percent: h.percent, // Already calculated by API
+      valueUSD: h.valueUSD, // Will be 0 for now (N/A)
+    }));
+    
+    const newDataset: DatasetType = { 
+      token: { 
+        name: apiData.token.name,
+        symbol: apiData.token.symbol,
+        chain: apiData.token.chain,
+        address: apiData.token.address,
+        priceUSD: apiData.token.priceUSD,
+        totalSupply: apiData.token.totalSupply
+      }, 
+      holders 
+    };
+    
+    setState(prev => ({ ...prev, dataset: newDataset }));
+  }, []);
 
-  // Build distribution segments
+  // Initialize with API data, fallback to provided data, then demo data
+  useEffect(() => {
+    if (holdersData) {
+      console.log('📊 Loading API holders data');
+      loadApiDataset(holdersData);
+    } else if (data) {
+      console.log('📊 Loading provided data');
+      loadDataset(data);
+    } else {
+      console.log('📊 Loading demo data');
+      loadDataset(demoData);
+    }
+  }, [holdersData, data, loadApiDataset, loadDataset]);
+
+  // Build distribution segments - now showing top 5 holders
   const buildDistribution = useCallback(() => {
     if (!state.dataset) return [];
 
     const { holders } = state.dataset;
-    const colors = {
-      team: "#8C7BFF",
-      exchange: "#2bd899",
-      contract: "#ff9f43",
-      burn: "#ff5c5c",
-      others: "#9c7a4c",
-    };
+    const colors = ["#FFB000", "#8C7BFF", "#2bd899", "#ff9f43", "#ff5c5c", "#9c7a4c"];
 
-    const top10 = [...holders].sort((a, b) => b.percent - a.percent).slice(0, 10);
-    const top10Share = top10.reduce((s, h) => s + h.percent, 0);
+    // Get top 5 holders
+    const top5 = [...holders].sort((a, b) => b.percent - a.percent).slice(0, 5);
+    const top5Share = top5.reduce((s, h) => s + h.percent, 0);
+    
+    // Calculate others percentage
+    const othersPercent = Math.max(0, 100 - top5Share);
 
-    const sum = (lbl: string) => {
-      return holders
-        .filter((h) => h.label === lbl)
-        .reduce((s, h) => s + h.percent, 0);
-    };
+    // Create segments for top 5 holders
+    const segments = top5.map((holder, index) => ({
+      label: `#${index + 1} ${holder.address.slice(0, 6)}...${holder.address.slice(-4)}`,
+      value: holder.percent,
+      color: colors[index] || colors[colors.length - 1],
+      address: holder.address
+    }));
 
-    const buckets = [
-      { label: "Team", value: sum("team"), color: colors.team },
-      { label: "Exchanges", value: sum("exchange"), color: colors.exchange },
-      { label: "Contracts", value: sum("contract"), color: colors.contract },
-      { label: "Burn", value: sum("burn"), color: colors.burn },
-    ];
-
-    const others = Math.max(0, 100 - buckets.reduce((s, b) => s + b.value, 0));
-    buckets.push({ label: "Others", value: others, color: colors.others });
-
-    const segments = [
-      { label: "Top 10", value: top10Share, color: "#FFB000" },
-    ].concat(buckets.filter((b) => b.value > 0.05));
+    // Add others segment if there's remaining percentage
+    if (othersPercent > 0.1) {
+      segments.push({
+        label: "Others",
+        value: othersPercent,
+        color: colors[5],
+        address: ""
+      });
+    }
 
     return segments;
   }, [state.dataset]);
@@ -420,11 +465,87 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
           fontSize="12"
           fontWeight="900"
         >
-          {segments.find(s => s.label === "Top 10") ? PCT(segments.find(s => s.label === "Top 10")!.value) : "—"}
+          Top 5
         </text>
       </svg>
     );
   };
+
+  // Show loading state
+  if (holdersLoading && !state.dataset) {
+    return (
+      <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
+        <div className={styles.overlay} onClick={onClose} />
+        <aside className={styles.panel} role="dialog" aria-modal="true">
+          <header className={styles.header}>
+            <div className={styles.icon}>H</div>
+            <div>
+              <div className={styles.title}>Holders</div>
+              <div className={styles.sub}>Loading token data...</div>
+            </div>
+            <div className={styles.spacer} />
+            <button className={styles.btn} onClick={onClose} title="Close">Close</button>
+          </header>
+          <div className={styles.body}>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ffd79a' }}>
+              <div>Loading holders data...</div>
+              {tokenAddress && (
+                <div style={{ marginTop: '10px', fontSize: '14px', opacity: 0.7 }}>
+                  Token: {tokenAddress.slice(0, 8)}...{tokenAddress.slice(-6)}
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (holdersError && !state.dataset) {
+    return (
+      <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
+        <div className={styles.overlay} onClick={onClose} />
+        <aside className={styles.panel} role="dialog" aria-modal="true">
+          <header className={styles.header}>
+            <div className={styles.icon}>H</div>
+            <div>
+              <div className={styles.title}>Holders</div>
+              <div className={styles.sub}>Error loading data</div>
+            </div>
+            <div className={styles.spacer} />
+            <button className={styles.btn} onClick={refetchHolders} title="Retry">Retry</button>
+            <button className={styles.btn} onClick={onClose} title="Close">Close</button>
+          </header>
+          <div className={styles.body}>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ff5c5c' }}>
+              <div>Failed to load holders data</div>
+              <div style={{ marginTop: '10px', fontSize: '14px' }}>{holdersError}</div>
+              {tokenAddress && (
+                <div style={{ marginTop: '10px', fontSize: '14px', opacity: 0.7 }}>
+                  Token: {tokenAddress.slice(0, 8)}...{tokenAddress.slice(-6)}
+                </div>
+              )}
+              <button 
+                onClick={refetchHolders}
+                style={{ 
+                  marginTop: '20px', 
+                  padding: '10px 20px', 
+                  background: '#8C7BFF', 
+                  border: 'none', 
+                  borderRadius: '6px',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    );
+  }
 
   if (!state.dataset) return null;
 
@@ -454,14 +575,16 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
             <section className={styles.card}>
               <div className={styles.row} style={{ gap: '14px', marginBottom: '10px' }}>
                 <div className={styles.tokenLogo}>
-                  {token.symbol.slice(0, 2).toUpperCase()}
+                  {token.symbol === "N/A" ? "??" : token.symbol.slice(0, 2).toUpperCase()}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className={styles.row} style={{ gap: '8px', alignItems: 'center' }}>
                     <div className={styles.tokenTitle}>
-                      {token.name} ({token.symbol})
+                      {token.name === "N/A" ? `Token ${short(token.address)}` : `${token.name} (${token.symbol})`}
                     </div>
-                    <span className={styles.pill}>{token.chain}</span>
+                    <span className={styles.pill}>
+                      {token.chain === "N/A" ? "EVM Network" : token.chain}
+                    </span>
                     <span className={styles.pill}>Holders: {EN.format(holders.length)}</span>
                   </div>
                   <div className={styles.row} style={{ marginTop: '6px' }}>
@@ -478,15 +601,21 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
               <div className={styles.kpis}>
                 <div className={styles.kpi}>
                   <div className={`${styles.lbl} lbl`}>Price</div>
-                  <div className={`${styles.val} val`}>{USD.format(token.priceUSD)}</div>
+                  <div className={`${styles.val} val`}>
+                    {token.priceUSD === 0 ? "N/A" : USD.format(token.priceUSD)}
+                  </div>
                 </div>
                 <div className={styles.kpi}>
                   <div className={`${styles.lbl} lbl`}>Market Cap</div>
-                  <div className={`${styles.val} val`}>{formatCompactCurrency(token.priceUSD * token.totalSupply)}</div>
+                  <div className={`${styles.val} val`}>
+                    {token.priceUSD === 0 ? "N/A" : formatCompactCurrency(token.priceUSD * token.totalSupply)}
+                  </div>
                 </div>
                 <div className={styles.kpi}>
                   <div className={`${styles.lbl} lbl`}>Total Supply</div>
-                  <div className={`${styles.val} val`}>{formatCompactNumber(token.totalSupply)} {token.symbol}</div>
+                  <div className={`${styles.val} val`}>
+                    {formatCompactNumber(token.totalSupply)} {token.symbol === "N/A" ? "Tokens" : token.symbol}
+                  </div>
                 </div>
                 <div className={styles.kpi}>
                   <div className={`${styles.lbl} lbl`}>Top 10 share</div>
@@ -501,7 +630,22 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                     {distributionSegments.map((segment, index) => (
                       <div key={index} className={styles.item}>
                         <div className={styles.dot} style={{ background: segment.color }} />
-                        <span className={styles.legendLbl}>{segment.label}</span>
+                        <span 
+                          className={styles.legendLbl}
+                          style={{ 
+                            cursor: segment.address ? 'pointer' : 'default',
+                            textDecoration: segment.address ? 'underline' : 'none'
+                          }}
+                          onClick={() => {
+                            if (segment.address) {
+                              navigator.clipboard.writeText(segment.address);
+                              console.log('Copied address:', segment.address);
+                            }
+                          }}
+                          title={segment.address ? `Click to copy: ${segment.address}` : segment.label}
+                        >
+                          {segment.label}
+                        </span>
                         <span className={styles.legendVal}>{PCT(segment.value)}</span>
                       </div>
                     ))}
@@ -646,11 +790,15 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                           </div>
                         </td>
                         <td className={`${styles.val} num`}>
-                          {EN.format(holder.balance)} {token.symbol}
+                          {EN.format(holder.balance)} {token.symbol === "N/A" ? "Tokens" : token.symbol}
                         </td>
                         <td className={`${styles.pct} num`}>{PCT(holder.percent)}</td>
-                        <td className={`${styles.val} num`}>{USD.format(holder.valueUSD)}</td>
-                        <td className={`${styles.muted} num`}>{EN.format(holder.tx)}</td>
+                        <td className={`${styles.val} num`}>
+                          {holder.valueUSD === 0 ? "N/A" : USD.format(holder.valueUSD)}
+                        </td>
+                        <td className={`${styles.muted} num`}>
+                          {holder.tx === 0 ? "N/A" : EN.format(holder.tx)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
