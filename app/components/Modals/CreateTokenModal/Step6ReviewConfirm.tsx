@@ -104,7 +104,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     entries.push(['Total supply', `${b.totalSupply} (raw) × 1e18`]);
     
     if (state.deploymentMode === 'VIRTUAL_CURVE') {
-      entries.push(['Graduation cap', b.gradCap]);
+      entries.push(['Graduation cap', b.gradCap ? `$${Number(b.gradCap).toLocaleString()}` : '—']);
       entries.push(['Start time', b.startMode === 'NOW' ? 'Now (0)' : `At ${b.startTime} (epoch seconds)`]);
       entries.push(['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn']);
       entries.push(['Stealth', b.stealth ? 'Yes' : 'No']);

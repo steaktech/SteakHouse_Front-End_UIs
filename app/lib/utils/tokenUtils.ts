@@ -48,20 +48,43 @@ export function getMarketCap(token: Token): number {
 }
 
 /**
- * Calculates progress towards graduation cap
+ * Current ETH price in USD (in production, this would come from an API)
  */
-export function calculateGraduationProgress(ethPool: string, graduationCap: string): number {
-  const currentPool = parseFloat(ethPool);
-  const graduationCapValue = parseFloat(graduationCap);
+const ETH_PRICE_USD = 2000;
+
+/**
+ * Converts dollar amount to ETH value
+ */
+export function dollarsToETH(dollarAmount: number): number {
+  return dollarAmount / ETH_PRICE_USD;
+}
+
+/**
+ * Converts ETH amount to dollar value
+ */
+export function ethToDollars(ethAmount: number): number {
+  return ethAmount * ETH_PRICE_USD;
+}
+
+/**
+ * Calculates progress towards graduation cap
+ * The graduation cap is specified in dollars but converted to ETH for comparison with the ETH pool
+ */
+export function calculateGraduationProgress(ethPool: string, graduationCapDollars: string): number {
+  const currentPoolWei = parseFloat(ethPool);
+  const graduationCapDollarValue = parseFloat(graduationCapDollars);
   
-  if (isNaN(currentPool) || isNaN(graduationCapValue) || graduationCapValue === 0) {
+  if (isNaN(currentPoolWei) || isNaN(graduationCapDollarValue) || graduationCapDollarValue === 0) {
     return 0;
   }
   
-  // Convert from wei to ETH (assuming values are in wei)
-  const currentPoolETH = currentPool / 1e18;
-  const graduationCapETH = graduationCapValue / 1e18;
+  // Convert ETH pool from wei to ETH
+  const currentPoolETH = currentPoolWei / 1e18;
   
+  // Convert dollar graduation cap to ETH equivalent
+  const graduationCapETH = dollarsToETH(graduationCapDollarValue);
+  
+  // Calculate progress based on ETH values
   const progress = (currentPoolETH / graduationCapETH) * 100;
   return Math.min(progress, 100);
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-// EthereumIcon component remains the same
+// EthereumIcon component
 const EthereumIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 256 417" fill="currentColor">
     <path d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z" fill="#343434" />
@@ -14,19 +14,40 @@ const EthereumIcon = () => (
   </svg>
 );
 
+// QuestionMarkIcon component
+const QuestionMarkIcon = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+  </svg>
+);
+
 export const TradePanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [amount, setAmount] = useState('0');
 
-  const quickAmounts = ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'];
+  // Dynamic quick amounts based on buy/sell mode
+  const quickAmounts = activeTab === 'buy' 
+    ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
+    : ['25%', '50%', '75%', '100%'];
 
   const handleQuickAmount = (value: string) => {
-    if (value === 'Reset') {
-      setAmount('0');
-    } else if (value === 'Max') {
-      setAmount('10.0'); // Example max amount
+    if (activeTab === 'buy') {
+      if (value === 'Max') {
+        setAmount('10.0'); // Example max amount
+      } else {
+        setAmount(value.split(' ')[0]);
+      }
     } else {
-      setAmount(value.split(' ')[0]);
+      // For sell mode, handle percentage values
+      if (value === '25%') {
+        setAmount('25');
+      } else if (value === '50%') {
+        setAmount('50');
+      } else if (value === '75%') {
+        setAmount('75');
+      } else if (value === '100%') {
+        setAmount('100');
+      }
     }
   };
 
@@ -55,7 +76,7 @@ export const TradePanel: React.FC = () => {
       borderRadius: 'clamp(18px, 2.5vw, 26px)',
       background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-      padding: 'clamp(16px, 3vh, 22px)',
+      padding: 'clamp(12px, 2vh, 16px)',
       border: '1px solid rgba(255, 215, 165, 0.4)',
       overflow: 'hidden',
       color: '#fff7ea',
@@ -73,7 +94,7 @@ export const TradePanel: React.FC = () => {
         background: 'linear-gradient(180deg, #7f4108, #6f3906)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-        marginBottom: 'clamp(12px, 2vh, 16px)',
+        marginBottom: 'clamp(8px, 1.5vh, 12px)',
         padding: '4px'
       }}>
         {/* Sliding Background */}
@@ -140,59 +161,49 @@ export const TradePanel: React.FC = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 'clamp(12px, 2vh, 16px)',
-        gap: 'clamp(4px, 1vw, 8px)',
+        marginBottom: 'clamp(8px, 1.5vh, 12px)',
+        gap: 'clamp(6px, 1.5vw, 12px)',
         flexWrap: 'wrap'
       }}>
         <button style={{
           background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
           border: '1px solid rgba(255, 210, 160, 0.4)',
-          borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+          borderRadius: 'clamp(10px, 2.2vw, 14px)',
+          padding: 'clamp(6px, 1.2vh, 8px) clamp(12px, 2.4vw, 16px)',
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
           color: '#feea88',
-          fontSize: 'clamp(8px, 1.4vw, 10px)',
-          fontWeight: 700,
+          fontSize: 'clamp(10px, 1.8vw, 13px)',
+          fontWeight: 800,
           cursor: 'pointer',
           transition: 'all 200ms ease',
-          flex: 1
-        }}>
-          Switch to REAL
-        </button>
-
-        <button style={{
-          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-          border: '1px solid rgba(255, 210, 160, 0.4)',
-          borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          color: '#feea88',
-          fontSize: 'clamp(8px, 1.4vw, 10px)',
-          fontWeight: 700,
-          cursor: 'pointer',
-          transition: 'all 200ms ease',
-          flex: 1
+          flex: 1,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
         }}>Buy max TX</button>
 
         <button style={{
           background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
           border: '1px solid rgba(255, 210, 160, 0.4)',
-          borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+          borderRadius: 'clamp(10px, 2.2vw, 14px)',
+          padding: 'clamp(6px, 1.2vh, 8px) clamp(12px, 2.4vw, 16px)',
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
           color: '#feea88',
-          fontSize: 'clamp(8px, 1.4vw, 10px)',
-          fontWeight: 700,
+          fontSize: 'clamp(10px, 1.8vw, 13px)',
+          fontWeight: 800,
           cursor: 'pointer',
           transition: 'all 200ms ease',
-          flex: 1
+          flex: 1,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
         }}>Set max slippage</button>
       </div>
 
       {/* Amount Input */}
       <div style={{
         position: 'relative',
-        marginBottom: 'clamp(12px, 2vh, 16px)',
+        marginBottom: 'clamp(8px, 1.5vh, 12px)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center'
@@ -255,7 +266,7 @@ export const TradePanel: React.FC = () => {
             cursor: 'pointer',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
           }}>
-            <EthereumIcon />
+            {activeTab === 'buy' ? <EthereumIcon /> : <QuestionMarkIcon />}
           </button>
         </div>
       </div>
@@ -265,27 +276,9 @@ export const TradePanel: React.FC = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 'clamp(6px, 1.5vh, 14px)',
-        gap: 'clamp(3px, 0.8vw, 6px)'
+        marginBottom: 'clamp(6px, 1vh, 10px)',
+        gap: 'clamp(4px, 1vw, 8px)'
       }}>
-        <button
-          onClick={() => handleQuickAmount('Reset')}
-          style={{
-            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-            border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: 'clamp(8px, 1.8vw, 12px)',
-            padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-            color: '#feea88',
-            fontSize: 'clamp(8px, 1.4vw, 10px)',
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 200ms ease',
-            flex: 1
-          }}
-        >
-          Reset
-        </button>
         {quickAmounts.map((preset) => (
           <button
             key={preset}
@@ -293,15 +286,19 @@ export const TradePanel: React.FC = () => {
             style={{
               background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
               border: '1px solid rgba(255, 210, 160, 0.4)',
-              borderRadius: 'clamp(8px, 1.8vw, 12px)',
-              padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+              borderRadius: 'clamp(10px, 2vw, 14px)',
+              padding: 'clamp(12px, 2.2vh, 16px) clamp(8px, 1.6vw, 12px)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
               color: '#feea88',
-              fontSize: 'clamp(8px, 1.4vw, 10px)',
-              fontWeight: 700,
+              fontSize: 'clamp(11px, 1.9vw, 14px)',
+              fontWeight: 800,
               cursor: 'pointer',
               transition: 'all 200ms ease',
-              flex: 1
+              flex: 1,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minHeight: 'clamp(42px, 8vh, 48px)'
             }}
           >
             {preset}
@@ -318,8 +315,8 @@ export const TradePanel: React.FC = () => {
             : 'linear-gradient(180deg, #f87171, #ef4444)',
           color: '#1f2937',
           fontWeight: 800,
-          fontSize: 'clamp(16px, 3.2vw, 20px)',
-          padding: 'clamp(14px, 3vh, 18px)',
+          fontSize: 'clamp(13px, 2.4vw, 16px)',
+          padding: 'clamp(10px, 2vh, 14px)',
           borderRadius: 'clamp(14px, 3vw, 20px)',
           border: 'none',
           cursor: 'pointer',
@@ -328,7 +325,8 @@ export const TradePanel: React.FC = () => {
           textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
           marginTop: 'auto',
           flexShrink: 0,
-          letterSpacing: '0.5px'
+          letterSpacing: '0.5px',
+          minHeight: 'clamp(40px, 6vh, 46px)'
         }}
         onMouseEnter={(e) => {
           const target = e.target as HTMLButtonElement;

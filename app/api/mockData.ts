@@ -1,4 +1,6 @@
 // Mock token data for development
+// Note: graduation_cap values are in USD but internally converted to ETH for calculations
+// When ETH price changes, the effective graduation threshold changes accordingly
 import type { Token } from '@/app/types/token';
 
 export const mockTokens: Token[] = [
@@ -13,7 +15,7 @@ export const mockTokens: Token[] = [
     symbol: 'ZEUS',
     total_supply: '1000000000',
     token_type: 0, // Meme
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420', // $69,420 USD (converted to ETH internally)
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '5',
@@ -62,7 +64,7 @@ export const mockTokens: Token[] = [
     symbol: 'APOLLO',
     total_supply: '500000000',
     token_type: 1, // Utility
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '4',
@@ -111,7 +113,7 @@ export const mockTokens: Token[] = [
     symbol: 'HADES',
     total_supply: '1000000000',
     token_type: 2, // AI
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '6',
@@ -160,7 +162,7 @@ export const mockTokens: Token[] = [
     symbol: 'HERA',
     total_supply: '2000000000',
     token_type: 3, // X-post
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '3',
@@ -209,7 +211,7 @@ export const mockTokens: Token[] = [
     symbol: 'ARES',
     total_supply: '750000000',
     token_type: 0, // Meme
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '2',
@@ -258,7 +260,7 @@ export const mockTokens: Token[] = [
     symbol: 'ATHENA',
     total_supply: '1500000000',
     token_type: 1, // Utility
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: '0x1111111111111111111111111111111111111111',
     steakhouse_treasury_basic: '0x2222222222222222222222222222222222222222',
     curve_starting_tax: '8',
@@ -307,7 +309,7 @@ export const mockTokens: Token[] = [
     symbol: 'POSDN',
     total_supply: '300000000',
     token_type: 2, // AI
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '7',
@@ -356,7 +358,7 @@ export const mockTokens: Token[] = [
     symbol: 'ARTMS',
     total_supply: '2500000000',
     token_type: 3, // X-post
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '4',
@@ -405,7 +407,7 @@ export const mockTokens: Token[] = [
     symbol: 'DION',
     total_supply: '5000000000',
     token_type: 0, // Meme
-    graduation_cap: '69420000000000000000',
+    graduation_cap: '69420',
     tax_wallet: null,
     steakhouse_treasury_basic: null,
     curve_starting_tax: '5',

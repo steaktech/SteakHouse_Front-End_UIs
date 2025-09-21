@@ -123,7 +123,7 @@ export const CustomDatePicker = ({ value, onChange, name }: { value: string, onC
 
 // SVG Icon Components (can be in their own files)
 const CalendarIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-300/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: '#d97706', filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))' }}>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
     </svg>
 );

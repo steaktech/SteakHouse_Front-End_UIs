@@ -88,14 +88,14 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
         </div>
         <div className={styles.card}>
           <label className={styles.label}>
-            Graduation Cap
-            <HelpTooltip content="How many tokens need to be bought before your token graduates to a full exchange. Leave empty to use total supply." />
+            Graduation Cap ($)
+            <HelpTooltip content="The dollar value target your token must reach before it graduates to a full exchange. This represents the market cap goal, not token quantity." />
           </label>
           <input
             className={`${styles.input} ${errors.gradCap ? styles.fieldError : ''}`}
             value={basics.gradCap}
             onChange={(e) => onBasicsChange('gradCap', e.target.value)}
-            placeholder="Leave empty for default"
+            placeholder="e.g., 100000 (for $100K market cap)"
           />
           {errors.gradCap && <div className={styles.error}>{errors.gradCap}</div>}
         </div>
@@ -137,7 +137,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
         <div className={styles.card}>
           <div className={styles.label}>
             Liquidity
-            <HelpTooltip content="Choose what happens to liquidity tokens after graduation. Lock = secure but recoverable, Burn = permanent and trustless." />
+            <HelpTooltip content="Choose what happens to liquidity tokens after graduation. Lock = secure but recoverable by the creator of the token, Burn = permanent and trustless." />
           </div>
           <div className={styles.segmented}>
             <div
@@ -200,7 +200,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
                 />
                 <span className={styles.switchLabel}>
                   Stealth Mode
-                  <HelpTooltip content="Your token won't appear in public listings until you're ready to reveal it. Good for building hype." className="ml-2" />
+                  <HelpTooltip content="Your token won't appear in public listings until you're ready to reveal it. Good for keeping your investors private and selected." className="ml-2" />
                 </span>
               </label>
             </div>

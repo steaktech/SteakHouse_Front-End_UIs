@@ -144,9 +144,10 @@ export function validateBasics(basics: any): { isValid: boolean; errors: Record<
   }
 
   if (basics.gradCap?.trim()) {
-    const capOK = isInt(basics.gradCap.trim()) && totalOK && BigInt(basics.gradCap.trim()) <= BigInt(totalSupply);
+    const capValue = Number(basics.gradCap.trim());
+    const capOK = !isNaN(capValue) && capValue > 0;
     if (!capOK) {
-      errors.gradCap = "Graduation cap must be ≤ total supply.";
+      errors.gradCap = "Graduation cap must be a positive dollar amount.";
     }
   }
 
