@@ -19,11 +19,13 @@ export default function TradingChart() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
+  const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
   const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
+  const [copiedItem, setCopiedItem] = useState<string | null>(null);
 
   // Sample token data for the TokenCard
   const sampleTokenData: TokenCardProps = {
@@ -125,6 +127,43 @@ export default function TradingChart() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Copy to clipboard function
+  const copyToClipboard = async (text: string, itemId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItem(itemId);
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopiedItem(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedItem(itemId);
+        setTimeout(() => setCopiedItem(null), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed: ', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // Handlers for Buy/Sell buttons
+  const handleBuyClick = () => {
+    setSelectedTradeTab('buy');
+    setIsMobileTradeOpen(true);
+  };
+
+  const handleSellClick = () => {
+    setSelectedTradeTab('sell');
+    setIsMobileTradeOpen(true);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#07040b]">
       {/* Header */}
@@ -186,37 +225,135 @@ export default function TradingChart() {
           <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
             {/* Mock transaction data */}
             {[
-              { type: 'Buy', amount: '1.25K ASTER', price: '$1.43', time: '2m ago', positive: true },
-              { type: 'Sell', amount: '850 ASTER', price: '$1.44', time: '5m ago', positive: false },
-              { type: 'Buy', amount: '2.1K ASTER', price: '$1.42', time: '8m ago', positive: true },
-              { type: 'Sell', amount: '750 ASTER', price: '$1.45', time: '12m ago', positive: false },
-              { type: 'Buy', amount: '3.2K ASTER', price: '$1.41', time: '15m ago', positive: true },
-              { type: 'Sell', amount: '1.8K ASTER', price: '$1.46', time: '18m ago', positive: false },
+              { 
+                type: 'Buy', 
+                amount: '1.25K ASTER', 
+                ethAmount: '0.0032 ETH',
+                price: '$1.43', 
+                time: '2m ago',
+                fullDate: '2024-01-15 14:23:45 UTC',
+                address: '0x742d35Cc6C4b73C2C4c02B8b8f42e62e2E5F6f12',
+                txHash: '0xa1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456',
+                positive: true 
+              },
+              { 
+                type: 'Sell', 
+                amount: '850 ASTER', 
+                ethAmount: '0.0025 ETH',
+                price: '$1.44', 
+                time: '5m ago',
+                fullDate: '2024-01-15 14:18:12 UTC',
+                address: '0x8f9e2a1b3c4d5e6f7890123456789012345678ab',
+                txHash: '0xb2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678',
+                positive: false 
+              },
+              { 
+                type: 'Buy', 
+                amount: '2.1K ASTER', 
+                ethAmount: '0.0055 ETH',
+                price: '$1.42', 
+                time: '8m ago',
+                fullDate: '2024-01-15 14:15:33 UTC',
+                address: '0x123456789012345678901234567890123456789a',
+                txHash: '0xc3d4e5f6789012345678901234567890abcdef1234567890abcdef123456789a',
+                positive: true 
+              },
+              { 
+                type: 'Sell', 
+                amount: '750 ASTER', 
+                ethAmount: '0.0021 ETH',
+                price: '$1.45', 
+                time: '12m ago',
+                fullDate: '2024-01-15 14:11:07 UTC',
+                address: '0xabcdef1234567890123456789012345678901234',
+                txHash: '0xd4e5f6789012345678901234567890abcdef1234567890abcdef123456789abc',
+                positive: false 
+              },
+              { 
+                type: 'Buy', 
+                amount: '3.2K ASTER', 
+                ethAmount: '0.0089 ETH',
+                price: '$1.41', 
+                time: '15m ago',
+                fullDate: '2024-01-15 14:08:19 UTC',
+                address: '0x567890123456789012345678901234567890abcd',
+                txHash: '0xe5f6789012345678901234567890abcdef1234567890abcdef123456789abcde',
+                positive: true 
+              },
+              { 
+                type: 'Sell', 
+                amount: '1.8K ASTER', 
+                ethAmount: '0.0048 ETH',
+                price: '$1.46', 
+                time: '18m ago',
+                fullDate: '2024-01-15 14:05:42 UTC',
+                address: '0x9012345678901234567890123456789012345678',
+                txHash: '0xf6789012345678901234567890abcdef1234567890abcdef123456789abcdef1',
+                positive: false 
+              },
             ].map((tx, index) => (
-              <div key={index} className="flex items-center justify-between py-3 px-4 bg-gradient-to-r from-[#7f4108] to-[#6f3906] border border-[#daa20b]/30 rounded-lg">
-                <div className="flex items-center gap-3">
-                  {/* Prominent Buy/Sell Icon */}
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
-                    tx.positive 
-                      ? 'bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black border-green-300 shadow-lg shadow-green-500/30' 
-                      : 'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-red-300 shadow-lg shadow-red-500/30'
-                  }`}>
-                    {tx.positive ? '↗' : '↘'}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold tracking-wide ${
-                        tx.positive ? 'text-[#4ade80]' : 'text-[#ef4444]'
-                      }`}>
-                        {tx.type.toUpperCase()}
-                      </span>
-                      <span className="text-[#feea88] text-xs font-medium">{tx.amount}</span>
+              <div key={index} className="py-3 px-4 bg-gradient-to-r from-[#7f4108] to-[#6f3906] border border-[#daa20b]/30 rounded-lg space-y-2">
+                {/* Header Row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Prominent Buy/Sell Icon */}
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                      tx.positive 
+                        ? 'bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black border-green-300 shadow-lg shadow-green-500/30' 
+                        : 'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-red-300 shadow-lg shadow-red-500/30'
+                    }`}>
+                      {tx.positive ? '↗' : '↘'}
                     </div>
-                    <div className="text-[#daa20b]/70 text-xs">{tx.time}</div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-bold tracking-wide ${
+                          tx.positive ? 'text-[#4ade80]' : 'text-[#ef4444]'
+                        }`}>
+                          {tx.type.toUpperCase()}
+                        </span>
+                        <span className="text-[#feea88] text-xs font-medium">{tx.amount}</span>
+                      </div>
+                      <div className="text-[#daa20b]/70 text-xs">{tx.time}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[#feea88] text-sm font-bold">{tx.price}</div>
+                    <div className="text-[#daa20b] text-xs">{tx.ethAmount}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-[#feea88] text-sm font-bold">{tx.price}</div>
+                
+                {/* Address Row */}
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#daa20b]/60 font-medium">Address:</span>
+                    <button
+                      onClick={() => copyToClipboard(tx.address, `address-${index}`)}
+                      className={`text-[#feea88] font-mono bg-black/20 px-2 py-1 rounded hover:bg-black/40 transition-all cursor-pointer ${
+                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : ''
+                      }`}
+                      title="Click to copy address"
+                    >
+                      {copiedItem === `address-${index}` ? '✓ Copied!' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
+                    </button>
+                  </div>
+                  <div className="text-[#daa20b]/70">{tx.fullDate}</div>
+                </div>
+                
+                {/* TX Hash Row */}
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-[#daa20b]/60 font-medium">TX:</span>
+                  <button
+                    onClick={() => copyToClipboard(tx.txHash, `txhash-${index}`)}
+                    className={`text-[#feea88] font-mono bg-black/20 px-2 py-1 rounded flex-1 break-all hover:bg-black/40 transition-all cursor-pointer text-left ${
+                      copiedItem === `txhash-${index}` ? 'bg-green-900/40 text-green-300' : ''
+                    }`}
+                    title="Click to copy transaction hash"
+                  >
+                    {copiedItem === `txhash-${index}` ? '✓ Copied to clipboard!' : tx.txHash}
+                  </button>
+                  <button className="text-[#4ade80] hover:text-[#22c55e] transition-colors flex-shrink-0" title="View on blockchain explorer">
+                    ↗
+                  </button>
                 </div>
               </div>
             ))}
@@ -227,10 +364,10 @@ export default function TradingChart() {
       {/* Fixed Buy/Sell bar for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
         <div className="px-4 py-3 grid grid-cols-2 gap-3 max-w-screen-md mx-auto">
-          <button onClick={() => setIsMobileTradeOpen(true)} type="button" className="w-full p-0 bg-transparent">
+          <button onClick={handleBuyClick} type="button" className="w-full p-0 bg-transparent">
             <div style={buyInnerStyle}>BUY</div>
           </button>
-          <button onClick={() => setIsMobileTradeOpen(true)} type="button" className="w-full p-0 bg-transparent">
+          <button onClick={handleSellClick} type="button" className="w-full p-0 bg-transparent">
             <div style={sellInnerStyle}>SELL</div>
           </button>
         </div>
@@ -249,7 +386,7 @@ export default function TradingChart() {
                 </button>
               </div>
               <div className="p-3 overflow-y-auto">
-                <TradePanel />
+                <TradePanel initialTab={selectedTradeTab} />
               </div>
             </div>
           </div>

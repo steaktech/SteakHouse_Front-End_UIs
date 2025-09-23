@@ -21,9 +21,18 @@ const QuestionMarkIcon = () => (
   </svg>
 );
 
-export const TradePanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+interface TradePanelProps {
+  initialTab?: 'buy' | 'sell';
+}
+
+export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) => {
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>(initialTab);
   const [amount, setAmount] = useState('0');
+
+  // Update activeTab when initialTab prop changes
+  React.useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   // Dynamic quick amounts based on buy/sell mode
   const quickAmounts = activeTab === 'buy' 
