@@ -292,68 +292,76 @@ export default function TradingChart() {
                 positive: false 
               },
             ].map((tx, index) => (
-              <div key={index} className="py-3 px-4 bg-gradient-to-r from-[#7f4108] to-[#6f3906] border border-[#daa20b]/30 rounded-lg space-y-2">
-                {/* Header Row */}
+              <div key={index} className="py-2 px-3 bg-gradient-to-r from-[#7f4108] to-[#6f3906] border border-[#daa20b]/30 rounded-lg space-y-1.5">
+                {/* Main Transaction Row - Now on top */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {/* Prominent Buy/Sell Icon */}
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                  <div className="flex items-center gap-2">
+                    {/* Compact Buy/Sell Icon */}
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border ${
                       tx.positive 
-                        ? 'bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black border-green-300 shadow-lg shadow-green-500/30' 
-                        : 'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-red-300 shadow-lg shadow-red-500/30'
+                        ? 'bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black border-green-300' 
+                        : 'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-red-300'
                     }`}>
                       {tx.positive ? '↗' : '↘'}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold tracking-wide ${
+                        <span className={`text-xs font-bold ${
                           tx.positive ? 'text-[#4ade80]' : 'text-[#ef4444]'
                         }`}>
                           {tx.type.toUpperCase()}
                         </span>
-                        <span className="text-[#feea88] text-xs font-medium">{tx.amount}</span>
+                        <span className="text-[#feea88] text-xs">{tx.amount}</span>
+                        <span className="text-[#daa20b] text-xs">({tx.ethAmount})</span>
                       </div>
-                      <div className="text-[#daa20b]/70 text-xs">{tx.time}</div>
+                      <div className="text-[#daa20b] text-xs font-medium">{tx.time}</div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-[#feea88] text-sm font-bold">{tx.price}</div>
-                    <div className="text-[#daa20b] text-xs">{tx.ethAmount}</div>
                   </div>
                 </div>
                 
-                {/* Address Row */}
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#daa20b]/60 font-medium">Address:</span>
-                    <button
-                      onClick={() => copyToClipboard(tx.address, `address-${index}`)}
-                      className={`text-[#feea88] font-mono bg-black/20 px-2 py-1 rounded hover:bg-black/40 transition-all cursor-pointer ${
-                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : ''
-                      }`}
-                      title="Click to copy address"
-                    >
-                      {copiedItem === `address-${index}` ? '✓ Copied!' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
-                    </button>
-                  </div>
-                  <div className="text-[#daa20b]/70">{tx.fullDate}</div>
-                </div>
-                
-                {/* TX Hash Row */}
+                {/* TX Hash Row - Moved below */}
                 <div className="flex items-center gap-2 text-xs">
                   <span className="text-[#daa20b]/60 font-medium">TX:</span>
                   <button
                     onClick={() => copyToClipboard(tx.txHash, `txhash-${index}`)}
-                    className={`text-[#feea88] font-mono bg-black/20 px-2 py-1 rounded flex-1 break-all hover:bg-black/40 transition-all cursor-pointer text-left ${
+                    className={`text-[#feea88] font-mono bg-black/20 px-1.5 py-0.5 rounded flex-1 break-all hover:bg-black/40 transition-all cursor-pointer text-left text-xs ${
                       copiedItem === `txhash-${index}` ? 'bg-green-900/40 text-green-300' : ''
                     }`}
                     title="Click to copy transaction hash"
                   >
-                    {copiedItem === `txhash-${index}` ? '✓ Copied to clipboard!' : tx.txHash}
+                    {copiedItem === `txhash-${index}` ? '✓ Copied!' : tx.txHash}
                   </button>
-                  <button className="text-[#4ade80] hover:text-[#22c55e] transition-colors flex-shrink-0" title="View on blockchain explorer">
-                    ↗
+                  <button 
+                    onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
+                    className="hover:opacity-80 transition-opacity flex-shrink-0" 
+                    title="View on Etherscan"
+                  >
+                    <img 
+                      src="/images/etherscan_logo.webp" 
+                      alt="Etherscan" 
+                      className="w-4 h-4" 
+                    />
                   </button>
+                </div>
+                
+                {/* Address and Date Row */}
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[#daa20b]/60">From:</span>
+                    <button
+                      onClick={() => copyToClipboard(tx.address, `address-${index}`)}
+                      className={`text-[#feea88] font-mono bg-black/20 px-1.5 py-0.5 rounded hover:bg-black/40 transition-all cursor-pointer text-xs ${
+                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : ''
+                      }`}
+                      title="Click to copy address"
+                    >
+                      {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
+                    </button>
+                  </div>
+                  <div className="text-[#daa20b]/70 text-xs">{tx.fullDate}</div>
                 </div>
               </div>
             ))}
