@@ -304,17 +304,15 @@ export default function TradingChart() {
                     }`}>
                       {tx.positive ? '↗' : '↘'}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold ${
-                          tx.positive ? 'text-[#4ade80]' : 'text-[#ef4444]'
-                        }`}>
-                          {tx.type.toUpperCase()}
-                        </span>
-                        <span className="text-[#feea88] text-xs">{tx.amount}</span>
-                        <span className="text-[#daa20b] text-xs">({tx.ethAmount})</span>
-                      </div>
-                      <div className="text-[#daa20b] text-xs font-medium">{tx.time}</div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold ${
+                        tx.positive ? 'text-[#4ade80]' : 'text-[#ef4444]'
+                      }`}>
+                        {tx.type.toUpperCase()}
+                      </span>
+                      <span className="text-[#feea88] text-xs">{tx.amount}</span>
+                      <span className="text-[#daa20b] text-xs">({tx.ethAmount})</span>
+                      <span className="text-[#daa20b] text-xs font-medium">{tx.time}</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -322,32 +320,7 @@ export default function TradingChart() {
                   </div>
                 </div>
                 
-                {/* TX Hash Row - Moved below */}
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-[#daa20b]/60 font-medium">TX:</span>
-                  <button
-                    onClick={() => copyToClipboard(tx.txHash, `txhash-${index}`)}
-                    className={`text-[#feea88] font-mono bg-black/20 px-1.5 py-0.5 rounded flex-1 break-all hover:bg-black/40 transition-all cursor-pointer text-left text-xs ${
-                      copiedItem === `txhash-${index}` ? 'bg-green-900/40 text-green-300' : ''
-                    }`}
-                    title="Click to copy transaction hash"
-                  >
-                    {copiedItem === `txhash-${index}` ? '✓ Copied!' : tx.txHash}
-                  </button>
-                  <button 
-                    onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
-                    className="hover:opacity-80 transition-opacity flex-shrink-0" 
-                    title="View on Etherscan"
-                  >
-                    <img 
-                      src="/images/etherscan_logo.webp" 
-                      alt="Etherscan" 
-                      className="w-4 h-4" 
-                    />
-                  </button>
-                </div>
-                
-                {/* Address and Date Row */}
+                {/* From Address and Date Row */}
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[#daa20b]/60">From:</span>
@@ -361,7 +334,20 @@ export default function TradingChart() {
                       {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
                     </button>
                   </div>
-                  <div className="text-[#daa20b]/70 text-xs">{tx.fullDate}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-[#daa20b]/70 text-xs">{tx.fullDate}</div>
+                    <button 
+                      onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
+                      className="hover:opacity-80 transition-opacity flex-shrink-0" 
+                      title="View on Etherscan"
+                    >
+                      <img 
+                        src="/images/etherscan_logo.webp" 
+                        alt="Etherscan" 
+                        className="w-4 h-4" 
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
