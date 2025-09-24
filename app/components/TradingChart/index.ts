@@ -3,7 +3,6 @@ export { DesktopSidebar } from './DesktopSidebar';
 export { MobileBottomBar } from './MobileSidebar';
 export { TradingView } from './TradingView';
 export { TradingViewWidget } from './TradingViewWidget';
-export { TradeHistory } from './TradeHistory';
 export { TradePanel } from './TradePanel';
 export { FullscreenChart } from './FullscreenChart';
 export * from './types';

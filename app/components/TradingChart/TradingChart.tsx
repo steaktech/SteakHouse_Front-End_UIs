@@ -6,7 +6,7 @@ import TrendingBar from "@/app/components/TrendingBar";
 import { DesktopSidebar } from './DesktopSidebar';
 import { MobileBottomBar } from './MobileSidebar';
 import { TradingView } from './TradingView';
-import { TradeHistory } from './TradeHistory';
+import { TradeHistory } from '../Widgets/TradingHistoryWidget';
 import { TradingTokenCard } from '../Widgets/TokenCardInfoWidget';
 import { TradePanel } from './TradePanel';
 import { FullscreenChart } from './FullscreenChart';
@@ -122,8 +122,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             <TradePanel tokenAddress={tokenAddress} />
           </div>
 
-          {/* Trade History */}
-          <div className="order-3 lg:col-start-1 lg:row-start-2">
+          {/* Trade History - Desktop only, mobile uses popup from sidebar */}
+          <div className="order-3 lg:col-start-1 lg:row-start-2 hidden lg:block">
             <TradeHistory tokenAddress={tokenAddress} />
           </div>
 

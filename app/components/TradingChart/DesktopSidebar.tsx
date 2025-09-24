@@ -8,6 +8,7 @@ import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { TokenCardInfoWidget } from '../Widgets/TokenCardInfoWidget';
+import { TradingHistoryWidget } from '../Widgets/TradingHistoryWidget';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -65,6 +66,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
   const [isTokenInfoWidgetOpen, setIsTokenInfoWidgetOpen] = useState(false);
+  const [isTradeHistoryWidgetOpen, setIsTradeHistoryWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -82,11 +84,15 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
     setIsTokenInfoWidgetOpen(true);
   };
 
+  const handleTradeHistoryClick = () => {
+    setIsTradeHistoryWidgetOpen(true);
+  };
+
   const widgets = [
     // Updated icon size to 18px to match the CSS
     { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },
     { icon: <Coins size={18} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenInfoClick },
-    { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade' },
+    { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade', onClick: handleTradeHistoryClick },
     { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
@@ -176,6 +182,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       <TokenCardInfoWidget
         isOpen={isTokenInfoWidgetOpen}
         onClose={() => setIsTokenInfoWidgetOpen(false)}
+        tokenAddress={tokenAddress}
+      />
+      
+      <TradingHistoryWidget
+        isOpen={isTradeHistoryWidgetOpen}
+        onClose={() => setIsTradeHistoryWidgetOpen(false)}
         tokenAddress={tokenAddress}
       />
     </>
