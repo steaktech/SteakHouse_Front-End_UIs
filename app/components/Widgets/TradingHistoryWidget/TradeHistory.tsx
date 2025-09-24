@@ -94,7 +94,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
             <p>Error loading trades: {error}</p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto', overflowY: 'auto', height: '100%' }}>
+          <div className="trade-history-scrollbar" style={{ overflowX: 'auto', overflowY: 'auto', height: '100%' }}>
             <table style={{ width: '100%', textAlign: 'left', fontSize: 'clamp(12px, 2.2vw, 14px)' }}>
               <thead>
                 <tr>

@@ -22,17 +22,29 @@ export const TradingHistoryWidget: React.FC<TradingHistoryWidgetProps> = ({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Mobile popup version - centered trade history
+  // Mobile popup version - wrapper like SavedToken
   const MobilePopupVersion = () => (
     <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
       <div className={styles.overlay} onClick={onClose} />
       
-      <div className={styles.centeredCard}>
-        <button className={styles.closeBtn} onClick={onClose} title="Close">
-          <X size={20} />
-        </button>
-        <TradeHistory tokenAddress={tokenAddress} />
-      </div>
+      <aside className={styles.panel} role="dialog" aria-modal="true">
+        <header className={styles.header}>
+          <div className={styles.icon}>H</div>
+          <div>
+            <div className={styles.title}>Trade History</div>
+            <div className={styles.sub}>Recent trading activity</div>
+          </div>
+          <div className={styles.spacer} />
+          <button className={styles.btn} title="Pin widget">Pin</button>
+          <button className={styles.btn} onClick={onClose} title="Close">
+            <X size={14} />
+          </button>
+        </header>
+
+        <div className={styles.body}>
+          <TradeHistory tokenAddress={tokenAddress} />
+        </div>
+      </aside>
     </div>
   );
 
