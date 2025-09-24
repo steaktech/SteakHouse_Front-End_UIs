@@ -170,6 +170,25 @@ export default function TradingChart() {
       <Header />
 
 
+      {/* Progress Bar - Mobile Only */}
+      <div className="lg:hidden bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
+          <span className="text-[#feea88] text-xs font-bold">{sampleTokenData.progress}%</span>
+        </div>
+        <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
+          <div 
+            className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
+            style={{
+              width: `${sampleTokenData.progress}%`,
+              boxShadow: '0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/40 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-1 text-white font-sans overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
