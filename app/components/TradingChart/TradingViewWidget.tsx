@@ -1,26 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 declare global {
   interface Window {
     TradingView: any;
   }
-  
-  interface ScreenOrientation extends EventTarget {
-    lock(orientation: OrientationLockType): Promise<void>;
-    unlock(): void;
-  }
-  
-  type OrientationLockType = 
-    | "any"
-    | "natural"
-    | "landscape"
-    | "portrait"
-    | "portrait-primary"
-    | "portrait-secondary"
-    | "landscape-primary"
-    | "landscape-secondary";
 }
 
 interface TradingViewWidgetProps {
@@ -35,9 +20,7 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<any>(null);
   const containerIdRef = useRef(`tradingview_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // === Init TradingView ===
   useEffect(() => {
     // Ensure the container is ready and the widget isn't already created
     if (!containerRef.current || widgetRef.current) {
@@ -141,92 +124,14 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     };
   }, [symbol, interval]);
 
-  // === Fullscreen + Orientation ===
-  const goFullscreenLandscape = async () => {
-    if (!containerRef.current) return;
-    try {
-      if (containerRef.current.requestFullscreen) {
-        await containerRef.current.requestFullscreen();
-      }
-      // Type-safe orientation lock
-      if (screen.orientation && typeof (screen.orientation as ScreenOrientation).lock === 'function') {
-        try {
-          await (screen.orientation as ScreenOrientation).lock("landscape");
-        } catch (err) {
-          console.warn("Orientation lock not supported:", err);
-        }
-      }
-    } catch (error) {
-      console.warn("Fullscreen request failed:", error);
-    }
-    containerRef.current.classList.add("fullscreen");
-    setIsFullscreen(true);
-    widgetRef.current?.resize?.();
-  };
-
-  const exitFullscreen = async () => {
-    if (!containerRef.current) return;
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      }
-      // Type-safe orientation unlock
-      if (screen.orientation && typeof (screen.orientation as ScreenOrientation).unlock === 'function') {
-        try {
-          (screen.orientation as ScreenOrientation).unlock();
-        } catch (err) {
-          console.warn("Orientation unlock not supported:", err);
-        }
-      }
-    } catch (error) {
-      console.warn("Exit fullscreen failed:", error);
-    }
-    containerRef.current.classList.remove("fullscreen");
-    setIsFullscreen(false);
-    widgetRef.current?.resize?.();
-  };
-
-  // === Auto orientation detection ===
-  useEffect(() => {
-    const handleOrientationChange = () => {
-      if (window.matchMedia("(orientation: landscape)").matches) {
-        goFullscreenLandscape();
-      } else {
-        exitFullscreen();
-      }
-    };
-    window.addEventListener("orientationchange", handleOrientationChange);
-    return () =>
-      window.removeEventListener("orientationchange", handleOrientationChange);
-  }, []);
-
   return (
-    <div className="w-full h-full overflow-hidden relative">
-      {/* Buttons */}
-      <div className="absolute top-2 right-2 z-50 flex gap-2">
-        {!isFullscreen && (
-          <button
-            onClick={goFullscreenLandscape}
-            className="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700 transition-colors"
-          >
-            Fullscreen
-          </button>
-        )}
-        {isFullscreen && (
-          <button
-            onClick={exitFullscreen}
-            className="px-3 py-1 rounded bg-red-600 text-white text-sm hover:bg-red-700 transition-colors"
-          >
-            Back
-          </button>
-        )}
-      </div>
-
-      {/* TradingView Container */}
+    // This outer wrapper clips the scaled content, hiding the border.
+    <div className="w-full h-full overflow-hidden">
       <div
         ref={containerRef}
         id={containerIdRef.current}
-        className="w-full h-full min-h-[400px] transform scale-[1.01]"
+        // Scale the widget up slightly to push its border outside the visible area.
+        className="w-full h-full min-h-145 transform scale-[1.01]"
       />
     </div>
   );

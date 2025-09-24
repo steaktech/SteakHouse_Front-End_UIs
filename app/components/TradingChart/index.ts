@@ -4,7 +4,6 @@ export { MobileBottomBar } from './MobileSidebar';
 export { TradingView } from './TradingView';
 export { TradingViewWidget } from './TradingViewWidget';
 export { TradeHistory } from './TradeHistory';
-export { MarketInfo } from './MarketInfo';
 export { TradingTokenCard } from './TradingTokenCard';
 export { TokenCardWrapper } from './TokenCardWrapper';
 export { TradePanel } from './TradePanel';
