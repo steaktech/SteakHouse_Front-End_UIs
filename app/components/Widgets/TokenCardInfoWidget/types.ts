@@ -3,7 +3,7 @@ export interface TokenCardInfoData {
   name: string;
   symbol: string;
   tag: string;
-  tagColor?: string;
+  tagColor: string;
   description: string;
   mcap: string;
   liquidity: string;
