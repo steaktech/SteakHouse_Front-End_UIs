@@ -8,7 +8,8 @@ import { MobileBottomBar } from './MobileSidebar';
 import { TradingView } from './TradingView';
 import { TradeHistory } from '../Widgets/TradingHistoryWidget';
 import { TradingTokenCard } from '../Widgets/TokenCardInfoWidget';
-import { TradePanel } from './TradePanel';
+import { TradePanel } from '../Widgets/TradeWidget';
+import { TradeButtons } from './TradeButtons';
 import { FullscreenChart } from './FullscreenChart';
 import { OrientationPrompt } from './OrientationPrompt';
 import { useDeviceOrientation } from '@/app/hooks/useDeviceOrientation';
@@ -94,7 +95,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           />
         </div>
         
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 pb-16 lg:pb-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 pb-36 lg:pb-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded">
           
           {/* Trading Chart */}
           <div className="order-1 lg:col-start-1 lg:row-start-1">
@@ -117,8 +118,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             />
           </div>
 
-          {/* Trade Panel */}
-          <div className="order-2 lg:col-start-2 lg:row-start-2">
+          {/* Trade Panel - Desktop only, mobile uses popup from buttons */}
+          <div className="order-2 lg:col-start-2 lg:row-start-2 hidden lg:block">
             <TradePanel tokenAddress={tokenAddress} />
           </div>
 
@@ -129,6 +130,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
         </main>
       </div>
+      
+      {/* Trade Buttons - Mobile only, positioned below chart above mobile sidebar */}
+      <TradeButtons tokenAddress={tokenAddress} />
       
       {/* Mobile Bottom Sidebar */}
       <MobileBottomBar 

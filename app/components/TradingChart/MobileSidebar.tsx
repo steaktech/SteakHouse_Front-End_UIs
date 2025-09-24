@@ -94,7 +94,7 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
   const widgets = [
     { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true, onClick: handleChartClick },
     { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenInfoClick },
-    { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade', onClick: handleTradeHistoryClick },
+    { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'History', onClick: handleTradeHistoryClick },
     { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },

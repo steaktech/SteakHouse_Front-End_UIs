@@ -8,7 +8,7 @@ import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockcha
 import { useToastHelpers } from '@/app/lib/providers/ToastProvider';
 
 const WalletModal = dynamic(
-  () => import("../Modals/WalletModal/WalletModal"),
+  () => import("../../Modals/WalletModal/WalletModal"),
   { ssr: false }
 );
 
@@ -26,12 +26,14 @@ const EthereumIcon = () => (
 
 interface TradePanelProps {
   tokenAddress?: string;
+  defaultTab?: 'buy' | 'sell';
 }
 
 export const TradePanel: React.FC<TradePanelProps> = ({ 
-  tokenAddress = "0x9b7E4E284487952c14891865A11C063886e2c6Ce" 
+  tokenAddress = "0x9b7E4E284487952c14891865A11C063886e2c6Ce",
+  defaultTab = 'buy'
 }) => {
-  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>(defaultTab);
   const [amount, setAmount] = useState('0');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);

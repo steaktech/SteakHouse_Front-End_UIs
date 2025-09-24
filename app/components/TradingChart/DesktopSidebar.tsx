@@ -92,7 +92,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
     // Updated icon size to 18px to match the CSS
     { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },
     { icon: <Coins size={18} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenInfoClick },
-    { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade', onClick: handleTradeHistoryClick },
+    { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'History', onClick: handleTradeHistoryClick },
     { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
