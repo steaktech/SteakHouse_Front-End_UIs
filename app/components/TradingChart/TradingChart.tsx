@@ -127,6 +127,12 @@ export default function TradingChart() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Set initial transactions height to 30% of screen height
+  React.useEffect(() => {
+    const initialHeight = window.innerHeight * 0.3;
+    setTransactionsHeight(initialHeight);
+  }, []);
+
   // Copy to clipboard function
   const copyToClipboard = async (text: string, itemId: string) => {
     try {
