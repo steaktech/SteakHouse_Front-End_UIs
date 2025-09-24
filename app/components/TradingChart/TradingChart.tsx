@@ -357,12 +357,38 @@ export default function TradingChart() {
       
       {/* Fixed Buy/Sell bar for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
-        <div className="px-4 py-3 grid grid-cols-2 gap-3 max-w-screen-md mx-auto">
-          <button onClick={handleBuyClick} type="button" className="w-full p-0 bg-transparent">
+        <div className="px-4 py-3 flex items-center gap-3 max-w-screen-md mx-auto">
+          <button onClick={handleBuyClick} type="button" className="flex-1 p-0 bg-transparent">
             <div style={buyInnerStyle}>BUY</div>
           </button>
-          <button onClick={handleSellClick} type="button" className="w-full p-0 bg-transparent">
+          <button onClick={handleSellClick} type="button" className="flex-1 p-0 bg-transparent">
             <div style={sellInnerStyle}>SELL</div>
+          </button>
+          <button 
+            onClick={() => setMobileSidebarExpanded(true)} 
+            type="button" 
+            className="p-0 bg-transparent"
+            title="Open Widgets"
+          >
+            <div 
+              className="px-4 py-3 flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
+                borderRadius: '12px',
+                padding: '14px 16px',
+                textAlign: 'center',
+                fontWeight: 800,
+                color: '#1f2937',
+                letterSpacing: '0.5px',
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)'
+              }}
+            >
+              <div className="flex flex-col items-center justify-center gap-0.5">
+                <div className="w-1 h-1 bg-black rounded-full"></div>
+                <div className="w-1 h-1 bg-black rounded-full"></div>
+                <div className="w-1 h-1 bg-black rounded-full"></div>
+              </div>
+            </div>
           </button>
         </div>
       </div>
@@ -386,6 +412,12 @@ export default function TradingChart() {
           </div>
         </div>
       )}
+      
+      {/* Mobile Widgets Panel */}
+      <MobileBottomBar 
+        expanded={mobileSidebarExpanded} 
+        setExpanded={setMobileSidebarExpanded} 
+      />
     </div>
   );
 }
