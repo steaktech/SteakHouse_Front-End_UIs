@@ -7,7 +7,7 @@ import { DesktopSidebar } from './DesktopSidebar';
 import { MobileBottomBar } from './MobileSidebar';
 import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
-import { TradingTokenCard } from './TradingTokenCard';
+import { TradingTokenCard } from '../Widgets/TokenCardInfoWidget';
 import { TradePanel } from './TradePanel';
 import { FullscreenChart } from './FullscreenChart';
 import { OrientationPrompt } from './OrientationPrompt';
@@ -101,8 +101,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             <TradingView />
           </div>
 
-          {/* Token Card */}
-          <div className="order-4 lg:col-start-2 lg:row-start-1 ">
+          {/* Token Card - Desktop only, mobile uses popup from sidebar */}
+          <div className="order-4 lg:col-start-2 lg:row-start-1 hidden lg:block">
             <TradingTokenCard 
               imageUrl="/images/info_icon.jpg"
               name="SPACE Token"
@@ -114,7 +114,6 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               liquidity="$450K"
               volume="$1.2M"
               progress={75}
-              token_address={tokenAddress}
             />
           </div>
 

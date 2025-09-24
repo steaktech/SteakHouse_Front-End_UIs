@@ -6,6 +6,7 @@ import { SidebarProps } from './types';
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
+import { TokenCardInfoWidget } from '../Widgets/TokenCardInfoWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -54,6 +55,7 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
+  const [isTokenInfoWidgetOpen, setIsTokenInfoWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -70,6 +72,11 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
+  const handleTokenInfoClick = () => {
+    setIsTokenInfoWidgetOpen(true);
+    setExpanded(false); // Close the mobile sidebar when opening the widget
+  };
+
   const handleChartClick = () => {
     if (onChartFullscreen) {
       onChartFullscreen();
@@ -79,7 +86,7 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
 
   const widgets = [
     { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true, onClick: handleChartClick },
-    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token' },
+    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenInfoClick },
     { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade' },
     { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
@@ -155,9 +162,15 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       />
 
       {/* Saved Token Widget */}
-      <SavedTokenWidget 
+      <SavedTokenWidget
         isOpen={isSavedTokenWidgetOpen}
         onClose={() => setIsSavedTokenWidgetOpen(false)}
+      />
+      
+      <TokenCardInfoWidget
+        isOpen={isTokenInfoWidgetOpen}
+        onClose={() => setIsTokenInfoWidgetOpen(false)}
+        tokenAddress={tokenAddress}
       />
     </>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Globe, Send } from 'lucide-react';
-import { TokenCardProps } from '@/app/components/TradingDashboard/types';
+import { TokenCardInfoData } from './types';
 
 const TwitterIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 1200 1227" fill="currentColor">
@@ -8,7 +8,7 @@ const TwitterIcon = () => (
   </svg>
 );
 
-export const TradingTokenCard: React.FC<TokenCardProps> = ({ 
+export const TradingTokenCard: React.FC<TokenCardInfoData> = ({ 
   imageUrl, 
   name, 
   symbol, 
