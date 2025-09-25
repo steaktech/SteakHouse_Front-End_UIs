@@ -226,9 +226,41 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
   }, [tokenData.bondingProgress]);
 
   return (
-    <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
-      <div className={styles.overlay} onClick={handleOverlayClick}>
-        <div className={styles.panel} onClick={(e) => e.stopPropagation()}>
+    <div 
+      className={`${styles.root} ${isOpen ? styles.open : ''}`}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        margin: 0,
+        padding: 0
+      }}
+    >
+      <div 
+        className={styles.overlay} 
+        onClick={handleOverlayClick}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          margin: 0,
+          padding: 0
+        }}
+      >
+        <div 
+          className={styles.panel} 
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            margin: '0',
+            padding: '0',
+            zIndex: 10000
+          }}
+        >
           {/* Close button */}
           <button 
             className={styles.closeBtn}
