@@ -6,6 +6,7 @@ import { SidebarProps } from './types';
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
+import { TokenWidget } from '../Widgets/TokenWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -45,6 +46,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
+  const [isTokenWidgetOpen, setIsTokenWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -61,10 +63,14 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
+  const handleTokenClick = () => {
+    setIsTokenWidgetOpen(true);
+    setExpanded(false); // Close the mobile sidebar when opening the widget
+  };
+
   const widgets = [
     { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true },
-    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token' },
-    { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'Trade' },
+    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenClick },
     { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
@@ -108,19 +114,37 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
 
         {/* Widget Grid */}
         <div className="p-6 pb-8">
-          <div className="grid grid-cols-3 gap-4">
-            {widgets.map((widget, index) => (
-              <WidgetCard
-                key={index}
-                icon={widget.icon}
-                text={widget.text}
-                active={widget.active}
-                onClick={widget.onClick || (() => {
-                  // Handle widget selection here
-                  console.log(`Selected widget: ${widget.text}`);
-                })}
-              />
-            ))}
+          <div className="space-y-4">
+            {/* First Row: Chart and Token */}
+            <div className="grid grid-cols-2 gap-4">
+              {widgets.slice(0, 2).map((widget, index) => (
+                <WidgetCard
+                  key={index}
+                  icon={widget.icon}
+                  text={widget.text}
+                  active={widget.active}
+                  onClick={widget.onClick || (() => {
+                    // Handle widget selection here
+                    console.log(`Selected widget: ${widget.text}`);
+                  })}
+                />
+              ))}
+            </div>
+            {/* Second Row: Holders, Chat, Saved */}
+            <div className="grid grid-cols-3 gap-4">
+              {widgets.slice(2).map((widget, index) => (
+                <WidgetCard
+                  key={index + 2}
+                  icon={widget.icon}
+                  text={widget.text}
+                  active={widget.active}
+                  onClick={widget.onClick || (() => {
+                    // Handle widget selection here
+                    console.log(`Selected widget: ${widget.text}`);
+                  })}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -141,6 +165,12 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <SavedTokenWidget 
         isOpen={isSavedTokenWidgetOpen}
         onClose={() => setIsSavedTokenWidgetOpen(false)}
+      />
+
+      {/* Token Widget */}
+      <TokenWidget 
+        isOpen={isTokenWidgetOpen}
+        onClose={() => setIsTokenWidgetOpen(false)}
       />
     </>
   );

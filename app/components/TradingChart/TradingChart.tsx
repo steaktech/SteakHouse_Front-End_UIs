@@ -77,6 +77,18 @@ export default function TradingChart() {
     e.preventDefault();
   };
 
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setDragStartY(e.touches[0].clientY);
+    setDragStartHeight(transactionsHeight);
+    // Add haptic feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(10); // Short vibration
+    }
+    e.preventDefault();
+  };
+
   const handleMouseMove = React.useCallback((e: MouseEvent) => {
     if (!isDragging) return;
     
@@ -89,31 +101,65 @@ export default function TradingChart() {
     setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
   }, [isDragging, dragStartY, dragStartHeight]);
 
+  const handleTouchMove = React.useCallback((e: TouchEvent) => {
+    if (!isDragging) return;
+    
+    const deltaY = dragStartY - e.touches[0].clientY; // Inverted: drag up = positive = increase height
+    const newHeight = dragStartHeight + deltaY;
+    
+    const minHeight = 80;
+    const maxHeight = Math.min(400, window.innerHeight * 0.6);
+    
+    setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+    e.preventDefault(); // Prevent scrolling
+  }, [isDragging, dragStartY, dragStartHeight]);
+
   const handleMouseUp = React.useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleTouchEnd = React.useCallback(() => {
     setIsDragging(false);
   }, []);
 
   // Event listeners
   React.useEffect(() => {
     if (isDragging) {
+      // Mouse events
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      // Touch events
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      // Prevent selection and set cursor
       document.body.style.cursor = 'row-resize';
       document.body.style.userSelect = 'none';
+      document.body.style.touchAction = 'none'; // Prevent scrolling during touch
     } else {
+      // Remove mouse events
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      // Remove touch events
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      // Reset styles
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      document.body.style.touchAction = '';
     }
     
     return () => {
+      // Cleanup all events
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      // Reset styles
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      document.body.style.touchAction = '';
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   // Mobile detection
   React.useEffect(() => {
@@ -238,14 +284,15 @@ export default function TradingChart() {
       >
         {/* Drag Handle */}
         <div 
-          className={`absolute top-0 left-0 right-0 h-3 cursor-row-resize flex items-center justify-center hover:bg-[#daa20b]/10 transition-colors group ${isDragging ? 'bg-[#daa20b]/20' : ''}`}
+          className={`absolute top-0 left-0 right-0 h-4 cursor-row-resize flex items-center justify-center hover:bg-[#daa20b]/10 transition-colors group ${isDragging ? 'bg-[#daa20b]/20' : ''}`}
           onMouseDown={handleMouseDown}
-          style={{ zIndex: 10 }}
+          onTouchStart={handleTouchStart}
+          style={{ zIndex: 10, touchAction: 'none' }}
         >
-          <div className={`w-12 h-1 bg-[#daa20b]/40 rounded-full group-hover:bg-[#daa20b]/60 transition-colors ${isDragging ? 'bg-[#daa20b]/80' : ''}`}></div>
+          <div className={`w-16 h-1.5 bg-[#daa20b]/50 rounded-full group-hover:bg-[#daa20b]/70 transition-colors ${isDragging ? 'bg-[#daa20b]/90' : ''}`}></div>
         </div>
         
-        <div className="px-4 py-3 pt-6 h-full flex flex-col">
+        <div className="px-4 py-3 pt-7 h-full flex flex-col">
           <h3 className="text-[#daa20b] font-bold text-sm mb-3 tracking-wide">RECENT TRANSACTIONS</h3>
           <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
             {/* Mock transaction data */}
