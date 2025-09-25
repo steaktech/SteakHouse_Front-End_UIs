@@ -599,17 +599,33 @@
   }
   
   .nameBlock .name {
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 1.1;
   }
   
   .nameBlock .tickerRow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  
+  .nameBlock .ticker {
+    flex-shrink: 0;
+    font-size: 10px;
+    padding: 4px 8px;
   }
   
   .socialsTop {
-    align-self: stretch;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+  
+  .socialsTop .socialBtn {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
   }
   
   .scoreStats .statValue {
