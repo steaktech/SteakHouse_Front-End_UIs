@@ -692,13 +692,29 @@
   }
   
   .nameBlock .tickerRow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  
+  .nameBlock .ticker {
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   
   .socialsTop {
-    align-self: stretch;
+    flex-shrink: 0;
+    display: flex;
+    gap: 4px;
+  }
+  
+  .socialsTop .socialBtn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 8px;
   }
   
   .scoreStats {
