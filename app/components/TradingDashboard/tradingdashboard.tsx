@@ -194,24 +194,32 @@ export default function TradingDashboard() {
           justify-items: start;
         }
         
-        /* On mobile, always align to start and prevent overflow */
+        /* On mobile, perfectly center token cards */
         @media (max-width: 639px) {
           .token-container {
             padding: 16px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
           }
           
           .token-grid {
-            justify-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 1rem;
             padding: 0;
-            margin: 0;
+            margin: 0 auto;
+            width: 100%;
           }
           
           .token-grid > div {
-            justify-self: center;
-            max-width: 100%;
+            display: flex;
+            justify-content: center;
             width: 100%;
+            max-width: 100%;
             box-sizing: border-box;
           }
         }
