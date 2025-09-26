@@ -32,15 +32,145 @@
   overflow: hidden;
   box-shadow: 0 -20px 80px var(--glow) inset;
   isolation: isolate;
-  
-  /* Hide footer on mobile to prevent blank space at bottom */
-  display: none;
+  display: block;
 }
 
-/* Show footer only on desktop */
-@media (min-width: 1024px) {
+/* Mobile-specific footer styling */
+@media (max-width: 1023px) {
   .enterpriseFooter {
-    display: block;
+    padding: 0;
+    margin-top: 0;
+  }
+  
+  .container {
+    padding: 24px 20px;
+    max-width: 100%;
+  }
+  
+  .footerTop {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+    padding-bottom: 20px;
+    grid-template-columns: none;
+  }
+  
+  .brandRow {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+  
+  .brandBlock {
+    transform: none;
+    text-align: center;
+  }
+  
+  .brandBlock h2 {
+    font-size: 1.5rem;
+    justify-content: center;
+  }
+  
+  .brandMark {
+    height: 32px;
+  }
+  
+  .brandBlock p {
+    font-size: 0.875rem;
+    margin: 8px auto;
+    max-width: 280px;
+  }
+  
+  .topActions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  
+  .social {
+    gap: 16px;
+    justify-content: center;
+  }
+  
+  .social a {
+    --size: 44px;
+  }
+  
+  .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  
+  .btn.sm {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  /* Mobile footer middle section - compact grid */
+  .footerMiddle {
+    padding: 20px 0;
+  }
+  
+  .mega {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .col {
+    text-align: center;
+  }
+  
+  .col h3 {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .col ul {
+    gap: 6px;
+    font-size: 13px;
+  }
+  
+  .footerBottom {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    text-align: center;
+    align-items: center;
+  }
+  
+  .certikBadge {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    max-width: none;
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+  
+  .certikBadgeimg {
+    max-width: 140px;
+    max-height: 50px;
+    padding: 12px 16px;
+  }
+  
+  .disclaimer {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 24px auto 0 auto;
+    padding-top: 16px;
+  }
+  
+  .copyright {
+    font-size: 0.8rem;
+    margin-top: 8px;
   }
 }
 

@@ -68,21 +68,21 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   const dots = Array.from({ length: 5 });
 
   return (
-    <div className="flex items-center justify-center space-x-4">
+    <div className="flex items-center justify-center space-x-[2vw] sm:space-x-4">
       {/* Previous Button */}
-      <PaginationButton onClick={handlePrevious} disabled={currentPage === 1}>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+      <PaginationButton onClick={handlePrevious} disabled={currentPage === 1} className="px-[3vw] py-[2vw] sm:px-4 sm:py-2.5 text-[3.2vw] sm:text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-[3.5vw] w-[3.5vw] sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        <span className="font-black text-base">Prev</span>
+        <span className="font-black">Prev</span>
       </PaginationButton>
 
       {/* Page Info and Dots */}
-      <div className="flex flex-col items-center mx-6">
+      <div className="flex flex-col items-center mx-[2vw] sm:mx-6">
         {/* Page info styled like footer social icons with smooth animation */}
         <div
           className="
-            px-6 py-3 rounded-xl font-bold text-sm
+            px-[4vw] py-[2.5vw] sm:px-8 sm:py-3 rounded-2xl font-bold text-[3.5vw] sm:text-sm min-w-[25vw] sm:min-w-[120px] max-w-[40vw] sm:max-w-none
             bg-gradient-to-b from-[#ffdca1] to-[#ffb95b]
             border border-[rgba(255,171,77,0.45)] text-[#5b2d05]
             shadow-[0_6px_16px_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,188,100,0.1)_inset]
@@ -118,9 +118,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       </div>
 
       {/* Next Button */}
-      <PaginationButton onClick={handleNext} disabled={currentPage === totalPages}>
-        <span className="font-black text-base">Next</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+      <PaginationButton onClick={handleNext} disabled={currentPage === totalPages} className="px-[3vw] py-[2vw] sm:px-4 sm:py-2.5 text-[3.2vw] sm:text-base">
+        <span className="font-black">Next</span>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-[3.5vw] w-[3.5vw] sm:h-4 sm:w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </PaginationButton>
