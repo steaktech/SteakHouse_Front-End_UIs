@@ -92,7 +92,8 @@ export const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         ref={containerRef}
         id="tradingview_chart_container"
         // Scale the widget up slightly to push its border outside the visible area.
-        className="w-full h-full min-h-145 transform scale-[1.01]"
+        className="w-full h-full transform scale-[1.01]"
+        style={{ minHeight: 'unset', height: '100%' }}
       />
     </div>
   );

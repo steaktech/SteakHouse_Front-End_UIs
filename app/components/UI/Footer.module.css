@@ -32,6 +32,16 @@
   overflow: hidden;
   box-shadow: 0 -20px 80px var(--glow) inset;
   isolation: isolate;
+  
+  /* Hide footer on mobile to prevent blank space at bottom */
+  display: none;
+}
+
+/* Show footer only on desktop */
+@media (min-width: 1024px) {
+  .enterpriseFooter {
+    display: block;
+  }
 }
 
 /* Molten vignette */

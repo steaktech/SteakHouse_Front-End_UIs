@@ -27,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         {/* Remix Icon CDN for social and utility icons */}
         <link
           href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
@@ -34,9 +35,11 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[url('/images/homepage-bg.webp')] bg-cover bg-no-repeat bg-fixed flex flex-col min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col`}
         style={{ 
-          backgroundPosition: 'center -50px'
+          minHeight: '100vh',
+          background: `url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed`,
+          backgroundAttachment: 'fixed'
         }}
       >
         <WagmiProviderWrapper>

@@ -13,7 +13,20 @@
   --brown-700: #4d2814;
   --brown-800: #3b1e10;
   --brown-900: #1e0e07;
-  
+}
+
+/* Global background fix to prevent seams and repeating */
+html, body {
+  background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+/* Ensure no elements override the background */
+* {
+  background-repeat: inherit;
 }
 
 
@@ -167,7 +180,7 @@
 }
 
 .animate-scroll {
-  animation: scroll 30s linear infinite;
+  animation: scroll 15s linear infinite;
 }
 
 /* 3D Button Effects */
@@ -297,6 +310,31 @@
   .header-button {
     height: 36px;
     min-width: 80px;
+  }
+  
+  /* Stretch background to cover entire mobile viewport */
+  html, body {
+    min-height: 100vh !important;
+    min-height: 100dvh !important; /* Dynamic viewport height for mobile */
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
+    overflow-x: hidden;
+  }
+  
+  body {
+    /* Ensure background is truly fixed and doesn't repeat */
+    background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed !important;
+    min-height: max(100vh, 100%) !important;
+  }
+  
+  /* Ensure main content doesn't interfere with background */
+  main {
+    flex: 1 !important;
+    min-height: 100vh !important;
+    position: relative;
+    background: none !important;
   }
 }
 

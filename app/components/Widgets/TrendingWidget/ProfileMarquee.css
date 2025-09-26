@@ -18,5 +18,5 @@
   
   .animate-marquee {
     /* Apply the animation */
-    animation: marquee 40s linear infinite;
+    animation: marquee 10s linear infinite !important;
   }

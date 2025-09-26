@@ -3,14 +3,10 @@ import { TradingViewWidget } from './TradingViewWidget';
 
 export const TradingView: React.FC = () => {
   return (
-
-    
-    <div className="flex-grow flex flex-col h-full">
-        <TradingViewWidget 
-          symbol="BINANCE:SOLUSD"
-        />
+    <div className="w-full h-full overflow-hidden">
+      <TradingViewWidget 
+        symbol="BINANCE:SOLUSD"
+      />
     </div>
-
-    
   );
-}; 
+};

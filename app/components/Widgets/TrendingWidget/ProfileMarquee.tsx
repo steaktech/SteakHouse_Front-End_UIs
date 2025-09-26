@@ -14,7 +14,14 @@ const ProfileMarquee: React.FC<ProfileMarqueeProps> = ({ profiles }) => {
   return (
     // The animated container. 'flex' arranges the items horizontally,
     // and 'animate-marquee' applies your CSS animation.
-    <div className="flex animate-marquee">
+    <div 
+      className="flex animate-marquee"
+      style={{
+        animation: 'marquee 8s linear infinite',
+        transform: 'translateZ(0)', // Force hardware acceleration
+        willChange: 'transform'
+      }}
+    >
       {/* Map over the DUPLICATED list, not the original one */}
       {duplicatedProfiles.map((profile, index) => (
         <ProfileWidget
