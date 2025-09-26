@@ -82,7 +82,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         {/* Page info styled like footer social icons with smooth animation */}
         <div
           className="
-            px-6 py-3 rounded-full font-bold text-sm
+            px-6 py-3 rounded-xl font-bold text-sm
             bg-gradient-to-b from-[#ffdca1] to-[#ffb95b]
             border border-[rgba(255,171,77,0.45)] text-[#5b2d05]
             shadow-[0_6px_16px_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,188,100,0.1)_inset]

@@ -678,13 +678,17 @@
 }
 
 /* Responsive */
-@media (max-width: 380px) {
+@media (max-width: 640px) {
   .tokenCard {
-    padding: 18px 18px 14px;
+    padding: 16px 16px 14px;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
   }
   
   .nameBlock .name {
-    font-size: 20px;
+    font-size: 18px;
   }
   
   .nameBlock .tickerRow {
@@ -697,7 +701,35 @@
     align-self: stretch;
   }
   
+  .scoreStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  
+  .scoreStats .stat {
+    padding: 8px 10px;
+  }
+  
   .scoreStats .statValue {
-    font-size: 16px;
+    font-size: 14px;
+  }
+  
+  .scoreStats .statLabel {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tokenCard {
+    padding: 14px 14px 12px;
+    min-height: 420px;
+  }
+  
+  .nameBlock .name {
+    font-size: 17px;
+  }
+  
+  .scoreStats .statValue {
+    font-size: 13px;
   }
 }

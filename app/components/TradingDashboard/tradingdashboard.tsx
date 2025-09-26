@@ -176,7 +176,9 @@ export default function TradingDashboard() {
         .token-container {
           min-height: 800px;
           max-width: 100%;
-          overflow: visible;
+          overflow: hidden;
+          padding-left: 0;
+          padding-right: 0;
         }
         
         /* Ensure cards maintain consistent sizing */
@@ -192,13 +194,25 @@ export default function TradingDashboard() {
           justify-items: start;
         }
         
-        /* On mobile, always align to start */
+        /* On mobile, always align to start and prevent overflow */
         @media (max-width: 639px) {
-          .token-grid {
-            justify-items: start;
+          .token-container {
+            padding: 16px;
+            overflow: hidden;
           }
+          
+          .token-grid {
+            justify-items: center;
+            gap: 1rem;
+            padding: 0;
+            margin: 0;
+          }
+          
           .token-grid > div {
-            justify-self: start;
+            justify-self: center;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
           }
         }
       `}</style>
