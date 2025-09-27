@@ -136,6 +136,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         isOpen={isFullscreenChart}
         onClose={handleFullscreenExit}
         tokenAddress={tokenAddress}
+        mobileSidebarExpanded={mobileSidebarExpanded}
+        setMobileSidebarExpanded={setMobileSidebarExpanded}
       />
 
       {/* Orientation Prompt Modal */}
