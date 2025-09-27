@@ -106,7 +106,7 @@ const Pagination: React.FC<PaginationProps> = ({
           "
         >
           <span className="inline-block transition-all duration-300 ease-in-out font-black">
-            Page {currentPage} {hasMore ? '(More Available)' : '(Last Page)'}
+            Page {currentPage}
           </span>
         </div>
 
