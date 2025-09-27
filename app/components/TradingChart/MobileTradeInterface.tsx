@@ -2,12 +2,24 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { TradeWidget } from '../Widgets/TradeWidget';
+import { MobileBottomBar } from './MobileSidebar';
+import { ChevronUp, Loader2 } from 'lucide-react';
+import { useRecentTrades } from '@/app/hooks/useRecentTrades';
+import { truncateAddress } from '@/app/lib/utils/tradeUtils';
 
 interface MobileTradeInterfaceProps {
   tokenAddress: string;
+  onChartFullscreen?: () => void;
+  mobileSidebarExpanded: boolean;
+  setMobileSidebarExpanded: (expanded: boolean) => void;
 }
 
-export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ tokenAddress }) => {
+export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ 
+  tokenAddress, 
+  onChartFullscreen, 
+  mobileSidebarExpanded, 
+  setMobileSidebarExpanded 
+}) => {
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
   const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
   const [transactionsHeight, setTransactionsHeight] = useState(160);
@@ -16,6 +28,12 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ toke
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  
+  // Fetch recent trades data
+  const { trades: recentTrades, isLoading: tradesLoading, error: tradesError } = useRecentTrades({ 
+    tokenAddress, 
+    maxTrades: 20 
+  });
 
   // BUY inner style (green glossy pill)
   const buyInnerStyle: React.CSSProperties = {
@@ -136,75 +154,6 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ toke
     setIsMobileTradeOpen(true);
   };
 
-  // Mock transaction data
-  const mockTransactions = [
-    { 
-      type: 'Buy', 
-      amount: '1.25K ASTER', 
-      ethAmount: '0.0032 ETH',
-      price: '$1.43', 
-      time: '2m ago',
-      fullDate: '2024-01-15 14:23:45 UTC',
-      address: '0x742d35Cc6C4b73C2C4c02B8b8f42e62e2E5F6f12',
-      txHash: '0xa1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456',
-      positive: true 
-    },
-    { 
-      type: 'Sell', 
-      amount: '850 ASTER', 
-      ethAmount: '0.0025 ETH',
-      price: '$1.44', 
-      time: '5m ago',
-      fullDate: '2024-01-15 14:18:12 UTC',
-      address: '0x8f9e2a1b3c4d5e6f7890123456789012345678ab',
-      txHash: '0xb2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678',
-      positive: false 
-    },
-    { 
-      type: 'Buy', 
-      amount: '2.1K ASTER', 
-      ethAmount: '0.0055 ETH',
-      price: '$1.42', 
-      time: '8m ago',
-      fullDate: '2024-01-15 14:15:33 UTC',
-      address: '0x123456789012345678901234567890123456789a',
-      txHash: '0xc3d4e5f6789012345678901234567890abcdef1234567890abcdef123456789a',
-      positive: true 
-    },
-    { 
-      type: 'Sell', 
-      amount: '750 ASTER', 
-      ethAmount: '0.0021 ETH',
-      price: '$1.45', 
-      time: '12m ago',
-      fullDate: '2024-01-15 14:11:07 UTC',
-      address: '0xabcdef1234567890123456789012345678901234',
-      txHash: '0xd4e5f6789012345678901234567890abcdef1234567890abcdef123456789abc',
-      positive: false 
-    },
-    { 
-      type: 'Buy', 
-      amount: '3.2K ASTER', 
-      ethAmount: '0.0089 ETH',
-      price: '$1.41', 
-      time: '15m ago',
-      fullDate: '2024-01-15 14:08:19 UTC',
-      address: '0x567890123456789012345678901234567890abcd',
-      txHash: '0xe5f6789012345678901234567890abcdef1234567890abcdef123456789abcde',
-      positive: true 
-    },
-    { 
-      type: 'Sell', 
-      amount: '1.8K ASTER', 
-      ethAmount: '0.0048 ETH',
-      price: '$1.46', 
-      time: '18m ago',
-      fullDate: '2024-01-15 14:05:42 UTC',
-      address: '0x9012345678901234567890123456789012345678',
-      txHash: '0xf6789012345678901234567890abcdef1234567890abcdef123456789abcdef1',
-      positive: false 
-    },
-  ];
 
   if (!isMobile) return null;
 
@@ -227,7 +176,22 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ toke
         <div className="px-4 py-3 pt-6 h-full flex flex-col">
           <h3 className="text-[#daa20b] font-bold text-sm mb-3 tracking-wide">RECENT TRANSACTIONS</h3>
           <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
-            {mockTransactions.map((tx, index) => (
+            {tradesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={24} className="text-[#daa20b] animate-spin" />
+                <span className="ml-2 text-[#daa20b] text-sm">Loading transactions...</span>
+              </div>
+            ) : tradesError ? (
+              <div className="text-center py-8">
+                <p className="text-red-400 text-sm mb-2">Failed to load transactions</p>
+                <p className="text-[#daa20b]/60 text-xs">{tradesError}</p>
+              </div>
+            ) : recentTrades.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-[#daa20b]/60 text-sm">No recent transactions</p>
+              </div>
+            ) : (
+              recentTrades.map((tx, index) => (
               <div key={index} className="py-2 px-3 bg-gradient-to-r from-[#7f4108] to-[#6f3906] border border-[#daa20b]/30 rounded-lg space-y-1.5">
                 {/* Main Transaction Row */}
                 <div className="flex items-center justify-between">
@@ -267,7 +231,7 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ toke
                       }`}
                       title="Click to copy address"
                     >
-                      {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
+                      {copiedItem === `address-${index}` ? '✓' : truncateAddress(tx.address)}
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
@@ -286,13 +250,14 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ toke
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
       
       {/* Fixed Buy/Sell bar for mobile */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
+      <div className="lg:hidden fixed bottom-12 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
         <div className="px-4 py-3 grid grid-cols-2 gap-3 max-w-screen-md mx-auto">
           <button onClick={handleBuyClick} type="button" className="w-full p-0 bg-transparent">
             <div style={buyInnerStyle}>BUY</div>
@@ -302,6 +267,28 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({ toke
           </button>
         </div>
       </div>
+
+      {/* Widgets Button */}
+      <button
+        onClick={() => setMobileSidebarExpanded(true)}
+        className={`
+          lg:hidden fixed bottom-0 left-0 right-0 z-30
+          flex items-center justify-center gap-2
+          h-12 px-4
+          bg-gradient-to-t from-[#472303] to-[#5a2d04]
+          border-t border-[#daa20b]/30
+          text-[#daa20b]
+          shadow-[0_-5px_20px_rgba(0,0,0,0.5)]
+          group
+          transition-opacity duration-300 ease-in-out
+          hover:bg-[#1a1710]
+          ${mobileSidebarExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+        `}
+        type="button"
+      >
+        <ChevronUp size={20} className="transition-transform duration-200 group-hover:-translate-y-1" />
+        <span className="font-semibold tracking-wider text-sm">WIDGETS</span>
+      </button>
 
       {/* Mobile trade modal using TradeWidget */}
       <TradeWidget

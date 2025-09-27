@@ -13,8 +13,6 @@ import { MobileTradeInterface } from './MobileTradeInterface';
 import { FullscreenChart } from './FullscreenChart';
 import { OrientationPrompt } from './OrientationPrompt';
 import { useDeviceOrientation } from '@/app/hooks/useDeviceOrientation';
-// MODIFIED: Added ChevronUp for the new button icon
-import { ChevronUp } from 'lucide-react';
 
 interface TradingChartProps {
   tokenAddress?: string;
@@ -74,29 +72,6 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       {/* Header */}
       <Header />
 
-      {/* --- REPLACEMENT START --- */}
-      {/* New Mobile Widgets Bar */}
-      <button
-        onClick={() => setMobileSidebarExpanded(true)}
-        className={`
-          fixed bottom-0 left-0 right-0 z-40
-          flex items-center justify-center gap-2
-          h-12 px-4
-          bg-gradient-to-t from-[#472303] to-[#5a2d04]
-          border-t border-[#daa20b]/30
-          text-[#daa20b]
-          shadow-[0_-5px_20px_rgba(0,0,0,0.5)]
-          lg:hidden group
-          transition-opacity duration-300 ease-in-out
-          hover:bg-[#1a1710]
-          ${mobileSidebarExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}
-        `}
-        type="button"
-      >
-        <ChevronUp size={20} className="transition-transform duration-200 group-hover:-translate-y-1" />
-        <span className="font-semibold tracking-wider text-sm">WIDGETS</span>
-      </button>
-      {/* --- REPLACEMENT END --- */}
 
       <div className="flex flex-1 text-white font-sans overflow-hidden">
         {/* Desktop Sidebar */}
@@ -110,7 +85,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         
         <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded"
           style={{
-            paddingBottom: isMobile ? '240px' : '8px' // Account for mobile trade interface
+            paddingBottom: isMobile ? '300px' : '8px' // Account for mobile trade interface + buy/sell buttons + widgets button
           }}
         >
           
@@ -149,14 +124,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       </div>
       
       {/* Mobile Trade Interface - Mobile only, positioned below chart above mobile sidebar */}
-      <MobileTradeInterface tokenAddress={tokenAddress} />
-      
-      {/* Mobile Bottom Sidebar */}
-      <MobileBottomBar 
-        expanded={mobileSidebarExpanded} 
-        setExpanded={setMobileSidebarExpanded}
-        tokenAddress={tokenAddress}
+      <MobileTradeInterface 
+        tokenAddress={tokenAddress} 
         onChartFullscreen={handleChartFullscreen}
+        mobileSidebarExpanded={mobileSidebarExpanded}
+        setMobileSidebarExpanded={setMobileSidebarExpanded}
       />
 
       {/* Fullscreen Chart Modal */}
@@ -164,8 +136,6 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         isOpen={isFullscreenChart}
         onClose={handleFullscreenExit}
         tokenAddress={tokenAddress}
-        mobileSidebarExpanded={mobileSidebarExpanded}
-        setMobileSidebarExpanded={setMobileSidebarExpanded}
       />
 
       {/* Orientation Prompt Modal */}
@@ -173,6 +143,14 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         isOpen={showOrientationPrompt}
         onClose={handleOrientationPromptClose}
         onContinuePortrait={handleContinueInPortrait}
+      />
+
+      {/* Mobile Bottom Sidebar - Footer Position */}
+      <MobileBottomBar 
+        expanded={mobileSidebarExpanded} 
+        setExpanded={setMobileSidebarExpanded}
+        tokenAddress={tokenAddress}
+        onChartFullscreen={handleChartFullscreen}
       />
     </div>
   );

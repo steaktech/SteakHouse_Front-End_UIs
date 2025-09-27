@@ -214,7 +214,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         </button>
       </div>
 
-      {/* Action Links - All on same line */}
+      {/* Action Links - All on same line with glossy styling */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -228,33 +228,74 @@ export const TradePanel: React.FC<TradePanelProps> = ({
           onClick={handleBuyMaxTx}
           disabled={isLoadingMaxTx}
           style={{
-          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-          border: '1px solid rgba(255, 210, 160, 0.4)',
-          borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          color: '#feea88',
-          fontSize: 'clamp(8px, 1.4vw, 10px)',
-          fontWeight: 700,
-          cursor: 'pointer',
-          transition: 'all 200ms ease',
-          flex: 1,
-          opacity: isLoadingMaxTx ? 0.5 : 1
-        }}>{isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}</button>
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            flex: 1,
+            opacity: isLoadingMaxTx ? 0.5 : 1
+          }}
+        >
+          <div style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.3), rgba(255, 196, 120, 0.2) 60%, rgba(60, 32, 18, 0.32))',
+            border: '1px solid rgba(255, 210, 160, 0.4)',
+            borderRadius: 'clamp(8px, 1.8vw, 12px)',
+            padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1)',
+            color: '#feea88',
+            fontSize: 'clamp(8px, 1.4vw, 10px)',
+            fontWeight: 700,
+            transition: 'all 200ms ease',
+            textAlign: 'center',
+            width: '100%'
+          }}
+          onMouseEnter={(e) => {
+            if (!isLoadingMaxTx) {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1)';
+          }}
+          >
+            {isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}
+          </div>
+        </button>
 
         <button style={{
-          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-          border: '1px solid rgba(255, 210, 160, 0.4)',
-          borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          color: '#feea88',
-          fontSize: 'clamp(8px, 1.4vw, 10px)',
-          fontWeight: 700,
+          background: 'transparent',
+          border: 'none',
           cursor: 'pointer',
-          transition: 'all 200ms ease',
+          padding: 0,
           flex: 1
-        }}>Set max slippage</button>
+        }}>
+          <div style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.3), rgba(255, 196, 120, 0.2) 60%, rgba(60, 32, 18, 0.32))',
+            border: '1px solid rgba(255, 210, 160, 0.4)',
+            borderRadius: 'clamp(8px, 1.8vw, 12px)',
+            padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1)',
+            color: '#feea88',
+            fontSize: 'clamp(8px, 1.4vw, 10px)',
+            fontWeight: 700,
+            transition: 'all 200ms ease',
+            textAlign: 'center',
+            width: '100%'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1)';
+          }}
+          >
+            Set max slippage
+          </div>
+        </button>
       </div>
 
       {/* Amount Input */}
@@ -327,7 +368,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         </div>
       </div>
 
-      {/* Preset Amounts - All on same line */}
+      {/* Preset Amounts - All on same line with glossy styling */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -340,65 +381,90 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             key={preset}
             onClick={() => handleQuickAmount(preset)}
             style={{
-              background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-              border: '1px solid rgba(255, 210, 160, 0.4)',
-              borderRadius: 'clamp(8px, 1.8vw, 12px)',
-              padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-              color: '#feea88',
-              fontSize: 'clamp(8px, 1.4vw, 10px)',
-              fontWeight: 700,
+              background: 'transparent',
+              border: 'none',
               cursor: 'pointer',
-              transition: 'all 200ms ease',
+              padding: 0,
               flex: 1
             }}
           >
-            {preset}
+            <div style={{
+              background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.3), rgba(255, 196, 120, 0.2) 60%, rgba(60, 32, 18, 0.32))',
+              border: '1px solid rgba(255, 210, 160, 0.4)',
+              borderRadius: 'clamp(8px, 1.8vw, 12px)',
+              padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1)',
+              color: '#feea88',
+              fontSize: 'clamp(8px, 1.4vw, 10px)',
+              fontWeight: 700,
+              transition: 'all 200ms ease',
+              textAlign: 'center',
+              width: '100%'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            >
+              {preset}
+            </div>
           </button>
         ))}
       </div>
 
-      {/* Confirm Button */}
+      {/* Confirm Button - Updated with glossy styling */}
       <button
         onClick={handleConfirmTrade}
         disabled={isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)}
         style={{
           width: '100%',
-          background: !isConnected 
-            ? 'linear-gradient(180deg, #d4af37, #b8941f)'
-            : activeTab === 'buy'
-              ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-              : 'linear-gradient(180deg, #f87171, #ef4444)',
-          color: '#1f2937',
-          fontWeight: 800,
-          fontSize: 'clamp(16px, 3.2vw, 20px)',
-          padding: 'clamp(14px, 3vh, 18px)',
-          borderRadius: 'clamp(14px, 3vw, 20px)',
+          background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          transition: 'all 200ms ease',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
-          textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+          padding: 0,
           marginTop: 'auto',
           flexShrink: 0,
-          letterSpacing: '0.5px',
           opacity: (isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1
+        }}
+      >
+        <div style={{
+          background: !isConnected 
+            ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
+            : activeTab === 'buy'
+              ? 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)'
+              : 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
+          borderRadius: 'clamp(14px, 3vw, 20px)',
+          padding: 'clamp(14px, 3vh, 18px)',
+          textAlign: 'center',
+          fontWeight: 800,
+          color: !isConnected ? '#1f2937' : '#1f2937',
+          letterSpacing: '0.5px',
+          width: '100%',
+          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+          fontSize: 'clamp(16px, 3.2vw, 20px)',
+          textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+          transition: 'all 200ms ease'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-1px)';
-          e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+          e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.65), inset 0 -6px 12px rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.1)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)';
         }}
-      >
-        {!isConnected 
-          ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
-          : tradingState.isTrading
-            ? `${activeTab.toUpperCase()}ING...`
-            : 'CONFIRM TRADE'
-        }
+        >
+          {!isConnected 
+            ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
+            : tradingState.isTrading
+              ? `${activeTab.toUpperCase()}ING...`
+              : 'CONFIRM TRADE'
+          }
+        </div>
       </button>
 
       {/* Wallet Modal */}

@@ -105,7 +105,7 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       {/* BACKDROP */}
       <div
         onClick={() => setExpanded(false)}
-        className={`fixed inset-0 bg-black/60 z-40 transition-opacity lg:hidden ${
+        className={`fixed inset-0 bg-black/60 z-[50] transition-opacity lg:hidden ${
           expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       />
@@ -113,13 +113,14 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       {/* MOBILE BOTTOM SIDEBAR */}
       <div 
         className={`
-          fixed bottom-0 left-0 right-0 z-50
+          fixed left-0 right-0 z-[60]
           bg-gradient-to-t from-[#472303] to-[#5a2d04]
           border-t border-[#daa20b]/40
           shadow-[0_-4px_20px_rgba(0,0,0,0.4)]
           transition-transform duration-300 ease-out
           lg:hidden
-          ${expanded ? 'translate-y-0' : 'translate-y-full'}
+          max-h-[70vh]
+          ${expanded ? 'bottom-0 translate-y-0' : '-bottom-full translate-y-0'}
         `}
       >
         {/* Header */}
