@@ -9,16 +9,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-// Define the types for the BottomControlBar component's props
-interface BottomControlBarProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  onNextPage: () => void;
-  onPreviousPage: () => void;
-}
-
-// Reusable Button component with styles matching the control bar's theme
+// Pagination Button matching footer's exact golden styling
 const PaginationButton: React.FC<{
   onClick: () => void;
   disabled: boolean;
@@ -30,16 +21,27 @@ const PaginationButton: React.FC<{
       onClick={onClick}
       disabled={disabled}
       className={`
-        flex items-center justify-center
-        px-6 py-2 bg-[#e7d500] text-[#572401] font-bold
-        rounded-full transition-all duration-200 ease-in-out
-        border-t-2 border-l-2 border-r-2 border-b-4 border-[#b1782d]
-        shadow-[0_5px_15px_rgba(0,0,0,0.2)]
-        hover:bg-[#dcd0c4] hover:shadow-[0_3px_10px_rgba(0,0,0,0.2)] hover:-translate-y-px
-        active:bg-[#c9bbae] active:shadow-[inset_0_3px_5px_rgba(0,0,0,0.3)] active:translate-y-0.5
-        disabled:bg-gray-500 disabled:border-gray-600 disabled:text-gray-700
-        disabled:opacity-50 disabled:cursor-not-allowed
-        disabled:shadow-none disabled:transform-none
+        appearance-none inline-flex items-center justify-center gap-2
+px-4 py-2.5 font-bold text-sm whitespace-nowrap
+        rounded-full border transition-all duration-150 ease-out
+        
+        /* Exact footer button styling - primary variant */
+        bg-gradient-to-b from-[#ffd99c] to-[#ffb457]
+        border-[rgba(255,171,77,0.45)] text-[#5b2d05]
+        shadow-[0_12px_28px_rgba(255,140,40,0.25),0_0_0_2px_rgba(255,188,100,0.12)_inset]
+        
+        /* Hover state matching footer */
+        hover:-translate-y-0.5 hover:bg-gradient-to-b hover:from-[#ffe4a8] hover:to-[#ffc366]
+        hover:border-[rgba(255,171,77,0.6)] hover:shadow-[0_14px_32px_rgba(255,140,40,0.35),0_0_0_2px_rgba(255,188,100,0.18)_inset]
+        
+        /* Active state */
+        active:translate-y-0 active:shadow-[0_6px_20px_rgba(255,140,40,0.2),0_0_0_2px_rgba(255,188,100,0.08)_inset]
+        
+        /* Disabled state */
+        disabled:from-[#8a7a6a] disabled:to-[#6b5b47] disabled:border-[rgba(139,69,19,0.3)]
+        disabled:text-[rgba(255,255,255,0.5)] disabled:opacity-60 disabled:cursor-not-allowed
+        disabled:shadow-[0_2px_4px_rgba(0,0,0,0.3)] disabled:transform-none
+        
         ${className}
       `}
     >
@@ -69,34 +71,56 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     <div className="flex items-center justify-center space-x-4">
       {/* Previous Button */}
       <PaginationButton onClick={handlePrevious} disabled={currentPage === 1}>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        Prev
+        <span className="font-black text-base">Prev</span>
       </PaginationButton>
 
       {/* Page Info and Dots */}
-      <div className="flex flex-col items-center">
-        <span 
-          className="text-[#e7d500] font-black text-lg"
-          style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7)' }}
+      <div className="flex flex-col items-center mx-6">
+        {/* Page info styled like footer social icons with smooth animation */}
+        <div
+          className="
+            px-6 py-3 rounded-full font-bold text-sm
+            bg-gradient-to-b from-[#ffdca1] to-[#ffb95b]
+            border border-[rgba(255,171,77,0.45)] text-[#5b2d05]
+            shadow-[0_6px_16px_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,188,100,0.1)_inset]
+            transition-all duration-300 ease-in-out
+          "
         >
-          Page {currentPage} of {totalPages}
-        </span>
-        <div className="flex space-x-1.5 mt-2">
-          {dots.map((_, index) => (
-            <div
-              key={index}
-              className="w-3 h-3 bg-[#e7d500] rounded-full border-t border-l border-[#733f00] border-b-2 border-r-2 border-[#843b04] shadow-[inset_0_2px_2px_rgba(0,0,0,0.3)]"
-            />
-          ))}
+          <span className="inline-block transition-all duration-300 ease-in-out font-black">
+            Page {currentPage} of {totalPages}
+          </span>
+        </div>
+
+        {/* Indicator dots styled like mini social icons */}
+        <div className="flex space-x-2 mt-3">
+          {dots.map((_, index) => {
+            const isActive = index === Math.floor((currentPage - 1) % 5);
+            return (
+              <div
+                key={index}
+                className={`
+                  w-2.5 h-2.5 rounded-lg transition-all duration-200 ease-out cursor-pointer
+                  bg-gradient-to-b border border-[rgba(255,171,77,0.45)]
+                  shadow-[0_3px_8px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,188,100,0.1)_inset]
+                  hover:-translate-y-0.5 hover:shadow-[0_5px_12px_rgba(255,140,40,0.28),0_0_0_1px_rgba(255,188,100,0.16)_inset]
+                  ${isActive
+                    ? 'from-[#ffdca1] to-[#ffb95b] scale-125 shadow-[0_4px_10px_rgba(255,140,40,0.4),0_0_0_1px_rgba(255,188,100,0.2)_inset]'
+                    : 'from-[#ffcf88] to-[#ffab50]'
+                  }
+                `}
+              />
+            );
+          })}
         </div>
       </div>
 
       {/* Next Button */}
       <PaginationButton onClick={handleNext} disabled={currentPage === totalPages}>
-        Next
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+        <span className="font-black text-base">Next</span>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </PaginationButton>
@@ -112,37 +136,32 @@ type IconProps = {
 
 
 // The Bottom Control Bar component
-export default function BottomControlBar({
-  currentPage,
-  totalPages,
-  onPageChange,
-  onNextPage,
-  onPreviousPage
-}: BottomControlBarProps) {
+export default function BottomControlBar() {
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const TOTAL_PAGES = 12; // Example total pages
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
-    <div className="w-full relative">
-      {/* The fade effect, positioned absolutely above the main content block */}
-      <div 
-        aria-hidden="true"
-        className="absolute bottom-full inset-x-0 h-32 bg-gradient-to-t from-[#ebd6b4] to-transparent pointer-events-none"
-      />
-
+    <div className="w-full relative" style={{marginTop: '0', paddingTop: '0'}}>
       {/* Control buttons section with gradient background */}
-      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] py-4 flex items-center justify-between">
+      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 flex items-center justify-between border-b border-white/20" style={{marginTop: '0'}}>
         {/* Left section - Social Icons */}
         <div className="flex-1 flex items-center justify-start space-x-4 pl-4">
         </div>
-        
+
         {/* Center section - PAGINATION CONTROLS */}
         <div className="flex justify-center items-center">
           <Pagination
             currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
+            totalPages={TOTAL_PAGES}
+            onPageChange={handlePageChange}
           />
         </div>
-        
+
         {/* Right section - Footer Links */}
         <div className="flex-1 flex items-center justify-end space-x-6 pr-4">
         </div>
