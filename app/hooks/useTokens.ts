@@ -49,8 +49,9 @@ export interface TokenFilters {
 export interface PaginationInfo {
   currentPage: number;
   pageSize: number;
-  totalCount: number;
-  totalPages: number;
+  hasMore: boolean;
+  nextPage: number | null;
+  prevPage: number | null;
 }
 
 export function useTokens(initialFilters: TokenFilters = {}) {
@@ -61,8 +62,9 @@ export function useTokens(initialFilters: TokenFilters = {}) {
   const [pagination, setPagination] = useState<PaginationInfo>({
     currentPage: 1,
     pageSize: 20,
-    totalCount: 0,
-    totalPages: 0
+    hasMore: false,
+    nextPage: null,
+    prevPage: null
   });
   const [filters, setFilters] = useState<TokenFilters>({
     sortBy: 'mcap',
@@ -211,8 +213,9 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       setPagination({
         currentPage: response.page,
         pageSize: response.page_size,
-        totalCount: response.total_count,
-        totalPages: response.total_pages
+        hasMore: response.has_more,
+        nextPage: response.next_page,
+        prevPage: response.prev_page
       });
       
       setTokens(response.items);
@@ -299,22 +302,22 @@ export function useTokens(initialFilters: TokenFilters = {}) {
 
   // Pagination functions
   const goToPage = useCallback((page: number) => {
-    if (page >= 1 && page <= pagination.totalPages) {
+    if (page >= 1) {
       updateFilters({ page });
     }
-  }, [updateFilters, pagination.totalPages]);
+  }, [updateFilters]);
 
   const nextPage = useCallback(() => {
-    if (pagination.currentPage < pagination.totalPages) {
-      goToPage(pagination.currentPage + 1);
+    if (pagination.hasMore && pagination.nextPage) {
+      goToPage(pagination.nextPage);
     }
-  }, [goToPage, pagination.currentPage, pagination.totalPages]);
+  }, [goToPage, pagination.hasMore, pagination.nextPage]);
 
   const previousPage = useCallback(() => {
-    if (pagination.currentPage > 1) {
-      goToPage(pagination.currentPage - 1);
+    if (pagination.prevPage) {
+      goToPage(pagination.prevPage);
     }
-  }, [goToPage, pagination.currentPage]);
+  }, [goToPage, pagination.prevPage]);
 
   return { 
     tokens, 

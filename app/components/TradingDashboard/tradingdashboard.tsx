@@ -472,7 +472,9 @@ export default function TradingDashboard() {
 
       <BottomControlBar
         currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
+        hasMore={pagination.hasMore}
+        nextPage={pagination.nextPage}
+        prevPage={pagination.prevPage}
         onPageChange={goToPage}
         onNextPage={nextPage}
         onPreviousPage={previousPage}

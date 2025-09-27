@@ -5,8 +5,12 @@ import React, { useState } from 'react';
 // Define the types for the Pagination component's props
 interface PaginationProps {
   currentPage: number;
-  totalPages: number;
+  hasMore: boolean;
+  nextPage: number | null;
+  prevPage: number | null;
   onPageChange: (page: number) => void;
+  onNextPage?: () => void;
+  onPreviousPage?: () => void;
 }
 
 // Pagination Button matching footer's exact golden styling
@@ -51,16 +55,28 @@ px-4 py-2.5 font-bold text-sm whitespace-nowrap
 };
 
 // The main Pagination logic and UI component
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({ 
+  currentPage, 
+  hasMore, 
+  nextPage, 
+  prevPage, 
+  onPageChange, 
+  onNextPage, 
+  onPreviousPage 
+}) => {
   const handlePrevious = () => {
-    if (currentPage > 1) {
-      onPageChange(currentPage - 1);
+    if (onPreviousPage) {
+      onPreviousPage();
+    } else if (prevPage) {
+      onPageChange(prevPage);
     }
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) {
-      onPageChange(currentPage + 1);
+    if (onNextPage) {
+      onNextPage();
+    } else if (nextPage) {
+      onPageChange(nextPage);
     }
   };
 
@@ -70,7 +86,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   return (
     <div className="flex items-center justify-center space-x-4">
       {/* Previous Button */}
-      <PaginationButton onClick={handlePrevious} disabled={currentPage === 1}>
+      <PaginationButton onClick={handlePrevious} disabled={!prevPage}>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
@@ -90,7 +106,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           "
         >
           <span className="inline-block transition-all duration-300 ease-in-out font-black">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} {hasMore ? '(More Available)' : '(Last Page)'}
           </span>
         </div>
 
@@ -118,7 +134,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       </div>
 
       {/* Next Button */}
-      <PaginationButton onClick={handleNext} disabled={currentPage === totalPages}>
+      <PaginationButton onClick={handleNext} disabled={!hasMore || !nextPage}>
         <span className="font-black text-base">Next</span>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -135,15 +151,27 @@ type IconProps = {
 
 
 
-// The Bottom Control Bar component
-export default function BottomControlBar() {
-  // State for pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const TOTAL_PAGES = 12; // Example total pages
+// Define the props for the BottomControlBar component
+interface BottomControlBarProps {
+  currentPage: number;
+  hasMore: boolean;
+  nextPage: number | null;
+  prevPage: number | null;
+  onPageChange: (page: number) => void;
+  onNextPage: () => void;
+  onPreviousPage: () => void;
+}
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+// The Bottom Control Bar component
+export default function BottomControlBar({
+  currentPage,
+  hasMore,
+  nextPage,
+  prevPage,
+  onPageChange,
+  onNextPage,
+  onPreviousPage
+}: BottomControlBarProps) {
 
   return (
     <div className="w-full relative" style={{marginTop: '0', paddingTop: '0'}}>
@@ -157,8 +185,12 @@ export default function BottomControlBar() {
         <div className="flex justify-center items-center">
           <Pagination
             currentPage={currentPage}
-            totalPages={TOTAL_PAGES}
-            onPageChange={handlePageChange}
+            hasMore={hasMore}
+            nextPage={nextPage}
+            prevPage={prevPage}
+            onPageChange={onPageChange}
+            onNextPage={onNextPage}
+            onPreviousPage={onPreviousPage}
           />
         </div>
 

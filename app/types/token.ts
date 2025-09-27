@@ -59,12 +59,13 @@ export interface Token {
     progress: number;
 }
 
-// Paginated API response structure
+// Paginated API response structure - Updated to match new API format
 export interface PaginatedTokenResponse {
     page: number;
     page_size: number;
-    total_count: number;
-    total_pages: number;
+    has_more: boolean;
+    next_page: number | null;
+    prev_page: number | null;
     items: Token[];
 }
   
