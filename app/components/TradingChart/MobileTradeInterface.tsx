@@ -61,8 +61,41 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
     boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,0,0.18)'
   };
 
-  // Drag handlers for resizing transactions
+  // Drag handlers for resizing transactions (improved for smoothness)
+  const handlePointerDown = (e: React.PointerEvent) => {
+    setIsDragging(true);
+    setDragStartY(e.clientY);
+    setDragStartHeight(transactionsHeight);
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = useCallback((e: PointerEvent) => {
+    if (!isDragging) return;
+    
+    // Use requestAnimationFrame for smoother updates
+    requestAnimationFrame(() => {
+      const deltaY = dragStartY - e.clientY;
+      const newHeight = dragStartHeight + deltaY;
+      
+      const minHeight = 80;
+      const maxHeight = Math.min(400, window.innerHeight * 0.6);
+      
+      const clampedHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+      setTransactionsHeight(clampedHeight);
+    });
+  }, [isDragging, dragStartY, dragStartHeight]);
+
+  const handlePointerUp = useCallback((e: PointerEvent) => {
+    setIsDragging(false);
+    if (e.target instanceof Element) {
+      e.target.releasePointerCapture(e.pointerId);
+    }
+  }, []);
+
+  // Legacy mouse support for older browsers
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.pointerType !== undefined) return; // Skip if pointer events are supported
     setIsDragging(true);
     setDragStartY(e.clientY);
     setDragStartHeight(transactionsHeight);
@@ -72,40 +105,69 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
     
-    const deltaY = dragStartY - e.clientY;
-    const newHeight = dragStartHeight + deltaY;
-    
-    const minHeight = 80;
-    const maxHeight = Math.min(400, window.innerHeight * 0.6);
-    
-    setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+    requestAnimationFrame(() => {
+      const deltaY = dragStartY - e.clientY;
+      const newHeight = dragStartHeight + deltaY;
+      
+      const minHeight = 80;
+      const maxHeight = Math.min(400, window.innerHeight * 0.6);
+      
+      const clampedHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+      setTransactionsHeight(clampedHeight);
+    });
   }, [isDragging, dragStartY, dragStartHeight]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  // Event listeners
+  // Event listeners for smooth dragging
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      // Use pointer events when available (better for touch/pen)
+      if (window.PointerEvent) {
+        document.addEventListener('pointermove', handlePointerMove, { passive: false });
+        document.addEventListener('pointerup', handlePointerUp);
+      } else {
+        // Fallback to mouse events
+        document.addEventListener('mousemove', handleMouseMove, { passive: false });
+        document.addEventListener('mouseup', handleMouseUp);
+      }
+      
+      // Prevent text selection and show resize cursor
       document.body.style.cursor = 'row-resize';
       document.body.style.userSelect = 'none';
+      document.body.style.touchAction = 'none'; // Prevent scrolling on mobile
     } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      // Clean up event listeners
+      if (window.PointerEvent) {
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerUp);
+      } else {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      }
+      
+      // Reset styles
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      document.body.style.touchAction = '';
     }
     
+    // Cleanup function
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      if (window.PointerEvent) {
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerUp);
+      } else {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      }
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      document.body.style.touchAction = '';
     };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handlePointerMove, handlePointerUp, handleMouseMove, handleMouseUp]);
 
   // Mobile detection
   useEffect(() => {
@@ -161,16 +223,40 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
     <>
       {/* Recent Transactions Widget (Mobile) */}
       <div 
-        className="lg:hidden bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30 relative"
-        style={{ height: `${transactionsHeight}px` }}
+        className={`lg:hidden bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30 relative ${
+          isDragging ? '' : 'transition-[height] duration-100 ease-out'
+        }`}
+        style={{ 
+          height: `${transactionsHeight}px`,
+          willChange: isDragging ? 'height' : 'auto' // Optimize for animations
+        }}
       >
-        {/* Drag Handle */}
+        {/* Drag Handle - Enhanced for smooth interaction */}
         <div 
-          className={`absolute top-0 left-0 right-0 h-3 cursor-row-resize flex items-center justify-center hover:bg-[#daa20b]/10 transition-colors group ${isDragging ? 'bg-[#daa20b]/20' : ''}`}
+          className={`absolute top-0 left-0 right-0 h-4 cursor-row-resize flex items-center justify-center hover:bg-[#daa20b]/10 transition-all duration-200 group ${
+            isDragging ? 'bg-[#daa20b]/20 h-6' : ''
+          }`}
+          onPointerDown={handlePointerDown}
           onMouseDown={handleMouseDown}
-          style={{ zIndex: 10 }}
+          style={{ 
+            zIndex: 10,
+            touchAction: 'none', // Prevent scrolling on touch
+            WebkitUserSelect: 'none',
+            userSelect: 'none'
+          }}
         >
-          <div className={`w-12 h-1 bg-[#daa20b]/40 rounded-full group-hover:bg-[#daa20b]/60 transition-colors ${isDragging ? 'bg-[#daa20b]/80' : ''}`}></div>
+          <div className={`w-12 h-1.5 bg-[#daa20b]/40 rounded-full group-hover:bg-[#daa20b]/60 transition-all duration-200 ${
+            isDragging ? 'bg-[#daa20b]/80 w-16 h-2' : ''
+          }`}></div>
+          
+          {/* Visual feedback dots */}
+          <div className={`absolute flex gap-1 transition-opacity duration-200 ${
+            isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+          }`}>
+            <div className="w-1 h-1 bg-[#daa20b]/60 rounded-full"></div>
+            <div className="w-1 h-1 bg-[#daa20b]/60 rounded-full"></div>
+            <div className="w-1 h-1 bg-[#daa20b]/60 rounded-full"></div>
+          </div>
         </div>
         
         <div className="px-4 py-3 pt-6 h-full flex flex-col">
