@@ -95,7 +95,7 @@ export default function TradingChart() {
     const deltaY = dragStartY - e.clientY; // Inverted: drag up = positive = increase height
     const newHeight = dragStartHeight + deltaY;
     
-    const minHeight = 80;
+    const minHeight = 56; // Keep button visible (expand button height + padding)
     const maxHeight = Math.min(400, window.innerHeight * 0.6);
     
     setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
@@ -107,7 +107,7 @@ export default function TradingChart() {
     const deltaY = dragStartY - e.touches[0].clientY; // Inverted: drag up = positive = increase height
     const newHeight = dragStartHeight + deltaY;
     
-    const minHeight = 80;
+    const minHeight = 56; // Keep button visible (expand button height + padding)
     const maxHeight = Math.min(400, window.innerHeight * 0.6);
     
     setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
@@ -280,23 +280,47 @@ export default function TradingChart() {
         </main>
       </div>
       
-      {/* Recent Transactions Widget (Mobile) */}
+      {/* Recent Transactions Widget (Mobile) - Chat Widget Colors */}
       <div 
-        className="lg:hidden bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30 relative"
-        style={{ height: `${transactionsHeight}px` }}
+        className="lg:hidden relative"
+        style={{ 
+          height: `${transactionsHeight}px`,
+          background: 'linear-gradient(180deg, #3a1e0e, #241208)',
+          borderTop: '1px solid #8b5a2b'
+        }}
       >
-        {/* Drag Handle */}
+        {/* Drag Handle / Expand Button */}
         <div 
-          className={`absolute top-0 left-0 right-0 h-4 cursor-row-resize flex items-center justify-center hover:bg-[#daa20b]/10 transition-colors group ${isDragging ? 'bg-[#daa20b]/20' : ''}`}
+          className={`absolute top-0 left-0 right-0 h-10 cursor-row-resize flex items-center justify-center transition-colors group ${isDragging ? 'bg-[rgba(255,178,32,0.1)]' : 'hover:bg-[rgba(255,178,32,0.06)]'}`}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
+          onClick={() => {
+            if (transactionsHeight < 100) {
+              setTransactionsHeight(window.innerHeight * 0.3);
+            }
+          }}
           style={{ zIndex: 10, touchAction: 'none' }}
         >
-          <div className={`w-16 h-1.5 bg-[#daa20b]/50 rounded-full group-hover:bg-[#daa20b]/70 transition-colors ${isDragging ? 'bg-[#daa20b]/90' : ''}`}></div>
+          {transactionsHeight < 100 ? (
+            // Collapsed state - show expand button
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{
+              background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+              border: '1px solid #8b5a2b',
+              color: '#ffc24b'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+              <span className="text-xs font-bold">RECENT TRANSACTIONS</span>
+            </div>
+          ) : (
+            // Expanded state - show drag handle
+            <div className={`w-16 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-[#ffc24b]' : 'bg-[rgba(255,178,32,0.5)] group-hover:bg-[rgba(255,178,32,0.7)]'}`}></div>
+          )}
         </div>
         
-        <div className="px-4 py-3 pt-7 h-full flex flex-col">
-          <h3 className="text-[#daa20b] font-bold text-sm mb-3 tracking-wide">RECENT TRANSACTIONS</h3>
+        <div className="px-4 py-3 pt-12 h-full flex flex-col" style={{ display: transactionsHeight < 100 ? 'none' : 'flex' }}>
+          <h3 className="font-bold text-sm mb-3 tracking-wide" style={{ color: '#ffc24b' }}>RECENT TRANSACTIONS</h3>
           <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
             {/* Mock transaction data */}
             {[
@@ -367,7 +391,10 @@ export default function TradingChart() {
                 positive: false 
               },
             ].map((tx, index) => (
-              <div key={index} className="py-2 px-3 bg-gradient-to-r from-[#7f4108] to-[#6f3906] border border-[#daa20b]/30 rounded-lg space-y-1.5">
+              <div key={index} className="py-2 px-3 rounded-lg space-y-1.5" style={{
+                background: 'linear-gradient(180deg, rgba(74, 38, 16, 0.75), rgba(58, 30, 14, 0.85))',
+                border: '1px solid #8b5a2b'
+              }}>
                 {/* Main Transaction Row - Now on top */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -381,36 +408,40 @@ export default function TradingChart() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs font-bold ${
-                        tx.positive ? 'text-[#4ade80]' : 'text-[#ef4444]'
+                        tx.positive ? 'text-[#21c87a]' : 'text-[#ff5a52]'
                       }`}>
                         {tx.type.toUpperCase()}
                       </span>
-                      <span className="text-[#feea88] text-xs">{tx.amount}</span>
-                      <span className="text-[#daa20b] text-xs">({tx.ethAmount})</span>
-                      <span className="text-[#daa20b] text-xs font-medium">{tx.time}</span>
+                      <span className="text-xs" style={{ color: '#fcefd8' }}>{tx.amount}</span>
+                      <span className="text-xs" style={{ color: '#ffc24b' }}>({tx.ethAmount})</span>
+                      <span className="text-xs font-medium" style={{ color: '#e4cba6' }}>{tx.time}</span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[#feea88] text-sm font-bold">{tx.price}</div>
+                    <div className="text-sm font-bold" style={{ color: '#fcefd8' }}>{tx.price}</div>
                   </div>
                 </div>
                 
                 {/* From Address and Date Row */}
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[#daa20b]/60">From:</span>
+                    <span style={{ color: '#e4cba6', opacity: 0.7 }}>From:</span>
                     <button
                       onClick={() => copyToClipboard(tx.address, `address-${index}`)}
-                      className={`text-[#feea88] font-mono bg-black/20 px-1.5 py-0.5 rounded hover:bg-black/40 transition-all cursor-pointer text-xs ${
-                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : ''
+                      className={`font-mono px-1.5 py-0.5 rounded transition-all cursor-pointer text-xs ${
+                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : 'hover:bg-black/40'
                       }`}
+                      style={{
+                        color: copiedItem === `address-${index}` ? undefined : '#fcefd8',
+                        background: copiedItem === `address-${index}` ? undefined : 'rgba(0, 0, 0, 0.2)'
+                      }}
                       title="Click to copy address"
                     >
                       {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="text-[#daa20b]/70 text-xs">{tx.fullDate}</div>
+                    <div className="text-xs" style={{ color: '#e4cba6', opacity: 0.8 }}>{tx.fullDate}</div>
                     <button 
                       onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
                       className="hover:opacity-80 transition-opacity flex-shrink-0" 

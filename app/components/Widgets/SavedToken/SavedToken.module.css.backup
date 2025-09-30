@@ -1,4 +1,4 @@
-/* SavedToken Widget Styles - Harmonized with Chat Widget */
+/* SavedToken Widget Styles */
 .root {
   position: fixed;
   inset: 0;
@@ -16,35 +16,22 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
 }
 
 .panel {
-  /* Chat widget color variables */
-  --bg-950: #1c0f07;
-  --bg-900: #241208;
-  --surface-800: #3a1e0e;
-  --primary-500: #ffb020;
-  --primary-400: #ffc24b;
-  --text-100: #fcefd8;
-  --text-300: #e4cba6;
-  --muted-400: #b88957;
-  --border-500: #8b5a2b;
-  --success-500: #21c87a;
-
   position: absolute;
   top: 0;
   right: 0;
   width: 450px;
   height: 100vh;
-  background: linear-gradient(180deg, var(--bg-900), var(--bg-950));
-  border-left: 1px solid var(--border-500);
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #2a1810 0%, #1f1108 100%);
+  border-left: 1px solid #4a3829;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: var(--text-100);
 }
 
 @media (max-width: 768px) {
@@ -58,44 +45,35 @@
   display: flex;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(184, 137, 87, 0.25);
-  background: linear-gradient(
-    180deg,
-    rgba(58, 30, 14, 0.78),
-    rgba(28, 15, 7, 0.86)
-  );
+  border-bottom: 1px solid #4a3829;
+  background: linear-gradient(135deg, #3a2718 0%, #2a1810 100%);
   flex-shrink: 0;
 }
 
 .icon {
   width: 32px;
   height: 32px;
-  background: radial-gradient(
-    100% 100% at 70% 20%,
-    #ffd589 0%,
-    #ffb020 45%,
-    #e89909 100%
-  );
-  border: 1px solid var(--border-500);
-  border-radius: 10px;
+  background: linear-gradient(135deg, #ffb000 0%, #ff8c00 100%);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  color: #3a1e0e;
+  font-weight: 700;
+  color: #1a0f08;
   margin-right: 12px;
   font-size: 14px;
 }
 
 .title {
   font-size: 18px;
-  font-weight: 700;
-  color: var(--text-100);
+  font-weight: 600;
+  color: #ffd79a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .sub {
   font-size: 12px;
-  color: var(--text-300);
+  color: #b8956f;
   margin-top: 2px;
 }
 
@@ -104,30 +82,20 @@
 }
 
 .btn {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 178, 32, 0.14),
-    rgba(255, 178, 32, 0.06)
-  );
-  border: 1px solid var(--border-500);
-  color: var(--primary-400);
-  padding: 6px 10px;
-  border-radius: 10px;
+  background: none;
+  border: 1px solid #5a4332;
+  color: #e6d4a3;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-left: 8px;
-  -webkit-appearance: none;
-  appearance: none;
-  box-shadow: none;
 }
 
 .btn:hover {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 178, 32, 0.24),
-    rgba(255, 178, 32, 0.16)
-  );
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #7a6352;
 }
 
 .body {
@@ -139,8 +107,8 @@
 
 .controls {
   padding: 16px 24px;
-  border-bottom: 1px solid rgba(184, 137, 87, 0.18);
-  background: var(--bg-950);
+  border-bottom: 1px solid #4a3829;
+  background: #1f1108;
   flex-shrink: 0;
 }
 
@@ -152,21 +120,19 @@
 
 .searchField label {
   font-size: 12px;
-  color: var(--text-300);
+  color: #b8956f;
   font-weight: 500;
 }
 
 .searchField input {
-  background: rgba(255, 178, 32, 0.08);
-  border: 1px solid var(--border-500);
-  border-radius: 12px;
+  background: #2a1810;
+  border: 1px solid #4a3829;
+  border-radius: 6px;
   padding: 8px 12px;
-  color: var(--text-100);
+  color: #e6d4a3;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 .searchField input:focus {

@@ -1,20 +1,21 @@
-/* SteakHolders Widget Styles */
+/* SteakHolders Widget Styles - Exact Chat Widget Colors */
 .root {
-  --hw-bg-0: #0d0704;
-  --hw-bg-1: #1a0f08;
-  --hw-bg-2: #231611;
-  --hw-bg-3: #2d1e17;
-  --hw-ink: #f5e6d3;
-  --hw-muted: #9b8976;
-  --hw-border: #3a2418;
-  --hw-accent: #f7b500;
-  --hw-accent-2: #ffc936;
-  --hw-chip: #2d1e17;
-  --hw-good: #4ade80;
-  --hw-warn: #f7b500;
-  --hw-danger: #ff4757;
+  /* EXACT CHAT WIDGET COLORS */
+  --hw-bg-0: #1c0f07;
+  --hw-bg-1: #241208;
+  --hw-bg-2: #3a1e0e;
+  --hw-bg-3: #4a2610;
+  --hw-ink: #fcefd8;
+  --hw-muted: #e4cba6;
+  --hw-border: #8b5a2b;
+  --hw-accent: #ffb020;
+  --hw-accent-2: #ffc24b;
+  --hw-chip: rgba(255, 178, 32, 0.08);
+  --hw-good: #21c87a;
+  --hw-warn: #ffb020;
+  --hw-danger: #ff5a52;
   --hw-radius: 18px;
-  --hw-shadow: 0 16px 60px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --hw-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 
   position: fixed;
   inset: 0;
@@ -29,8 +30,8 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(10, 6, 3, 0.55);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
   opacity: 0;
   transition: opacity 0.18s ease;
 }
@@ -48,11 +49,9 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: radial-gradient(900px 400px at 110% -10%, #3a241855 0%, transparent 60%),
-    radial-gradient(1200px 600px at -10% -20%, #2d1e1755 0%, transparent 70%),
-    linear-gradient(180deg, var(--hw-bg-2), var(--hw-bg-1));
+  background: linear-gradient(180deg, var(--hw-bg-2), var(--hw-bg-1));
   border-left: 1px solid var(--hw-border);
-  box-shadow: var(--hw-shadow);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
   transform: translateX(12px);
   opacity: 0;
   transition: all 0.22s ease;
@@ -71,8 +70,12 @@
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  background: linear-gradient(180deg, rgba(247, 181, 0, 0.05), rgba(13, 7, 4, 0.45));
-  border-bottom: 1px solid var(--hw-border);
+  background: linear-gradient(
+    180deg,
+    rgba(58, 30, 14, 0.78),
+    rgba(28, 15, 7, 0.86)
+  );
+  border-bottom: 1px solid rgba(184, 137, 87, 0.25);
 }
 
 .icon {
@@ -83,9 +86,14 @@
   display: grid;
   place-items: center;
   font-weight: 900;
-  color: #1a0f08;
-  background: linear-gradient(135deg, var(--hw-accent-2), var(--hw-accent));
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.25), 0 6px 18px rgba(247, 181, 0, 0.2);
+  color: #3a1e0e;
+  background: radial-gradient(
+    100% 100% at 70% 20%,
+    #ffd589 0%,
+    #ffb020 45%,
+    #e89909 100%
+  );
+  border: 1px solid var(--hw-border);
 }
 
 .title {
@@ -105,16 +113,27 @@
 
 .btn {
   border: 1px solid var(--hw-border);
-  background: transparent;
-  color: #f7b500;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.14),
+    rgba(255, 178, 32, 0.06)
+  );
+  color: var(--hw-accent-2);
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 800;
-  padding: 9px 12px;
+  padding: 8px 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none;
 }
 
 .btn:hover {
-  background: rgba(247, 181, 0, 0.1);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.24),
+    rgba(255, 178, 32, 0.16)
+  );
 }
 
 /* Content */
@@ -146,11 +165,10 @@
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(247, 181, 0, 0.03), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(180deg, rgba(255, 178, 32, 0.03), rgba(0, 0, 0, 0.25));
   border: 1px solid var(--hw-border);
   border-radius: 18px;
   padding: 14px;
-  box-shadow: var(--hw-shadow);
 }
 
 .row {
@@ -169,9 +187,9 @@
   border-radius: 10px;
   font-size: 10px;
   font-weight: 800;
-  background: rgba(247, 181, 0, 0.08);
+  background: rgba(255, 178, 32, 0.12);
   border: 1px solid var(--hw-border);
-  color: #ffc936;
+  color: var(--hw-accent-2);
   white-space: nowrap;
 }
 
@@ -182,9 +200,14 @@
   display: grid;
   place-items: center;
   font-weight: 900;
-  color: #3a210b;
-  background: conic-gradient(from 220deg, var(--hw-accent-2), var(--hw-accent), #cf7f1f, var(--hw-accent-2));
-  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.35);
+  color: #3a1e0e;
+  background: radial-gradient(
+    100% 100% at 70% 20%,
+    #ffd589 0%,
+    #ffb020 45%,
+    #e89909 100%
+  );
+  border: 1px solid var(--hw-border);
 }
 
 .tokenTitle {
