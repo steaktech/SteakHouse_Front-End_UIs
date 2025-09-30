@@ -18,24 +18,44 @@ interface WidgetCardProps {
 
 const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) => {
   const baseClasses = "flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
-  const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] border border-[#daa20b]/40";
-  const inactiveClasses = "bg-[#472303]/80 hover:bg-[#472303] border border-[#472303]/60 hover:border-[#daa20b]/30";
+  
+  // Chat widget colors
+  const activeStyle = {
+    background: 'linear-gradient(180deg, #ffc24b, #ffb020)',
+    border: '1px solid #8b5a2b',
+    color: '#1c0f07'
+  };
+  
+  const inactiveStyle = {
+    background: 'linear-gradient(180deg, rgba(74, 38, 16, 0.75), rgba(58, 30, 14, 0.85))',
+    border: '1px solid #8b5a2b'
+  };
 
   return (
     <div 
-      className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}
+      className={baseClasses}
+      style={active ? activeStyle : inactiveStyle}
       onClick={onClick}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'linear-gradient(180deg, rgba(74, 38, 16, 0.9), rgba(58, 30, 14, 1))';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'linear-gradient(180deg, rgba(74, 38, 16, 0.75), rgba(58, 30, 14, 0.85))';
+        }
+      }}
     >
       {/* Icon */}
-      <div className={`mb-2 ${active ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]' : 'opacity-80'}`}>
+      <div className={`mb-2 ${active ? '' : 'opacity-90'}`}>
         {icon}
       </div>
 
       {/* Widget Text */}
-      <span className={`
-        text-xs font-medium text-center tracking-[0.1px]
-        ${active ? 'text-[#e6d4a3] [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]' : 'text-[#e6d4a3]/80'}
-      `}>
+      <span className="text-xs font-medium text-center tracking-[0.1px]" style={{
+        color: active ? '#1c0f07' : '#fcefd8'
+      }}>
         {text}
       </span>
     </div>
@@ -69,11 +89,11 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   };
 
   const widgets = [
-    { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true },
-    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenClick },
-    { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
-    { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
-    { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
+    { icon: <BarChart3 size={24} style={{ color: '#1c0f07' }} />, text: 'Chart', active: true },
+    { icon: <Coins size={24} style={{ color: '#ffc24b' }} />, text: 'Token', onClick: handleTokenClick },
+    { icon: <Users size={24} style={{ color: '#ffc24b' }} />, text: 'Holders', onClick: handleHoldersClick },
+    { icon: <MessageCircle size={24} style={{ color: '#ffc24b' }} />, text: 'Chat', onClick: handleChatClick },
+    { icon: <Bookmark size={24} style={{ color: '#ffc24b' }} />, text: 'Saved', onClick: handleSavedTokenClick },
   ];
 
   return (
@@ -81,34 +101,47 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       {/* BACKDROP */}
       <div
         onClick={() => setExpanded(false)}
-        className={`fixed inset-0 bg-black/60 z-40 transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-40 transition-opacity lg:hidden ${
           expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
+        style={{ background: 'rgba(0, 0, 0, 0.35)' }}
       />
 
       {/* MOBILE BOTTOM SIDEBAR */}
       <div 
         className={`
           fixed bottom-0 left-0 right-0 z-50
-          bg-gradient-to-t from-[#472303] to-[#5a2d04]
-          border-t border-[#daa20b]/40
           shadow-[0_-4px_20px_rgba(0,0,0,0.4)]
           transition-transform duration-300 ease-out
           lg:hidden
           ${expanded ? 'translate-y-0' : 'translate-y-full'}
         `}
+        style={{
+          background: 'linear-gradient(180deg, #3a1e0e, #241208)',
+          borderTop: '1px solid #8b5a2b'
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#daa20b]/20">
-          <h2 className="text-[#daa20b] text-lg font-semibold tracking-[0.2px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid rgba(184, 137, 87, 0.25)' }}>
+          <h2 className="text-lg font-semibold tracking-[0.2px]" style={{ color: '#ffc24b' }}>
             Widgets
           </h2>
           <button 
             onClick={() => setExpanded(false)}
-            className="p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+            className="p-2 rounded-full transition-all"
             type="button"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+              border: '1px solid #8b5a2b'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))';
+            }}
           >
-            <X size={18} className="text-[#daa20b]" />
+            <X size={18} style={{ color: '#ffc24b' }} />
           </button>
         </div>
 
