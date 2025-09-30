@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { CreateTokenModalProps, TokenState, ProfileType, TaxMode, FinalTokenType, DeploymentMode } from './types';
 import { initialState, updateCreationFee, getPlatformFee, validateBasics, validateCurve, validateV2Settings, fmt, generateFakeHash } from './utils';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
+import { useCreateToken } from '@/app/hooks/useCreateToken';
+import { useToast } from '@/app/hooks/useToast';
 import Step0ChooseDeploymentMode from './Step0ChooseDeploymentMode';
 import Step1ChooseType from './Step1ChooseType';
 import StepV2LaunchSettings from './StepV2LaunchSettings';
@@ -22,6 +24,37 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   
   // Use stable price data hook - only fetch when modal is open
   const { formattedGasPrice, formattedEthPrice, loading: priceLoading } = useStablePriceData(isOpen);
+  
+  // Toast notifications
+  const { showToast } = useToast();
+  
+  // Token creation API hook
+  const { createToken, isLoading: isCreatingToken } = useCreateToken({
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        showToast({
+          type: 'success',
+          title: 'Token Created!',
+          message: `Your token has been successfully created.`,
+          duration: 5000
+        });
+        // Close modal after successful creation
+        setTimeout(() => {
+          onClose();
+          // Reset state after closing
+          setState(initialState);
+        }, 1500);
+      }
+    },
+    onError: (error) => {
+      showToast({
+        type: 'error',
+        title: 'Creation Failed',
+        message: error.message || 'Failed to create token. Please try again.',
+        duration: 5000
+      });
+    }
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -229,21 +262,46 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     }));
   }, []);
 
-  const handleMetaChange = useCallback((field: string, value: string) => {
+  const handleMetaChange = useCallback((field: string, value: string | File) => {
     setState(prev => ({
       ...prev,
-      meta: { ...prev.meta, [field]: value }
+      meta: { ...prev.meta, [field]: value as any }
     }));
   }, []);
 
   const handleConfirm = useCallback(async () => {
-    setState(prev => ({ ...prev, txHash: 'pending' }));
-    
-    // Simulate transaction
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    const fakeHash = generateFakeHash();
-    setState(prev => ({ ...prev, txHash: fakeHash }));
-  }, []);
+    try {
+      setState(prev => ({ ...prev, txHash: 'pending' }));
+      
+      // Prepare files
+      const files: { logo?: File; banner?: File } = {};
+      if (state.meta.logoFile) {
+        files.logo = state.meta.logoFile;
+      }
+      if (state.meta.bannerFile) {
+        files.banner = state.meta.bannerFile;
+      }
+      
+      // Call the API
+      const result = await createToken(state, files);
+      
+      if (result.success && result.txHash) {
+        setState(prev => ({ ...prev, txHash: result.txHash || 'success' }));
+      } else if (!result.success) {
+        // Reset to allow retry
+        setState(prev => ({ ...prev, txHash: null }));
+      }
+    } catch (error) {
+      console.error('Error creating token:', error);
+      setState(prev => ({ ...prev, txHash: null }));
+      showToast({
+        type: 'error',
+        title: 'Unexpected Error',
+        message: 'An unexpected error occurred. Please try again.',
+        duration: 5000
+      });
+    }
+  }, [state, createToken, showToast]);
 
   const getStepTitle = (step: number) => {
     if (step === 0) return 'Choose deployment mode';
@@ -515,6 +573,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                 state={state}
                 onBack={() => goToStep(5)}
                 onConfirm={handleConfirm}
+                isLoading={isCreatingToken}
               />
             )}
           </main>

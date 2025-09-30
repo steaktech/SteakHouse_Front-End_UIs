@@ -20,6 +20,11 @@
 				"internalType": "address",
 				"name": "_storage",
 				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_deployer",
+				"type": "address"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -143,6 +148,37 @@
 			{
 				"indexed": true,
 				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "BalanceTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
 				"name": "buyer",
 				"type": "address"
 			},
@@ -162,6 +198,12 @@
 				"indexed": false,
 				"internalType": "uint256",
 				"name": "tokensOut",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newBalance",
 				"type": "uint256"
 			}
 		],
@@ -588,21 +630,33 @@
 			},
 			{
 				"indexed": false,
-				"internalType": "bool",
-				"name": "isStealth",
-				"type": "bool"
+				"internalType": "uint256",
+				"name": "curveStartingTax",
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
-				"internalType": "bool",
-				"name": "isSuperSimple",
-				"type": "bool"
+				"internalType": "uint256",
+				"name": "finalTaxRate",
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
-				"internalType": "bool",
-				"name": "isZeroSimple",
-				"type": "bool"
+				"internalType": "uint256",
+				"name": "maxWallet",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "maxTx",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "gradPoolTarget",
+				"type": "uint256"
 			}
 		],
 		"name": "TokenCreated",
@@ -742,6 +796,19 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "claimAccrued",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"components": [
 					{
 						"internalType": "string",
@@ -876,6 +943,11 @@
 				"internalType": "struct IKitchenFactory.AdvancedParamsInput",
 				"name": "a",
 				"type": "tuple"
+			},
+			{
+				"internalType": "address",
+				"name": "taxWallet",
+				"type": "address"
 			}
 		],
 		"name": "createAdvancedToken",
@@ -1020,6 +1092,11 @@
 				"internalType": "struct IKitchenFactory.AdvancedParamsInput",
 				"name": "a",
 				"type": "tuple"
+			},
+			{
+				"internalType": "address",
+				"name": "taxWallet",
+				"type": "address"
 			}
 		],
 		"name": "createAdvancedTokenStealth",
@@ -1407,11 +1484,81 @@
 	},
 	{
 		"inputs": [],
+		"name": "deployer",
+		"outputs": [
+			{
+				"internalType": "contract IKitchenDeployer",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "factory",
 		"outputs": [
 			{
 				"internalType": "contract IKitchenFactory",
 				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "getAccrued",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getConfig",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "_factory",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_bondingCurve",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_graduation",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_storage",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_deployer",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
 				"type": "address"
 			}
 		],
@@ -1484,6 +1631,19 @@
 			}
 		],
 		"name": "sellToken",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_deployer",
+				"type": "address"
+			}
+		],
+		"name": "setDeployer",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -1569,6 +1729,29 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transferCurveBalance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]

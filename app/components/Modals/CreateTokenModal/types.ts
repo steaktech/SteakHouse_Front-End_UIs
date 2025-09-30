@@ -101,6 +101,8 @@ export interface MetaData {
   tw: string;
   logo: string;
   banner: string;
+  logoFile?: File;
+  bannerFile?: File;
 }
 
 export interface Fees {

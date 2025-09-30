@@ -7,12 +7,14 @@ interface Step6ReviewConfirmProps {
   state: TokenState;
   onBack: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   state,
   onBack,
-  onConfirm
+  onConfirm,
+  isLoading = false
 }) => {
   const [understandFees, setUnderstandFees] = useState(false);
 
@@ -292,10 +294,10 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         </button>
         <button 
           className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-          disabled={!understandFees}
+          disabled={!understandFees || isLoading}
           onClick={onConfirm}
         >
-          Confirm & Create
+          {isLoading ? 'Creating...' : 'Confirm & Create'}
         </button>
       </div>
 
@@ -303,10 +305,10 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         <div className={styles.card} style={{marginTop: '12px'}}>
           <div className={styles.row}>
             <div className={styles.pill}>
-              {state.txHash === 'pending' ? 'Pending' : 'Sent'}
+              {state.txHash === 'pending' ? 'Pending' : isLoading ? 'Creating' : 'Sent'}
             </div>
             <div>
-              {state.txHash === 'pending' ? 'Submitting transaction…' : 'Transaction submitted!'}
+              {state.txHash === 'pending' ? 'Creating token...' : isLoading ? 'Processing...' : 'Token created successfully!'}
             </div>
           </div>
           {state.txHash !== 'pending' && (
