@@ -311,39 +311,6 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
           </div>
         )}
       </div>
-      
-      {/* Stealth Launch Configuration - Only show for Deploy Only mode */}
-      {v2Settings.enableTradingMode === 'DEPLOY_ONLY' && (
-        <div className={styles.card}>
-          <div className={styles.label}>
-            Stealth Launch
-            <HelpTooltip content="Enable stealth launch to automatically add liquidity with a specified ETH amount when the token is deployed. Useful for immediate trading availability." />
-          </div>
-          
-          <label className={styles.switch}>
-            <input
-              type="checkbox"
-              className={styles.switchInput}
-              checked={v2Settings.stealthConfig.enabled}
-              onChange={(e) => handleStealthConfigChange('enabled', e.target.checked)}
-            />
-            <span className={styles.switchLabel}>Enable Stealth Launch</span>
-          </label>
-          
-          {v2Settings.stealthConfig.enabled && (
-            <div style={{ marginTop: '12px' }}>
-              <label className={styles.label}>ETH Amount for Initial Liquidity</label>
-              <input
-                className={`${styles.input} ${errors.stealthEthAmount ? styles.fieldError : ''}`}
-                value={v2Settings.stealthConfig.ethAmount}
-                onChange={(e) => handleStealthConfigChange('ethAmount', e.target.value)}
-                placeholder="1.0"
-              />
-              {errors.stealthEthAmount && <div className={styles.error}>{errors.stealthEthAmount}</div>}
-            </div>
-          )}
-        </div>
-      )}
 
       <div className={styles.footerNav}>
         <button
