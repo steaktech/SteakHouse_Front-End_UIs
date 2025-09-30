@@ -267,7 +267,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
           <div className={styles.footer}>
             <div className={styles.footerContent}>
               <span>{filteredTokens.length} of {savedTokens.length} tokens</span>
-              <span>Press <strong>/</strong> to search</span>
+              <span className={styles.desktopOnly}>Press <strong>/</strong> to search</span>
             </div>
           </div>
         </div>

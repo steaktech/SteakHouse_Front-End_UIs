@@ -359,6 +359,10 @@
   background: rgba(255, 92, 92, 0.1);
 }
 
+.desktopOnly {
+  display: inline;
+}
+
 /* Mobile: ensure perfect harmony with Chat widget */
 @media (max-width: 768px) {
   .panel {
@@ -369,5 +373,8 @@
     box-shadow: none !important;
     -webkit-appearance: none;
     appearance: none;
+  }
+  .desktopOnly {
+    display: none;
   }
 }

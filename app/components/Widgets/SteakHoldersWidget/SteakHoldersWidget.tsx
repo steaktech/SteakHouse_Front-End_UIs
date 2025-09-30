@@ -662,7 +662,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                   Filtered: <span>{EN.format(filteredHolders.length)}</span> of{' '}
                   <span>{EN.format(holders.length)}</span>
                 </div>
-                <div className={styles.muted}>
+                <div className={`${styles.muted} ${styles.desktopOnly}`}>
                   Tip: Press <span className={styles.kbd}>/</span> to focus search
                 </div>
               </div>
