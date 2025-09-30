@@ -252,8 +252,8 @@ export default function TradingChart() {
             isMobile ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded'
           }`}
           style={{
-            paddingBottom: isMobile ? '0px' : '8px',
-            height: isMobile ? 'calc(100vh - 120px - 80px)' : 'auto' // Subtract header, progress bar, and bottom bar heights
+            paddingBottom: isMobile ? `${transactionsHeight + 80}px` : '8px', // Add space for transactions panel + buy/sell bar
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto' // Only subtract header height
           }}
         >
           
@@ -282,8 +282,9 @@ export default function TradingChart() {
       
       {/* Recent Transactions Widget (Mobile) - Chat Widget Colors */}
       <div 
-        className="lg:hidden relative"
+        className="lg:hidden fixed left-0 right-0 z-30"
         style={{ 
+          bottom: '80px', // Position above buy/sell bar (which is 80px tall)
           height: `${transactionsHeight}px`,
           background: 'linear-gradient(180deg, #3a1e0e, #241208)',
           borderTop: '1px solid #8b5a2b'
