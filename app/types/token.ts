@@ -96,9 +96,62 @@ export interface Candle {
   volume: number;
 }
 
+// TokenInfo interface for the tokenInfo property
+export interface TokenInfo {
+  bio: string | null;
+  name: string;
+  symbol: string;
+  burn_lp: boolean;
+  creator: string;
+  twitter: string | null;
+  website: string | null;
+  catagory: string | null;
+  eth_pool: number;
+  telegram: string | null;
+  graduated: boolean;
+  image_url: string | null;
+  banner_url: string | null;
+  is_stealth: boolean;
+  start_time: number;
+  tax_wallet: string | null;
+  token_type: number;
+  updated_at: string;
+  inserted_at: string;
+  is_advanced: boolean;
+  max_tx_step: number;
+  curve_max_tx: number;
+  total_supply: number;
+  tax_drop_step: string | null;
+  token_address: string;
+  final_tax_rate: number;
+  graduation_cap: number;
+  is_zero_simple: boolean;
+  is_super_simple: boolean;
+  max_tx_interval: string | null;
+  max_wallet_step: number;
+  created_at_block: number;
+  curve_max_wallet: number;
+  lp_lock_duration: number;
+  tax_drop_interval: string | null;
+  circulating_supply: number;
+  curve_starting_tax: number;
+  curve_tax_duration: number;
+  limit_removal_time: string | null;
+  real_token_address: string | null;
+  graduation_cap_norm: number;
+  max_wallet_interval: string | null;
+  created_at_timestamp: number;
+  graduation_timestamp: string | null;
+  curve_max_tx_duration: number;
+  virtual_token_address: string;
+  curve_max_wallet_duration: number;
+  steakhouse_treasury_basic: string;
+}
+
 // Full token data API response interface
 export interface FullTokenDataResponse {
   token: string;
+  tokenInfo: TokenInfo;
   price: number;
   marketCap: number;
   lastTrade: Trade;
@@ -147,7 +200,7 @@ export interface TrendingToken {
   trending_score: number;
   symbol: string;
   image_url: string | null;
-  price_change_24h: number;
+  price_change_24h: number | null;
 }
 
 export interface TrendingSnapshot {

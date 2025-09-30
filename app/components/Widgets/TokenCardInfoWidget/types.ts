@@ -1,3 +1,5 @@
+import type { FullTokenDataResponse } from '@/app/types/token';
+
 export interface TokenCardInfoData {
   imageUrl: string;
   name: string;
@@ -10,6 +12,9 @@ export interface TokenCardInfoData {
   volume: string;
   progress: number;
   token_address?: string;
+  tokenData?: FullTokenDataResponse | null;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 export interface TokenCardInfoWidgetProps {

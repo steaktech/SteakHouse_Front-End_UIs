@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Globe, Send } from 'lucide-react';
+import { Globe, Send, Copy } from 'lucide-react';
 import { TokenCardInfoData } from './types';
 
 const TwitterIcon = () => (
@@ -17,12 +17,51 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
   mcap, 
   liquidity, 
   volume, 
-  progress = 75
+  progress = 75,
+  tokenData,
+  isLoading,
+  error
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [copiedToken, setCopiedToken] = useState(false);
+  
+  // Use API data if available, otherwise use props
+  const displayData = {
+    name: tokenData?.tokenInfo?.name || name,
+    symbol: tokenData?.tokenInfo?.symbol || symbol,
+    imageUrl: tokenData?.tokenInfo?.image_url || imageUrl,
+    description: tokenData?.tokenInfo?.bio || description,
+    mcap: tokenData ? `$${(tokenData.marketCap / 1000).toFixed(1)}K` : mcap,
+    // For volume, we should ideally use 24h volume data, but for now using last trade value
+    volume: tokenData?.lastTrade ? 
+      (() => {
+        const value = typeof tokenData.lastTrade.usdValue === 'string' ? 
+          parseFloat(tokenData.lastTrade.usdValue.replace(/[^0-9.-]+/g, '')) : 
+          (tokenData.lastTrade.usdValue || 0);
+        return !isNaN(value) ? `$${value.toFixed(2)}` : '$0.00';
+      })() : volume,
+    liquidity: tokenData?.tokenInfo?.eth_pool ? 
+      `${Number(tokenData.tokenInfo.eth_pool).toFixed(2)} ETH` : liquidity,
+    category: tokenData?.tokenInfo?.catagory || tag,
+    finalTax: tokenData?.tokenInfo?.final_tax_rate || 3,
+    currentTax: tokenData?.tokenInfo?.curve_starting_tax || 3,
+    maxTx: tokenData?.tokenInfo?.curve_max_tx ? 
+      `${((Number(tokenData.tokenInfo.curve_max_tx) / Number(tokenData.tokenInfo.total_supply)) * 100).toFixed(1)}%` : '2.1%',
+    // Calculate progress based on API data
+    calculatedProgress: tokenData?.tokenInfo ? 
+      (() => {
+        const circulating = Number(tokenData.tokenInfo.circulating_supply);
+        const cap = Number(tokenData.tokenInfo.graduation_cap_norm);
+        return (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? (circulating / cap) * 100 : 0;
+      })() : progress,
+    twitter: tokenData?.tokenInfo?.twitter,
+    telegram: tokenData?.tokenInfo?.telegram,
+    website: tokenData?.tokenInfo?.website,
+    tokenAddress: tokenData?.tokenInfo?.token_address || ''
+  };
 
   const formatPercent = (v: number) => {
     return v.toLocaleString('en-US', {
@@ -38,6 +77,18 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
     fillRef.current.style.width = `${clamped}%`;
     trackRef.current.setAttribute('aria-valuenow', clamped.toFixed(1));
     labelRef.current.textContent = formatPercent(clamped);
+  };
+
+  const handleCopyToken = async () => {
+    if (displayData.tokenAddress) {
+      try {
+        await navigator.clipboard.writeText(displayData.tokenAddress);
+        setCopiedToken(true);
+        setTimeout(() => setCopiedToken(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy token address:', err);
+      }
+    }
   };
 
   // Handle responsive sizing
@@ -58,9 +109,48 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
 
   useEffect(() => {
     setTimeout(() => {
-      setProgress(progress);
+      setProgress(displayData.calculatedProgress);
     }, 100);
-  }, [progress]);
+  }, [displayData.calculatedProgress]);
+
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div 
+        style={{
+          width: '100%',
+          maxWidth: isDesktop ? '420px' : '100%',
+          height: isDesktop ? '100%' : 'clamp(520px, 85vh, 650px)',
+          minHeight: isDesktop ? '100%' : 'clamp(520px, 85vh, 650px)',
+          position: 'relative',
+          borderRadius: 'clamp(18px, 2.5vw, 26px)',
+          background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+          padding: 'clamp(16px, 3vh, 22px) clamp(18px, 3vw, 22px) clamp(14px, 2.5vh, 18px)',
+          border: '1px solid rgba(255, 215, 165, 0.4)',
+          color: '#fff7ea',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '3px solid rgba(254, 234, 136, 0.3)',
+          borderTop: '3px solid #feea88',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <div style={{
+          color: '#feea88',
+          fontSize: 'clamp(14px, 2.5vw, 16px)',
+          fontWeight: 600
+        }}>Loading token data...</div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -142,8 +232,8 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             overflow: 'hidden'
           }}>
             <img 
-              src={imageUrl} 
-              alt={name} 
+              src={displayData.imageUrl} 
+              alt={displayData.name} 
               style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
             />
           </div>
@@ -155,7 +245,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               fontSize: 'clamp(14px, 2.8vw, 20px)',
               lineHeight: 1,
               margin: 0
-            }}>{name}</h1>
+            }}>{displayData.name}</h1>
             <div style={{
               marginTop: 'clamp(2px, 0.5vh, 4px)',
               fontWeight: 800,
@@ -167,19 +257,43 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               padding: 'clamp(2px, 0.4vh, 4px) clamp(5px, 1vw, 8px)',
               borderRadius: '999px',
               maxWidth: 'fit-content'
-            }}>{symbol}</div>
+            }}>{displayData.symbol}</div>
           </div>
         </div>
-        <div style={{
-          padding: 'clamp(5px, 1vh, 7px) clamp(8px, 1.8vw, 12px)',
-          background: 'linear-gradient(180deg, #ffe49c, #ffc96a)',
-          color: '#3a200f',
-          fontWeight: 800,
-          letterSpacing: '1px',
-          fontSize: 'clamp(10px, 1.6vw, 11px)',
-          borderRadius: '999px',
-          border: '1px solid rgba(140, 85, 35, 0.28)'
-        }}>{tag}</div>
+        <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 6px)', alignItems: 'center' }}>
+          <div style={{
+            padding: 'clamp(5px, 1vh, 7px) clamp(8px, 1.8vw, 12px)',
+            background: 'linear-gradient(180deg, #ffe49c, #ffc96a)',
+            color: '#3a200f',
+            fontWeight: 800,
+            letterSpacing: '1px',
+            fontSize: 'clamp(10px, 1.6vw, 11px)',
+            borderRadius: '999px',
+            border: '1px solid rgba(140, 85, 35, 0.28)'
+          }}>{displayData.category.toUpperCase()}</div>
+          {displayData.tokenAddress && (
+            <button
+              onClick={handleCopyToken}
+              style={{
+                background: copiedToken ? 'linear-gradient(180deg, #a8ff88, #7fcc5a)' : 'linear-gradient(180deg, #ffe49c, #ffc96a)',
+                color: '#3a200f',
+                border: '1px solid rgba(140, 85, 35, 0.28)',
+                borderRadius: '999px',
+                padding: 'clamp(4px, 0.8vh, 6px) clamp(6px, 1.2vw, 8px)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'clamp(3px, 0.6vw, 4px)',
+                cursor: 'pointer',
+                fontSize: 'clamp(10px, 1.6vw, 11px)',
+                fontWeight: 700,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Copy size={Math.max(12, Math.min(16, window.innerWidth * 0.035))} />
+              {copiedToken ? 'Copied!' : ''}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tax Line - Better spacing */}
@@ -199,7 +313,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
           fontSize: 'clamp(12px, 2.2vw, 16px)',
           color: '#feea88',
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-        }}>Tax: 3/3</div>
+        }}>Tax: {displayData.currentTax}/{displayData.finalTax}</div>
         <div style={{ display: 'flex', gap: 'clamp(2px, 0.6vw, 4px)' }}>
           <span style={{
             display: 'inline-flex',
@@ -212,7 +326,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             fontWeight: 900,
             fontSize: 'clamp(9px, 1.4vw, 11px)',
             borderRadius: 'clamp(5px, 1.2vw, 8px)'
-          }}>Current Tax: 3/3</span>
+          }}>Current Tax: {displayData.currentTax}/{displayData.finalTax}</span>
           <span style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -224,7 +338,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             fontWeight: 900,
             fontSize: 'clamp(9px, 1.4vw, 11px)',
             borderRadius: 'clamp(5px, 1.2vw, 8px)'
-          }}>MaxTX: 2,1%</span>
+          }}>MaxTX: {displayData.maxTx}</span>
         </div>
       </div>
 
@@ -240,7 +354,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         textAlign: 'center',
         padding: '0 clamp(4px, 1vw, 8px)'
       }}>
-        {description}
+        {displayData.description}
       </div>
 
       {/* Socials - Better spacing */}
@@ -250,45 +364,57 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         marginBottom: 'clamp(8px, 1.6vh, 12px)',
         flexShrink: 0
       }}>
-        <button style={{
-          color: '#fff1dc',
-          width: 'clamp(32px, 5.5vw, 36px)',
-          height: 'clamp(32px, 5.5vw, 36px)',
-          display: 'grid',
-          placeItems: 'center',
-          borderRadius: 'clamp(8px, 2vw, 12px)',
-          background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
-          border: '1px solid rgba(255, 215, 165, 0.5)',
-          cursor: 'pointer'
-        }}>
-          <Send size={Math.max(14, Math.min(18, window.innerWidth * 0.04))} />
-        </button>
-        <button style={{
-          color: '#fff1dc',
-          width: 'clamp(32px, 5.5vw, 36px)',
-          height: 'clamp(32px, 5.5vw, 36px)',
-          display: 'grid',
-          placeItems: 'center',
-          borderRadius: 'clamp(8px, 2vw, 12px)',
-          background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
-          border: '1px solid rgba(255, 215, 165, 0.5)',
-          cursor: 'pointer'
-        }}>
-          <TwitterIcon />
-        </button>
-        <button style={{
-          color: '#fff1dc',
-          width: 'clamp(32px, 5.5vw, 36px)',
-          height: 'clamp(32px, 5.5vw, 36px)',
-          display: 'grid',
-          placeItems: 'center',
-          borderRadius: 'clamp(8px, 2vw, 12px)',
-          background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
-          border: '1px solid rgba(255, 215, 165, 0.5)',
-          cursor: 'pointer'
-        }}>
-          <Globe size={Math.max(14, Math.min(18, window.innerWidth * 0.04))} />
-        </button>
+        {displayData.telegram && (
+          <button style={{
+            color: '#fff1dc',
+            width: 'clamp(32px, 5.5vw, 36px)',
+            height: 'clamp(32px, 5.5vw, 36px)',
+            display: 'grid',
+            placeItems: 'center',
+            borderRadius: 'clamp(8px, 2vw, 12px)',
+            background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
+            border: '1px solid rgba(255, 215, 165, 0.5)',
+            cursor: 'pointer'
+          }}
+          onClick={() => window.open(displayData.telegram, '_blank')}
+          >
+            <Send size={Math.max(14, Math.min(18, window.innerWidth * 0.04))} />
+          </button>
+        )}
+        {displayData.twitter && (
+          <button style={{
+            color: '#fff1dc',
+            width: 'clamp(32px, 5.5vw, 36px)',
+            height: 'clamp(32px, 5.5vw, 36px)',
+            display: 'grid',
+            placeItems: 'center',
+            borderRadius: 'clamp(8px, 2vw, 12px)',
+            background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
+            border: '1px solid rgba(255, 215, 165, 0.5)',
+            cursor: 'pointer'
+          }}
+          onClick={() => window.open(displayData.twitter, '_blank')}
+          >
+            <TwitterIcon />
+          </button>
+        )}
+        {displayData.website && (
+          <button style={{
+            color: '#fff1dc',
+            width: 'clamp(32px, 5.5vw, 36px)',
+            height: 'clamp(32px, 5.5vw, 36px)',
+            display: 'grid',
+            placeItems: 'center',
+            borderRadius: 'clamp(8px, 2vw, 12px)',
+            background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
+            border: '1px solid rgba(255, 215, 165, 0.5)',
+            cursor: 'pointer'
+          }}
+          onClick={() => window.open(displayData.website, '_blank')}
+          >
+            <Globe size={Math.max(14, Math.min(18, window.innerWidth * 0.04))} />
+          </button>
+        )}
       </div>
 
       {/* Score Section */}
@@ -330,7 +456,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-            }}>{mcap}</div>
+            }}>{displayData.mcap}</div>
           </div>
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -354,7 +480,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-            }}>{volume}</div>
+            }}>{displayData.volume}</div>
           </div>
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -378,7 +504,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-            }}>{liquidity}</div>
+            }}>{displayData.liquidity}</div>
           </div>
         </div>
 

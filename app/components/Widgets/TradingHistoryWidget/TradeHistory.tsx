@@ -1,13 +1,14 @@
 import React from 'react';
-import { useTokenData } from '@/app/hooks/useTokenData';
-import type { Trade } from '@/app/types/token';
+import type { Trade, FullTokenDataResponse } from '@/app/types/token';
 
 interface TradeHistoryProps {
   tokenAddress: string;
+  tokenData: FullTokenDataResponse | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
-export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress }) => {
-  const { data: tokenData, isLoading, error } = useTokenData(tokenAddress);
+export const TradeHistory: React.FC<TradeHistoryProps> = ({ tokenAddress, tokenData, isLoading, error }) => {
 
   // Helper functions
   const formatDate = (timestamp: number): string => {

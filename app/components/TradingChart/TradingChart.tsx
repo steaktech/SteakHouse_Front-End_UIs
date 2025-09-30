@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/app/components/Header";
-import TrendingBar from "@/app/components/TrendingBar";
 import { DesktopSidebar } from "./DesktopSidebar";
 import { MobileBottomBar } from "./MobileSidebar";
 import { TradingView } from "./TradingView";
@@ -13,6 +12,7 @@ import { MobileTradeInterface } from "./MobileTradeInterface";
 import { FullscreenChart } from "./FullscreenChart";
 import { OrientationPrompt } from "./OrientationPrompt";
 import { useDeviceOrientation } from "@/app/hooks/useDeviceOrientation";
+import { useTokenData } from "@/app/hooks/useTokenData";
 
 interface TradingChartProps {
   tokenAddress?: string;
@@ -28,6 +28,9 @@ export default function TradingChart({
   const [isMobile, setIsMobile] = useState(false);
 
   const { isMobile: deviceIsMobile, isLandscape } = useDeviceOrientation();
+  
+  // Fetch token data at the main component level
+  const { data: tokenData, isLoading, error } = useTokenData(tokenAddress);
 
   // Mobile detection
   useEffect(() => {
@@ -81,14 +84,31 @@ export default function TradingChart({
             BONDING CURVE
           </span>
           <span className="text-[#feea88] text-xs font-bold">
-            {10}%
+            {tokenData?.tokenInfo ? 
+              (() => {
+                const circulating = Number(tokenData.tokenInfo.circulating_supply);
+                const cap = Number(tokenData.tokenInfo.graduation_cap_norm);
+                const percentage = (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? 
+                  (circulating / cap) * 100 : 0;
+                return `${percentage.toFixed(1)}%`;
+              })() : 
+              '0%'
+            }
           </span>
         </div>
         <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
           <div
             className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
             style={{
-              width: `${10}%`,
+              width: tokenData?.tokenInfo ? 
+                (() => {
+                  const circulating = Number(tokenData.tokenInfo.circulating_supply);
+                  const cap = Number(tokenData.tokenInfo.graduation_cap_norm);
+                  const percentage = (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? 
+                    (circulating / cap) * 100 : 0;
+                  return `${Math.min(100, Math.max(0, percentage)).toFixed(1)}%`;
+                })() : 
+                '0%',
               boxShadow:
                 "0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
             }}
@@ -132,6 +152,9 @@ export default function TradingChart({
               liquidity="$450K"
               volume="$1.2M"
               progress={75}
+              tokenData={tokenData}
+              isLoading={isLoading}
+              error={error}
             />
           </div>
 
@@ -142,7 +165,12 @@ export default function TradingChart({
 
           {/* Trade History - Desktop only, mobile uses popup from sidebar */}
           <div className="order-3 lg:col-start-1 lg:row-start-2 hidden lg:block">
-            <TradeHistory tokenAddress={tokenAddress} />
+            <TradeHistory 
+              tokenAddress={tokenAddress} 
+              tokenData={tokenData}
+              isLoading={isLoading}
+              error={error}
+            />
           </div>
         </main>
       </div>
