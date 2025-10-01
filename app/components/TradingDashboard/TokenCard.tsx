@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Globe, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
 import styles from './TokenCard.module.css';
@@ -17,6 +18,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   volume, 
   progress 
 }) => {
+  const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -186,11 +188,18 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     };
   }, [progress]);
 
+  // Handle card click to navigate to trading chart
+  const handleCardClick = () => {
+    router.push(`/trading-chart?symbol=${encodeURIComponent(symbol)}`);
+  };
+
   return (
     <article 
       className={styles.tokenCard}
       role="article"
       aria-label={`${name} token card`}
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer' }}
     >
       {/* Token banner */}
       <div className={styles.tokenBanner} aria-hidden="true">
@@ -213,13 +222,28 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             <div className={styles.tickerRow}>
               <div className={styles.ticker}>{symbol}</div>
               <nav className={styles.socialsTop} aria-label="Social links">
-                <button className={`${styles.socialBtn} ${styles.tg}`} aria-label="Telegram" title="Telegram">
+                <button 
+                  className={`${styles.socialBtn} ${styles.tg}`} 
+                  aria-label="Telegram" 
+                  title="Telegram"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Send size={16} />
                 </button>
-                <button className={`${styles.socialBtn} ${styles.x}`} aria-label="X (Twitter)" title="X">
+                <button 
+                  className={`${styles.socialBtn} ${styles.x}`} 
+                  aria-label="X (Twitter)" 
+                  title="X"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <TwitterIcon />
                 </button>
-                <button className={`${styles.socialBtn} ${styles.web}`} aria-label="Website" title="Website">
+                <button 
+                  className={`${styles.socialBtn} ${styles.web}`} 
+                  aria-label="Website" 
+                  title="Website"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Globe size={16} />
                 </button>
               </nav>

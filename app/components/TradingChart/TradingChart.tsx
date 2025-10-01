@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Header from '@/app/components/Header';
 import TrendingBar from "@/app/components/TrendingBar";
 import { DesktopSidebar } from './DesktopSidebar';
@@ -16,6 +17,9 @@ import { TradingTokenCard } from './TradingTokenCard';
 import { X } from 'lucide-react';
 
 export default function TradingChart() {
+  const searchParams = useSearchParams();
+  const tokenSymbol = searchParams.get('symbol');
+  
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
@@ -26,9 +30,7 @@ export default function TradingChart() {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
-
-  // Sample token data for the TokenCard
-  const sampleTokenData: TokenCardProps = {
+  const [tokenData, setTokenData] = useState<TokenCardProps>({
     isOneStop: false,
     imageUrl: '/images/info_icon.jpg',
     name: 'SpaceMan',
@@ -40,7 +42,20 @@ export default function TradingChart() {
     liquidity: '$2.3K',
     volume: '$6.2K',
     progress: 82
-  };
+  });
+
+  // Load token data based on URL parameter
+  useEffect(() => {
+    if (tokenSymbol) {
+      // TODO: Fetch token data from API based on symbol
+      // For now, we'll update the symbol in the existing data
+      setTokenData(prev => ({
+        ...prev,
+        symbol: tokenSymbol,
+        name: tokenSymbol // You can update this when you fetch from API
+      }));
+    }
+  }, [tokenSymbol]);
 
 
   // BUY inner style (green glossy pill)
@@ -226,13 +241,13 @@ export default function TradingChart() {
       <div className="lg:hidden bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
-          <span className="text-[#feea88] text-xs font-bold">{sampleTokenData.progress}%</span>
+          <span className="text-[#feea88] text-xs font-bold">{tokenData.progress}%</span>
         </div>
         <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
           <div 
             className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
             style={{
-              width: `${sampleTokenData.progress}%`,
+              width: `${tokenData.progress}%`,
               boxShadow: '0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }}
           >
@@ -252,7 +267,7 @@ export default function TradingChart() {
             isMobile ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded'
           }`}
           style={{
-            paddingBottom: isMobile ? `${transactionsHeight + 80}px` : '8px', // Add space for transactions panel + buy/sell bar
+            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar
             height: isMobile ? 'calc(100vh - 60px)' : 'auto' // Only subtract header height
           }}
         >
@@ -263,8 +278,8 @@ export default function TradingChart() {
           </div>
 
           {/* Token Card (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center items-stretch p-0 m-0">
-            <TradingTokenCard {...sampleTokenData} />
+          <div className="hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center items-start p-0 m-0">
+            <TradingTokenCard {...tokenData} />
           </div>
 
           {/* Trade Panel (desktop only) */}
@@ -280,19 +295,20 @@ export default function TradingChart() {
         </main>
       </div>
       
-      {/* Recent Transactions Widget (Mobile) - Chat Widget Colors */}
+      {/* Recent Transactions Widget (Mobile) - Matching Desktop Styling */}
       <div 
         className="lg:hidden fixed left-0 right-0 z-30"
         style={{ 
-          bottom: '80px', // Position above buy/sell bar (which is 80px tall)
+          bottom: '68px', // Position directly above buy/sell bar with no gap
           height: `${transactionsHeight}px`,
-          background: 'linear-gradient(180deg, #3a1e0e, #241208)',
-          borderTop: '1px solid #8b5a2b'
+          background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+          borderTop: '1px solid rgba(255, 215, 165, 0.4)',
+          boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.2)'
         }}
       >
         {/* Drag Handle / Expand Button */}
         <div 
-          className={`absolute top-0 left-0 right-0 h-10 cursor-row-resize flex items-center justify-center transition-colors group ${isDragging ? 'bg-[rgba(255,178,32,0.1)]' : 'hover:bg-[rgba(255,178,32,0.06)]'}`}
+          className={`absolute top-0 left-0 right-0 h-10 cursor-row-resize flex items-center justify-center transition-colors group ${isDragging ? 'bg-[rgba(255,215,165,0.1)]' : 'hover:bg-[rgba(255,215,165,0.06)]'}`}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           onClick={() => {
@@ -305,9 +321,9 @@ export default function TradingChart() {
           {transactionsHeight < 100 ? (
             // Collapsed state - show expand button
             <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{
-              background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-              border: '1px solid #8b5a2b',
-              color: '#ffc24b'
+              background: 'linear-gradient(180deg, rgba(255, 231, 190, 0.35), rgba(255, 196, 120, 0.22))',
+              border: '1px solid rgba(255, 210, 160, 0.65)',
+              color: '#feea88'
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="18 15 12 9 6 15"></polyline>
@@ -316,13 +332,24 @@ export default function TradingChart() {
             </div>
           ) : (
             // Expanded state - show drag handle
-            <div className={`w-16 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-[#ffc24b]' : 'bg-[rgba(255,178,32,0.5)] group-hover:bg-[rgba(255,178,32,0.7)]'}`}></div>
+            <div className={`w-16 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-[#feea88]' : 'bg-[rgba(255,215,165,0.5)] group-hover:bg-[rgba(255,215,165,0.7)]'}`}></div>
           )}
         </div>
         
         <div className="px-4 py-3 pt-12 h-full flex flex-col" style={{ display: transactionsHeight < 100 ? 'none' : 'flex' }}>
-          <h3 className="font-bold text-sm mb-3 tracking-wide" style={{ color: '#ffc24b' }}>RECENT TRANSACTIONS</h3>
-          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
+          <h3 className="font-bold text-sm mb-3 tracking-wide" style={{ 
+            color: '#feea88',
+            fontFamily: '"Sora", "Inter", sans-serif',
+            fontWeight: 800,
+            textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
+          }}>Recent Transactions</h3>
+          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar" style={{
+            background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
+            border: '1px solid rgba(255, 215, 165, 0.4)',
+            borderRadius: '14px',
+            padding: '12px',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+          }}>
             {/* Mock transaction data */}
             {[
               { 
@@ -393,8 +420,9 @@ export default function TradingChart() {
               },
             ].map((tx, index) => (
               <div key={index} className="py-2 px-3 rounded-lg space-y-1.5" style={{
-                background: 'linear-gradient(180deg, rgba(74, 38, 16, 0.75), rgba(58, 30, 14, 0.85))',
-                border: '1px solid #8b5a2b'
+                background: 'rgba(87, 37, 1, 0.3)',
+                border: '1px solid rgba(255, 215, 165, 0.2)',
+                transition: 'all 0.2s ease'
               }}>
                 {/* Main Transaction Row - Now on top */}
                 <div className="flex items-center justify-between">
@@ -409,31 +437,31 @@ export default function TradingChart() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs font-bold ${
-                        tx.positive ? 'text-[#21c87a]' : 'text-[#ff5a52]'
-                      }`}>
+                        tx.positive ? 'text-[#4ade80]' : 'text-[#f87171]'
+                      }`} style={{ fontWeight: 800, textTransform: 'uppercase' }}>
                         {tx.type.toUpperCase()}
                       </span>
-                      <span className="text-xs" style={{ color: '#fcefd8' }}>{tx.amount}</span>
-                      <span className="text-xs" style={{ color: '#ffc24b' }}>({tx.ethAmount})</span>
-                      <span className="text-xs font-medium" style={{ color: '#e4cba6' }}>{tx.time}</span>
+                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.amount}</span>
+                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>({tx.ethAmount})</span>
+                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.time}</span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-bold" style={{ color: '#fcefd8' }}>{tx.price}</div>
+                    <div className="text-sm font-bold" style={{ color: '#feea88' }}>{tx.price}</div>
                   </div>
                 </div>
                 
                 {/* From Address and Date Row */}
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5">
-                    <span style={{ color: '#e4cba6', opacity: 0.7 }}>From:</span>
+                    <span style={{ color: '#ffe0b6', opacity: 0.9 }}>From:</span>
                     <button
                       onClick={() => copyToClipboard(tx.address, `address-${index}`)}
                       className={`font-mono px-1.5 py-0.5 rounded transition-all cursor-pointer text-xs ${
                         copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : 'hover:bg-black/40'
                       }`}
                       style={{
-                        color: copiedItem === `address-${index}` ? undefined : '#fcefd8',
+                        color: copiedItem === `address-${index}` ? undefined : '#feea88',
                         background: copiedItem === `address-${index}` ? undefined : 'rgba(0, 0, 0, 0.2)'
                       }}
                       title="Click to copy address"
@@ -442,7 +470,7 @@ export default function TradingChart() {
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="text-xs" style={{ color: '#e4cba6', opacity: 0.8 }}>{tx.fullDate}</div>
+                    <div className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.fullDate}</div>
                     <button 
                       onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
                       className="hover:opacity-80 transition-opacity flex-shrink-0" 

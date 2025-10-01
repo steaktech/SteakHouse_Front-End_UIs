@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Globe, Send } from 'lucide-react';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
 
@@ -22,7 +22,6 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
 
   const formatPercent = (v: number) => {
     return v.toLocaleString('en-US', {
@@ -40,22 +39,6 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
     labelRef.current.textContent = formatPercent(clamped);
   };
 
-  // Handle responsive sizing
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 768);
-    };
-    
-    // Set initial value
-    handleResize();
-    
-    // Add event listener
-    window.addEventListener('resize', handleResize);
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   useEffect(() => {
     setTimeout(() => {
       setProgress(progress);
@@ -66,14 +49,14 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
     <div 
       style={{
         width: '100%',
-        maxWidth: isDesktop ? '420px' : '100%',
-        height: isDesktop ? '100%' : 'auto',
-        minHeight: isDesktop ? '100%' : 'auto',
+        maxWidth: '420px',
+        height: 'auto',
+        minHeight: '450px',
         position: 'relative',
-        borderRadius: 'clamp(18px, 2.5vw, 26px)',
+        borderRadius: '26px',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-        padding: '18px 18px 6px 18px',
+        padding: '22px 22px 18px',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         overflow: 'hidden',
         color: '#fff7ea',
@@ -86,8 +69,8 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
       <div style={{
         position: 'relative',
         aspectRatio: '3 / 1',
-        margin: `-18px -18px 16px -18px`,
-        borderRadius: 'clamp(18px, 2.5vw, 26px) clamp(18px, 2.5vw, 26px) 0 0',
+        margin: '-22px -22px 12px -22px',
+        borderRadius: '26px 26px 0 0',
         overflow: 'hidden',
         zIndex: 1,
         flexShrink: 0
