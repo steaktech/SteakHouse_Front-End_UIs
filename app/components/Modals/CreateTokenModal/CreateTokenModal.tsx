@@ -183,7 +183,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       }
     } else if (targetStep === 3) {
       // Step 3 is only for VIRTUAL_CURVE - validate basics when coming from step 2
-      const validation = validateBasics(state.basics, state.deploymentMode);
+      const validation = validateBasics(state.basics, state.deploymentMode ?? undefined);
       if (!validation.isValid) {
         newErrors = { ...newErrors, ...validation.errors };
         isValid = false;
