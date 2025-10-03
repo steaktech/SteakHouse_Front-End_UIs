@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { TradingHistoryWidgetProps } from './types';
 import { TradeHistory } from './TradeHistory';
+import { useTokenData } from '@/app/hooks/useTokenData';
 import styles from './TradingHistoryWidget.module.css';
 
 export const TradingHistoryWidget: React.FC<TradingHistoryWidgetProps> = ({ 
@@ -11,6 +12,9 @@ export const TradingHistoryWidget: React.FC<TradingHistoryWidgetProps> = ({
   onClose, 
   tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db"
 }) => {
+  // Fetch token data for trade history
+  const { data: tokenData, isLoading, error } = useTokenData(tokenAddress);
+
   // Handle keyboard events
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,7 +46,12 @@ export const TradingHistoryWidget: React.FC<TradingHistoryWidgetProps> = ({
         </header>
 
         <div className={styles.body}>
-          <TradeHistory tokenAddress={tokenAddress} />
+          <TradeHistory 
+            tokenAddress={tokenAddress}
+            tokenData={tokenData}
+            isLoading={isLoading}
+            error={error}
+          />
         </div>
       </aside>
     </div>

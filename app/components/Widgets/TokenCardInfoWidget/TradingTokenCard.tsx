@@ -376,7 +376,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             border: '1px solid rgba(255, 215, 165, 0.5)',
             cursor: 'pointer'
           }}
-          onClick={() => window.open(displayData.telegram, '_blank')}
+          onClick={() => window.open(displayData.telegram ?? undefined, '_blank')}
           >
             <Send size={Math.max(14, Math.min(18, window.innerWidth * 0.04))} />
           </button>
@@ -393,7 +393,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             border: '1px solid rgba(255, 215, 165, 0.5)',
             cursor: 'pointer'
           }}
-          onClick={() => window.open(displayData.twitter, '_blank')}
+          onClick={() => window.open(displayData.twitter ?? undefined, '_blank')}
           >
             <TwitterIcon />
           </button>
@@ -410,7 +410,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             border: '1px solid rgba(255, 215, 165, 0.5)',
             cursor: 'pointer'
           }}
-          onClick={() => window.open(displayData.website, '_blank')}
+          onClick={() => window.open(displayData.website ?? undefined, '_blank')}
           >
             <Globe size={Math.max(14, Math.min(18, window.innerWidth * 0.04))} />
           </button>

@@ -14,8 +14,9 @@ export interface UseCreateTokenOptions {
 export interface UseCreateTokenReturn {
   /**
    * Creates a token using the API
+   * tokenAddressOverride can be provided to explicitly set the real token address in the API payload.
    */
-  createToken: (state: TokenState, files?: { logo?: File; banner?: File }) => Promise<CreateTokenResult>;
+  createToken: (state: TokenState, files?: { logo?: File; banner?: File }, tokenAddressOverride?: string) => Promise<CreateTokenResult>;
   /**
    * Whether the API call is in progress
    */

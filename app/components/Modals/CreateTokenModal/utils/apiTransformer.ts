@@ -7,12 +7,14 @@ import { CreateTokenService } from '@/app/lib/api/services/createTokenService';
  * Handles both Virtual Curve and V2 Launch deployment modes
  */
 export function transformStateToApiRequest(state: TokenState, tokenAddress?: string): CreateTokenApiRequest {
-  const request: CreateTokenApiRequest = {};
-  
-  // Token address: use provided on-chain address if available; otherwise generate a temp
-  request.token_address = tokenAddress && /^0x[a-fA-F0-9]{40}$/.test(tokenAddress)
+  // Resolve token address first because it is required in CreateTokenApiRequest
+  const resolvedTokenAddress = (tokenAddress && /^0x[a-fA-F0-9]{40}$/.test(tokenAddress))
     ? tokenAddress
     : CreateTokenService.generateTempTokenAddress();
+
+  const request: CreateTokenApiRequest = {
+    token_address: resolvedTokenAddress,
+  };
   
   // Basic token information
   if (state.basics.name) request.name = state.basics.name;

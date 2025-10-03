@@ -95,7 +95,8 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
 
   // Legacy mouse support for older browsers
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.pointerType !== undefined) return; // Skip if pointer events are supported
+    // If Pointer Events are supported, we handle dragging via pointer handlers; skip mouse fallback
+    if (typeof window !== 'undefined' && (window as any).PointerEvent) return;
     setIsDragging(true);
     setDragStartY(e.clientY);
     setDragStartHeight(transactionsHeight);

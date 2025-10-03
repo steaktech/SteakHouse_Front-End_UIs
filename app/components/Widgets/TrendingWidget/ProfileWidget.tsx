@@ -106,8 +106,8 @@ const TrendingProfileWidget: React.FC<TrendingProfileWidgetProps> = memo(
   ({ token, showArrow = true }) => {
     const router = useRouter();
     
-    // Determine arrow direction based on price change
-    const arrowDirection = token.price_change_24h >= 0 ? "up" : "down";
+    // Determine arrow direction based on price change (treat null as 0)
+    const arrowDirection = (token.price_change_24h ?? 0) >= 0 ? "up" : "down";
     
     // Format the trending score as percentage
     const percentage = Math.round(token.trending_score);
@@ -152,8 +152,8 @@ const TrendingProfileWidget: React.FC<TrendingProfileWidgetProps> = memo(
       ? "/videos/up/sh-arrows-up.mp4"
       : "/videos/down/sh-arrows-down.mp4";
 
-    // Color for price change percentage
-    const priceChangeColor = token.price_change_24h >= 0 ? "text-green-500" : "text-red-500";
+    // Color for price change percentage (treat null as 0)
+    const priceChangeColor = (token.price_change_24h ?? 0) >= 0 ? "text-green-500" : "text-red-500";
 
     return (
       /* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */

@@ -15,10 +15,10 @@ export default function TrendingBar() {
     isInitialLoading
   } = useTrendingApi({
     fetchOnMount: true,
-    onSuccess: useCallback((tokens) => {
+    onSuccess: useCallback((tokens: TrendingToken[]) => {
       console.log('[TrendingBar] API data loaded:', tokens.length, 'tokens');
     }, []),
-    onError: useCallback((error) => {
+    onError: useCallback((error: Error) => {
       console.error('[TrendingBar] API error:', error);
     }, [])
   });

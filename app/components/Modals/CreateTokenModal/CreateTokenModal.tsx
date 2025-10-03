@@ -283,7 +283,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       const result = await createTokenOnChain(state);
 
       if (result.success && result.txHash) {
-        setState(prev => ({ ...prev, txHash: result.txHash }));
+        setState(prev => ({ ...prev, txHash: result.txHash ?? null }));
 
         // Always call API after on-chain confirmation. Use decoded token address if available.
         try {
