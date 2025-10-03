@@ -24,6 +24,16 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
 
   const handleTaxSettingsChange = (field: string, value: string) => {
     if (field === 'unifiedTax') {
+      // Allow only numbers and decimals, limit to 20% max for V2 Launch
+      if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
+        return; // Don't update if not a valid number format
+      }
+
+      const numValue = parseFloat(value);
+      if (value !== '' && (!isNaN(numValue) && numValue > 20)) {
+        return; // Don't update if value exceeds 20
+      }
+
       // When unified tax changes, set both buy and sell tax to the same value
       onV2SettingsChange('taxSettings', {
         ...v2Settings.taxSettings,
@@ -46,6 +56,19 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
   };
 
   const handleAdvancedTaxConfigChange = (field: string, value: any) => {
+    // Limit tax-related fields to maximum 20% for V2 Launch
+    if ((field === 'startTax' || field === 'finalTax' || field === 'taxDropStep') && typeof value === 'string') {
+      // Allow only numbers and decimals
+      if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
+        return; // Don't update if not a valid number format
+      }
+
+      const numValue = parseFloat(value);
+      if (value !== '' && (!isNaN(numValue) && numValue > 20)) {
+        return; // Don't update if value exceeds 20
+      }
+    }
+
     onV2SettingsChange('advancedTaxConfig', {
       ...v2Settings.advancedTaxConfig,
       [field]: value
@@ -135,6 +158,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
         <div>
           <label className={styles.label}>Tax (%)</label>
           <input
+            type="text"
             className={`${styles.input} ${errors.buyTax || errors.sellTax ? styles.fieldError : ''}`}
             value={v2Settings.taxSettings.buyTax}
             onChange={(e) => handleTaxSettingsChange('unifiedTax', e.target.value)}
@@ -174,6 +198,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             <div>
               <label className={styles.label}>Start Tax (%)</label>
               <input
+                type="text"
                 className={`${styles.input} ${errors.advStartTax ? styles.fieldError : ''}`}
                 value={v2Settings.advancedTaxConfig.startTax}
                 onChange={(e) => handleAdvancedTaxConfigChange('startTax', e.target.value)}
@@ -184,6 +209,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             <div>
               <label className={styles.label}>Final Tax (%)</label>
               <input
+                type="text"
                 className={`${styles.input} ${errors.advFinalTax ? styles.fieldError : ''}`}
                 value={v2Settings.advancedTaxConfig.finalTax}
                 onChange={(e) => handleAdvancedTaxConfigChange('finalTax', e.target.value)}
@@ -204,6 +230,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             <div>
               <label className={styles.label}>Tax Drop Step (%)</label>
               <input
+                type="text"
                 className={`${styles.input} ${errors.advTaxDropStep ? styles.fieldError : ''}`}
                 value={v2Settings.advancedTaxConfig.taxDropStep}
                 onChange={(e) => handleAdvancedTaxConfigChange('taxDropStep', e.target.value)}

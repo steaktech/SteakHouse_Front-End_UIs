@@ -299,14 +299,16 @@ export function validateV2Settings(v2Settings: any): { isValid: boolean; errors:
     }
   }
 
-  // Validate tax settings (unified tax for both buy and sell)
-  if (!isValidPercent(v2Settings.taxSettings.buyTax)) {
-    errors.buyTax = 'Tax must be between 0-100%';
+  // Validate tax settings (unified tax for both buy and sell) with 20% maximum for V2 Launch
+  const isValidV2Percent = (s: string) => isValidNumber(s) && Number(s) >= 0 && Number(s) <= 20;
+  
+  if (!isValidV2Percent(v2Settings.taxSettings.buyTax)) {
+    errors.buyTax = 'Tax must be between 0-20% for Direct V2 Launch';
   }
   // Since buy and sell tax are now unified, we only need to validate buyTax
   // but keep sellTax validation for backwards compatibility if needed
-  if (!isValidPercent(v2Settings.taxSettings.sellTax)) {
-    errors.sellTax = 'Tax must be between 0-100%';
+  if (!isValidV2Percent(v2Settings.taxSettings.sellTax)) {
+    errors.sellTax = 'Tax must be between 0-20% for Direct V2 Launch';
   }
 
   // Validate tax receiver if taxes are set (since buy and sell tax are unified, only check buyTax)
@@ -329,17 +331,17 @@ export function validateV2Settings(v2Settings: any): { isValid: boolean; errors:
 
   // Validate advanced tax configuration if enabled
   if (v2Settings.advancedTaxConfig.enabled) {
-    if (!isValidPercent(v2Settings.advancedTaxConfig.startTax)) {
-      errors.advStartTax = 'Start tax must be between 0-100%';
+    if (!isValidV2Percent(v2Settings.advancedTaxConfig.startTax)) {
+      errors.advStartTax = 'Start tax must be between 0-20% for Direct V2 Launch';
     }
-    if (!isValidPercent(v2Settings.advancedTaxConfig.finalTax)) {
-      errors.advFinalTax = 'Final tax must be between 0-100%';
+    if (!isValidV2Percent(v2Settings.advancedTaxConfig.finalTax)) {
+      errors.advFinalTax = 'Final tax must be between 0-20% for Direct V2 Launch';
     }
     if (!isInt(v2Settings.advancedTaxConfig.taxDropInterval) || Number(v2Settings.advancedTaxConfig.taxDropInterval) <= 0) {
       errors.advTaxDropInterval = 'Tax drop interval must be a positive integer (seconds)';
     }
-    if (!isValidPercent(v2Settings.advancedTaxConfig.taxDropStep)) {
-      errors.advTaxDropStep = 'Tax drop step must be between 0-100%';
+    if (!isValidV2Percent(v2Settings.advancedTaxConfig.taxDropStep)) {
+      errors.advTaxDropStep = 'Tax drop step must be between 0-20% for Direct V2 Launch';
     }
     
     // Validate that final tax is lower than or equal to start tax
