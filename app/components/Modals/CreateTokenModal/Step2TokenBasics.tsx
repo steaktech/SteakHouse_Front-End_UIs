@@ -135,7 +135,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
           </div>
 
           {/* Only show Category for Virtual Curve deployment */}
-          {deploymentMode !== 'V2_LAUNCH' && (
+          {(deploymentMode === 'VIRTUAL_CURVE') && (
             <div className={styles.card}>
               <label className={styles.label}>
                 Category
@@ -176,7 +176,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
             {errors.totalSupply && <div className={styles.error}>{errors.totalSupply}</div>}
           </div>
           {/* Only show Graduation Cap for Virtual Curve deployment */}
-          {deploymentMode !== 'V2_LAUNCH' && (
+          {(deploymentMode === 'VIRTUAL_CURVE') && (
             <div className={styles.card}>
               <label className={styles.label}>
                 Graduation Cap ($)
@@ -195,7 +195,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
       )}
 
       {/* Only show additional sections for Virtual Curve deployment */}
-      {deploymentMode !== 'V2_LAUNCH' && (
+      {(deploymentMode === 'VIRTUAL_CURVE') && (
         <div className={styles.grid3}>
           <div className={styles.card}>
             <div className={styles.label}>

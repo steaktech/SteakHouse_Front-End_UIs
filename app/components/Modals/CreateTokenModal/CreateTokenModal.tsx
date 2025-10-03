@@ -198,14 +198,14 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       }
     } else if (targetStep === 5) {
       // Step 5 can be reached from step 4 (VIRTUAL_CURVE only)
-      const validation = validateBasics(state.basics, state.deploymentMode);
+      const validation = validateBasics(state.basics, state.deploymentMode ?? undefined);
       if (!validation.isValid) {
         newErrors = { ...newErrors, ...validation.errors };
         isValid = false;
       }
     } else if (targetStep === 6) {
       // Step 6 can be reached from step 2 (V2_LAUNCH) or step 5 (VIRTUAL_CURVE)
-      const validation = validateBasics(state.basics, state.deploymentMode);
+      const validation = validateBasics(state.basics, state.deploymentMode ?? undefined);
       if (!validation.isValid) {
         newErrors = { ...newErrors, ...validation.errors };
         isValid = false;
