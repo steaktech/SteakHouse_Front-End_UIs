@@ -5,7 +5,7 @@ import { Bookmark, Search, X, Trash2 } from 'lucide-react';
 import styles from './SavedToken.module.css';
 import { SavedTokenData, SavedTokenWidgetProps, SavedTokenWidgetState } from './types';
 import { useWallet } from '@/app/hooks/useWallet';
-import { fetchSavedTokens, SavedTokenApiItem } from '@/app/lib/api/services/userService';
+import { fetchSavedTokens, SavedTokenApiItem, removeSavedToken } from '@/app/lib/api/services/userService';
 
 // Demo data for saved tokens
 const demoSavedTokens: SavedTokenData[] = [
@@ -89,6 +89,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
   const [filteredTokens, setFilteredTokens] = useState<SavedTokenData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const { address, isConnected } = useWallet();
 
   // Load from API when widget opens and wallet connected; fall back to provided data or demo
@@ -185,9 +186,32 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
     setState(prev => ({ ...prev, searchQuery: e.target.value }));
   };
 
-  const handleRemoveToken = (tokenId: string, e: React.MouseEvent) => {
+  const handleRemoveToken = async (token: SavedTokenData, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedTokens(prev => prev.filter(token => token.id !== tokenId));
+    if (!isConnected || !address) {
+      console.warn('Wallet not connected. Cannot remove saved token.');
+      return;
+    }
+    // Mark as removing (disable the button)
+    setRemovingIds(prev => {
+      const next = new Set(prev);
+      next.add(token.id);
+      return next;
+    });
+    try {
+      await removeSavedToken(address, token.address);
+      setSavedTokens(prev => prev.filter(t => t.id !== token.id));
+    } catch (err) {
+      console.error('Failed to remove saved token', err);
+      // Optional: surface a user-facing message
+      setError('Failed to remove saved token');
+    } finally {
+      setRemovingIds(prev => {
+        const next = new Set(prev);
+        next.delete(token.id);
+        return next;
+      });
+    }
   };
 
   const handleTokenClick = (token: SavedTokenData) => {
@@ -298,7 +322,9 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
                   {/* Remove Button */}
                   <button
                     className={styles.removeBtn}
-                    onClick={(e) => handleRemoveToken(token.id, e)}
+                    onClick={(e) => handleRemoveToken(token, e)}
+                    disabled={removingIds.has(token.id)}
+                    aria-busy={removingIds.has(token.id)}
                     title="Remove from saved"
                   >
                     <Trash2 size={14} />

@@ -78,8 +78,10 @@ export async function likeToken(walletAddress: string, tokenAddress: string): Pr
  * [cite_start]DELETE /users/:wallet/saved/:token [cite: 91]
  */
 export async function removeSavedToken(walletAddress: string, tokenAddress: string): Promise<SuccessResponse> {
+  // TEMP: Using POST instead of DELETE to work around CORS during testing
   return apiClient<SuccessResponse>(`/users/${walletAddress}/saved/${tokenAddress}`, {
-    method: 'DELETE',
+    method: 'POST',
+    body: JSON.stringify({ token_address: tokenAddress }),
   });
 }
 
