@@ -60,6 +60,7 @@ export interface CurveSettings {
 export interface V2LaunchSettings {
   enableTradingMode: 'DEPLOY_ONLY' | 'FULL_LAUNCH';
   initialLiquidityETH: string;
+  initialTokensForLP: string;
   taxSettings: {
     buyTax: string;
     sellTax: string;

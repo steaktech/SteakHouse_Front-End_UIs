@@ -62,6 +62,7 @@ export const initialState: TokenState = {
   v2Settings: {
     enableTradingMode: 'DEPLOY_ONLY',
     initialLiquidityETH: '1.0',
+    initialTokensForLP: '500000000',
     taxSettings: {
       buyTax: '0',
       sellTax: '0',
@@ -121,7 +122,7 @@ export function getPlatformFee(profile: ProfileType | null): number {
   return profile === "ADVANCED" ? 1.0 : profile === "BASIC" ? 0.6 : 0.3;
 }
 
-export function validateBasics(basics: any): { isValid: boolean; errors: Record<string, string> } {
+export function validateBasics(basics: any, deploymentMode?: string): { isValid: boolean; errors: Record<string, string> } {
   const errors: Record<string, string> = {};
   const isInt = (s: string) => /^[0-9]+$/.test(s);
 
@@ -133,7 +134,8 @@ export function validateBasics(basics: any): { isValid: boolean; errors: Record<
     errors.symbol = "Symbol is required.";
   }
 
-  if (!basics.tokenCategory) {
+  // Only require token category for Virtual Curve deployment
+  if (deploymentMode !== 'V2_LAUNCH' && !basics.tokenCategory) {
     errors.tokenCategory = "Please select a token category.";
   }
 
@@ -290,18 +292,25 @@ export function validateV2Settings(v2Settings: any): { isValid: boolean; errors:
     if (!v2Settings.initialLiquidityETH || !isValidNumber(v2Settings.initialLiquidityETH) || Number(v2Settings.initialLiquidityETH) <= 0) {
       errors.initialLiquidityETH = 'Initial liquidity must be greater than 0 ETH';
     }
+    
+    // Validate initial tokens for LP
+    if (!v2Settings.initialTokensForLP || !isValidNumber(v2Settings.initialTokensForLP) || Number(v2Settings.initialTokensForLP) <= 0) {
+      errors.initialTokensForLP = 'Initial tokens for LP must be greater than 0';
+    }
   }
 
-  // Validate tax settings
+  // Validate tax settings (unified tax for both buy and sell)
   if (!isValidPercent(v2Settings.taxSettings.buyTax)) {
-    errors.buyTax = 'Buy tax must be between 0-100%';
+    errors.buyTax = 'Tax must be between 0-100%';
   }
+  // Since buy and sell tax are now unified, we only need to validate buyTax
+  // but keep sellTax validation for backwards compatibility if needed
   if (!isValidPercent(v2Settings.taxSettings.sellTax)) {
-    errors.sellTax = 'Sell tax must be between 0-100%';
+    errors.sellTax = 'Tax must be between 0-100%';
   }
 
-  // Validate tax receiver if taxes are set
-  const hasTax = Number(v2Settings.taxSettings.buyTax) > 0 || Number(v2Settings.taxSettings.sellTax) > 0;
+  // Validate tax receiver if taxes are set (since buy and sell tax are unified, only check buyTax)
+  const hasTax = Number(v2Settings.taxSettings.buyTax) > 0;
   if (hasTax) {
     if (!v2Settings.taxSettings.taxReceiver || !/^0x[a-fA-F0-9]{40}$/.test(v2Settings.taxSettings.taxReceiver)) {
       errors.taxReceiver = 'Valid tax receiver address required when taxes > 0';

@@ -183,7 +183,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       }
     } else if (targetStep === 3) {
       // Step 3 is only for VIRTUAL_CURVE - validate basics when coming from step 2
-      const validation = validateBasics(state.basics);
+      const validation = validateBasics(state.basics, state.deploymentMode);
       if (!validation.isValid) {
         newErrors = { ...newErrors, ...validation.errors };
         isValid = false;
@@ -197,8 +197,15 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
         }
       }
     } else if (targetStep === 5) {
-      // Step 5 can be reached from step 2 (V2_LAUNCH) or step 4 (VIRTUAL_CURVE)
-      const validation = validateBasics(state.basics);
+      // Step 5 can be reached from step 4 (VIRTUAL_CURVE only)
+      const validation = validateBasics(state.basics, state.deploymentMode);
+      if (!validation.isValid) {
+        newErrors = { ...newErrors, ...validation.errors };
+        isValid = false;
+      }
+    } else if (targetStep === 6) {
+      // Step 6 can be reached from step 2 (V2_LAUNCH) or step 5 (VIRTUAL_CURVE)
+      const validation = validateBasics(state.basics, state.deploymentMode);
       if (!validation.isValid) {
         newErrors = { ...newErrors, ...validation.errors };
         isValid = false;
@@ -249,11 +256,10 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     if (step === 0) return 'Choose deployment mode';
     
     if (state.deploymentMode === 'V2_LAUNCH') {
-      // V2 Launch: 0,1,2,3,4 (internal: 0,1,2,5,6)
+      // V2 Launch: 0,1,2,3 (internal: 0,1,2,6) - skip Metadata & Socials
       if (step === 1) return '1) V2 Launch settings';
       if (step === 2) return '2) Token basics';
-      if (step === 5) return '3) Metadata & socials';
-      if (step === 6) return '4) Review & confirm';
+      if (step === 6) return '3) Review & confirm';
     } else {
       // Virtual Curve: 0,1,2,3,4,5,6 (normal)
       if (step === 1) return '1) Choose type';
@@ -354,9 +360,9 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
 
             {/* Dynamic step rendering based on deployment mode */}
             {state.deploymentMode === 'V2_LAUNCH' ? (
-              // V2 Launch: Steps 0,1,2,3,4 (internal steps 0,1,2,5,6)
-              [1, 2, 5, 6].map((internalStep, index) => {
-                const displayStep = index + 1; // Show as steps 1,2,3,4
+              // V2 Launch: Steps 0,1,2,3 (internal steps 0,1,2,6) - skip Metadata & Socials
+              [1, 2, 6].map((internalStep, index) => {
+                const displayStep = index + 1; // Show as steps 1,2,3
                 return (
                   <div 
                     key={internalStep}
@@ -370,13 +376,11 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                     <div>
                       {internalStep === 1 && 'V2 settings'}
                       {internalStep === 2 && 'Token basics'}
-                      {internalStep === 5 && 'Metadata & socials'}
                       {internalStep === 6 && 'Review & confirm'}
                     </div>
                     <div className={styles.badge}>
                       {internalStep === 1 && 'Required'}
                       {internalStep === 2 && '—'}
-                      {internalStep === 5 && 'Optional'}
                       {internalStep === 6 && '1 tx'}
                     </div>
                   </div>
@@ -461,9 +465,9 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                 onBasicsChange={handleBasicsChange}
                 onBack={() => goToStep(1)}
                 onContinue={() => {
-                  // For V2 launch, skip curve settings and fees, go directly to metadata
+                  // For V2 launch, skip curve settings, fees, and metadata, go directly to review
                   if (state.deploymentMode === 'V2_LAUNCH') {
-                    validateAndGoToStep(5);
+                    validateAndGoToStep(6);
                   } else {
                     validateAndGoToStep(3);
                   }
@@ -513,7 +517,14 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             {state.step === 6 && (
               <Step6ReviewConfirm
                 state={state}
-                onBack={() => goToStep(5)}
+                onBack={() => {
+                  // For V2 launch, go back to Token Basics (step 2), for Virtual Curve go to Metadata (step 5)
+                  if (state.deploymentMode === 'V2_LAUNCH') {
+                    goToStep(2);
+                  } else {
+                    goToStep(5);
+                  }
+                }}
                 onConfirm={handleConfirm}
               />
             )}

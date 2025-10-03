@@ -23,10 +23,19 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
   };
 
   const handleTaxSettingsChange = (field: string, value: string) => {
-    onV2SettingsChange('taxSettings', {
-      ...v2Settings.taxSettings,
-      [field]: value
-    });
+    if (field === 'unifiedTax') {
+      // When unified tax changes, set both buy and sell tax to the same value
+      onV2SettingsChange('taxSettings', {
+        ...v2Settings.taxSettings,
+        buyTax: value,
+        sellTax: value
+      });
+    } else {
+      onV2SettingsChange('taxSettings', {
+        ...v2Settings.taxSettings,
+        [field]: value
+      });
+    }
   };
 
   const handleLimitsChange = (field: string, value: any) => {
@@ -66,14 +75,14 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
           <HelpTooltip content="Deploy Only: Just creates the token contract. Full Launch: Creates token + adds liquidity + enables trading in one transaction (anti-sniper protection)." />
         </div>
         <div className={styles.radioCards}>
-          <div 
+          <div
             className={`${styles.radioCard} ${v2Settings.enableTradingMode === 'DEPLOY_ONLY' ? styles.active : ''}`}
             onClick={() => handleEnableTradingChange('DEPLOY_ONLY')}
           >
             <div className="title">Deploy Only</div>
             <div className="desc">Create token contract, add LP & enable trading manually later</div>
           </div>
-          <div 
+          <div
             className={`${styles.radioCard} ${v2Settings.enableTradingMode === 'FULL_LAUNCH' ? styles.active : ''}`}
             onClick={() => handleEnableTradingChange('FULL_LAUNCH')}
           >
@@ -86,17 +95,34 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
       {/* Initial Liquidity (only for full launch) */}
       {v2Settings.enableTradingMode === 'FULL_LAUNCH' && (
         <div className={styles.card}>
-          <div className={styles.label}>
-            Initial Liquidity (ETH)
-            <HelpTooltip content="Amount of ETH to pair with your tokens in the initial liquidity pool. Higher amounts create better price stability." />
+          <div className={styles.grid2}>
+            <div>
+              <div className={styles.label}>
+                Initial Liquidity (ETH)
+                <HelpTooltip content="Amount of ETH to pair with your tokens in the initial liquidity pool. Higher amounts create better price stability." />
+              </div>
+              <input
+                className={`${styles.input} ${errors.initialLiquidityETH ? styles.fieldError : ''}`}
+                value={v2Settings.initialLiquidityETH}
+                onChange={(e) => onV2SettingsChange('initialLiquidityETH', e.target.value)}
+                placeholder="1.0"
+              />
+              {errors.initialLiquidityETH && <div className={styles.error}>{errors.initialLiquidityETH}</div>}
+            </div>
+            <div>
+              <div className={styles.label}>
+                Initial Tokens for LP
+                <HelpTooltip content="Amount of tokens to pair with the ETH in the initial liquidity pool. This determines the initial price of your token." />
+              </div>
+              <input
+                className={`${styles.input} ${errors.initialTokensForLP ? styles.fieldError : ''}`}
+                value={v2Settings.initialTokensForLP}
+                onChange={(e) => onV2SettingsChange('initialTokensForLP', e.target.value)}
+                placeholder="500000000"
+              />
+              {errors.initialTokensForLP && <div className={styles.error}>{errors.initialTokensForLP}</div>}
+            </div>
           </div>
-          <input
-            className={`${styles.input} ${errors.initialLiquidityETH ? styles.fieldError : ''}`}
-            value={v2Settings.initialLiquidityETH}
-            onChange={(e) => onV2SettingsChange('initialLiquidityETH', e.target.value)}
-            placeholder="1.0"
-          />
-          {errors.initialLiquidityETH && <div className={styles.error}>{errors.initialLiquidityETH}</div>}
         </div>
       )}
 
@@ -104,32 +130,21 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
       <div className={styles.card}>
         <div className={styles.label}>
           Tax Configuration
-          <HelpTooltip content="Set buy and sell taxes for your token. Leave at 0% for no taxes. Max 100% each." />
+          <HelpTooltip content="Set the tax rate for your token transactions. This rate will apply to both buy and sell transactions. Leave at 0% for no taxes. Max 20%." />
         </div>
-        <div className={styles.grid2}>
-          <div>
-            <label className={styles.label}>Buy Tax (%)</label>
-            <input
-              className={`${styles.input} ${errors.buyTax ? styles.fieldError : ''}`}
-              value={v2Settings.taxSettings.buyTax}
-              onChange={(e) => handleTaxSettingsChange('buyTax', e.target.value)}
-              placeholder="0"
-            />
-            {errors.buyTax && <div className={styles.error}>{errors.buyTax}</div>}
-          </div>
-          <div>
-            <label className={styles.label}>Sell Tax (%)</label>
-            <input
-              className={`${styles.input} ${errors.sellTax ? styles.fieldError : ''}`}
-              value={v2Settings.taxSettings.sellTax}
-              onChange={(e) => handleTaxSettingsChange('sellTax', e.target.value)}
-              placeholder="0"
-            />
-            {errors.sellTax && <div className={styles.error}>{errors.sellTax}</div>}
-          </div>
+        <div>
+          <label className={styles.label}>Tax (%)</label>
+          <input
+            className={`${styles.input} ${errors.buyTax || errors.sellTax ? styles.fieldError : ''}`}
+            value={v2Settings.taxSettings.buyTax}
+            onChange={(e) => handleTaxSettingsChange('unifiedTax', e.target.value)}
+            placeholder="0"
+          />
+          <div className={styles.helpText}>This tax rate will apply to both buy and sell transactions</div>
+          {(errors.buyTax || errors.sellTax) && <div className={styles.error}>{errors.buyTax || errors.sellTax}</div>}
         </div>
-        
-        {(Number(v2Settings.taxSettings.buyTax) > 0 || Number(v2Settings.taxSettings.sellTax) > 0) && (
+
+        {Number(v2Settings.taxSettings.buyTax) > 0 && (
           <div>
             <label className={styles.label}>Tax Receiver Address</label>
             <input
@@ -141,7 +156,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             {errors.taxReceiver && <div className={styles.error}>{errors.taxReceiver}</div>}
           </div>
         )}
-        
+
         {/* Advanced Tax Configuration Toggle */}
         <label className={styles.switch} style={{ marginTop: '16px' }}>
           <input
@@ -152,7 +167,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
           />
           <span className={styles.switchLabel}>Enable Advanced Tax Configuration (Dynamic Tax Reduction)</span>
         </label>
-        
+
         {/* Advanced Tax Configuration Fields */}
         {v2Settings.advancedTaxConfig.enabled && (
           <div className={styles.grid2} style={{ marginTop: '12px' }}>
@@ -206,7 +221,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
           Trading Limits
           <HelpTooltip content="Set maximum wallet size and transaction size as percentage of total supply. Useful for anti-whale protection." />
         </div>
-        
+
         <label className={styles.switch}>
           <input
             type="checkbox"
@@ -241,7 +256,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
             </div>
           </div>
         )}
-        
+
         {/* Advanced Limits Configuration Toggle */}
         <label className={styles.switch} style={{ marginTop: '12px' }}>
           <input
@@ -252,7 +267,7 @@ const StepV2LaunchSettings: React.FC<StepV2LaunchSettingsProps> = ({
           />
           <span className={styles.switchLabel}>Enable Dynamic Limits (Progressive Limit Increases)</span>
         </label>
-        
+
         {/* Advanced Limits Configuration Fields */}
         {v2Settings.advancedLimitsConfig.enabled && (
           <div style={{ marginTop: '12px' }}>

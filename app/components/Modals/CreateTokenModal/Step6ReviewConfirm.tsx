@@ -62,9 +62,11 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       entries.push(['Profile', getProfileDisplayName(p)]);
     } else if (state.deploymentMode === 'V2_LAUNCH') {
       entries.push(['Trading mode', state.v2Settings.enableTradingMode === 'FULL_LAUNCH' ? 'Full Launch' : 'Deploy Only']);
-      entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidityETH} ETH`]);
-      entries.push(['Buy tax', `${state.v2Settings.taxSettings.buyTax}%`]);
-      entries.push(['Sell tax', `${state.v2Settings.taxSettings.sellTax}%`]);
+      if (state.v2Settings.enableTradingMode === 'FULL_LAUNCH') {
+        entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidityETH} ETH`]);
+        entries.push(['Initial tokens for LP', `${Number(state.v2Settings.initialTokensForLP).toLocaleString()}`]);
+      }
+      entries.push(['Tax', `${state.v2Settings.taxSettings.buyTax}%`]);
       
       // Advanced tax configuration
       if (state.v2Settings.advancedTaxConfig.enabled) {
@@ -108,9 +110,11 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       entries.push(['Start time', b.startMode === 'NOW' ? 'Now (0)' : `At ${b.startTime} (epoch seconds)`]);
       entries.push(['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn']);
       entries.push(['Stealth', b.stealth ? 'Yes' : 'No']);
+      entries.push(['Remove header', b.removeHeader ? 'Yes' : 'No']);
+    } else if (state.deploymentMode === 'V2_LAUNCH') {
+      // For V2 Launch, show LP handling info
+      entries.push(['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn']);
     }
-    
-    entries.push(['Remove header', b.removeHeader ? 'Yes' : 'No']);
     
     // Fee info
     if (state.deploymentMode === 'VIRTUAL_CURVE') {
