@@ -50,7 +50,8 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
    */
   const createToken = useCallback(async (
     state: TokenState, 
-    files?: { logo?: File; banner?: File }
+    files?: { logo?: File; banner?: File },
+    tokenAddressOverride?: string,
   ): Promise<CreateTokenResult> => {
     try {
       setIsLoading(true);
@@ -58,8 +59,8 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
       
       console.log('[useCreateToken] Starting token creation...');
       
-      // Transform modal state to API request format
-      const apiRequest = transformStateToApiRequest(state);
+      // Transform modal state to API request format (include real token address if provided)
+      const apiRequest = transformStateToApiRequest(state, tokenAddressOverride);
       
       // Add files if provided
       const formData: CreateTokenFormData = {

@@ -5,8 +5,9 @@ import Image from 'next/image';
 import { CreateTokenModalProps, TokenState, ProfileType, TaxMode, FinalTokenType, DeploymentMode } from './types';
 import { initialState, updateCreationFee, getPlatformFee, validateBasics, validateCurve, validateV2Settings, fmt, generateFakeHash } from './utils';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
-import { useCreateToken } from '@/app/hooks/useCreateToken';
 import { useToast } from '@/app/hooks/useToast';
+import { useKitchenCreateToken } from '@/app/hooks/useKitchenCreateToken';
+import { useCreateToken } from '@/app/hooks/useCreateToken';
 import Step0ChooseDeploymentMode from './Step0ChooseDeploymentMode';
 import Step1ChooseType from './Step1ChooseType';
 import StepV2LaunchSettings from './StepV2LaunchSettings';
@@ -28,29 +29,26 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   // Toast notifications
   const { showToast } = useToast();
   
-  // Token creation API hook
-  const { createToken, isLoading: isCreatingToken } = useCreateToken({
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        showToast({
-          type: 'success',
-          title: 'Token Created!',
-          message: `Your token has been successfully created.`,
-          duration: 5000
-        });
-        // Close modal after successful creation
-        setTimeout(() => {
-          onClose();
-          // Reset state after closing
-          setState(initialState);
-        }, 1500);
-      }
+  // On-chain token creation hook (Kitchen contract)
+  const { createTokenOnChain, isLoading: isCreatingToken } = useKitchenCreateToken({
+    onSuccess: (txHash) => {
+      showToast({
+        type: 'success',
+        title: 'Transaction Submitted',
+        message: `Tx: ${txHash.slice(0, 10)}…${txHash.slice(-8)}`,
+        duration: 5000
+      });
+      // Optionally close after a short delay
+      setTimeout(() => {
+        onClose();
+        setState(initialState);
+      }, 2000);
     },
     onError: (error) => {
       showToast({
         type: 'error',
-        title: 'Creation Failed',
-        message: error.message || 'Failed to create token. Please try again.',
+        title: 'On-chain Creation Failed',
+        message: error.message || 'Failed to create token on-chain. Please try again.',
         duration: 5000
       });
     }
@@ -269,30 +267,36 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     }));
   }, []);
 
+  // Reuse API hook to submit metadata after on-chain success
+  const { createToken: createTokenApi } = useCreateToken();
+
   const handleConfirm = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, txHash: 'pending' }));
-      
-      // Prepare files
+
+      // Prepare files for API (after on-chain success)
       const files: { logo?: File; banner?: File } = {};
-      if (state.meta.logoFile) {
-        files.logo = state.meta.logoFile;
-      }
-      if (state.meta.bannerFile) {
-        files.banner = state.meta.bannerFile;
-      }
-      
-      // Call the API
-      const result = await createToken(state, files);
-      
+      if (state.meta.logoFile) files.logo = state.meta.logoFile;
+      if (state.meta.bannerFile) files.banner = state.meta.bannerFile;
+
+      // Submit on-chain transaction via Kitchen contract
+      const result = await createTokenOnChain(state);
+
       if (result.success && result.txHash) {
-        setState(prev => ({ ...prev, txHash: result.txHash || 'success' }));
+        setState(prev => ({ ...prev, txHash: result.txHash }));
+
+        // Always call API after on-chain confirmation. Use decoded token address if available.
+        try {
+          await createTokenApi(state, files, result.tokenAddress);
+        } catch (apiErr) {
+          console.warn('[CreateTokenModal] API submission failed (non-blocking):', apiErr);
+        }
       } else if (!result.success) {
         // Reset to allow retry
         setState(prev => ({ ...prev, txHash: null }));
       }
     } catch (error) {
-      console.error('Error creating token:', error);
+      console.error('Error creating token on-chain:', error);
       setState(prev => ({ ...prev, txHash: null }));
       showToast({
         type: 'error',
@@ -301,7 +305,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
         duration: 5000
       });
     }
-  }, [state, createToken, showToast]);
+  }, [state, createTokenOnChain, createTokenApi, showToast]);
 
   const getStepTitle = (step: number) => {
     if (step === 0) return 'Choose deployment mode';

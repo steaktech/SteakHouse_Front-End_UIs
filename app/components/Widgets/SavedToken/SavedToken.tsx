@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Bookmark, Search, X, Trash2 } from 'lucide-react';
 import styles from './SavedToken.module.css';
 import { SavedTokenData, SavedTokenWidgetProps, SavedTokenWidgetState } from './types';
+import { useWallet } from '@/app/hooks/useWallet';
+import { fetchSavedTokens, SavedTokenApiItem } from '@/app/lib/api/services/userService';
 
 // Demo data for saved tokens
 const demoSavedTokens: SavedTokenData[] = [
@@ -85,11 +87,45 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
 
   const [savedTokens, setSavedTokens] = useState<SavedTokenData[]>([]);
   const [filteredTokens, setFilteredTokens] = useState<SavedTokenData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { address, isConnected } = useWallet();
 
-  // Initialize with demo data or provided data
+  // Load from API when widget opens and wallet connected; fall back to provided data or demo
   useEffect(() => {
-    setSavedTokens(data || demoSavedTokens);
-  }, [data]);
+    let cancelled = false;
+    async function load() {
+      try {
+        setError(null);
+        setLoading(true);
+        if (isOpen && isConnected && address) {
+          const apiList = await fetchSavedTokens(address);
+          if (cancelled) return;
+          const mapped: SavedTokenData[] = apiList.map((item: SavedTokenApiItem, idx: number) => ({
+            id: `${item.token_address}-${idx}`,
+            name: item.name || item.token_address,
+            symbol: item.symbol || 'TKN',
+            address: item.token_address,
+            chain: 'EVM',
+            priceUSD: item.price_per_token ? Number(item.price_per_token) : 0,
+            imageUrl: item.image_url ?? undefined,
+            savedAt: item.saved_at ? new Date(item.saved_at) : new Date(),
+          }));
+          setSavedTokens(mapped);
+        } else {
+          setSavedTokens(data || demoSavedTokens);
+        }
+      } catch (e: any) {
+        console.error('Failed to load saved tokens:', e);
+        setError(e?.message || 'Failed to load saved tokens');
+        setSavedTokens(data || demoSavedTokens);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [isOpen, isConnected, address, data]);
 
   // Apply filters and sorting
   const applyFiltersAndSort = useCallback(() => {
@@ -221,7 +257,16 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
           </div>
 
           {/* Token List */}
-          {filteredTokens.length === 0 ? (
+          {loading ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyTitle}>Loading…</div>
+            </div>
+          ) : error ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyTitle}>Failed to load saved tokens</div>
+              <div className={styles.emptyMessage}>{error}</div>
+            </div>
+          ) : filteredTokens.length === 0 ? (
             renderEmptyState()
           ) : (
             <div className={styles.tokenList}>

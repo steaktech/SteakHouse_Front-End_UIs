@@ -61,7 +61,7 @@ export function useTokens(initialFilters: TokenFilters = {}) {
   const [error, setError] = useState<Error | null>(null);
   const [pagination, setPagination] = useState<PaginationInfo>({
     currentPage: 1,
-    pageSize: 20,
+    pageSize: 12,
     hasMore: false,
     nextPage: null,
     prevPage: null
@@ -69,7 +69,7 @@ export function useTokens(initialFilters: TokenFilters = {}) {
   const [filters, setFilters] = useState<TokenFilters>({
     sortBy: 'mcap',
     sortOrder: 'desc',
-    limit: 20,
+    limit: 12,
     page: 1,
     ...initialFilters
   });

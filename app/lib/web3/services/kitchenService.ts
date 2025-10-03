@@ -8,6 +8,7 @@ import {
   getCurrentChainId, 
   getCurrentCurrencySymbol 
 } from "@/app/lib/config/constants";
+import { TokenState } from "@/app/components/Modals/CreateTokenModal/types";
 
 export interface UnsignedTransaction {
   from: string;
@@ -98,7 +99,8 @@ export class KitchenService {
    */
   private async estimateGasLimit(
     methodCall: any,
-    value?: string
+    value?: string,
+    fallbackGas?: number
   ): Promise<string> {
     try {
       // First check if we have enough balance for the transaction
@@ -125,7 +127,9 @@ export class KitchenService {
       return this.web3.utils.toHex(gasWithBuffer);
     } catch (error: any) {
       // Return appropriate default gas limit based on operation
-      const defaultGas = value ? WEB3_CONFIG.GAS.LIMITS.BUY_TOKEN : WEB3_CONFIG.GAS.LIMITS.SELL_TOKEN;
+      const defaultGas = fallbackGas
+        ? fallbackGas
+        : (value ? WEB3_CONFIG.GAS.LIMITS.BUY_TOKEN : WEB3_CONFIG.GAS.LIMITS.SELL_TOKEN);
       return this.web3.utils.toHex(defaultGas);
     }
   }
@@ -275,5 +279,689 @@ export class KitchenService {
       account: this.account,
       isInitialized: !!this.contract
     };
+  }
+
+  // =================== CREATE TOKEN HELPERS & BUILDERS ===================
+
+  private toHexWeiFromEth(amountEth: number): string {
+    const valueWei = BigInt(Math.floor(amountEth * 1e6)) * BigInt(1e12); // avoid float overflow
+    return "0x" + valueWei.toString(16);
+  }
+
+  private toWeiDecimalStringFromEth(amountEth: number): string {
+    const valueWei = BigInt(Math.floor(amountEth * 1e6)) * BigInt(1e12);
+    return valueWei.toString(10);
+  }
+
+  private toBaseUnitsFromRawTokens(rawTokens: string): bigint {
+    try {
+      const supply = BigInt(rawTokens || "0");
+      return supply * BigInt(1e18);
+    } catch {
+      return BigInt(0);
+    }
+  }
+
+  private percentToBps(pct: string | number | undefined): number {
+    if (pct == null || pct === "") return 0;
+    const v = typeof pct === "number" ? pct : Number(String(pct).replace(",", "."));
+    if (isNaN(v) || v < 0) return 0;
+    return Math.floor(v * 100); // 1% = 100 bps
+  }
+
+  private maybePercentToBaseUnits(totalSupplyWei: bigint, valueStr: string | undefined): string {
+    if (!valueStr || valueStr === "") return "0";
+    const v = Number(String(valueStr).replace(",", "."));
+    if (isNaN(v) || v <= 0) return "0";
+    // Heuristic: if value <= 100, treat as percent of total supply, else as absolute tokens
+    if (v <= 100) {
+      const num = BigInt(Math.floor(v * 1e6));
+      const amount = (totalSupplyWei * num) / BigInt(1e6 * 100);
+      return amount.toString(10);
+    }
+    // Treat as absolute tokens (whole token units), convert to base units
+    const tokens = BigInt(Math.floor(v));
+    return (tokens * BigInt(1e18)).toString(10);
+  }
+
+  private getTokenTypeCode(profile: string | null): number {
+    switch (profile) {
+      case "ZERO": return 4; // Zero Simple
+      case "SUPER": return 3; // Super Simple
+      case "ADVANCED": return 1; // Advanced
+      case "BASIC": return 0; // Basic
+      default: return 0;
+    }
+  }
+
+  private percentStrToNumber(pct: string | number | undefined): number {
+    if (pct == null || pct === "") return 0;
+    const v = typeof pct === "number" ? pct : Number(String(pct).replace(",", "."));
+    if (isNaN(v) || v < 0) return 0;
+    return Math.floor(v);
+  }
+
+  private getFinalTokenTypeCode(finalType: string | undefined): number {
+    // 0 = NO_TAX, 1 = TAX per client example
+    if (!finalType) return 0;
+    return finalType === 'TAX' ? 1 : 0;
+  }
+
+  private toBaseUnitsFromTokens(tokensStr: string | undefined): string {
+    if (!tokensStr || tokensStr.trim() === '') return '0';
+    try {
+      const n = BigInt(tokensStr);
+      return (n * BigInt(1e18)).toString(10);
+    } catch {
+      return '0';
+    }
+  }
+
+  private clampDurationSeconds(value: string | number | undefined, min: number = 1800): number {
+    const n = Number(value ?? 0) || 0;
+    return n < min ? min : n;
+  }
+
+  private getMinimumCreationFeeEth(profile: string): number {
+    // Client-specified minimums
+    // Simple (ZERO, SUPER) -> 0.001
+    // BASIC -> 0.01
+    // ADVANCED -> 0.03
+    if (profile === 'BASIC') return 0.01;
+    if (profile === 'ADVANCED') return 0.01; // per latest client guidance
+    // ZERO or SUPER treated as "Simple"
+    return 0.001;
+  }
+
+  /**
+   * Build Create Token transaction from modal state
+   * Supports ZERO, SUPER, BASIC, ADVANCED under VIRTUAL_CURVE deployment.
+   */
+  async buildCreateTokenTxFromState(state: TokenState): Promise<UnsignedTransaction> {
+    if (state.deploymentMode !== 'VIRTUAL_CURVE') {
+      throw new Error('Only VIRTUAL_CURVE mode is supported for on-chain creation in this step');
+    }
+    if (!state.profile) {
+      throw new Error('Profile not selected');
+    }
+    if (!this.web3 || !this.account || !this.contract) {
+      throw new Error('Service not properly initialized - connect wallet first');
+    }
+
+    const b = state.basics;
+    const curves = state.curves;
+    const profile = state.profile;
+    const tokenType = this.getFinalTokenTypeCode(curves.finalType[profile as keyof typeof curves.finalType]);
+
+    const totalSupplyWei = this.toBaseUnitsFromRawTokens(b.totalSupply || '0');
+    // Force graduation cap to 75,000,000 * 1e18 for now (client request)
+    const graduationCap = BigInt("75000000000000000000000000");
+    const removeHeader = !!b.removeHeader;
+    const isStealth = !!b.stealth;
+
+    // Use latest block timestamp + 60s when launching NOW, to satisfy contracts requiring startTime > block.timestamp
+    let startTime = 0;
+    if (b.startMode === 'NOW') {
+      const latest = await (this.web3.eth as any).getBlock('latest');
+      const ts = Number(latest?.timestamp || Math.floor(Date.now() / 1000));
+      startTime = ts + 60;
+    } else {
+      startTime = (Number(b.startTime || 0) || 0);
+    }
+
+    // Use lp lock from inputs; clamp to at least 3 months (7,776,000 seconds) when LOCK is selected
+    const lpLockDurationSecRaw = b.lpMode === 'LOCK' ? Number(b.lockDays || 0) * 24 * 60 * 60 : 0;
+    const lpLockDurationSec = b.lpMode === 'LOCK' ? Math.max(lpLockDurationSecRaw, 7776000) : 0;
+    const burnLP = b.lpMode === 'BURN';
+
+    // Final tax handling per profile
+    const finalType = curves.finalType[profile as keyof typeof curves.finalType];
+    const finalTaxStr = curves.finalTax[profile as keyof typeof curves.finalTax];
+    const finalTaxRatePct = this.percentStrToNumber(finalTaxStr);
+
+    // Payable value (creation fee): ensure at least client minimums per profile
+    const minRequired = this.getMinimumCreationFeeEth(profile);
+    const configured = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
+    const creationFeeEth = Math.max(configured, minRequired);
+    const hexValue = this.toHexWeiFromEth(creationFeeEth);
+
+    let methodCall: any;
+    let methodName = "" as string;
+    let methodArgs: any[] = [];
+
+    if (profile === 'ZERO') {
+      // TokenZeroSimple meta
+      const meta = {
+        creator: this.account,
+        name: b.name,
+        symbol: b.symbol,
+        totalSupply: totalSupplyWei.toString(10),
+        graduationCap: graduationCap.toString(10),
+        tokenType,
+        finalTaxRate: finalTaxRatePct,
+        removeHeader,
+        lpConfig: {
+          lpLockDuration: lpLockDurationSec,
+          burnLP,
+        },
+      } as any;
+
+      methodName = 'createZeroSimpleToken';
+      methodArgs = [meta, startTime, isStealth];
+      methodCall = this.contract.methods.createZeroSimpleToken(meta, startTime, isStealth);
+    } else if (profile === 'SUPER') {
+      // TokenSuperSimple meta
+      const maxWallet = this.maybePercentToBaseUnits(totalSupplyWei, curves.super.maxWallet);
+      const maxTx = this.maybePercentToBaseUnits(totalSupplyWei, curves.super.maxTx);
+      const meta = {
+        creator: this.account,
+        name: b.name,
+        symbol: b.symbol,
+        totalSupply: totalSupplyWei.toString(10),
+        graduationCap: graduationCap.toString(10),
+        maxWallet,
+        maxTx,
+        tokenType,
+        finalTaxRate: finalTaxRatePct,
+        removeHeader,
+        lpConfig: {
+          lpLockDuration: lpLockDurationSec,
+          burnLP,
+        },
+      } as any;
+
+      methodName = 'createSuperSimpleToken';
+      methodArgs = [meta, startTime, isStealth];
+      methodCall = this.contract.methods.createSuperSimpleToken(meta, startTime, isStealth);
+    } else if (profile === 'BASIC' || profile === 'ADVANCED') {
+      // Basic/Advanced params share similar base tuple
+      const baseParams = {
+        name: b.name,
+        symbol: b.symbol,
+        totalSupply: totalSupplyWei.toString(10),
+        tokenType,
+        graduationCap: graduationCap.toString(10),
+        lpLockDuration: lpLockDurationSec,
+        burnLP,
+        startTime,
+        finalTaxRate: finalTaxRatePct,
+        removeHeader,
+      } as any;
+
+      let staticParams: any;
+
+      if (profile === 'ADVANCED') {
+        // Per client working example, static curve params should be zeroed for Advanced
+        const adv = curves.advanced;
+        staticParams = {
+          curveStartingTax: 0,
+          curveTaxDuration: 0,
+          curveMaxWallet: "0",
+          curveMaxWalletDuration: 0,
+          curveMaxTx: "0",
+          curveMaxTxDuration: 0,
+        } as any;
+
+        // Advanced dynamic params
+        // Ensure limitRemovalTime is after startTime by at least 60s
+        const delta = Number(adv.removeAfter || 1800) || 1800;
+        const minDelta = 60;
+        const limitRemovalTime = startTime + Math.max(delta, minDelta);
+
+        const advParams = {
+          taxDropStep: this.percentStrToNumber(adv.taxStep || 0),
+          taxDropInterval: this.clampDurationSeconds(adv.taxInterval, 60),
+          maxWalletStep: this.toBaseUnitsFromTokens(adv.maxWStep),
+          maxWalletInterval: this.clampDurationSeconds(adv.maxWInterval, 60),
+          maxTxStep: this.toBaseUnitsFromTokens(adv.maxTStep),
+          maxTxInterval: this.clampDurationSeconds(adv.maxTInterval, 60),
+          limitRemovalTime,
+        } as any;
+
+        // Determine tax wallet: prefer advanced.taxReceiver, fallback to creator account
+        const taxWallet = (curves.advanced?.taxReceiver && this.web3.utils.isAddress(curves.advanced.taxReceiver))
+          ? this.web3.utils.toChecksumAddress(curves.advanced.taxReceiver)
+          : this.web3.utils.toChecksumAddress(this.account);
+
+        methodName = isStealth ? 'createAdvancedTokenStealth' : 'createAdvancedToken';
+        methodArgs = [baseParams, staticParams, advParams, taxWallet];
+        methodCall = isStealth
+          ? this.contract.methods.createAdvancedTokenStealth(baseParams, staticParams, advParams, taxWallet)
+          : this.contract.methods.createAdvancedToken(baseParams, staticParams, advParams, taxWallet);
+      } else {
+        staticParams = {
+          curveStartingTax: this.percentStrToNumber(curves.basic.startTax),
+          curveTaxDuration: this.clampDurationSeconds(curves.basic.taxDuration, 1800),
+          curveMaxWallet: this.maybePercentToBaseUnits(totalSupplyWei, curves.basic.maxWallet),
+          curveMaxWalletDuration: this.clampDurationSeconds(curves.basic.maxWalletDuration, 1800),
+          curveMaxTx: this.maybePercentToBaseUnits(totalSupplyWei, curves.basic.maxTx),
+          curveMaxTxDuration: this.clampDurationSeconds(curves.basic.maxTxDuration, 1800),
+        } as any;
+
+        methodName = isStealth ? 'createBasicTokenStealth' : 'createBasicToken';
+        methodArgs = [baseParams, staticParams];
+        methodCall = isStealth
+          ? this.contract.methods.createBasicTokenStealth(baseParams, staticParams)
+          : this.contract.methods.createBasicToken(baseParams, staticParams);
+      }
+    } else {
+      throw new Error(`Unsupported profile: ${profile}`);
+    }
+
+    // Debug: log method and arguments being sent
+    try {
+      console.groupCollapsed(`[KitchenCreate] build tx -> ${methodName}`);
+      console.log('from:', this.account);
+      console.log('to (Kitchen):', this.kitchenAddress);
+      console.log('value (ETH):', creationFeeEth);
+      console.log('value (wei):', this.toWeiDecimalStringFromEth(creationFeeEth));
+      console.log('args:', methodArgs);
+      console.groupEnd();
+    } catch {}
+
+    const data = methodCall.encodeABI();
+
+    // Estimate gas and fees
+    // Choose sensible fallback gas per create function
+    const fallbackGas = profile === 'BASIC'
+      ? WEB3_CONFIG.GAS.LIMITS.CREATE_BASIC_TOKEN
+      : profile === 'ADVANCED'
+        ? WEB3_CONFIG.GAS.LIMITS.CREATE_ADVANCED_TOKEN
+        : profile === 'SUPER'
+          ? WEB3_CONFIG.GAS.LIMITS.CREATE_SUPER_SIMPLE_TOKEN
+          : WEB3_CONFIG.GAS.LIMITS.CREATE_ZERO_SIMPLE_TOKEN;
+
+    const gas = await this.estimateGasLimit(
+      methodCall,
+      this.toWeiDecimalStringFromEth(creationFeeEth),
+      fallbackGas
+    );
+    const { maxFeePerGas, maxPriorityFeePerGas } = await this.get1559Fees();
+
+    const transaction: UnsignedTransaction = {
+      from: this.account,
+      to: this.web3.utils.toChecksumAddress(this.kitchenAddress),
+      data,
+      value: hexValue,
+      gas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      type: "0x2",
+    };
+
+    return transaction;
+  }
+
+  /**
+   * Build a fixed createAdvancedToken transaction for testing with hardcoded parameters.
+   * Matches tuple order exactly as requested: (b,s,a) with no taxWallet param.
+   */
+  async buildTestAdvancedTokenTx(valueEth: number): Promise<UnsignedTransaction> {
+    if (!this.web3 || !this.account || !this.contract) {
+      throw new Error('Service not properly initialized - connect wallet first');
+    }
+
+    // Build tuples close to client's working example, but ensure time-based fields are valid now
+    const latest = await (this.web3.eth as any).getBlock('latest');
+    const nowTs = Number(latest?.timestamp || Math.floor(Date.now() / 1000));
+
+    const baseParams: any = {
+      name: 'ADVANCTEST1',
+      symbol: 'ADVTST1',
+      totalSupply: '100000000000000000000000000', // 100,000,000 * 1e18
+      tokenType: 0,
+      graduationCap: '75000000000000000000000000', // 75,000,000 * 1e18
+      lpLockDuration: 15552000, // 6 months
+      burnLP: false,
+      startTime: nowTs + 60, // now + 60s
+      finalTaxRate: 0,
+      removeHeader: false,
+    };
+
+    // Static params all zeros
+    const staticParams: any = {
+      curveStartingTax: 0,
+      curveTaxDuration: 0,
+      curveMaxWallet: '0',
+      curveMaxWalletDuration: 0,
+      curveMaxTx: '0',
+      curveMaxTxDuration: 0,
+    };
+
+    // Advanced params input; make intervals >= 60 and use limitRemovalTime > startTime
+    const advParams: any = {
+      taxDropStep: 1,
+      taxDropInterval: 60,
+      maxWalletStep: '10000000000000000000000000',
+      maxWalletInterval: 60,
+      maxTxStep: '10000000000000000000000000',
+      maxTxInterval: 60,
+      limitRemovalTime: baseParams.startTime + 60,
+    };
+
+    // Prefer 4-arg variant with tax wallet if ABI supports it; fallback to 3-arg
+    const taxWallet = this.web3.utils.toChecksumAddress(this.account);
+    let methodName = 'createAdvancedToken';
+    let methodArgs: any[] = [];
+    let methodCall: any;
+
+    try {
+      // Try 4-arg first
+      methodArgs = [baseParams, staticParams, advParams, taxWallet];
+      methodCall = this.contract.methods.createAdvancedToken(baseParams, staticParams, advParams, taxWallet);
+      // encode once to surface ABI mismatch early
+      methodCall.encodeABI();
+    } catch {
+      // Fallback to 3-arg variant
+      methodArgs = [baseParams, staticParams, advParams];
+      methodCall = this.contract.methods.createAdvancedToken(baseParams, staticParams, advParams);
+    }
+
+    // Debug log
+    try {
+      console.groupCollapsed(`[KitchenCreate][TEST] build tx -> ${methodName}`);
+      console.log('from:', this.account);
+      console.log('to (Kitchen):', this.kitchenAddress);
+      console.log('value (ETH):', valueEth);
+      console.log('value (wei):', this.toWeiDecimalStringFromEth(valueEth));
+      console.log('args:', methodArgs);
+      console.groupEnd();
+    } catch {}
+
+    const data = methodCall.encodeABI();
+    const gas = await this.estimateGasLimit(
+      methodCall,
+      this.toWeiDecimalStringFromEth(valueEth),
+      WEB3_CONFIG.GAS.LIMITS.CREATE_ADVANCED_TOKEN
+    );
+    const { maxFeePerGas, maxPriorityFeePerGas } = await this.get1559Fees();
+
+    const transaction: UnsignedTransaction = {
+      from: this.account,
+      to: this.web3.utils.toChecksumAddress(this.kitchenAddress),
+      data,
+      value: this.toHexWeiFromEth(valueEth),
+      gas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      type: '0x2',
+    };
+
+    return transaction;
+  }
+
+  /**
+   * Build a fixed createBasicToken transaction for testing with hardcoded parameters.
+   */
+  async buildTestBasicTokenTx(valueEth: number): Promise<UnsignedTransaction> {
+    if (!this.web3 || !this.account || !this.contract) {
+      throw new Error('Service not properly initialized - connect wallet first');
+    }
+
+    // Hardcoded test tuples
+    // Compute start time as latest block timestamp + 60s
+    const latest = await (this.web3.eth as any).getBlock('latest');
+    const ts = Number(latest?.timestamp || Math.floor(Date.now() / 1000));
+
+    const baseParams: any = {
+      name: 'sagas',
+      symbol: 'asdgasgd',
+      // TOTAL_SUPPLY = 100,000,000 * 1e18
+      totalSupply: '100000000000000000000000000',
+      tokenType: 0,
+      // GRADUATION_CAP = 75,000,000 * 1e18
+      graduationCap: '75000000000000000000000000',
+      // LP_LOCK_DURATION = 3 months
+      lpLockDuration: 7776000,
+      burnLP: false,
+      // START_TIME = latest block ts + 60
+      startTime: ts + 60,
+      finalTaxRate: 0,
+      removeHeader: false,
+    };
+
+    const staticParams: any = {
+      // CURVE_START_TAX = 1
+      curveStartingTax: 1,
+      // durations = 30 minutes
+      curveTaxDuration: 1800,
+      // CURVE_MAX_WALLET = 10,000,000 * 1e18
+      curveMaxWallet: '10000000000000000000000000',
+      curveMaxWalletDuration: 1800,
+      // CURVE_MAX_TX = 10,000,000 * 1e18
+      curveMaxTx: '10000000000000000000000000',
+      curveMaxTxDuration: 1800,
+    };
+
+    const methodName = 'createBasicToken';
+    const methodArgs = [baseParams, staticParams];
+    const methodCall = this.contract.methods.createBasicToken(baseParams, staticParams);
+
+    // Debug log
+    try {
+      console.groupCollapsed(`[KitchenCreate][TEST] build tx -> ${methodName}`);
+      console.log('from:', this.account);
+      console.log('to (Kitchen):', this.kitchenAddress);
+      console.log('value (ETH):', valueEth);
+      console.log('value (wei):', this.toWeiDecimalStringFromEth(valueEth));
+      console.log('args:', methodArgs);
+      console.groupEnd();
+    } catch {}
+
+    const data = methodCall.encodeABI();
+    const gas = await this.estimateGasLimit(
+      methodCall,
+      this.toWeiDecimalStringFromEth(valueEth),
+      WEB3_CONFIG.GAS.LIMITS.CREATE_BASIC_TOKEN
+    );
+    const { maxFeePerGas, maxPriorityFeePerGas } = await this.get1559Fees();
+
+    const transaction: UnsignedTransaction = {
+      from: this.account,
+      to: this.web3.utils.toChecksumAddress(this.kitchenAddress),
+      data,
+      value: this.toHexWeiFromEth(valueEth),
+      gas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      type: '0x2',
+    };
+
+    return transaction;
+  }
+
+  private async checkKitchenConfigured(): Promise<{ ok: boolean; missing: string[]; details: Record<string, string> }> {
+    try {
+      const [factory, storageAddr, curve, graduation] = await Promise.all([
+        this.contract.methods.factory().call(),
+        this.contract.methods.storageContract().call(),
+        this.contract.methods.kitchenBondingCurve().call(),
+        this.contract.methods.graduation().call(),
+      ]);
+      const details: Record<string, string> = { factory, storage: storageAddr, curve, graduation };
+      const missing: string[] = [];
+      if (!factory || /^0x0{40}$/i.test(factory)) missing.push('factory');
+      if (!storageAddr || /^0x0{40}$/i.test(storageAddr)) missing.push('storage');
+      if (!curve || /^0x0{40}$/i.test(curve)) missing.push('kitchenBondingCurve');
+      if (!graduation || /^0x0{40}$/i.test(graduation)) missing.push('graduation');
+      return { ok: missing.length === 0, missing, details };
+    } catch (e) {
+      // If read calls fail, treat as not configured
+      return { ok: false, missing: ['factory','storage','kitchenBondingCurve','graduation'], details: {} };
+    }
+  }
+
+  /**
+   * Simulate the create token call to detect reverts before sending a transaction.
+   * Returns success=false with a reason if call would revert.
+   */
+  async simulateCreateTokenCall(state: TokenState): Promise<{ success: boolean; reason?: string }> {
+    try {
+      if (state.deploymentMode !== 'VIRTUAL_CURVE') {
+        return { success: false, reason: 'Only VIRTUAL_CURVE mode supported for simulation' };
+      }
+      if (!state.profile) {
+        return { success: false, reason: 'Profile not selected' };
+      }
+      // Ensure kitchen has been configured (factory/storage/curve/graduation)
+      const config = await this.checkKitchenConfigured();
+      if (!config.ok) {
+        return { success: false, reason: `Kitchen not configured: missing ${config.missing.join(', ')}` };
+      }
+
+      const b = state.basics;
+      const curves = state.curves;
+      const profile = state.profile;
+      const tokenType = this.getFinalTokenTypeCode(curves.finalType[profile as keyof typeof curves.finalType]);
+
+      const totalSupplyWei = this.toBaseUnitsFromRawTokens(b.totalSupply || '0');
+      // Force graduation cap to 75,000,000 * 1e18 for now (client request)
+      const graduationCap = BigInt("75000000000000000000000000");
+      const removeHeader = !!b.removeHeader;
+      const isStealth = !!b.stealth;
+      let startTime = 0;
+      if (b.startMode === 'NOW') {
+        const latest = await (this.web3.eth as any).getBlock('latest');
+        const ts = Number(latest?.timestamp || Math.floor(Date.now() / 1000));
+        startTime = ts + 60;
+      } else {
+        startTime = (Number(b.startTime || 0) || 0);
+      }
+      // Use lp lock from inputs; clamp to at least 3 months (7,776,000 seconds) when LOCK is selected
+      const lpLockDurationSecRaw = b.lpMode === 'LOCK' ? Number(b.lockDays || 0) * 24 * 60 * 60 : 0;
+      const lpLockDurationSec = b.lpMode === 'LOCK' ? Math.max(lpLockDurationSecRaw, 7776000) : 0;
+      const burnLP = b.lpMode === 'BURN';
+
+      const finalType = curves.finalType[profile as keyof typeof curves.finalType];
+      const finalTaxStr = curves.finalTax[profile as keyof typeof curves.finalTax];
+      const finalTaxRatePct = this.percentStrToNumber(finalTaxStr);
+
+      const minRequired = this.getMinimumCreationFeeEth(profile);
+      const configured = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
+      const creationFeeEth = Math.max(configured, minRequired);
+      const valueDecimalWei = this.toWeiDecimalStringFromEth(creationFeeEth);
+
+      let methodCall: any;
+      let methodName = '' as string;
+      let methodArgs: any[] = [];
+      if (profile === 'ZERO') {
+        const meta = {
+          creator: this.account,
+          name: b.name,
+          symbol: b.symbol,
+          totalSupply: totalSupplyWei.toString(10),
+          graduationCap: graduationCap.toString(10),
+          tokenType,
+          finalTaxRate: finalTaxRatePct,
+          removeHeader,
+          lpConfig: { lpLockDuration: lpLockDurationSec, burnLP },
+        } as any;
+        methodName = 'createZeroSimpleToken';
+        methodArgs = [meta, startTime, isStealth];
+        methodCall = this.contract.methods.createZeroSimpleToken(meta, startTime, isStealth);
+      } else if (profile === 'SUPER') {
+        const maxWallet = this.maybePercentToBaseUnits(totalSupplyWei, curves.super.maxWallet);
+        const maxTx = this.maybePercentToBaseUnits(totalSupplyWei, curves.super.maxTx);
+        const meta = {
+          creator: this.account,
+          name: b.name,
+          symbol: b.symbol,
+          totalSupply: totalSupplyWei.toString(10),
+          graduationCap: graduationCap.toString(10),
+          maxWallet,
+          maxTx,
+          tokenType,
+          finalTaxRate: finalTaxRatePct,
+          removeHeader,
+          lpConfig: { lpLockDuration: lpLockDurationSec, burnLP },
+        } as any;
+        methodName = 'createSuperSimpleToken';
+        methodArgs = [meta, startTime, isStealth];
+        methodCall = this.contract.methods.createSuperSimpleToken(meta, startTime, isStealth);
+      } else if (profile === 'BASIC' || profile === 'ADVANCED') {
+        const baseParams = {
+          name: b.name,
+          symbol: b.symbol,
+          totalSupply: totalSupplyWei.toString(10),
+          tokenType,
+          graduationCap: graduationCap.toString(10),
+          lpLockDuration: lpLockDurationSec,
+          burnLP,
+          startTime,
+          finalTaxRate: finalTaxRatePct,
+          removeHeader,
+        } as any;
+        let staticParams: any;
+        if (profile === 'ADVANCED') {
+          const adv = curves.advanced;
+          // Per client working example, static curve params should be zeroed for Advanced
+          staticParams = {
+            curveStartingTax: 0,
+            curveTaxDuration: 0,
+            curveMaxWallet: "0",
+            curveMaxWalletDuration: 0,
+            curveMaxTx: "0",
+            curveMaxTxDuration: 0,
+          } as any;
+
+          // Ensure limitRemovalTime is after startTime by at least 60s
+          const delta = Number(adv.removeAfter || 1800) || 1800;
+          const minDelta = 60;
+          const limitRemovalTime = startTime + Math.max(delta, minDelta);
+
+          const advParams = {
+            taxDropStep: this.percentStrToNumber(adv.taxStep || 0),
+            taxDropInterval: this.clampDurationSeconds(adv.taxInterval, 60),
+            maxWalletStep: this.toBaseUnitsFromTokens(adv.maxWStep),
+            maxWalletInterval: this.clampDurationSeconds(adv.maxWInterval, 60),
+            maxTxStep: this.toBaseUnitsFromTokens(adv.maxTStep),
+            maxTxInterval: this.clampDurationSeconds(adv.maxTInterval, 60),
+            limitRemovalTime,
+          } as any;
+          const taxWallet = (curves.advanced?.taxReceiver && this.web3.utils.isAddress(curves.advanced.taxReceiver))
+            ? this.web3.utils.toChecksumAddress(curves.advanced.taxReceiver)
+            : this.web3.utils.toChecksumAddress(this.account);
+
+          methodName = isStealth ? 'createAdvancedTokenStealth' : 'createAdvancedToken';
+          methodArgs = [baseParams, staticParams, advParams, taxWallet];
+          methodCall = isStealth
+            ? this.contract.methods.createAdvancedTokenStealth(baseParams, staticParams, advParams, taxWallet)
+            : this.contract.methods.createAdvancedToken(baseParams, staticParams, advParams, taxWallet);
+        } else {
+          staticParams = {
+            curveStartingTax: this.percentStrToNumber(curves.basic.startTax),
+            curveTaxDuration: this.clampDurationSeconds(curves.basic.taxDuration, 1800),
+            curveMaxWallet: this.maybePercentToBaseUnits(totalSupplyWei, curves.basic.maxWallet),
+            curveMaxWalletDuration: this.clampDurationSeconds(curves.basic.maxWalletDuration, 1800),
+            curveMaxTx: this.maybePercentToBaseUnits(totalSupplyWei, curves.basic.maxTx),
+            curveMaxTxDuration: this.clampDurationSeconds(curves.basic.maxTxDuration, 1800),
+          } as any;
+          methodName = isStealth ? 'createBasicTokenStealth' : 'createBasicToken';
+          methodArgs = [baseParams, staticParams];
+          methodCall = isStealth
+            ? this.contract.methods.createBasicTokenStealth(baseParams, staticParams)
+            : this.contract.methods.createBasicToken(baseParams, staticParams);
+        }
+      } else {
+        return { success: false, reason: `Unsupported profile: ${profile}` };
+      }
+
+      // Log what we're simulating
+      try {
+        console.groupCollapsed(`[KitchenCreate] simulate -> ${methodName}`);
+        console.log('from:', this.account);
+        console.log('to (Kitchen):', this.kitchenAddress);
+        console.log('value (wei):', valueDecimalWei);
+        console.log('args:', methodArgs);
+        console.groupEnd();
+      } catch {}
+
+      // Try a static call (no state change). If it reverts, catch reason.
+      await methodCall.call({ from: this.account, value: valueDecimalWei });
+      return { success: true };
+    } catch (err: any) {
+      const reason = err?.data?.message || err?.reason || err?.message || 'Simulation failed';
+      return { success: false, reason };
+    }
   }
 }

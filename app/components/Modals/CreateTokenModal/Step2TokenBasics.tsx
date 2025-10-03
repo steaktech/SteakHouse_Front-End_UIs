@@ -160,7 +160,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
                   className={`${styles.input} ${errors.lockDays ? styles.fieldError : ''}`}
                   value={basics.lockDays}
                   onChange={(e) => onBasicsChange('lockDays', Number(e.target.value))}
-                  placeholder="30"
+                  placeholder="90"
                 />
                 <span className={styles.unit}>days</span>
               </div>

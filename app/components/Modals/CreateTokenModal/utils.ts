@@ -18,13 +18,13 @@ export const initialState: TokenState = {
   basics: {
     name: "",
     symbol: "",
-    totalSupply: "1000000000",
+    totalSupply: "100000000",
     gradCap: "",
     tokenCategory: null,
     startMode: "NOW",
     startTime: 0,
     lpMode: "LOCK",
-    lockDays: 30,
+    lockDays: 90,
     removeHeader: false,
     stealth: false,
   },
@@ -164,9 +164,9 @@ export function validateBasics(basics: any): { isValid: boolean; errors: Record<
   }
 
   if (basics.lpMode === "LOCK") {
-    const lockDays = Number(basics.lockDays || "30");
-    if (!isInt(String(lockDays)) || lockDays < 30) {
-      errors.lockDays = "Lock duration must be ≥ 30 days.";
+    const lockDays = Number(basics.lockDays || "90");
+    if (!isInt(String(lockDays)) || lockDays < 90) {
+      errors.lockDays = "Lock duration must be ≥ 90 days (3 months).";
     }
   }
 
@@ -209,20 +209,20 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
     if (!(st != null && inRange(st, 0, 100))) {
       errors.basicStartTax = "Enter 0-100%.";
     }
-    if (!isInt(curves.basic.taxDuration)) {
-      errors.basicTaxDuration = "Enter seconds (integer).";
+    if (!isInt(curves.basic.taxDuration) || Number(curves.basic.taxDuration) < 1800) {
+      errors.basicTaxDuration = "Enter seconds (>= 1800).";
     }
     if (!isInt(curves.basic.maxWallet)) {
       errors.basicMaxWallet = "Enter integer tokens.";
     }
-    if (!isInt(curves.basic.maxWalletDuration)) {
-      errors.basicMaxWalletDuration = "Enter seconds (integer).";
+    if (!isInt(curves.basic.maxWalletDuration) || Number(curves.basic.maxWalletDuration) < 1800) {
+      errors.basicMaxWalletDuration = "Enter seconds (>= 1800).";
     }
     if (!isInt(curves.basic.maxTx)) {
       errors.basicMaxTx = "Enter integer tokens.";
     }
-    if (!isInt(curves.basic.maxTxDuration)) {
-      errors.basicMaxTxDuration = "Enter seconds (integer).";
+    if (!isInt(curves.basic.maxTxDuration) || Number(curves.basic.maxTxDuration) < 1800) {
+      errors.basicMaxTxDuration = "Enter seconds (>= 1800).";
     }
     if (finalType.BASIC === "TAX") {
       const v = pct(curves.finalTax.BASIC);
@@ -234,30 +234,37 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
 
   if (profile === "ADVANCED") {
     const st = Number(curves.advanced.startTax.replace(",", "."));
-    if (!(st >= 0 && st <= 100)) {
-      errors.advStartTax = "Enter 0-100%.";
+    if (!(st >= 0 && st <= 20)) {
+      errors.advStartTax = "Enter 0-20%.";
     }
 
     const step = curves.advanced.taxStep === "" ? 0 : Number(curves.advanced.taxStep.replace(",", "."));
     const tint = curves.advanced.taxInterval === "" ? 0 : Number(curves.advanced.taxInterval);
-    if (step > 0 && !(tint > 0)) {
-      errors.advTaxInterval = "Required if step > 0.";
+    if (step > 0 && !(tint >= 60)) {
+      errors.advTaxInterval = "If step > 0, interval must be ≥ 60s.";
     }
 
-    if (
-      !isInt(curves.advanced.maxWStart) ||
-      (curves.advanced.maxWStep && !isInt(curves.advanced.maxWStep)) ||
-      (curves.advanced.maxWStep && !(isInt(curves.advanced.maxWInterval) && Number(curves.advanced.maxWInterval) > 0))
-    ) {
-      errors.advMaxW = "Enter integers; if step > 0, interval > 0.";
+    // Max Wallet validations
+    const mwStartOk = isInt(curves.advanced.maxWStart) && Number(curves.advanced.maxWStart) > 0;
+    const mwStepOk = (curves.advanced.maxWStep === "") || isInt(curves.advanced.maxWStep);
+    const mwIntOk = (curves.advanced.maxWStep === "") || (isInt(curves.advanced.maxWInterval) && Number(curves.advanced.maxWInterval) >= 60);
+    if (!mwStartOk || !mwStepOk || !mwIntOk) {
+      errors.advMaxW = "Enter integer tokens; if step > 0, interval ≥ 60s.";
     }
-    if (
-      !isInt(curves.advanced.maxTStart) ||
-      (curves.advanced.maxTStep && !isInt(curves.advanced.maxTStep)) ||
-      (curves.advanced.maxTStep && !(isInt(curves.advanced.maxTInterval) && Number(curves.advanced.maxTInterval) > 0))
-    ) {
-      errors.advMaxT = "Enter integers; if step > 0, interval > 0.";
+
+    // Max Tx validations
+    const mtStartOk = isInt(curves.advanced.maxTStart) && Number(curves.advanced.maxTStart) > 0;
+    const mtStepOk = (curves.advanced.maxTStep === "") || isInt(curves.advanced.maxTStep);
+    const mtIntOk = (curves.advanced.maxTStep === "") || (isInt(curves.advanced.maxTInterval) && Number(curves.advanced.maxTInterval) >= 60);
+    if (!mtStartOk || !mtStepOk || !mtIntOk) {
+      errors.advMaxT = "Enter integer tokens; if step > 0, interval ≥ 60s.";
     }
+
+    // Relationship: maxTxStart <= maxWalletStart
+    if (mwStartOk && mtStartOk && Number(curves.advanced.maxTStart) > Number(curves.advanced.maxWStart)) {
+      errors.advMaxT = (errors.advMaxT ? errors.advMaxT + " " : "") + "Max Tx start must be ≤ Max Wallet start.";
+    }
+
     if (!isInt(curves.advanced.removeAfter)) {
       errors.advRemoveAfter = "Enter seconds (integer).";
     }

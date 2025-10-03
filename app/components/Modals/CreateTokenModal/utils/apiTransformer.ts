@@ -6,12 +6,13 @@ import { CreateTokenService } from '@/app/lib/api/services/createTokenService';
  * Transforms the modal state to the API request format
  * Handles both Virtual Curve and V2 Launch deployment modes
  */
-export function transformStateToApiRequest(state: TokenState): CreateTokenApiRequest {
+export function transformStateToApiRequest(state: TokenState, tokenAddress?: string): CreateTokenApiRequest {
   const request: CreateTokenApiRequest = {};
   
-  // Generate a temporary token address for demo purposes
-  // In production, this would come from wallet/contract deployment
-  request.token_address = CreateTokenService.generateTempTokenAddress();
+  // Token address: use provided on-chain address if available; otherwise generate a temp
+  request.token_address = tokenAddress && /^0x[a-fA-F0-9]{40}$/.test(tokenAddress)
+    ? tokenAddress
+    : CreateTokenService.generateTempTokenAddress();
   
   // Basic token information
   if (state.basics.name) request.name = state.basics.name;

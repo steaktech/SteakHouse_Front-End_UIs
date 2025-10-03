@@ -4,6 +4,7 @@ import { fmt } from './utils';
 import styles from './CreateTokenModal.module.css';
 import { useCreationFeePayment } from '@/app/hooks/useCreationFeePayment';
 import { useWallet } from '@/app/hooks/useWallet';
+import { useKitchenCreateToken } from '@/app/hooks/useKitchenCreateToken';
 
 interface Step6ReviewConfirmProps {
   state: TokenState;
@@ -21,6 +22,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const [understandFees, setUnderstandFees] = useState(false);
   const { isConnected } = useWallet();
   const { requestFeePayment, isRequesting, error } = useCreationFeePayment();
+  const { createFixedBasicTest, createFixedAdvancedTest, isLoading: isCreatingTest } = useKitchenCreateToken();
 
   const creationFeeEth = useMemo(() => {
     return typeof state.fees.creation === 'number' && !isNaN(state.fees.creation)
@@ -317,6 +319,30 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
             title={!isConnected ? 'Connect your wallet to proceed' : ''}
           >
             {isRequesting ? 'Opening wallet...' : `Pay Fee (${fmt.format(creationFeeEth)} ETH)`}
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
+            disabled={!understandFees || isLoading || isCreatingTest || !isConnected}
+            onClick={async () => {
+              // For the test button, enforce Basic minimum 0.01 ETH per client
+              const value = Math.max(creationFeeEth, 0.01);
+              await createFixedBasicTest(value);
+            }}
+            title={!isConnected ? 'Connect your wallet to proceed' : 'Sends hardcoded Basic params'}
+          >
+            {isCreatingTest ? 'Sending Test…' : 'Send Basic Test'}
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
+            disabled={!understandFees || isLoading || isCreatingTest || !isConnected}
+            onClick={async () => {
+              // For the advanced test, enforce 0.01 ETH per client guidance
+              const value = Math.max(creationFeeEth, 0.01);
+              await createFixedAdvancedTest(value);
+            }}
+            title={!isConnected ? 'Connect your wallet to proceed' : 'Sends hardcoded Advanced params'}
+          >
+            {isCreatingTest ? 'Sending Test…' : 'Send Advanced Test'}
           </button>
           <button 
             className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}

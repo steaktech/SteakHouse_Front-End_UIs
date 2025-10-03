@@ -93,6 +93,24 @@ export async function removeLikedToken(walletAddress: string, tokenAddress: stri
   });
 }
 
+// ===================== SAVED TOKENS =====================
+export interface SavedTokenApiItem {
+  token_address: string;
+  name: string;
+  symbol: string;
+  image_url?: string | null;
+  price_per_token?: string | null;
+  saved_at?: string | null;
+}
+
+/**
+ * Fetch a user's saved tokens list.
+ * GET /users/:wallet/saved-tokens
+ */
+export async function fetchSavedTokens(walletAddress: string): Promise<SavedTokenApiItem[]> {
+  return apiClient<SavedTokenApiItem[]>(`/users/${walletAddress}/saved-tokens`);
+}
+
 /**
  * Updates a user's profile information.
  * Supports both JSON and multipart form data depending on whether a file is included.

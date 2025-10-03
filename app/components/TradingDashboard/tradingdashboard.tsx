@@ -16,6 +16,7 @@ import { TokenCard } from "./TokenCard";
 import { StatCardProps } from "./types";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SmartVideo from "../UI/SmartVideo";
+import BottomControlBar from "../BottomControlBar";
 import { useTokens } from "@/app/hooks/useTokens";
 import styles from "../UI/Botton.module.css";
 
@@ -30,8 +31,15 @@ export default function TradingDashboard() {
     sortByMarketCap,
     sortByAge,
     filterByType,
+    filterByCategory,
     showAll,
-    filters
+    applySearchFilters,
+    clearAllFilters,
+    filters,
+    pagination,
+    goToPage,
+    nextPage,
+    previousPage
   } = useTokens();
 
   // Style object for the main heading with gradient, stroke, and font
@@ -64,7 +72,21 @@ export default function TradingDashboard() {
 
   const handleApplyFilters = (filters: Record<string, string>) => {
     console.log("Applied Filters:", filters);
-    // Logic to apply filters would go here
+    
+    // Convert string values to numbers for numeric filters
+    const numericFilters: Record<string, any> = {};
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue)) {
+        numericFilters[key] = numericValue;
+      } else {
+        numericFilters[key] = value;
+      }
+    });
+    
+    // Apply the search filters using the hook
+    applySearchFilters(numericFilters);
   };
 
   const statsData: StatCardProps[] = [
@@ -129,82 +151,93 @@ export default function TradingDashboard() {
   return (
     <>
       <style jsx>{`
-        /* Prevent overscroll behavior */
-        :global(html) {
-          overscroll-behavior: none;
-          overflow-x: hidden;
-        }
-        
-        :global(body) {
-          overscroll-behavior: none;
-          overflow-x: hidden;
-          position: relative;
-        }
-        
-        /* Custom responsive grid for token cards with fixed columns */
+        /* Custom responsive grid for token cards with container-based breakpoints */
+
+
+
+
+
+
+
+
+
+
+
+
         .token-grid {
-          display: grid;
-          gap: 1rem;
-          justify-items: start;
-          align-items: start;
-          grid-template-columns: 1fr;
+          /* Default: 1 column on mobile, 2 on small screens */
+          grid-template-columns: repeat(1, 1fr);
+
+
+
         }
         
-        /* Tablet: 2 columns */
+
         @media (min-width: 640px) {
           .token-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+
           }
         }
         
-        /* Desktop: 3 columns */
+        /* 3 cards when container can fit 3 × 367px + gaps + padding */
         @media (min-width: 1250px) {
           .token-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr) !important;
           }
         }
         
-        /* Large desktop: 4 columns */
+        /* 4 cards when container can fit 4 × 357px + gaps + padding */
         @media (min-width: 1650px) {
           .token-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, 1fr) !important;
           }
         }
         
-        /* Container styling with consistent minimum height */
+        /* Ensure container doesn't overflow */
         .token-container {
-          min-height: 800px;
+
           max-width: 100%;
           overflow: visible;
+          container-type: inline-size;
         }
         
-        /* Ensure cards maintain consistent sizing */
+                /* Use CSS auto-fit for more responsive behavior */
+        @supports (grid-template-columns: repeat(auto-fit, minmax(357px, 1fr))) {
+          .token-grid {
+            grid-template-columns: repeat(auto-fit, minmax(357px, 1fr)) !important;
+            justify-content: center;
+            place-items: center;
+          }
+        }
+        
+        /* Ensure cards don't get too wide when centered */
         .token-grid > div {
-          width: 100%;
           max-width: 420px;
-          justify-self: start;
+          width: 100%;
+
+
+
+
+
+
+
+
         }
         
-        /* Center cards when there are fewer than grid columns */
-        .token-grid.few-items {
-          justify-content: start;
-          justify-items: start;
-        }
-        
-        /* On mobile, always align to start */
+        /* Override centering on mobile for left alignment */
         @media (max-width: 639px) {
           .token-grid {
-            justify-items: start;
-          }
-          .token-grid > div {
-            justify-self: start;
+            place-items: start !important;
+
+
+
           }
         }
       `}</style>
-      <div className="bg-transparent min-h-screen font-sans">
-      <div className="max-w-full xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8">
-        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[-20px] md:mt-4 mb-8">
+      <div className="bg-transparent min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+      <div className="max-w-full xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[5px] md:mt-20 mb-8">
           <div className="md:w-2/3 text-center md:text-left z-10">
             <h1
               style={headingStyle}
@@ -249,13 +282,13 @@ export default function TradingDashboard() {
                   onClick={handleSearchClick}
                   className={`${styles["btn-5"]} flex items-center gap-1 w-full justify-center text-xs py-1.5`}
                 >
-                  <span className={styles.rightSteak}>🥩</span>
+
                   <Search size={14} />
                   <span>Search...</span>
                 </button>
               </div>
-              
-              {/* Filter buttons in 2 rows of 3 for mobile */}
+
+              {/* Filter buttons in 3 rows for mobile to accommodate all buttons */}
               <div className="space-y-1">
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
@@ -279,21 +312,29 @@ export default function TradingDashboard() {
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
                     icon={<Star size={12} />} 
-                    label="New" 
-                    active={filters.sortBy === 'age'}
-                    onClick={sortByAge}
+                    label="Meme" 
+                    active={filters.category === 'meme'}
+                    onClick={() => filterByCategory('meme')}
                   />
                   <FilterButton 
                     icon={<Wrench size={12} />} 
                     label="Utility" 
-                    active={filters.tokenType === 'Utility'}
-                    onClick={() => filterByType('Utility')}
+                    active={filters.category === 'utility'}
+                    onClick={() => filterByCategory('utility')}
                   />
                   <FilterButton 
                     icon={<Smile size={12} />} 
-                    label="Meme" 
-                    active={filters.tokenType === 'Meme'}
-                    onClick={() => filterByType('Meme')}
+                    label="AI" 
+                    active={filters.category === 'ai'}
+                    onClick={() => filterByCategory('ai')}
+                  />
+                </div>
+                <div className="flex items-center justify-center">
+                  <FilterButton 
+                    icon={<Smile size={12} />} 
+                    label="X-post" 
+                    active={filters.category === 'x-post'}
+                    onClick={() => filterByCategory('x-post')}
                   />
                 </div>
               </div>
@@ -308,13 +349,13 @@ export default function TradingDashboard() {
                   onClick={handleSearchClick}
                   className={`${styles["btn-5"]} flex items-center gap-2 w-full justify-center`}
                 >
-                  <span className={styles.rightSteak}>🥩</span>
+
                   <Search size={16} />
                   <span>Search...</span>
                 </button>
               </div>
-              
-              {/* All filter buttons in one row for tablet */}
+
+              {/* All filter buttons with flex-wrap for tablet */}
               <div className="flex items-center gap-2 justify-center flex-wrap">
                 <FilterButton 
                   icon={<BarChart size={14} />} 
@@ -335,21 +376,27 @@ export default function TradingDashboard() {
                 />
                 <FilterButton 
                   icon={<Star size={14} />} 
-                  label="New" 
-                  active={filters.sortBy === 'age'}
-                  onClick={sortByAge}
+                  label="Meme" 
+                  active={filters.category === 'meme'}
+                  onClick={() => filterByCategory('meme')}
                 />
                 <FilterButton 
                   icon={<Wrench size={14} />} 
                   label="Utility" 
-                  active={filters.tokenType === 'Utility'}
-                  onClick={() => filterByType('Utility')}
+                  active={filters.category === 'utility'}
+                  onClick={() => filterByCategory('utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={14} />} 
-                  label="Meme" 
-                  active={filters.tokenType === 'Meme'}
-                  onClick={() => filterByType('Meme')}
+                  label="AI" 
+                  active={filters.category === 'ai'}
+                  onClick={() => filterByCategory('ai')}
+                />
+                <FilterButton 
+                  icon={<Smile size={14} />} 
+                  label="X-post" 
+                  active={filters.category === 'x-post'}
+                  onClick={() => filterByCategory('x-post')}
                 />
               </div>
             </div>
@@ -382,7 +429,7 @@ export default function TradingDashboard() {
                   onClick={handleSearchClick}
                   className={`${styles["btn-5"]} flex items-center gap-2`}
                 >
-                  <span className={styles.rightSteak}>🥩</span>
+
                   <Search size={18} />
                   <span>Search...</span>
                 </button>
@@ -401,27 +448,33 @@ export default function TradingDashboard() {
               <div className="flex items-center gap-2 flex-wrap">
                 <FilterButton 
                   icon={<Star size={16} />} 
-                  label="New" 
-                  active={filters.sortBy === 'age'}
-                  onClick={sortByAge}
+                  label="Meme" 
+                  active={filters.category === 'meme'}
+                  onClick={() => filterByCategory('meme')}
                 />
                 <FilterButton 
                   icon={<Wrench size={16} />} 
                   label="Utility" 
-                  active={filters.tokenType === 'Utility'}
-                  onClick={() => filterByType('Utility')}
+                  active={filters.category === 'utility'}
+                  onClick={() => filterByCategory('utility')}
                 />
                 <FilterButton 
                   icon={<Smile size={16} />} 
-                  label="Meme" 
-                  active={filters.tokenType === 'Meme'}
-                  onClick={() => filterByType('Meme')}
+                  label="AI" 
+                  active={filters.category === 'ai'}
+                  onClick={() => filterByCategory('ai')}
+                />
+                <FilterButton 
+                  icon={<Smile size={16} />} 
+                  label="X-post" 
+                  active={filters.category === 'x-post'}
+                  onClick={() => filterByCategory('x-post')}
                 />
               </div>
             </div>
           </div>
 
-          <div className="token-container bg-[#1b0a03]/40 backdrop-blur-lg rounded-t-xl border-t border-l border-r border-white/20 shadow-lg p-4 sm:p-6 pb-0">
+          <div className="token-container bg-[#1b0a03]/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-4 sm:p-6">
             {isLoading ? (
               renderLoadingState()
             ) : error ? (
@@ -429,9 +482,9 @@ export default function TradingDashboard() {
             ) : tokenCards.length === 0 ? (
               renderEmptyState()
             ) : (
-              <div className="token-grid pb-4 sm:pb-6">
+              <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {tokenCards.map((token, index) => (
-                  <div key={`${token.symbol}-${index}`}>
+                  <div key={`${token.symbol}-${index}`} className="h-full">
                     <TokenCard {...token} />
                   </div>
                 ))}
@@ -445,8 +498,19 @@ export default function TradingDashboard() {
         isOpen={isSearchModalOpen}
         onClose={handleSearchModalClose}
         onApply={handleApplyFilters}
+        onClearAll={clearAllFilters}
       />
       </div>
+
+      <BottomControlBar
+        currentPage={pagination.currentPage}
+        hasMore={pagination.hasMore}
+        nextPage={pagination.nextPage}
+        prevPage={pagination.prevPage}
+        onPageChange={goToPage}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+      />
     </>
   );
 }
