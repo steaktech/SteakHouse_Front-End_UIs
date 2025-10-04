@@ -390,7 +390,7 @@ export default function TradingChart() {
                     onCancelOrder={handleOrderCancel}
                     onModifyOrder={handleOrderModify}
                     loading={orderManagement.loading}
-                    error={orderManagement.error}
+                    error={orderManagement.error ?? undefined}
                     showToggle={true}
                     showLimitOrders={showLimitOrders}
                     onToggleChange={setShowLimitOrders}

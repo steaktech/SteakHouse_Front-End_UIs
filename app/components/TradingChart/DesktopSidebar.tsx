@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 // Icons from lucide-react, including X for the mobile close button
-import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, Lock, ExternalLink, User, Bot, Link, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
@@ -14,31 +14,46 @@ interface WidgetItemProps {
   text: string;
   expanded: boolean;
   active?: boolean;
+  greyedOut?: boolean;
   onClick?: () => void;
 }
 
-const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, onClick }) => {
+const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, greyedOut, onClick }) => {
   // Base classes for all items
-  const baseClasses = "flex items-center h-[36px] py-2 px-3 mx-2 mb-[6px] rounded-[10px] cursor-pointer transition-all duration-200 ease-in-out relative";
-  
-  // Conditional classes based on the 'active' state
-  const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)]";
-  const inactiveClasses = "hover:bg-[rgba(0,0,0,0.178)]";
+  const baseClasses = "flex items-center h-[36px] py-2 px-3 mx-2 mb-[6px] rounded-[10px] transition-all duration-200 ease-in-out relative";
+
+  // Conditional classes based on the state
+  const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] cursor-pointer";
+  const greyedOutClasses = "opacity-30 cursor-not-allowed bg-[rgba(0,0,0,0.2)] saturate-0";
+  const inactiveClasses = "hover:bg-[rgba(0,0,0,0.178)] cursor-pointer";
+
+  // Determine which classes to apply
+  const getStateClasses = () => {
+    if (greyedOut) return greyedOutClasses;
+    if (active) return activeClasses;
+    return inactiveClasses;
+  };
 
   return (
-    <div 
-      className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}
-      onClick={onClick}
+    <div
+      className={`${baseClasses} ${getStateClasses()}`}
+      onClick={greyedOut ? undefined : onClick}
     >
       {/* Icon */}
-      <div className={`flex-shrink-0 ${active ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]' : 'opacity-80'}`}>
+      <div className={`flex-shrink-0 transition-all duration-200 ${greyedOut
+        ? 'opacity-40 grayscale saturate-0'
+        : active
+          ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]'
+          : 'opacity-80'
+        }`}>
         {icon}
       </div>
 
       {/* Widget Text: transitions in and out */}
       <span className={`
-        flex-1 text-[13px] font-medium text-[#e6d4a3] tracking-[0.1px]
+        flex-1 text-[13px] font-medium tracking-[0.1px]
         transition-all duration-200
+        ${greyedOut ? 'text-[#666] opacity-40' : 'text-[#e6d4a3]'}
         ${active ? '[text-shadow:0_1px_2px_rgba(0,0,0,0.4)]' : ''}
         ${expanded ? 'ml-2 opacity-100' : 'ml-0 opacity-0 w-0 overflow-hidden'}
       `}>
@@ -47,10 +62,11 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, o
 
       {/* Plus Icon: transitions in and out */}
       <div className={`
-        flex flex-shrink-0 items-center justify-center w-4 h-4 text-[#e0940a] text-base opacity-90
+        flex flex-shrink-0 items-center justify-center w-4 h-4 text-base
         transition-all duration-200
+        ${greyedOut ? 'text-[#666] opacity-20 grayscale' : 'text-[#e0940a] opacity-90'}
         ${active ? 'font-medium [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]' : 'font-normal'}
-        ${expanded ? 'opacity-90' : 'opacity-0'}
+        ${expanded ? 'opacity-inherit' : 'opacity-0'}
       `}>
         <Plus size={16} />
       </div>
@@ -64,6 +80,9 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
 
+  // Determine if any secondary widgets are open (making Chart, Token, Trade active)
+  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen;
+
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
   };
@@ -76,14 +95,147 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     setIsSavedTokenWidgetOpen(true);
   };
 
+  // Handlers for new widgets
+  const handleLockerClick = () => {
+    console.log('Locker clicked');
+    // TODO: Implement locker functionality
+  };
+
+  const handleExplorerClick = () => {
+    console.log('Explorer clicked');
+    // TODO: Implement explorer functionality
+  };
+
+  const handleUserClick = () => {
+    console.log('User clicked');
+    // TODO: Implement user functionality
+  };
+
+  // Handlers for bottom section
+  const handleSteakTechBotClick = () => {
+    console.log('SteakTech Bot clicked');
+    // TODO: Implement bot functionality
+  };
+
+  const handleLinksClick = () => {
+    console.log('Links clicked');
+    // TODO: Implement links functionality
+  };
+
+  const handleCertikClick = () => {
+    console.log('Certik clicked');
+    // Open the certificate page - this should be updated to the actual certificate URL when available
+    window.open('#certik', '_blank');
+  };
+
+  // Close handlers that update the active state
+  const handleHoldersClose = () => {
+    setIsHoldersWidgetOpen(false);
+  };
+
+  const handleChatClose = () => {
+    setIsChatWidgetOpen(false);
+  };
+
+  const handleSavedTokenClose = () => {
+    setIsSavedTokenWidgetOpen(false);
+  };
+
+  // Handlers for Chart, Token, Trade (only functional when hasActiveWidget is true)
+  const handleChartClick = () => {
+    if (hasActiveWidget) {
+      // Handle chart action - could navigate or perform chart-related action
+      console.log('Chart clicked - widget is active');
+    } else {
+      console.log('Chart clicked but no active widgets - greyed out');
+    }
+  };
+
+  const handleTokenClick = () => {
+    if (hasActiveWidget) {
+      // Handle token action - could show token details or perform token-related action
+      console.log('Token clicked - widget is active');
+    } else {
+      console.log('Token clicked but no active widgets - greyed out');
+    }
+  };
+
+  const handleTradeClick = () => {
+    if (hasActiveWidget) {
+      // Handle trade action - could focus trade panel or perform trade-related action
+      console.log('Trade clicked - widget is active');
+    } else {
+      console.log('Trade clicked but no active widgets - greyed out');
+    }
+  };
+
   const widgets = [
-    // Updated icon size to 18px to match the CSS
-    { icon: <BarChart3 size={18} className="text-[#ffdd00]" />, text: 'Chart', active: true },
-    { icon: <Coins size={18} className="text-[#d29900]" />, text: 'Token' },
-    { icon: <ArrowLeftRight size={18} className="text-[#d29900]" />, text: 'Trade' },
-    { icon: <Users size={18} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
-    { icon: <MessageCircle size={18} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
-    { icon: <Bookmark size={18} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
+    // Chart, Token, Trade: greyed out by default, colorful when other widgets are open
+    {
+      icon: <BarChart3 size={18} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#444444]"} />,
+      text: 'Chart',
+      active: false,
+      greyedOut: !hasActiveWidget,
+      onClick: handleChartClick
+    },
+    {
+      icon: <Coins size={18} className={hasActiveWidget ? "text-[#d29900]" : "text-[#444444]"} />,
+      text: 'Token',
+      active: false,
+      greyedOut: !hasActiveWidget,
+      onClick: handleTokenClick
+    },
+    {
+      icon: <ArrowLeftRight size={18} className={hasActiveWidget ? "text-[#d29900]" : "text-[#444444]"} />,
+      text: 'Trade',
+      active: false,
+      greyedOut: !hasActiveWidget,
+      onClick: handleTradeClick
+    },
+    // Holders, Chat, Saved: normal behavior
+    {
+      icon: <Users size={18} className="text-[#d29900]" />,
+      text: 'Holders',
+      active: isHoldersWidgetOpen,
+      greyedOut: false,
+      onClick: handleHoldersClick
+    },
+    {
+      icon: <MessageCircle size={18} className="text-[#d29900]" />,
+      text: 'Chat',
+      active: isChatWidgetOpen,
+      greyedOut: false,
+      onClick: handleChatClick
+    },
+    {
+      icon: <Bookmark size={18} className="text-[#d29900]" />,
+      text: 'Saved',
+      active: isSavedTokenWidgetOpen,
+      greyedOut: false,
+      onClick: handleSavedTokenClick
+    },
+    // New widgets
+    {
+      icon: <Lock size={18} className="text-[#d29900]" />,
+      text: 'Locker',
+      active: false,
+      greyedOut: false,
+      onClick: handleLockerClick
+    },
+    {
+      icon: <ExternalLink size={18} className="text-[#d29900]" />,
+      text: 'Explorer',
+      active: false,
+      greyedOut: false,
+      onClick: handleExplorerClick
+    },
+    {
+      icon: <User size={18} className="text-[#d29900]" />,
+      text: 'User',
+      active: false,
+      greyedOut: false,
+      onClick: handleUserClick
+    },
   ];
 
   return (
@@ -91,13 +243,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       {/* BACKDROP for mobile overlay */}
       <div
         onClick={() => setExpanded(false)}
-        className={`fixed inset-0 bg-black/60 z-20 transition-opacity lg:hidden ${
-          expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 bg-black/60 z-20 transition-opacity lg:hidden ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
       />
 
       {/* RESPONSIVE SIDEBAR CONTAINER */}
-      <aside 
+      <aside
         className={`
           h-full bg-[#472303] flex flex-col
           transition-all duration-300 ease-in-out
@@ -119,9 +270,9 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
               Widgets
             </h2>
           </div>
-          
+
           {/* Desktop Toggle Button */}
-          <button 
+          <button
             onClick={() => setExpanded(!expanded)}
             className="p-1 rounded-full bg-black/30 hover:bg-black/50 
                        absolute -right-3 top-[26px]
@@ -142,28 +293,67 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
               text={widget.text}
               expanded={expanded}
               active={widget.active}
+              greyedOut={widget.greyedOut}
               onClick={widget.onClick}
             />
           ))}
         </nav>
+
+        {/* Bottom Section - Fixed at bottom, outside scrollable area */}
+        <div className="flex-shrink-0 border-t border-[rgba(255,215,165,0.3)] pt-4 pb-4">
+          {/* SteakTech Bot */}
+          <WidgetItem
+            icon={<Bot size={18} className="text-[#d29900]" />}
+            text="SteakTech Bot"
+            expanded={expanded}
+            active={false}
+            greyedOut={false}
+            onClick={handleSteakTechBotClick}
+          />
+
+          {/* Links */}
+          <WidgetItem
+            icon={<Link size={18} className="text-[#d29900]" />}
+            text="Links"
+            expanded={expanded}
+            active={false}
+            greyedOut={false}
+            onClick={handleLinksClick}
+          />
+
+          {/* Certik Badge - Full width, styled like main page Footer */}
+          <div className="mx-2 mt-2">
+            <button
+              onClick={handleCertikClick}
+              className="w-full p-2 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-lg transition-all duration-200 flex items-center justify-center"
+              title="View CertiK Certificate"
+            >
+              <img
+                src="/images/certik-logo-v2.png"
+                alt="CertiK logo"
+                className="h-[18px] w-auto opacity-90"
+              />
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* SteakHolders Widget */}
-      <SteakHoldersWidget 
+      <SteakHoldersWidget
         isOpen={isHoldersWidgetOpen}
-        onClose={() => setIsHoldersWidgetOpen(false)}
+        onClose={handleHoldersClose}
       />
 
       {/* Chat Widget */}
-      <ChatWidget 
+      <ChatWidget
         isOpen={isChatWidgetOpen}
-        onClose={() => setIsChatWidgetOpen(false)}
+        onClose={handleChatClose}
       />
 
       {/* Saved Token Widget */}
-      <SavedTokenWidget 
+      <SavedTokenWidget
         isOpen={isSavedTokenWidgetOpen}
-        onClose={() => setIsSavedTokenWidgetOpen(false)}
+        onClose={handleSavedTokenClose}
       />
     </>
   );

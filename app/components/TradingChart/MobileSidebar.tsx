@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, X } from 'lucide-react';
+import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, Lock, ExternalLink, User, X } from 'lucide-react';
 import { SidebarProps } from './types';
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
@@ -17,7 +17,7 @@ interface WidgetCardProps {
 }
 
 const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) => {
-  const baseClasses = "flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
+  const baseClasses = "flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
   
   // Chat widget colors
   const activeStyle = {
@@ -48,12 +48,12 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
       }}
     >
       {/* Icon */}
-      <div className={`mb-2 ${active ? '' : 'opacity-90'}`}>
+      <div className={`mb-1.5 ${active ? '' : 'opacity-90'}`}>
         {icon}
       </div>
 
       {/* Widget Text */}
-      <span className="text-xs font-medium text-center tracking-[0.1px]" style={{
+      <span className="text-[10px] font-medium text-center tracking-[0.1px]" style={{
         color: active ? '#1c0f07' : '#fcefd8'
       }}>
         {text}
@@ -88,12 +88,34 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
+  // Handlers for new widgets
+  const handleLockerClick = () => {
+    console.log('Locker clicked');
+    setExpanded(false);
+    // TODO: Implement locker functionality
+  };
+
+  const handleExplorerClick = () => {
+    console.log('Explorer clicked');
+    setExpanded(false);
+    // TODO: Implement explorer functionality
+  };
+
+  const handleUserClick = () => {
+    console.log('User clicked');
+    setExpanded(false);
+    // TODO: Implement user functionality
+  };
+
   const widgets = [
-    { icon: <BarChart3 size={24} style={{ color: '#1c0f07' }} />, text: 'Chart', active: true },
-    { icon: <Coins size={24} style={{ color: '#ffc24b' }} />, text: 'Token', onClick: handleTokenClick },
-    { icon: <Users size={24} style={{ color: '#ffc24b' }} />, text: 'Holders', onClick: handleHoldersClick },
-    { icon: <MessageCircle size={24} style={{ color: '#ffc24b' }} />, text: 'Chat', onClick: handleChatClick },
-    { icon: <Bookmark size={24} style={{ color: '#ffc24b' }} />, text: 'Saved', onClick: handleSavedTokenClick },
+    { icon: <BarChart3 size={20} style={{ color: '#1c0f07' }} />, text: 'Chart', active: true },
+    { icon: <Coins size={20} style={{ color: '#ffc24b' }} />, text: 'Token', onClick: handleTokenClick },
+    { icon: <Users size={20} style={{ color: '#ffc24b' }} />, text: 'Holders', onClick: handleHoldersClick },
+    { icon: <MessageCircle size={20} style={{ color: '#ffc24b' }} />, text: 'Chat', onClick: handleChatClick },
+    { icon: <Bookmark size={20} style={{ color: '#ffc24b' }} />, text: 'Saved', onClick: handleSavedTokenClick },
+    { icon: <Lock size={20} style={{ color: '#ffc24b' }} />, text: 'Locker', onClick: handleLockerClick },
+    { icon: <ExternalLink size={20} style={{ color: '#ffc24b' }} />, text: 'Explorer', onClick: handleExplorerClick },
+    { icon: <User size={20} style={{ color: '#ffc24b' }} />, text: 'User', onClick: handleUserClick },
   ];
 
   return (
@@ -122,8 +144,8 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid rgba(184, 137, 87, 0.25)' }}>
-          <h2 className="text-lg font-semibold tracking-[0.2px]" style={{ color: '#ffc24b' }}>
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(184, 137, 87, 0.25)' }}>
+          <h2 className="text-base font-semibold tracking-[0.2px]" style={{ color: '#ffc24b' }}>
             Widgets
           </h2>
           <button 
@@ -146,10 +168,10 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
         </div>
 
         {/* Widget Grid */}
-        <div className="p-6 pb-8">
-          <div className="space-y-4">
+        <div className="p-4 pb-6">
+          <div className="space-y-3">
             {/* First Row: Chart and Token */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {widgets.slice(0, 2).map((widget, index) => (
                 <WidgetCard
                   key={index}
@@ -164,10 +186,25 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
               ))}
             </div>
             {/* Second Row: Holders, Chat, Saved */}
-            <div className="grid grid-cols-3 gap-4">
-              {widgets.slice(2).map((widget, index) => (
+            <div className="grid grid-cols-3 gap-3">
+              {widgets.slice(2, 5).map((widget, index) => (
                 <WidgetCard
                   key={index + 2}
+                  icon={widget.icon}
+                  text={widget.text}
+                  active={widget.active}
+                  onClick={widget.onClick || (() => {
+                    // Handle widget selection here
+                    console.log(`Selected widget: ${widget.text}`);
+                  })}
+                />
+              ))}
+            </div>
+            {/* Third Row: Locker, Explorer, User */}
+            <div className="grid grid-cols-3 gap-3">
+              {widgets.slice(5, 8).map((widget, index) => (
+                <WidgetCard
+                  key={index + 5}
                   icon={widget.icon}
                   text={widget.text}
                   active={widget.active}
