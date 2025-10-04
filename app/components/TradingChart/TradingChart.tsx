@@ -10,9 +10,15 @@ import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
 import { MarketInfo } from './MarketInfo';
 import { TradePanel } from './TradePanel';
+import { LimitOrderPanel } from './LimitOrderPanel';
+import { LimitOrderBook } from './LimitOrderBook';
+import { CompactLimitOrderBook } from './CompactLimitOrderBook';
 import { TokenCard } from '@/app/components/TradingDashboard/TokenCard';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
 import { TradingTokenCard } from './TradingTokenCard';
+import { useOrderManagement } from './useOrderManagement';
+import { useNotifications } from './useNotifications';
+import { OrderNotification } from './OrderNotification';
 // MODIFIED: Added ChevronUp for the new button icon
 import { X } from 'lucide-react';
 
@@ -20,16 +26,66 @@ export default function TradingChart() {
   const searchParams = useSearchParams();
   const tokenSymbol = searchParams.get('symbol');
   
+  // Order management and notifications
+  const notifications = useNotifications();
+  const orderManagement = useOrderManagement();
+  
+  // Enhanced order handlers with notifications
+  const handleOrderSubmit = async (orderData: any) => {
+    const result = await orderManagement.createOrder(orderData);
+    
+    if (result.success) {
+      notifications.notifySuccess(
+        'Order Placed', 
+        result.message, 
+        result.orderId
+      );
+    } else {
+      notifications.notifyError(
+        'Order Failed', 
+        result.message
+      );
+    }
+    
+    return result;
+  };
+  
+  const handleOrderCancel = async (orderId: string) => {
+    const success = await orderManagement.cancelOrder(orderId);
+    
+    if (success) {
+      notifications.notifySuccess('Order Cancelled', 'Order has been successfully cancelled', orderId);
+    } else {
+      notifications.notifyError('Cancellation Failed', 'Failed to cancel order');
+    }
+    
+    return success;
+  };
+  
+  const handleOrderModify = async (orderId: string, newPrice: number, newAmount: number) => {
+    const success = await orderManagement.modifyOrder(orderId, newPrice, newAmount);
+    
+    if (success) {
+      notifications.notifySuccess('Order Modified', 'Order has been successfully updated', orderId);
+    } else {
+      notifications.notifyError('Modification Failed', 'Failed to modify order');
+    }
+    
+    return success;
+  };
+  
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
-  const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
+  const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell' | 'limit'>('buy');
+  const [desktopTradeTab, setDesktopTradeTab] = useState<'buy' | 'sell' | 'limit'>('buy');
   const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  const [showLimitOrders, setShowLimitOrders] = useState(false);
   const [tokenData, setTokenData] = useState<TokenCardProps>({
     isOneStop: false,
     imageUrl: '/images/info_icon.jpg',
@@ -220,7 +276,7 @@ export default function TradingChart() {
     }
   };
 
-  // Handlers for Buy/Sell buttons
+  // Handlers for Buy/Sell/Limit buttons
   const handleBuyClick = () => {
     setSelectedTradeTab('buy');
     setIsMobileTradeOpen(true);
@@ -228,6 +284,11 @@ export default function TradingChart() {
 
   const handleSellClick = () => {
     setSelectedTradeTab('sell');
+    setIsMobileTradeOpen(true);
+  };
+
+  const handleLimitClick = () => {
+    setSelectedTradeTab('limit');
     setIsMobileTradeOpen(true);
   };
 
@@ -263,12 +324,15 @@ export default function TradingChart() {
         </div>
         
         <main 
-          className={`flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 lg:pb-2 ${
+          className={`flex-1 grid grid-cols-1 ${desktopTradeTab === 'limit' 
+            ? 'lg:grid-cols-[1fr_420px] lg:grid-rows-[minmax(200px,1fr)_auto]' 
+            : 'lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px]'} gap-2 p-2 lg:pb-2 ${
             isMobile ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded'
           }`}
           style={{
-            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar
-            height: isMobile ? 'calc(100vh - 60px)' : 'auto' // Only subtract header height
+            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, normal padding on desktop
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto', // Only subtract header height
+            transition: 'grid-template-columns 400ms cubic-bezier(0.4, 0, 0.2, 1), grid-template-rows 400ms cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
           
@@ -278,35 +342,86 @@ export default function TradingChart() {
           </div>
 
           {/* Token Card (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center items-start p-0 m-0">
-            <TradingTokenCard {...tokenData} />
+          <div className={`hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center p-0 m-0 ${
+            desktopTradeTab === 'limit' ? 'items-center' : 'items-start'
+          }`}>
+            <div style={{
+              width: '100%',
+              height: desktopTradeTab === 'limit' ? 'fit-content' : '100%',
+              maxHeight: desktopTradeTab === 'limit' ? '300px' : 'none',
+              display: 'flex',
+              alignItems: desktopTradeTab === 'limit' ? 'center' : 'flex-start',
+              justifyContent: 'center',
+              transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+            }}>
+              <TradingTokenCard {...tokenData} compact={desktopTradeTab === 'limit'} />
+            </div>
           </div>
 
-          {/* Trade Panel (desktop only) */}
+          {/* Trade Panel with Integrated Limit Orders (desktop only) */}
           <div className="hidden lg:block lg:col-start-2 lg:row-start-2">
-            <TradePanel />
+            <TradePanel 
+              onTabChange={(tab) => setDesktopTradeTab(tab)}
+            />
           </div>
 
-          {/* Trade History (desktop only) */}
+          {/* Recent Transactions Panel (desktop only) */}
           <div className="hidden lg:block lg:col-start-1 lg:row-start-2">
-            <TradeHistory />
+            <div style={{
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+              borderRadius: 'clamp(18px, 2.5vw, 26px)',
+              background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+              padding: 'clamp(16px, 3vh, 22px)',
+              border: '1px solid rgba(255, 215, 165, 0.4)',
+              overflow: 'hidden',
+              color: '#fff7ea',
+              display: 'flex',
+              flexDirection: 'column',
+              boxSizing: 'border-box'
+            }}>
+              {/* Content Area */}
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                {showLimitOrders ? (
+                  <CompactLimitOrderBook 
+                    orders={orderManagement.getActiveOrders()}
+                    onCancelOrder={handleOrderCancel}
+                    onModifyOrder={handleOrderModify}
+                    loading={orderManagement.loading}
+                    error={orderManagement.error}
+                    showToggle={true}
+                    showLimitOrders={showLimitOrders}
+                    onToggleChange={setShowLimitOrders}
+                    isMobile={false}
+                  />
+                ) : (
+                  <TradeHistory 
+                    showToggle={true}
+                    showLimitOrders={showLimitOrders}
+                    onToggleChange={setShowLimitOrders}
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
         </main>
       </div>
       
-      {/* Recent Transactions Widget (Mobile) - Matching Desktop Styling */}
+      {/* Recent Transactions Widget (Mobile Only) - Bottom slide-up panel */}
       <div 
         className="lg:hidden fixed left-0 right-0 z-30"
         style={{ 
-          bottom: '68px', // Position directly above buy/sell bar with no gap
+          bottom: '68px', // Position above buy/sell bar on mobile
           height: `${transactionsHeight}px`,
           background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
           borderTop: '1px solid rgba(255, 215, 165, 0.4)',
           boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.2)'
         }}
       >
-        {/* Drag Handle / Expand Button */}
+        {/* Drag Handle / Expand Button (Mobile Only) */}
         <div 
           className={`absolute top-0 left-0 right-0 h-10 cursor-row-resize flex items-center justify-center transition-colors group ${isDragging ? 'bg-[rgba(255,215,165,0.1)]' : 'hover:bg-[rgba(255,215,165,0.06)]'}`}
           onMouseDown={handleMouseDown}
@@ -336,186 +451,92 @@ export default function TradingChart() {
           )}
         </div>
         
-        <div className="px-4 py-3 pt-12 h-full flex flex-col" style={{ display: transactionsHeight < 100 ? 'none' : 'flex' }}>
-          <h3 className="font-bold text-sm mb-3 tracking-wide" style={{ 
-            color: '#feea88',
-            fontFamily: '"Sora", "Inter", sans-serif',
-            fontWeight: 800,
-            textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-          }}>Recent Transactions</h3>
-          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar" style={{
-            background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
-            border: '1px solid rgba(255, 215, 165, 0.4)',
-            borderRadius: '14px',
-            padding: '12px',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
-          }}>
-            {/* Mock transaction data */}
-            {[
-              { 
-                type: 'Buy', 
-                amount: '1.25K ASTER', 
-                ethAmount: '0.0032 ETH',
-                price: '$1.43', 
-                time: '2m ago',
-                fullDate: '2024-01-15 14:23:45 UTC',
-                address: '0x742d35Cc6C4b73C2C4c02B8b8f42e62e2E5F6f12',
-                txHash: '0xa1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456',
-                positive: true 
-              },
-              { 
-                type: 'Sell', 
-                amount: '850 ASTER', 
-                ethAmount: '0.0025 ETH',
-                price: '$1.44', 
-                time: '5m ago',
-                fullDate: '2024-01-15 14:18:12 UTC',
-                address: '0x8f9e2a1b3c4d5e6f7890123456789012345678ab',
-                txHash: '0xb2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678',
-                positive: false 
-              },
-              { 
-                type: 'Buy', 
-                amount: '2.1K ASTER', 
-                ethAmount: '0.0055 ETH',
-                price: '$1.42', 
-                time: '8m ago',
-                fullDate: '2024-01-15 14:15:33 UTC',
-                address: '0x123456789012345678901234567890123456789a',
-                txHash: '0xc3d4e5f6789012345678901234567890abcdef1234567890abcdef123456789a',
-                positive: true 
-              },
-              { 
-                type: 'Sell', 
-                amount: '750 ASTER', 
-                ethAmount: '0.0021 ETH',
-                price: '$1.45', 
-                time: '12m ago',
-                fullDate: '2024-01-15 14:11:07 UTC',
-                address: '0xabcdef1234567890123456789012345678901234',
-                txHash: '0xd4e5f6789012345678901234567890abcdef1234567890abcdef123456789abc',
-                positive: false 
-              },
-              { 
-                type: 'Buy', 
-                amount: '3.2K ASTER', 
-                ethAmount: '0.0089 ETH',
-                price: '$1.41', 
-                time: '15m ago',
-                fullDate: '2024-01-15 14:08:19 UTC',
-                address: '0x567890123456789012345678901234567890abcd',
-                txHash: '0xe5f6789012345678901234567890abcdef1234567890abcdef123456789abcde',
-                positive: true 
-              },
-              { 
-                type: 'Sell', 
-                amount: '1.8K ASTER', 
-                ethAmount: '0.0048 ETH',
-                price: '$1.46', 
-                time: '18m ago',
-                fullDate: '2024-01-15 14:05:42 UTC',
-                address: '0x9012345678901234567890123456789012345678',
-                txHash: '0xf6789012345678901234567890abcdef1234567890abcdef123456789abcdef1',
-                positive: false 
-              },
-            ].map((tx, index) => (
-              <div key={index} className="py-2 px-3 rounded-lg space-y-1.5" style={{
-                background: 'rgba(87, 37, 1, 0.3)',
-                border: '1px solid rgba(255, 215, 165, 0.2)',
-                transition: 'all 0.2s ease'
-              }}>
-                {/* Main Transaction Row - Now on top */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {/* Compact Buy/Sell Icon */}
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border ${
-                      tx.positive 
-                        ? 'bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black border-green-300' 
-                        : 'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-red-300'
-                    }`}>
-                      {tx.positive ? '↗' : '↘'}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold ${
-                        tx.positive ? 'text-[#4ade80]' : 'text-[#f87171]'
-                      }`} style={{ fontWeight: 800, textTransform: 'uppercase' }}>
-                        {tx.type.toUpperCase()}
-                      </span>
-                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.amount}</span>
-                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>({tx.ethAmount})</span>
-                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.time}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold" style={{ color: '#feea88' }}>{tx.price}</div>
-                  </div>
-                </div>
-                
-                {/* From Address and Date Row */}
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <span style={{ color: '#ffe0b6', opacity: 0.9 }}>From:</span>
-                    <button
-                      onClick={() => copyToClipboard(tx.address, `address-${index}`)}
-                      className={`font-mono px-1.5 py-0.5 rounded transition-all cursor-pointer text-xs ${
-                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : 'hover:bg-black/40'
-                      }`}
-                      style={{
-                        color: copiedItem === `address-${index}` ? undefined : '#feea88',
-                        background: copiedItem === `address-${index}` ? undefined : 'rgba(0, 0, 0, 0.2)'
-                      }}
-                      title="Click to copy address"
-                    >
-                      {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.fullDate}</div>
-                    <button 
-                      onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
-                      className="hover:opacity-80 transition-opacity flex-shrink-0" 
-                      title="View on Etherscan"
-                    >
-                      <img 
-                        src="/images/etherscan_logo.webp" 
-                        alt="Etherscan" 
-                        className="w-4 h-4" 
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div 
+          className="h-full flex flex-col" 
+          style={{ 
+            display: transactionsHeight < 100 ? 'none' : 'flex',
+            padding: '12px 16px 12px 16px',
+            paddingTop: '48px' // Extra top padding for mobile drag handle
+          }}
+        >
+          {/* Content Area - Recent Transactions Only */}
+          <div className="flex-1 overflow-hidden">
+            <TradeHistory 
+              showToggle={false}
+              showLimitOrders={false}
+              onToggleChange={undefined}
+              isMobile={true}
+            />
           </div>
         </div>
       </div>
       
-      {/* Fixed Buy/Sell bar for mobile */}
+      {/* Fixed Buy/Sell/Limit bar for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
-        <div className="px-4 py-3 flex items-center gap-3 max-w-screen-md mx-auto">
-          <button onClick={handleBuyClick} type="button" className="flex-1 p-0 bg-transparent">
-            <div style={buyInnerStyle}>BUY</div>
+        <div className="px-3 py-3 flex items-center gap-2 max-w-screen-md mx-auto" style={{ height: '68px' }}>
+          <button onClick={handleBuyClick} type="button" className="flex-1" style={{ padding: '4px' }}>
+            <div style={{
+              background: 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)',
+              borderRadius: '12px',
+              textAlign: 'center',
+              fontWeight: 800,
+              color: '#1f2937',
+              letterSpacing: '0.5px',
+              fontSize: '13px',
+              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '36px'
+            }}>BUY</div>
           </button>
-          <button onClick={handleSellClick} type="button" className="flex-1 p-0 bg-transparent">
-            <div style={sellInnerStyle}>SELL</div>
+          <button onClick={handleSellClick} type="button" className="flex-1" style={{ padding: '4px' }}>
+            <div style={{
+              background: 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
+              borderRadius: '12px',
+              textAlign: 'center',
+              fontWeight: 800,
+              color: '#2b1b14',
+              letterSpacing: '0.5px',
+              fontSize: '13px',
+              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,0,0.18)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '36px'
+            }}>SELL</div>
+          </button>
+          <button onClick={handleLimitClick} type="button" className="flex-1" style={{ padding: '4px' }}>
+            <div style={{
+              background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
+              borderRadius: '12px',
+              textAlign: 'center',
+              fontWeight: 800,
+              color: '#1f2937',
+              letterSpacing: '0.5px',
+              fontSize: '13px',
+              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '36px'
+            }}>LIMIT</div>
           </button>
           <button 
             onClick={() => setMobileSidebarExpanded(true)} 
             type="button" 
-            className="p-0 bg-transparent"
+            className="flex-shrink-0"
             title="Open Widgets"
+            style={{ padding: '4px', width: '48px' }}
           >
             <div 
-              className="px-4 py-3 flex items-center justify-center"
+              className="flex items-center justify-center"
               style={{
                 background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
                 borderRadius: '12px',
-                padding: '14px 16px',
-                textAlign: 'center',
-                fontWeight: 800,
-                color: '#1f2937',
-                letterSpacing: '0.5px',
-                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)'
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+                width: '100%',
+                height: '36px'
               }}
             >
               <div className="flex flex-col items-center justify-center gap-0.5">
@@ -533,14 +554,14 @@ export default function TradingChart() {
         <div className="lg:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/70" onClick={() => setIsMobileTradeOpen(false)} />
           <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className="w-[92vw] max-w-[480px] max-h-[85vh] rounded-2xl border border-[#daa20b]/30 bg-[#07040b] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <div className={`w-[92vw] max-w-[480px] ${selectedTradeTab === 'limit' ? 'h-fit max-h-[85vh]' : 'max-h-[75vh]'} rounded-2xl border border-[#daa20b]/30 bg-[#07040b] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]`}>
               <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#472303] to-[#5a2d04] border-b border-[#daa20b]/30">
                 <h2 className="text-[#daa20b] font-semibold">Trade</h2>
                 <button onClick={() => setIsMobileTradeOpen(false)} className="p-2" type="button">
                   <X className="text-[#daa20b]" size={20} />
                 </button>
               </div>
-              <div className="p-3 overflow-y-auto">
+              <div className={`p-3 ${selectedTradeTab === 'limit' ? 'overflow-visible' : 'overflow-y-auto'}`}>
                 <TradePanel initialTab={selectedTradeTab} />
               </div>
             </div>
@@ -553,6 +574,18 @@ export default function TradingChart() {
         expanded={mobileSidebarExpanded} 
         setExpanded={setMobileSidebarExpanded} 
       />
+
+      {/* Order Notifications */}
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999 }}>
+        {notifications.notifications.map((notification, index) => (
+          <div key={notification.id} style={{ marginBottom: index < notifications.notifications.length - 1 ? '12px' : '0' }}>
+            <OrderNotification
+              notification={notification}
+              onClose={() => notifications.removeNotification(notification.id)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -22,17 +22,26 @@ const QuestionMarkIcon = () => (
 );
 
 interface TradePanelProps {
-  initialTab?: 'buy' | 'sell';
+  initialTab?: 'buy' | 'sell' | 'limit';
+  onTabChange?: (tab: 'buy' | 'sell' | 'limit') => void;
 }
 
-export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) => {
-  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>(initialTab);
+export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange }) => {
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'limit'>(initialTab as any);
   const [amount, setAmount] = useState('0');
+  const [limitPrice, setLimitPrice] = useState('');
+  const [limitSide, setLimitSide] = useState<'buy' | 'sell'>('buy');
 
   // Update activeTab when initialTab prop changes
   React.useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
+
+  // Handle tab change with callback
+  const handleTabChange = (tab: 'buy' | 'sell' | 'limit') => {
+    setActiveTab(tab);
+    onTabChange?.(tab);
+  };
 
   // Dynamic quick amounts based on buy/sell mode
   const quickAmounts = activeTab === 'buy'
@@ -80,88 +89,123 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) =>
       `}</style>
       <div style={{
         width: '100%',
-        height: '100%',
+        height: activeTab === 'limit' ? 'fit-content' : '100%',
+        maxHeight: activeTab === 'limit' ? 'none' : '350px',
+        minHeight: activeTab === 'limit' ? 'auto' : '350px',
         position: 'relative',
         borderRadius: 'clamp(18px, 2.5vw, 26px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-        padding: 'clamp(12px, 2vh, 16px)',
+        padding: 'clamp(16px, 3vh, 22px)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
-        overflow: 'hidden',
+        overflow: 'visible',
         color: '#fff7ea',
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box'
       }}>
-        {/* Buy/Sell Tabs - Premium Style */}
+        {/* Buy/Sell/Limit Tabs - Premium Style */}
         <div style={{
           position: 'relative',
           display: 'flex',
           width: '100%',
-          height: 'clamp(48px, 8vh, 54px)',
-          borderRadius: 'clamp(14px, 3vw, 20px)',
+          height: '50px',
+          borderRadius: '20px',
           background: 'linear-gradient(180deg, #7f4108, #6f3906)',
           border: '1px solid rgba(255, 215, 165, 0.4)',
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          marginBottom: 'clamp(8px, 1.5vh, 12px)',
-          padding: '4px'
+          marginBottom: '16px',
+          padding: '5px',
+          flexShrink: 0
         }}>
           {/* Sliding Background */}
           <div style={{
             position: 'absolute',
-            top: '2px',
-            left: '2px',
-            height: 'calc(100% - 4px)',
-            width: 'calc(50% - 2px)',
-            borderRadius: 'clamp(10px, 2.5vw, 16px)',
-            transition: 'all 300ms ease-in-out',
-            transform: activeTab === 'buy' ? 'translateX(0)' : 'translateX(calc(100% + 2px))',
+            top: '5px',
+            left: activeTab === 'buy' 
+              ? '5px' 
+              : activeTab === 'sell' 
+                ? 'calc(33.333% + 2.5px)' 
+                : 'calc(66.666% - 2.5px)',
+            height: 'calc(100% - 10px)',
+            width: 'calc(33.333% - 3.33px)',
+            borderRadius: '15px',
+            transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             background: activeTab === 'buy'
               ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-              : 'linear-gradient(180deg, #f87171, #ef4444)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)'
+              : activeTab === 'sell'
+                ? 'linear-gradient(180deg, #f87171, #ef4444)'
+                : 'linear-gradient(180deg, #ffd700, #daa20b)',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
           }} />
           <button
-            onClick={() => setActiveTab('buy')}
+            onClick={() => handleTabChange('buy')}
             style={{
               position: 'relative',
               zIndex: 10,
               flex: 1,
-              padding: 'clamp(8px, 1.5vh, 12px)',
-              textAlign: 'center',
-              fontSize: 'clamp(14px, 2.5vw, 16px)',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
               fontWeight: 800,
               color: activeTab === 'buy' ? '#1f2937' : '#feea88',
               background: 'transparent',
               border: 'none',
-              borderRadius: 'clamp(10px, 2.5vw, 16px)',
+              borderRadius: '15px',
               cursor: 'pointer',
               transition: 'all 200ms ease',
-              marginRight: '2px'
+              letterSpacing: '0.5px'
             }}
           >
             BUY
           </button>
           <button
-            onClick={() => setActiveTab('sell')}
+            onClick={() => handleTabChange('sell')}
             style={{
               position: 'relative',
               zIndex: 10,
               flex: 1,
-              padding: 'clamp(8px, 1.5vh, 12px)',
-              textAlign: 'center',
-              fontSize: 'clamp(14px, 2.5vw, 16px)',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
               fontWeight: 800,
               color: activeTab === 'sell' ? '#1f2937' : '#feea88',
               background: 'transparent',
               border: 'none',
-              borderRadius: 'clamp(10px, 2.5vw, 16px)',
+              borderRadius: '15px',
               cursor: 'pointer',
               transition: 'all 200ms ease',
-              marginLeft: '2px'
+              letterSpacing: '0.5px'
             }}
           >
             SELL
+          </button>
+          <button
+            onClick={() => handleTabChange('limit')}
+            style={{
+              position: 'relative',
+              zIndex: 10,
+              flex: 1,
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              fontWeight: 800,
+              color: activeTab === 'limit' ? '#1f2937' : '#feea88',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: '15px',
+              cursor: 'pointer',
+              transition: 'all 200ms ease',
+              letterSpacing: '0.5px'
+            }}
+          >
+            LIMIT
           </button>
         </div>
 
@@ -172,7 +216,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) =>
           alignItems: 'center',
           marginBottom: 'clamp(8px, 1.5vh, 12px)',
           gap: 'clamp(6px, 1.5vw, 12px)',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          flexShrink: 0
         }}>
           <button style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -275,7 +320,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) =>
               cursor: 'pointer',
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
             }}>
-              {activeTab === 'buy' ? <EthereumIcon /> : <QuestionMarkIcon />}
+              {(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? <EthereumIcon /> : <QuestionMarkIcon />}
             </button>
           </div>
         </div>
@@ -286,7 +331,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) =>
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: 'clamp(6px, 1vh, 10px)',
-          gap: 'clamp(4px, 1vw, 8px)'
+          gap: 'clamp(4px, 1vw, 8px)',
+          flexShrink: 0
         }}>
           {quickAmounts.map((preset) => (
             <button
@@ -315,41 +361,264 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy' }) =>
           ))}
         </div>
 
-        {/* Confirm Button */}
-        <button
-          style={{
-            width: '100%',
-            background: activeTab === 'buy'
-              ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-              : 'linear-gradient(180deg, #f87171, #ef4444)',
-            color: '#1f2937',
-            fontWeight: 800,
-            fontSize: 'clamp(13px, 2.4vw, 16px)',
-            padding: 'clamp(10px, 2vh, 14px)',
-            borderRadius: 'clamp(14px, 3vw, 20px)',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 200ms ease',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
-            textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
-            marginTop: 'auto',
-            flexShrink: 0,
-            letterSpacing: '0.5px',
-            minHeight: 'clamp(40px, 6vh, 46px)'
-          }}
-          onMouseEnter={(e) => {
-            const target = e.target as HTMLButtonElement;
-            target.style.transform = 'translateY(-1px)';
-            target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.target as HTMLButtonElement;
-            target.style.transform = 'translateY(0)';
-            target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
-          }}
-        >
-          CONFIRM TRADE
-        </button>
+        {/* Market Order Interface */}
+        {activeTab !== 'limit' && (
+          <>
+            {/* Confirm Button */}
+            <button
+              style={{
+                width: '100%',
+                background: activeTab === 'buy'
+                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                  : 'linear-gradient(180deg, #f87171, #ef4444)',
+                color: '#1f2937',
+                fontWeight: 800,
+                fontSize: 'clamp(13px, 2.4vw, 16px)',
+                padding: 'clamp(10px, 2vh, 14px)',
+                borderRadius: 'clamp(14px, 3vw, 20px)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
+                textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                marginTop: 'auto',
+                flexShrink: 0,
+                letterSpacing: '0.5px',
+                minHeight: 'clamp(40px, 6vh, 46px)'
+              }}
+              onMouseEnter={(e) => {
+                const target = e.target as HTMLButtonElement;
+                target.style.transform = 'translateY(-1px)';
+                target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                const target = e.target as HTMLButtonElement;
+                target.style.transform = 'translateY(0)';
+                target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+              }}
+            >
+              CONFIRM TRADE
+            </button>
+          </>
+        )}
+
+        {/* Limit Order Interface */}
+        {activeTab === 'limit' && (
+          <>
+            {/* Buy/Sell Toggle for Limit Orders */}
+            <div style={{
+              position: 'relative',
+              display: 'flex',
+              width: '100%',
+              height: 'clamp(40px, 6vh, 45px)',
+              borderRadius: 'clamp(15px, 3vw, 20px)',
+              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+              border: '1px solid rgba(255, 215, 165, 0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+              marginBottom: 'clamp(10px, 2vh, 14px)',
+              padding: '4px',
+              flexShrink: 0
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '4px',
+                left: '4px',
+                height: 'calc(100% - 8px)',
+                width: 'calc(50% - 4px)',
+                borderRadius: 'clamp(11px, 2.5vw, 16px)',
+                transition: 'all 300ms ease-in-out',
+                transform: limitSide === 'buy' ? 'translateX(0)' : 'translateX(calc(100% + 4px))',
+                background: limitSide === 'buy'
+                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                  : 'linear-gradient(180deg, #f87171, #ef4444)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)'
+              }} />
+              <button
+                onClick={() => setLimitSide('buy')}
+                style={{
+                  position: 'relative',
+                  zIndex: 10,
+                  flex: 1,
+                  padding: 'clamp(8px, 1.5vh, 10px)',
+                  textAlign: 'center',
+                  fontSize: 'clamp(12px, 2.2vw, 14px)',
+                  fontWeight: 800,
+                  color: limitSide === 'buy' ? '#1f2937' : '#feea88',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 200ms ease',
+                  letterSpacing: '0.3px'
+                }}
+              >
+                BUY LIMIT
+              </button>
+              <button
+                onClick={() => setLimitSide('sell')}
+                style={{
+                  position: 'relative',
+                  zIndex: 10,
+                  flex: 1,
+                  padding: 'clamp(8px, 1.5vh, 10px)',
+                  textAlign: 'center',
+                  fontSize: 'clamp(12px, 2.2vw, 14px)',
+                  fontWeight: 800,
+                  color: limitSide === 'sell' ? '#1f2937' : '#feea88',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 200ms ease',
+                  letterSpacing: '0.3px'
+                }}
+              >
+                SELL LIMIT
+              </button>
+            </div>
+
+            {/* Limit Price Input */}
+            <div style={{ marginBottom: 'clamp(10px, 2vh, 14px)' }}>
+              <label style={{
+                display: 'block',
+                fontSize: 'clamp(11px, 1.8vw, 13px)',
+                fontWeight: 700,
+                color: '#feea88',
+                marginBottom: '6px',
+                textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
+              }}>
+                Limit Price ($)
+              </label>
+              <div style={{
+                position: 'relative',
+                background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                border: '1px solid rgba(255, 215, 165, 0.4)',
+                borderRadius: 'clamp(14px, 3vw, 20px)',
+                padding: '4px',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+              }}>
+                <input
+                  type="text"
+                  value={limitPrice}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                      setLimitPrice(value);
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
+                    color: '#feea88',
+                    fontSize: 'clamp(14px, 3vw, 18px)',
+                    fontWeight: 800,
+                    padding: 'clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vh, 16px)',
+                    borderRadius: 'clamp(10px, 2.5vw, 16px)',
+                    border: `2px solid ${limitSide === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                    outline: 'none',
+                    textAlign: 'left',
+                    fontFamily: '"Sora", "Inter", sans-serif',
+                    transition: 'all 200ms ease',
+                    boxSizing: 'border-box'
+                  }}
+                  placeholder="0.00"
+                  onFocus={(e) => {
+                    e.target.style.border = `2px solid ${limitSide === 'buy' ? '#4ade80' : '#f87171'}`;
+                    e.target.style.boxShadow = `0 0 0 2px ${limitSide === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.border = `2px solid ${limitSide === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Quick Price Buttons */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 'clamp(4px, 0.8vw, 6px)',
+              marginBottom: 'clamp(10px, 2vh, 14px)',
+              flexShrink: 0
+            }}>
+              {['-5%', '-2%', '+2%', '+5%'].map((preset) => (
+                <button
+                  key={preset}
+                  onClick={() => {
+                    const currentPrice = 21.50; // Mock current price
+                    const multiplier = 1 + parseFloat(preset.replace('%', '')) / 100;
+                    setLimitPrice((currentPrice * multiplier).toFixed(2));
+                  }}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                    border: '1px solid rgba(255, 210, 160, 0.4)',
+                    borderRadius: 'clamp(8px, 1.8vw, 12px)',
+                    padding: 'clamp(8px, 1.5vh, 10px) clamp(6px, 1.2vw, 8px)',
+                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                    color: '#feea88',
+                    fontSize: 'clamp(10px, 1.8vw, 12px)',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 200ms ease',
+                    textAlign: 'center'
+                  }}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+
+            {/* Place Limit Order Button */}
+            <button
+              onClick={() => {
+                if (limitPrice) {
+                  // This would typically call an onOrderSubmit prop
+                  console.log(`${limitSide.toUpperCase()} Limit Order placed at $${limitPrice}`);
+                  setLimitPrice('');
+                }
+              }}
+              disabled={!limitPrice}
+              style={{
+                width: '100%',
+                background: limitPrice
+                  ? (limitSide === 'buy'
+                    ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                    : 'linear-gradient(180deg, #f87171, #ef4444)')
+                  : 'linear-gradient(180deg, #6b7280, #4b5563)',
+                color: limitPrice ? '#1f2937' : '#9ca3af',
+                fontWeight: 800,
+                fontSize: 'clamp(13px, 2.4vw, 16px)',
+                padding: 'clamp(10px, 2vh, 14px)',
+                borderRadius: 'clamp(14px, 3vw, 20px)',
+                border: 'none',
+                cursor: limitPrice ? 'pointer' : 'not-allowed',
+                transition: 'all 200ms ease',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
+                textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                marginTop: 'auto',
+                flexShrink: 0,
+                letterSpacing: '0.5px',
+                minHeight: 'clamp(40px, 6vh, 46px)',
+                opacity: limitPrice ? 1 : 0.6
+              }}
+              onMouseEnter={(e) => {
+                if (limitPrice) {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.transform = 'translateY(-1px)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (limitPrice) {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+                }
+              }}
+            >
+              PLACE {limitSide.toUpperCase()} LIMIT ORDER
+            </button>
+          </>
+        )}
       </div>
     </>
   );

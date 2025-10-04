@@ -1,5 +1,44 @@
 import React, { useState } from 'react';
 
+// Custom SVG Arrow Icons
+const BuyArrow = ({ size = 12 }: { size?: number }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path 
+      d="M7 17L17 7M17 7H9M17 7V15" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="none"
+    />
+  </svg>
+);
+
+const SellArrow = ({ size = 12 }: { size?: number }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path 
+      d="M17 7L7 17M7 17H15M7 17V9" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="none"
+    />
+  </svg>
+);
+
 // Mock data matching the mobile transaction format for consistency
 const tradeHistoryData = [
   { 
@@ -70,7 +109,19 @@ const tradeHistoryData = [
   },
 ];
 
-export const TradeHistory: React.FC = () => {
+interface TradeHistoryProps {
+  showToggle?: boolean;
+  showLimitOrders?: boolean;
+  onToggleChange?: (showLimitOrders: boolean) => void;
+  isMobile?: boolean;
+}
+
+export const TradeHistory: React.FC<TradeHistoryProps> = ({
+  showToggle = false,
+  showLimitOrders = false,
+  onToggleChange,
+  isMobile = false
+}) => {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'buy' | 'sell'>('all');
   const [sortBy, setSortBy] = useState<'time' | 'size-desc' | 'size-asc' | 'address'>('time');
@@ -147,44 +198,120 @@ export const TradeHistory: React.FC = () => {
     <div style={{
       width: '100%',
       height: '100%',
-      position: 'relative',
-      borderRadius: 'clamp(18px, 2.5vw, 26px)',
-      background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-      padding: 'clamp(16px, 3vh, 22px)',
-      border: '1px solid rgba(255, 215, 165, 0.4)',
-      overflow: 'hidden',
-      color: '#fff7ea',
       display: 'flex',
       flexDirection: 'column',
-      boxSizing: 'border-box'
+      color: '#fff7ea'
     }}>
-      {/* Header */}
-      <h3 style={{
-        color: '#feea88',
-        fontFamily: '"Sora", "Inter", sans-serif',
-        fontWeight: 800,
-        fontSize: 'clamp(14px, 2.5vw, 16px)',
-        lineHeight: 1,
-        margin: '0 0 clamp(8px, 1.5vh, 12px) 0',
-        textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-      }}>
-        Recent Transactions
-      </h3>
-      
-      {/* Filter and Sort Controls */}
+      {/* Header with optional toggle */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
-        marginBottom: 'clamp(12px, 2vh, 16px)',
-        flexWrap: 'wrap',
-        padding: 'clamp(10px, 2vh, 14px) clamp(14px, 3vh, 18px)',
-        background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
-        border: '1px solid rgba(255, 215, 165, 0.25)',
-        borderRadius: 'clamp(10px, 2vw, 14px)',
-        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+        justifyContent: 'space-between',
+        marginBottom: 'clamp(8px, 1.5vh, 12px)'
       }}>
+        <h3 style={{
+          color: '#feea88',
+          fontFamily: '"Sora", "Inter", sans-serif',
+          fontWeight: 800,
+          fontSize: isMobile ? '14px' : 'clamp(14px, 2.5vw, 16px)',
+          lineHeight: 1,
+          margin: 0,
+          textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
+        }}>
+          Recent Transactions
+        </h3>
+        
+        {/* Toggle Switch */}
+        {showToggle && onToggleChange && (
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+            border: '1px solid rgba(255, 215, 165, 0.4)',
+            borderRadius: '20px',
+            padding: '3px',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            flexShrink: 0,
+            width: '150px',
+            height: '32px'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '3px',
+              left: showLimitOrders ? 'calc(50% + 1.5px)' : '3px',
+              height: 'calc(100% - 6px)',
+              width: 'calc(50% - 4.5px)',
+              borderRadius: '16px',
+              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+              background: showLimitOrders 
+                ? 'linear-gradient(180deg, #ffd700, #daa20b)'
+                : 'linear-gradient(180deg, #4ade80, #22c55e)',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+            }} />
+            <button
+              onClick={() => onToggleChange(false)}
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: !showLimitOrders ? '#1f2937' : '#feea88',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                whiteSpace: 'nowrap',
+                width: '50%',
+                height: '100%',
+                letterSpacing: '0.5px'
+              }}
+            >
+              TXN
+            </button>
+            <button
+              onClick={() => onToggleChange(true)}
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: showLimitOrders ? '#1f2937' : '#feea88',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                whiteSpace: 'nowrap',
+                width: '50%',
+                height: '100%',
+                letterSpacing: '0.5px'
+              }}
+            >
+              ORDERS
+            </button>
+          </div>
+        )}
+      </div>
+      
+      {/* Filter and Sort Controls - Hidden on mobile when no toggle */}
+      {!(isMobile && !showToggle) && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: 'clamp(12px, 2vh, 16px)',
+          flexWrap: 'wrap',
+          padding: 'clamp(10px, 2vh, 14px) clamp(14px, 3vh, 18px)',
+          background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
+          border: '1px solid rgba(255, 215, 165, 0.25)',
+          borderRadius: 'clamp(10px, 2vw, 14px)',
+          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+        }}>
         {/* Type Filter */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ 
@@ -330,116 +457,300 @@ export const TradeHistory: React.FC = () => {
         }}>
           {getFilteredAndSortedTransactions().length} TRANSACTIONS
         </span>
-      </div>
+        </div>
+      )}
       
-      {/* Card Container with Premium Styling matching mobile */}
+      {/* Transaction List - Original Mobile Style */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
-        border: '1px solid rgba(255, 215, 165, 0.4)',
-        borderRadius: 'clamp(14px, 3vw, 20px)',
-        padding: 'clamp(12px, 2.5vh, 16px)',
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
-        <div style={{ overflowY: 'auto', height: '100%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ 
+          overflowY: 'auto', 
+          height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: isMobile ? '12px' : '8px',
+          padding: isMobile ? '0 4px' : '0 2px',
+          paddingRight: isMobile ? '4px' : '6px' // Extra space for scrollbar on desktop
+        }}>
           {getFilteredAndSortedTransactions().map((tx, index) => (
             <div key={index} style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              background: 'rgba(87, 37, 1, 0.3)',
-              border: '1px solid rgba(255, 215, 165, 0.2)',
+              background: isMobile 
+                ? 'rgba(87, 37, 1, 0.6)' 
+                : 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
+              border: isMobile 
+                ? '2px solid rgba(255, 215, 165, 0.4)' 
+                : '1px solid rgba(255, 215, 165, 0.25)',
+              borderRadius: isMobile ? '16px' : 'clamp(10px, 2vw, 14px)',
+              padding: isMobile ? '12px 16px' : 'clamp(10px, 2vh, 14px) clamp(14px, 3vh, 18px)',
+              boxShadow: isMobile 
+                ? '0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                : '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
               transition: 'all 0.2s ease',
               display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              minHeight: '32px'
+              gap: isMobile ? '4px' : '10px',
+              width: '100%'
             }}>
-              {/* Left side - Transaction info */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-                {/* Compact Buy/Sell Icon */}
-                <div style={{
-                  width: '18px',
-                  height: '18px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px',
-                  fontWeight: 'bold',
-                  border: '1px solid',
-                  background: tx.positive 
-                    ? 'linear-gradient(to right, #4ade80, #22c55e)' 
-                    : 'linear-gradient(to right, #ef4444, #dc2626)',
-                  color: tx.positive ? 'black' : 'white',
-                  borderColor: tx.positive ? '#86efac' : '#fca5a5',
-                  flexShrink: 0
-                }}>
-                  {tx.positive ? '\u2197' : '\u2198'}
-                </div>
-                
-                <span style={{
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  color: tx.positive ? '#4ade80' : '#f87171',
-                  textTransform: 'uppercase',
-                  minWidth: '30px',
-                  flexShrink: 0
-                }}>
-                  {tx.type.toUpperCase()}
-                </span>
-                
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#feea88', flexShrink: 0 }}>{tx.amount}</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#feea88', flexShrink: 0 }}>({tx.ethAmount})</span>
-                
-                <span style={{ color: '#ffe0b6', opacity: 0.9, fontSize: '11px', marginLeft: '8px' }}>From:</span>
-                <button
-                  onClick={() => copyToClipboard(tx.address, `address-${index}`)}
-                  style={{
-                    fontFamily: 'monospace',
-                    padding: '1px 4px',
-                    borderRadius: '3px',
-                    transition: 'all 0.2s',
-                    cursor: 'pointer',
-                    fontSize: '10px',
-                    border: 'none',
-                    background: copiedItem === `address-${index}` ? 'rgba(34, 197, 94, 0.4)' : 'rgba(0, 0, 0, 0.2)',
-                    color: copiedItem === `address-${index}` ? '#86efac' : '#feea88',
-                    flexShrink: 0
-                  }}
-                  title="Click to copy address"
-                >
-                  {copiedItem === `address-${index}` ? '\u2713' : `${tx.address.slice(0, 4)}...${tx.address.slice(-3)}`}
-                </button>
-              </div>
-              
-              {/* Right side - Price, time, and Etherscan */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#feea88' }}>{tx.time}</span>
-                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#feea88' }}>{tx.price}</div>
-                <button 
-                  onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    opacity: 1,
-                    transition: 'opacity 0.2s',
+              {isMobile ? (
+                <>
+                  {/* Mobile: Two-line layout */}
+                  <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    padding: 0
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
-                  onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
-                  title="View on Etherscan"
-                >
-                  <img 
-                    src="/images/etherscan_logo.webp" 
-                    alt="Etherscan" 
-                    style={{ width: '14px', height: '14px' }}
-                  />
-                </button>
-              </div>
+                    gap: '8px',
+                    width: '100%'
+                  }}>
+                    {/* Buy/Sell Icon */}
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: tx.positive ? '#22c55e' : '#ef4444',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      flexShrink: 0
+                    }}>
+                      {tx.positive ? <BuyArrow size={12} /> : <SellArrow size={12} />}
+                    </div>
+                    
+                    <span style={{
+                      fontSize: '14px',
+                      fontWeight: 800,
+                      color: tx.positive ? '#22c55e' : '#ef4444',
+                      textTransform: 'uppercase',
+                      minWidth: '35px',
+                      flexShrink: 0
+                    }}>
+                      {tx.type}
+                    </span>
+                    
+                    <span style={{
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      color: '#feea88',
+                      flexShrink: 0
+                    }}>
+                      {tx.amount}
+                    </span>
+                    
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#feea88',
+                      opacity: 0.8,
+                      flexShrink: 0
+                    }}>
+                      ({tx.ethAmount})
+                    </span>
+                    
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#feea88',
+                      opacity: 0.7,
+                      flexShrink: 0
+                    }}>
+                      {tx.time}
+                    </span>
+                    
+                    <span style={{
+                      fontSize: '16px',
+                      fontWeight: 800,
+                      color: '#feea88',
+                      marginLeft: 'auto',
+                      flexShrink: 0
+                    }}>
+                      {tx.price}
+                    </span>
+                  </div>
+                  
+                  {/* Second Line - From Address and Etherscan */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    width: '100%'
+                  }}>
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#ffe0b6',
+                      fontWeight: 600,
+                      flexShrink: 0
+                    }}>
+                      From:
+                    </span>
+                    
+                    <button
+                      onClick={() => copyToClipboard(tx.address, `address-${index}`)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: copiedItem === `address-${index}` ? '#86efac' : '#feea88',
+                        fontSize: '12px',
+                        fontFamily: 'monospace',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        padding: '0',
+                        flexShrink: 0
+                      }}
+                      title="Click to copy address"
+                    >
+                      {copiedItem === `address-${index}` ? '✓ Copied!' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
+                    </button>
+                    
+                    <button 
+                      onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        opacity: 1,
+                        transition: 'opacity 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '2px',
+                        marginLeft: 'auto',
+                        flexShrink: 0
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                      title="View on Etherscan"
+                    >
+                      <img 
+                        src="/images/etherscan_logo.webp" 
+                        alt="Etherscan" 
+                        style={{ width: '16px', height: '16px' }}
+                      />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Desktop: Single-line layout */}
+                  {/* Buy/Sell Icon */}
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: tx.positive ? '#22c55e' : '#ef4444',
+                    color: 'white',
+                    fontSize: '9px',
+                    fontWeight: 'bold',
+                    flexShrink: 0
+                  }}>
+                    {tx.positive ? <BuyArrow size={10} /> : <SellArrow size={10} />}
+                  </div>
+                  
+                  <span style={{
+                    fontSize: 'clamp(11px, 2vw, 13px)',
+                    fontWeight: 800,
+                    color: tx.positive ? '#22c55e' : '#ef4444',
+                    textTransform: 'uppercase',
+                    minWidth: '28px',
+                    flexShrink: 0
+                  }}>
+                    {tx.type}
+                  </span>
+                  
+                  <span style={{
+                    fontSize: 'clamp(11px, 2vw, 13px)',
+                    fontWeight: 700,
+                    color: '#feea88',
+                    flexShrink: 0
+                  }}>
+                    {tx.amount}
+                  </span>
+                  
+                  <span style={{
+                    fontSize: 'clamp(9px, 1.8vw, 11px)',
+                    color: '#feea88',
+                    opacity: 0.8,
+                    flexShrink: 0
+                  }}>
+                    ({tx.ethAmount})
+                  </span>
+                  
+                  <span style={{
+                    fontSize: 'clamp(9px, 1.8vw, 11px)',
+                    color: '#feea88',
+                    opacity: 0.7,
+                    flexShrink: 0
+                  }}>
+                    {tx.time}
+                  </span>
+                  
+                  <span style={{
+                    fontSize: 'clamp(9px, 1.8vw, 11px)',
+                    color: '#ffe0b6',
+                    fontWeight: 600,
+                    flexShrink: 0
+                  }}>
+                    From:
+                  </span>
+                  
+                  <button
+                    onClick={() => copyToClipboard(tx.address, `address-${index}`)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: copiedItem === `address-${index}` ? '#86efac' : '#feea88',
+                      fontSize: 'clamp(9px, 1.8vw, 11px)',
+                      fontFamily: 'monospace',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      padding: '0',
+                      flexShrink: 0
+                    }}
+                    title="Click to copy address"
+                  >
+                    {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
+                  </button>
+                  
+                  <span style={{
+                    fontSize: 'clamp(12px, 2.2vw, 14px)',
+                    fontWeight: 800,
+                    color: '#feea88',
+                    marginLeft: 'auto',
+                    flexShrink: 0
+                  }}>
+                    {tx.price}
+                  </span>
+                  
+                  <button 
+                    onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      opacity: 1,
+                      transition: 'opacity 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '2px',
+                      flexShrink: 0
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    title="View on Etherscan"
+                  >
+                    <img 
+                      src="/images/etherscan_logo.webp" 
+                      alt="Etherscan" 
+                      style={{ width: '12px', height: '12px' }}
+                    />
+                  </button>
+                </>
+              )}
             </div>
           ))}
         </div>

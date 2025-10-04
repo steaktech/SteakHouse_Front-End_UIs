@@ -8,7 +8,11 @@ const TwitterIcon = () => (
   </svg>
 );
 
-export const TradingTokenCard: React.FC<TokenCardProps> = ({ 
+interface TradingTokenCardProps extends TokenCardProps {
+  compact?: boolean;
+}
+
+export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({ 
   imageUrl, 
   name, 
   symbol, 
@@ -17,7 +21,8 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
   mcap, 
   liquidity, 
   volume, 
-  progress 
+  progress,
+  compact = false
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -51,25 +56,26 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
         width: '100%',
         maxWidth: '420px',
         height: 'auto',
-        minHeight: '450px',
+        minHeight: compact ? '245px' : '450px',
         position: 'relative',
         borderRadius: '26px',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-        padding: '22px 22px 18px',
+        padding: compact ? '6px 12px 0px' : '22px 22px 18px',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         overflow: 'hidden',
         color: '#fff7ea',
         display: 'flex',
         flexDirection: 'column',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
       
       {/* Banner */}
       <div style={{
         position: 'relative',
         aspectRatio: '3 / 1',
-        margin: '-22px -22px 12px -22px',
+        margin: compact ? '-6px -12px 4px -12px' : '-22px -22px 12px -22px',
         borderRadius: '26px 26px 0 0',
         overflow: 'hidden',
         zIndex: 1,
@@ -105,16 +111,16 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
       {/* Header */}
       <div style={{
         marginTop: '2px',
-        marginBottom: '16px',
+        marginBottom: compact ? '6px' : '16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '12px'
+        gap: compact ? '8px' : '12px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: compact ? '8px' : '12px' }}>
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: compact ? '40px' : '48px',
+            height: compact ? '40px' : '48px',
             borderRadius: '50%',
             display: 'grid',
             placeItems: 'center',
@@ -133,7 +139,7 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
               color: '#feea88',
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
-              fontSize: '22px',
+              fontSize: compact ? '18px' : '22px',
               lineHeight: 1,
               margin: 0
             }}>{name}</h1>
@@ -165,18 +171,18 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
 
       {/* Tax Line */}
       <div style={{
-        marginTop: '8px',
-        marginBottom: '16px',
+        marginTop: compact ? '2px' : '8px',
+        marginBottom: compact ? '4px' : '16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '10px',
+        gap: compact ? '6px' : '10px',
         flexWrap: 'wrap'
       }}>
         <div style={{
           fontFamily: '"Sora", "Inter", sans-serif',
           fontWeight: 800,
-          fontSize: '18px',
+          fontSize: compact ? '16px' : '18px',
           color: '#feea88',
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
         }}>Tax: 3/3</div>
@@ -210,13 +216,13 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
 
       {/* Description in rounded container */}
       <div style={{
-        margin: '12px 0 18px',
-        padding: '24px 20px',
-        borderRadius: '20px',
+        margin: compact ? '4px 0 6px' : '12px 0 18px',
+        padding: compact ? '16px 14px' : '24px 20px',
+        borderRadius: compact ? '16px' : '20px',
         border: '1px solid rgba(100, 60, 30, 0.6)',
         background: 'rgba(60, 35, 20, 0.4)',
         color: '#fff1df',
-        fontSize: '18px',
+        fontSize: compact ? '16px' : '18px',
         fontWeight: 800,
         lineHeight: 1.4,
         textAlign: 'center'
@@ -225,59 +231,61 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
       </div>
 
       {/* Social Buttons - positioned to align with stat cards below */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '8px',
-        marginBottom: '18px',
-        padding: '0 15px 0 9px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button style={{
-            color: '#fff1dc',
-            width: '50px',
-            height: '50px',
-            display: 'grid',
-            placeItems: 'center',
-            borderRadius: '12px',
-            background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
-            border: '1px solid rgba(255, 215, 165, 0.5)',
-            cursor: 'pointer'
-          }}>
-            <Send size={22} />
-          </button>
+      {!compact && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '8px',
+          marginBottom: '18px',
+          padding: '0 15px 0 9px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button style={{
+              color: '#fff1dc',
+              width: '50px',
+              height: '50px',
+              display: 'grid',
+              placeItems: 'center',
+              borderRadius: '12px',
+              background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
+              border: '1px solid rgba(255, 215, 165, 0.5)',
+              cursor: 'pointer'
+            }}>
+              <Send size={22} />
+            </button>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button style={{
+              color: '#fff1dc',
+              width: '50px',
+              height: '50px',
+              display: 'grid',
+              placeItems: 'center',
+              borderRadius: '12px',
+              background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
+              border: '1px solid rgba(255, 215, 165, 0.5)',
+              cursor: 'pointer'
+            }}>
+              <TwitterIcon />
+            </button>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button style={{
+              color: '#fff1dc',
+              width: '50px',
+              height: '50px',
+              display: 'grid',
+              placeItems: 'center',
+              borderRadius: '12px',
+              background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
+              border: '1px solid rgba(255, 215, 165, 0.5)',
+              cursor: 'pointer'
+            }}>
+              <Globe size={22} />
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button style={{
-            color: '#fff1dc',
-            width: '50px',
-            height: '50px',
-            display: 'grid',
-            placeItems: 'center',
-            borderRadius: '12px',
-            background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
-            border: '1px solid rgba(255, 215, 165, 0.5)',
-            cursor: 'pointer'
-          }}>
-            <TwitterIcon />
-          </button>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button style={{
-            color: '#fff1dc',
-            width: '50px',
-            height: '50px',
-            display: 'grid',
-            placeItems: 'center',
-            borderRadius: '12px',
-            background: 'linear-gradient(180deg, rgba(255, 230, 195, 0.22), rgba(255, 196, 120, 0.16))',
-            border: '1px solid rgba(255, 215, 165, 0.5)',
-            cursor: 'pointer'
-          }}>
-            <Globe size={22} />
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Score Section */}
       <div style={{
@@ -293,28 +301,28 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '8px',
-          marginBottom: '16px'
+          gap: compact ? '6px' : '8px',
+          marginBottom: compact ? '4px' : '16px'
         }}>
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: '14px',
-            padding: '10px 12px',
+            borderRadius: compact ? '12px' : '14px',
+            padding: compact ? '8px 10px' : '10px 12px',
             textAlign: 'center',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}>
             <div style={{
               fontWeight: 800,
-              fontSize: '12px',
+              fontSize: compact ? '10px' : '12px',
               letterSpacing: '1px',
               color: '#ffe0b6',
-              marginBottom: '6px'
+              marginBottom: compact ? '4px' : '6px'
             }}>MCAP</div>
             <div style={{
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
-              fontSize: '18px',
+              fontSize: compact ? '16px' : '18px',
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
@@ -323,22 +331,22 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: '14px',
-            padding: '10px 12px',
+            borderRadius: compact ? '12px' : '14px',
+            padding: compact ? '8px 10px' : '10px 12px',
             textAlign: 'center',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}>
             <div style={{
               fontWeight: 800,
-              fontSize: '12px',
+              fontSize: compact ? '10px' : '12px',
               letterSpacing: '1px',
               color: '#ffe0b6',
-              marginBottom: '6px'
+              marginBottom: compact ? '4px' : '6px'
             }}>VOLUME</div>
             <div style={{
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
-              fontSize: '18px',
+              fontSize: compact ? '16px' : '18px',
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
@@ -347,22 +355,22 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: '14px',
-            padding: '10px 12px',
+            borderRadius: compact ? '12px' : '14px',
+            padding: compact ? '8px 10px' : '10px 12px',
             textAlign: 'center',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}>
             <div style={{
               fontWeight: 800,
-              fontSize: '12px',
+              fontSize: compact ? '10px' : '12px',
               letterSpacing: '1px',
               color: '#ffe0b6',
-              marginBottom: '6px'
+              marginBottom: compact ? '4px' : '6px'
             }}>LP</div>
             <div style={{
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
-              fontSize: '18px',
+              fontSize: compact ? '16px' : '18px',
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
@@ -375,11 +383,13 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
           ref={trackRef}
           style={{
             position: 'relative',
-            height: '64px',
-            borderRadius: '28px',
+            height: compact ? '42px' : '64px',
+            borderRadius: compact ? '22px' : '28px',
             background: 'radial-gradient(100% 120% at 50% 120%, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.35) 70%, rgba(255, 255, 255, 0.08) 100%), linear-gradient(180deg, #9a5a2c, #6a3a1c)',
-            boxShadow: 'inset 0 8px 18px rgba(0, 0, 0, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.22), 0 10px 28px rgba(0, 0, 0, 0.35)',
-            padding: '6px',
+            boxShadow: compact 
+              ? 'inset 0 6px 14px rgba(0, 0, 0, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.22), 0 8px 22px rgba(0, 0, 0, 0.35)'
+              : 'inset 0 8px 18px rgba(0, 0, 0, 0.42), inset 0 2px 0 rgba(255, 255, 255, 0.22), 0 10px 28px rgba(0, 0, 0, 0.35)',
+            padding: compact ? '4px' : '6px',
             overflow: 'visible'
           }}
         >
@@ -387,11 +397,13 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
             ref={fillRef}
             style={{
               position: 'relative',
-              height: '52px',
+              height: compact ? '34px' : '52px',
               width: '0%',
-              borderRadius: '22px',
+              borderRadius: compact ? '18px' : '22px',
               background: 'linear-gradient(180deg, #ffedae, #ffd96f 55%, #ffc14d 100%)',
-              boxShadow: 'inset 0 2px 0 rgba(255, 255, 255, 0.75), inset 0 -2px 10px rgba(165, 82, 22, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.28), 0 12px 32px rgba(255, 180, 70, 0.52), 0 0 24px 2px rgba(255, 180, 70, 0.58)',
+              boxShadow: compact 
+                ? 'inset 0 2px 0 rgba(255, 255, 255, 0.75), inset 0 -2px 8px rgba(165, 82, 22, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.28), 0 10px 26px rgba(255, 180, 70, 0.52), 0 0 20px 2px rgba(255, 180, 70, 0.58)'
+                : 'inset 0 2px 0 rgba(255, 255, 255, 0.75), inset 0 -2px 10px rgba(165, 82, 22, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.28), 0 12px 32px rgba(255, 180, 70, 0.52), 0 0 24px 2px rgba(255, 180, 70, 0.58)',
               overflow: 'hidden',
               transition: 'width 600ms cubic-bezier(0.22, 1, 0.36, 1)'
             }}
@@ -405,7 +417,7 @@ export const TradingTokenCard: React.FC<TokenCardProps> = ({
                 placeItems: 'center',
                 pointerEvents: 'none',
                 fontWeight: 800,
-                fontSize: '18px',
+                fontSize: compact ? '16px' : '18px',
                 color: '#2b160a',
                 textShadow: '0 1px 0 rgba(255, 255, 255, 0.78)',
                 mixBlendMode: 'multiply',
