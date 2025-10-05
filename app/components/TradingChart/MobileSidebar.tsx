@@ -7,6 +7,7 @@ import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { TokenWidget } from '../Widgets/TokenWidget';
+import { LockerWidget } from '../Widgets/LockerWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -67,6 +68,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
   const [isTokenWidgetOpen, setIsTokenWidgetOpen] = useState(false);
+  const [isLockerWidgetOpen, setIsLockerWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -90,9 +92,8 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
 
   // Handlers for new widgets
   const handleLockerClick = () => {
-    console.log('Locker clicked');
+    setIsLockerWidgetOpen(true);
     setExpanded(false);
-    // TODO: Implement locker functionality
   };
 
   const handleExplorerClick = () => {
@@ -241,6 +242,12 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <TokenWidget 
         isOpen={isTokenWidgetOpen}
         onClose={() => setIsTokenWidgetOpen(false)}
+      />
+
+      {/* Locker Widget */}
+      <LockerWidget 
+        isOpen={isLockerWidgetOpen}
+        onClose={() => setIsLockerWidgetOpen(false)}
       />
     </>
   );

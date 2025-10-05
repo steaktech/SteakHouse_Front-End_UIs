@@ -7,6 +7,7 @@ import { SidebarProps } from './types'; // Assuming this type is defined elsewhe
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
+import { LockerWidget } from '../Widgets/LockerWidget';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 // Props for each widget item
@@ -80,6 +81,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
+  const [isLockerWidgetOpen, setIsLockerWidgetOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(170);
   const [isResizing, setIsResizing] = useState(false);
   
@@ -87,7 +89,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
-  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen;
+  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isLockerWidgetOpen;
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -103,8 +105,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
 
   // Handlers for new widgets
   const handleLockerClick = () => {
-    console.log('Locker clicked');
-    // TODO: Implement locker functionality
+    setIsLockerWidgetOpen(true);
   };
 
   const handleExplorerClick = () => {
@@ -145,6 +146,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
 
   const handleSavedTokenClose = () => {
     setIsSavedTokenWidgetOpen(false);
+  };
+
+  const handleLockerClose = () => {
+    setIsLockerWidgetOpen(false);
   };
 
   // Handlers for Chart, Token, Trade (only functional when hasActiveWidget is true)
@@ -261,7 +266,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     {
       icon: <Lock size={16} className="text-[#d29900]" />,
       text: 'Locker',
-      active: false,
+      active: isLockerWidgetOpen,
       greyedOut: false,
       onClick: handleLockerClick
     },
@@ -470,6 +475,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       <SavedTokenWidget
         isOpen={isSavedTokenWidgetOpen}
         onClose={handleSavedTokenClose}
+      />
+
+      {/* Locker Widget */}
+      <LockerWidget
+        isOpen={isLockerWidgetOpen}
+        onClose={handleLockerClose}
       />
     </>
   );
