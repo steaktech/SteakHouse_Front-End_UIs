@@ -21,6 +21,7 @@
 
   position: relative;
   flex-shrink: 0;
+  margin-top: -5px;
   background: linear-gradient(
     140deg,
     var(--bg-start),
@@ -197,7 +198,7 @@
 .container {
   max-width: var(--container);
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 53px 24px 48px 24px;
   position: relative;
   z-index: 1;
 }
