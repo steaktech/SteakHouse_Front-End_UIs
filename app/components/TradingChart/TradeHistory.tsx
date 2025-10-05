@@ -502,8 +502,9 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    width: '100%'
+                    gap: '4px',
+                    width: '100%',
+                    minWidth: 0 // Allow flex items to shrink
                   }}>
                     {/* Buy/Sell Icon */}
                     <div style={{
@@ -534,38 +535,52 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     </span>
                     
                     <span style={{
-                      fontSize: '14px',
+                      fontSize: '13px',
                       fontWeight: 700,
                       color: '#feea88',
-                      flexShrink: 0
+                      flex: 1,
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }}>
                       {tx.amount}
                     </span>
                     
                     <span style={{
-                      fontSize: '12px',
+                      fontSize: '11px',
                       color: '#feea88',
                       opacity: 0.8,
-                      flexShrink: 0
+                      flexShrink: 1,
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }}>
                       ({tx.ethAmount})
                     </span>
                     
                     <span style={{
-                      fontSize: '12px',
+                      fontSize: '11px',
                       color: '#feea88',
                       opacity: 0.7,
-                      flexShrink: 0
+                      flexShrink: 1,
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }}>
                       {tx.time}
                     </span>
                     
                     <span style={{
-                      fontSize: '16px',
+                      fontSize: '14px',
                       fontWeight: 800,
                       color: '#feea88',
                       marginLeft: 'auto',
-                      flexShrink: 0
+                      flexShrink: 0,
+                      minWidth: '50px',
+                      textAlign: 'right'
                     }}>
                       {tx.price}
                     </span>

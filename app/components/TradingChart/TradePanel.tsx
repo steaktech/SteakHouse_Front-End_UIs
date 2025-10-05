@@ -24,9 +24,10 @@ const QuestionMarkIcon = () => (
 interface TradePanelProps {
   initialTab?: 'buy' | 'sell' | 'limit';
   onTabChange?: (tab: 'buy' | 'sell' | 'limit') => void;
+  isMobile?: boolean;
 }
 
-export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange }) => {
+export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange, isMobile = false }) => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'limit'>(initialTab as any);
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
@@ -101,7 +102,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         borderRadius: 'clamp(18px, 2.5vw, 26px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-        padding: 'clamp(16px, 3vh, 22px)',
+        padding: isMobile ? '12px' : 'clamp(16px, 3vh, 22px)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         overflow: 'visible',
         color: '#fff7ea',
