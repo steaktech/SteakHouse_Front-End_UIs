@@ -81,8 +81,10 @@ export default function TradingChart() {
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
   const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
   const [desktopTradeTab, setDesktopTradeTab] = useState<'buy' | 'sell' | 'limit'>('buy');
-  const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height
+  const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height for mobile
+  const [desktopTransactionsHeight, setDesktopTransactionsHeight] = useState(280); // Default height for desktop
   const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingDesktop, setIsDraggingDesktop] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
@@ -207,13 +209,34 @@ export default function TradingChart() {
 
   const handleMouseUp = React.useCallback(() => {
     setIsDragging(false);
+    setIsDraggingDesktop(false);
   }, []);
 
   const handleTouchEnd = React.useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  // Event listeners
+  // Desktop drag handlers for resizing transactions panel
+  const handleDesktopMouseDown = (e: React.MouseEvent) => {
+    setIsDraggingDesktop(true);
+    setDragStartY(e.clientY);
+    setDragStartHeight(desktopTransactionsHeight);
+    e.preventDefault();
+  };
+
+  const handleDesktopMouseMove = React.useCallback((e: MouseEvent) => {
+    if (!isDraggingDesktop) return;
+    
+    const deltaY = dragStartY - e.clientY; // Inverted: drag up = positive = increase height
+    const newHeight = dragStartHeight + deltaY;
+    
+    const minHeight = 150; // Minimum height for desktop
+    const maxHeight = window.innerHeight * 0.7; // Max 70% of viewport height
+    
+    setDesktopTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+  }, [isDraggingDesktop, dragStartY, dragStartHeight]);
+
+  // Event listeners for mobile
   React.useEffect(() => {
     if (isDragging) {
       // Mouse events
@@ -251,6 +274,28 @@ export default function TradingChart() {
       document.body.style.touchAction = '';
     };
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+
+  // Event listeners for desktop
+  React.useEffect(() => {
+    if (isDraggingDesktop) {
+      document.addEventListener('mousemove', handleDesktopMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'row-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', handleDesktopMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleDesktopMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDraggingDesktop, handleDesktopMouseMove, handleMouseUp]);
 
   // Mobile detection
   React.useEffect(() => {
@@ -339,45 +384,57 @@ export default function TradingChart() {
         </div>
         
         <main 
-          className={`flex-1 grid grid-cols-1 ${desktopTradeTab === 'limit' 
-            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[minmax(150px,1fr)_auto]' 
-            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_minmax(280px,auto)]'} gap-[8px] p-[8px] ${
-            'overflow-hidden'
-          }`}
+          className="flex-1 p-[8px] overflow-hidden"
           style={{
-            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, 8px padding on desktop
-            height: isMobile ? 'calc(100vh - 56px)' : '100%', // Subtract header height on mobile, full height on desktop
-            transition: 'grid-template-columns 400ms cubic-bezier(0.4, 0, 0.2, 1), grid-template-rows 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px',
+            height: isMobile ? 'calc(100vh - 56px)' : '100%',
+            display: isMobile ? 'block' : 'flex',
+            gap: '8px'
           }}
         >
-          
-          {/* Trading Chart */}
-          <div className="order-1 lg:col-start-1 lg:row-start-1">
-            <TradingView />
-          </div>
-
-          {/* Token Card (desktop only) - Mobile Style */}
-          <div className={`hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center p-0 m-0 items-center`}>
-            <div style={{
-              width: '100%',
-              maxWidth: '420px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLimitMode={desktopTradeTab === 'limit'} />
+          {/* Left Column - Chart and Recent Transactions */}
+          <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
+            {/* Trading Chart */}
+            <div className="flex-1 overflow-hidden">
+              <TradingView />
             </div>
-          </div>
 
-          {/* Trade Panel with Integrated Limit Orders (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-2 lg:row-start-2" style={{ height: '100%' }}>
-            <TradePanel 
-              onTabChange={(tab) => setDesktopTradeTab(tab)}
-            />
-          </div>
-
-          {/* Recent Transactions Panel (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-1 lg:row-start-2" style={{ height: '100%' }}>
+            {/* Recent Transactions Panel (desktop only) */}
+            <div 
+              className="hidden lg:block" 
+              style={{ 
+                height: `${desktopTransactionsHeight}px`,
+                position: 'relative',
+                flexShrink: 0
+              }}>
+            {/* Drag Handle */}
+            <div
+              onMouseDown={handleDesktopMouseDown}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '8px',
+                cursor: 'row-resize',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.1)' : 'transparent',
+                transition: 'background 200ms ease'
+              }}
+            >
+              <div
+                style={{
+                  width: '48px',
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: isDraggingDesktop ? 'rgba(254, 234, 136, 0.8)' : 'rgba(255, 215, 165, 0.4)',
+                  transition: 'background 200ms ease'
+                }}
+              />
+            </div>
             <div style={{
               width: '100%',
               height: '100%',
@@ -386,6 +443,7 @@ export default function TradingChart() {
               background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
               boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
               padding: 'clamp(12px, 2.5vh, 16px)',
+              paddingTop: '20px',
               border: '1px solid rgba(255, 215, 165, 0.4)',
               overflow: 'hidden',
               color: '#fff7ea',
@@ -415,6 +473,44 @@ export default function TradingChart() {
                   />
                 )}
               </div>
+            </div>
+            </div>
+          </div>
+
+          {/* Right Column - Token Card and Trade Panel (desktop only) */}
+          <div 
+            className={`hidden lg:flex flex-col gap-[8px] ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
+            style={{
+              transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+              flexShrink: 0,
+              height: '100%'
+            }}
+          >
+            {/* Token Card */}
+            <div className="flex justify-center items-center overflow-hidden" style={{ flexShrink: 0, height: 'auto' }}>
+              <div style={{
+                width: '100%',
+                maxWidth: '420px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLimitMode={desktopTradeTab === 'limit'} />
+              </div>
+            </div>
+
+            {/* Trade Panel */}
+            <div style={{ 
+              flex: 1,
+              minHeight: '280px',
+              maxHeight: 'calc(100% - 5px)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <TradePanel 
+                onTabChange={(tab) => setDesktopTradeTab(tab)}
+              />
             </div>
           </div>
 
