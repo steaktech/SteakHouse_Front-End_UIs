@@ -15,6 +15,20 @@
   --brown-900: #1e0e07;
 }
 
+/* Global background fix to prevent seams and repeating */
+html, body {
+  background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+/* Ensure no elements override the background */
+* {
+  background-repeat: inherit;
+}
+
 
 /* Profile Widget Fire Border Styles - moved here for better performance */
 .profile-widget-fire-border {
@@ -149,36 +163,6 @@
   scrollbar-color: #374151 rgba(255, 255, 255, 0.1);
 }
 
-/* Trade History specific scrollbar styling */
-.trade-history-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.trade-history-scrollbar::-webkit-scrollbar-track {
-  background: rgba(25, 9, 0, 0.8);
-  border-radius: 4px;
-  border: 1px solid rgba(218, 165, 32, 0.2);
-}
-
-.trade-history-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #d97706, #b45309);
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
-}
-
-.trade-history-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #f59e0b, #d97706);
-  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.3);
-}
-
-/* Firefox scrollbar support for trade history */
-.trade-history-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #d97706 rgba(25, 9, 0, 0.8);
-}
-
 /* Sidebar Animations and Vertical Text */
 .writing-mode-vertical {
   writing-mode: vertical-rl;
@@ -196,13 +180,7 @@
 }
 
 .animate-scroll {
-  animation: scroll 30s linear infinite;
-}
-
-/* Loading spinner animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  animation: scroll 15s linear infinite;
 }
 
 /* 3D Button Effects */
@@ -333,6 +311,31 @@
     height: 36px;
     min-width: 80px;
   }
+  
+  /* Stretch background to cover entire mobile viewport */
+  html, body {
+    min-height: 100vh !important;
+    min-height: 100dvh !important; /* Dynamic viewport height for mobile */
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
+    overflow-x: hidden;
+  }
+  
+  body {
+    /* Ensure background is truly fixed and doesn't repeat */
+    background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed !important;
+    min-height: max(100vh, 100%) !important;
+  }
+  
+  /* Ensure main content doesn't interfere with background */
+  main {
+    flex: 1 !important;
+    min-height: 100vh !important;
+    position: relative;
+    background: none !important;
+  }
 }
 
 /* Connect wallet button - golden variation */
@@ -458,165 +461,5 @@
   
   .steakhouse-loading-text {
     font-size: 1.2rem;
-  }
-}
-
-/* ======================================
-   FULLSCREEN CHART MOBILE STYLES
-   ====================================== */
-
-/* Mobile landscape fullscreen chart optimization */
-@media screen and (max-width: 1023px) {
-  /* True fullscreen styles - override any other positioning */
-  .fullscreen-chart-true {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    height: 100dvh !important; /* Dynamic viewport height for mobile browsers */
-    z-index: 100 !important;
-    background-color: #07040b !important;
-    overflow: hidden !important;
-  }
-
-  /* Landscape orientation specific styles */
-  @media (orientation: landscape) {
-    .fullscreen-chart-true {
-      /* Force full viewport coverage in landscape */
-      width: 100vw !important;
-      height: 100vh !important;
-      height: 100dvh !important;
-    }
-
-    /* Hide elements that take up space in landscape */
-    .landscape-hidden {
-      display: none !important;
-    }
-
-    /* Compact header in landscape fullscreen */
-    .fullscreen-compact-header {
-      height: 36px !important;
-      min-height: 36px !important;
-      padding: 6px 12px !important;
-      flex-shrink: 0 !important;
-    }
-  }
-
-  /* Portrait orientation styles */
-  @media (orientation: portrait) {
-    .fullscreen-compact-header {
-      height: 48px !important;
-      min-height: 48px !important;
-      padding: 8px 16px !important;
-      flex-shrink: 0 !important;
-    }
-  }
-
-  /* Portrait orientation fallback */
-  @media (orientation: portrait) {
-    .fullscreen-chart-container {
-      /* Standard portrait layout */
-      height: 100vh;
-      height: 100dvh;
-    }
-
-    .portrait-orientation-hint {
-      display: flex !important;
-    }
-  }
-
-  /* Touch optimizations for mobile fullscreen */
-  .fullscreen-chart-container * {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* Smooth transitions for orientation changes */
-  .fullscreen-chart-container,
-  .fullscreen-chart-area,
-  .fullscreen-trading-view {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-}
-
-/* Prevent body scroll when fullscreen chart is active */
-body.fullscreen-chart-active {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-}
-
-/* Enhanced mobile sidebar for fullscreen mode */
-@media screen and (max-width: 1023px) {
-  .fullscreen-mobile-sidebar {
-    /* Ensure sidebar appears above fullscreen content */
-    z-index: 95;
-  }
-
-  /* Compact widget controls for landscape */
-  @media (orientation: landscape) {
-    .fullscreen-widget-controls {
-      padding: 8px 12px;
-      font-size: 12px;
-    }
-
-    .fullscreen-widget-grid {
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      padding: 12px;
-    }
-
-    .fullscreen-widget-card {
-      padding: 8px;
-      min-height: 60px;
-    }
-
-    .fullscreen-widget-icon {
-      width: 20px;
-      height: 20px;
-    }
-
-    .fullscreen-widget-text {
-      font-size: 10px;
-      margin-top: 4px;
-    }
-  }
-}
-
-/* Responsive breakpoints for fullscreen chart */
-@media screen and (max-width: 1023px) and (max-height: 500px) {
-  /* Very small landscape screens (phones in landscape) */
-  .fullscreen-header {
-    height: 35px;
-    min-height: 35px;
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .fullscreen-chart-area {
-    height: calc(100vh - 35px);
-    height: calc(100dvh - 35px);
-  }
-}
-
-@media screen and (max-width: 1023px) and (min-height: 500px) and (max-height: 800px) {
-  /* Medium landscape screens (tablets in landscape) */
-  .fullscreen-header {
-    height: 50px;
-    min-height: 50px;
-    padding: 10px 16px;
-  }
-
-  .fullscreen-chart-area {
-    height: calc(100vh - 50px);
-    height: calc(100dvh - 50px);
   }
 }

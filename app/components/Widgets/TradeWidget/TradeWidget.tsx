@@ -32,7 +32,7 @@ export const TradeWidget: React.FC<TradeWidgetProps> = ({
         <button className={styles.closeBtn} onClick={onClose} title="Close">
           <X size={20} />
         </button>
-        <TradePanel tokenAddress={tokenAddress} defaultTab={defaultTab} />
+        <TradePanel tokenAddress={tokenAddress} defaultTab={defaultTab} isMobile={true} />
       </div>
     </div>
   );

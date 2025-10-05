@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import styles from "./UI/Botton.module.css";
 import { useWallet } from "@/app/hooks/useWallet";
@@ -21,7 +20,6 @@ const WalletModal = dynamic(
 );
 
 export default function Header() {
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
@@ -30,10 +28,6 @@ export default function Header() {
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
-
-  const handleLogoClick = () => {
-    router.push('/');
   };
 
   return (
@@ -45,21 +39,18 @@ export default function Header() {
           {/* Logo & Socials Section */}
           <div className="flex items-center">
             {/* Logo Container */}
-            <div 
-              className="relative w-20 h-16 sm:w-24 sm:h-16 md:w-65 md:h-16 overflow-visible cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={handleLogoClick}
-            >
+            <div className="relative w-20 h-16 sm:w-24 sm:h-16 md:w-65 md:h-16 pointer-events-none overflow-visible">
               <Image
                 src="/images/app-logo.png"
                 alt="Logo"
                 fill
-                className="object-contain md:hidden"
+                className="object-contain pointer-events-auto md:hidden"
               />
               <Image
                 src="/images/header-logo-lg.png"
                 alt="Logo"
                 fill
-                className="object-contain hidden md:block overflow-hidden"
+                className="object-contain pointer-events-auto hidden md:block overflow-hidden"
               />
             </div>
 

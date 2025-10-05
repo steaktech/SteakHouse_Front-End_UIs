@@ -1,76 +1,238 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Header from "@/app/components/Header";
-import { DesktopSidebar } from "./DesktopSidebar";
-import { MobileBottomBar } from "./MobileSidebar";
-import { TradingView } from "./TradingView";
-import { TradeHistory } from "../Widgets/TradingHistoryWidget";
-import { TradingTokenCard } from "../Widgets/TokenCardInfoWidget";
-import { TradePanel } from "../Widgets/TradeWidget";
-import { MobileTradeInterface } from "./MobileTradeInterface";
-import { FullscreenChart } from "./FullscreenChart";
-import { OrientationPrompt } from "./OrientationPrompt";
-import { useDeviceOrientation } from "@/app/hooks/useDeviceOrientation";
-import { useTokenData } from "@/app/hooks/useTokenData";
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Header from '@/app/components/Header';
+import { DesktopSidebar } from './DesktopSidebar';
+import { MobileBottomBar } from './MobileSidebar';
+import { TradingView } from './TradingView';
+import { TradeHistory } from '../Widgets/TradingHistoryWidget';
+import { TradePanel } from '../Widgets/TradeWidget';
+import { TradingTokenCard } from '../Widgets/TokenCardInfoWidget';
+import type { TokenCardInfoData } from '../Widgets/TokenCardInfoWidget';
+import { useTokenData } from '@/app/hooks/useTokenData';
+import { X } from 'lucide-react';
 
 interface TradingChartProps {
   tokenAddress?: string;
 }
 
-export default function TradingChart({
-  tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db",
-}: TradingChartProps) {
+export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db" }: TradingChartProps) {
+  const searchParams = useSearchParams();
+  const tokenSymbol = searchParams.get('symbol');
+  
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
-  const [isFullscreenChart, setIsFullscreenChart] = useState(false);
-  const [showOrientationPrompt, setShowOrientationPrompt] = useState(false);
+  const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
+  const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
+  const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height
+  const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragStartHeight, setDragStartHeight] = useState(0);
+  const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  const [cardData, setCardData] = useState<TokenCardInfoData>({
+    imageUrl: '/images/info_icon.jpg',
+    name: 'SpaceMan',
+    symbol: 'SPACE',
+    tag: 'Meme',
+    tagColor: '#fade79',
+    description: 'Spaceman is a meme deflationary token with a finite supply and buyback and burn mechanism.',
+    mcap: '$21.5K',
+    liquidity: '$2.3K',
+    volume: '$6.2K',
+    progress: 82
+  });
 
-  const { isMobile: deviceIsMobile, isLandscape } = useDeviceOrientation();
-  
-  // Fetch token data at the main component level
+  // Data: candles + token info
   const [timeframe, setTimeframe] = useState<string>('1m');
-  const { data: tokenData, isLoading, error, refetch } = useTokenData(tokenAddress, { interval: timeframe, limit: 200 });
+  const { data: apiTokenData, isLoading, error } = useTokenData(tokenAddress, { interval: timeframe, limit: 200 });
+
+  // Load token data based on URL parameter
+  useEffect(() => {
+    if (tokenSymbol) {
+      // TODO: Fetch token data from API based on symbol
+      // For now, we'll update the symbol in the existing card data
+      setCardData(prev => ({
+        ...prev,
+        symbol: tokenSymbol,
+        name: tokenSymbol // You can update this when you fetch from API
+      }));
+    }
+  }, [tokenSymbol]);
+
+
+  // BUY inner style (green glossy pill)
+  const buyInnerStyle: React.CSSProperties = {
+    background: 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)',
+    borderRadius: '16px',
+    padding: '14px 16px',
+    textAlign: 'center',
+    fontWeight: 800,
+    color: '#1f2937',
+    letterSpacing: '0.5px',
+    width: '100%',
+    boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)'
+  };
+
+  // SELL inner style (red glossy pill)
+  const sellInnerStyle: React.CSSProperties = {
+    background: 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
+    borderRadius: '16px',
+    padding: '14px 16px',
+    textAlign: 'center',
+    fontWeight: 800,
+    color: '#2b1b14',
+    letterSpacing: '0.5px',
+    width: '100%',
+    boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,0,0.18)'
+  };
+
+  // Drag handlers for resizing transactions
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStartY(e.clientY);
+    setDragStartHeight(transactionsHeight);
+    e.preventDefault();
+  };
+
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setDragStartY(e.touches[0].clientY);
+    setDragStartHeight(transactionsHeight);
+    // Add haptic feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(10); // Short vibration
+    }
+    e.preventDefault();
+  };
+
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const deltaY = dragStartY - e.clientY; // Inverted: drag up = positive = increase height
+    const newHeight = dragStartHeight + deltaY;
+    
+    const minHeight = 56; // Keep button visible (expand button height + padding)
+    const maxHeight = Math.min(400, window.innerHeight * 0.6);
+    
+    setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+  }, [isDragging, dragStartY, dragStartHeight]);
+
+  const handleTouchMove = React.useCallback((e: TouchEvent) => {
+    if (!isDragging) return;
+    
+    const deltaY = dragStartY - e.touches[0].clientY; // Inverted: drag up = positive = increase height
+    const newHeight = dragStartHeight + deltaY;
+    
+    const minHeight = 56; // Keep button visible (expand button height + padding)
+    const maxHeight = Math.min(400, window.innerHeight * 0.6);
+    
+    setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+    e.preventDefault(); // Prevent scrolling
+  }, [isDragging, dragStartY, dragStartHeight]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleTouchEnd = React.useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Event listeners
+  React.useEffect(() => {
+    if (isDragging) {
+      // Mouse events
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      // Touch events
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      // Prevent selection and set cursor
+      document.body.style.cursor = 'row-resize';
+      document.body.style.userSelect = 'none';
+      document.body.style.touchAction = 'none'; // Prevent scrolling during touch
+    } else {
+      // Remove mouse events
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      // Remove touch events
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      // Reset styles
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.body.style.touchAction = '';
+    }
+    
+    return () => {
+      // Cleanup all events
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      // Reset styles
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   // Mobile detection
-  useEffect(() => {
+  React.useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-
+    
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Handle fullscreen chart activation
-  const handleChartFullscreen = () => {
-    if (!deviceIsMobile) return; // Only for mobile devices
+  // Set initial transactions height to 30% of screen height
+  React.useEffect(() => {
+    const initialHeight = window.innerHeight * 0.3;
+    setTransactionsHeight(initialHeight);
+  }, []);
 
-    // If device is already in landscape, go directly to fullscreen
-    if (isLandscape) {
-      setIsFullscreenChart(true);
-    } else {
-      // Show orientation prompt for portrait mode
-      setShowOrientationPrompt(true);
+  // Copy to clipboard function
+  const copyToClipboard = async (text: string, itemId: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItem(itemId);
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopiedItem(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedItem(itemId);
+        setTimeout(() => setCopiedItem(null), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed: ', fallbackErr);
+      }
+      document.body.removeChild(textArea);
     }
   };
 
-  // Handle orientation prompt responses
-  const handleOrientationPromptClose = () => {
-    setShowOrientationPrompt(false);
+  // Handlers for Buy/Sell buttons
+  const handleBuyClick = () => {
+    setSelectedTradeTab('buy');
+    setIsMobileTradeOpen(true);
   };
 
-  const handleContinueInPortrait = () => {
-    setShowOrientationPrompt(false);
-    setIsFullscreenChart(true);
-  };
-
-  // Handle fullscreen chart exit
-  const handleFullscreenExit = () => {
-    setIsFullscreenChart(false);
+  const handleSellClick = () => {
+    setSelectedTradeTab('sell');
+    setIsMobileTradeOpen(true);
   };
 
   return (
@@ -78,40 +240,32 @@ export default function TradingChart({
       {/* Header */}
       <Header />
 
+
       {/* Progress Bar - Mobile Only */}
       <div className="lg:hidden bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[#daa20b] text-xs font-semibold tracking-wide">
-            BONDING CURVE
-          </span>
-          <span className="text-[#feea88] text-xs font-bold">
-            {tokenData?.tokenInfo ? 
-              (() => {
-                const circulating = Number(tokenData.tokenInfo.circulating_supply);
-                const cap = Number(tokenData.tokenInfo.graduation_cap_norm);
-                const percentage = (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? 
-                  (circulating / cap) * 100 : 0;
-                return `${percentage.toFixed(1)}%`;
-              })() : 
-              '0%'
-            }
+          <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
+          <span className="text-[#feea88] text-xs font-bold">{apiTokenData?.tokenInfo ? 
+            (() => {
+              const circulating = Number(apiTokenData.tokenInfo.circulating_supply);
+              const cap = Number(apiTokenData.tokenInfo.graduation_cap_norm);
+              const percentage = (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? (circulating / cap) * 100 : 0;
+              return `${percentage.toFixed(1)}%`;
+            })() : `${cardData.progress}%`}
           </span>
         </div>
         <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
-          <div
+          <div 
             className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
             style={{
-              width: tokenData?.tokenInfo ? 
+              width: apiTokenData?.tokenInfo ? 
                 (() => {
-                  const circulating = Number(tokenData.tokenInfo.circulating_supply);
-                  const cap = Number(tokenData.tokenInfo.graduation_cap_norm);
-                  const percentage = (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? 
-                    (circulating / cap) * 100 : 0;
+                  const circulating = Number(apiTokenData.tokenInfo.circulating_supply);
+                  const cap = Number(apiTokenData.tokenInfo.graduation_cap_norm);
+                  const percentage = (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? (circulating / cap) * 100 : 0;
                   return `${Math.min(100, Math.max(0, percentage)).toFixed(1)}%`;
-                })() : 
-                '0%',
-              boxShadow:
-                "0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)",
+                })() : `${cardData.progress}%`,
+              boxShadow: '0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/40 rounded-full"></div>
@@ -122,101 +276,306 @@ export default function TradingChart({
       <div className="flex flex-1 text-white font-sans overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DesktopSidebar
-            expanded={sidebarExpanded}
-            setExpanded={setSidebarExpanded}
-            tokenAddress={tokenAddress}
-          />
+          <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} tokenAddress={tokenAddress} />
         </div>
-
-        <main
-          className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded"
+        
+        <main 
+          className={`flex-1 grid grid-cols-1 lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px] gap-2 p-2 lg:pb-2 ${
+            isMobile ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded'
+          }`}
           style={{
-            paddingBottom: isMobile ? "300px" : "8px", // Account for mobile trade interface + buy/sell buttons + widgets button
+            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar
+            height: isMobile ? 'calc(100vh - 60px)' : 'auto' // Only subtract header height
           }}
         >
+          
           {/* Trading Chart */}
           <div className="order-1 lg:col-start-1 lg:row-start-1">
             <TradingView 
-              candles={tokenData?.candles}
-              title={tokenData?.tokenInfo?.name}
-              symbol={tokenData?.tokenInfo?.symbol}
+              candles={apiTokenData?.candles}
+              title={apiTokenData?.tokenInfo?.name}
+              symbol={apiTokenData?.tokenInfo?.symbol}
               timeframe={timeframe}
               onChangeTimeframe={(tf) => setTimeframe(tf)}
             />
           </div>
 
-          {/* Token Card - Desktop only, mobile uses popup from sidebar */}
-          <div className="order-4 lg:col-start-2 lg:row-start-1 hidden lg:block">
-            <TradingTokenCard
-              imageUrl="/images/info_icon.jpg"
-              name="SPACE Token"
-              symbol="SPACE"
-              tag="MEME"
-              tagColor="#ffe49c"
-              description="A revolutionary space-themed meme token designed to take your portfolio to the moon and beyond!"
-              mcap="$2.5M"
-              liquidity="$450K"
-              volume="$1.2M"
-              progress={75}
-              tokenData={tokenData}
-              isLoading={isLoading}
-              error={error}
-            />
+          {/* Token Card (desktop only) */}
+          <div className="hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center items-start p-0 m-0">
+            <TradingTokenCard {...cardData} tokenData={apiTokenData} isLoading={isLoading} error={error} />
           </div>
 
-          {/* Trade Panel - Desktop only, mobile uses popup from buttons */}
-          <div className="order-2 lg:col-start-2 lg:row-start-2 hidden lg:block">
+          {/* Trade Panel (desktop only) */}
+          <div className="hidden lg:block lg:col-start-2 lg:row-start-2">
             <TradePanel tokenAddress={tokenAddress} />
           </div>
 
-          {/* Trade History - Desktop only, mobile uses popup from sidebar */}
-          <div className="order-3 lg:col-start-1 lg:row-start-2 hidden lg:block">
-            <TradeHistory 
-              tokenAddress={tokenAddress} 
-              tokenData={tokenData}
-              isLoading={isLoading}
-              error={error}
-            />
+          {/* Trade History (desktop only) */}
+          <div className="hidden lg:block lg:col-start-1 lg:row-start-2">
+            <TradeHistory tokenAddress={tokenAddress} tokenData={apiTokenData} isLoading={isLoading} error={error} showToggle={true} />
           </div>
+
         </main>
       </div>
+      
+      {/* Recent Transactions Widget (Mobile) - Matching Desktop Styling */}
+      <div 
+        className="lg:hidden fixed left-0 right-0 z-30"
+        style={{ 
+          bottom: '68px', // Position directly above buy/sell bar with no gap
+          height: `${transactionsHeight}px`,
+          background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+          borderTop: '1px solid rgba(255, 215, 165, 0.4)',
+          boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.2)'
+        }}
+      >
+        {/* Drag Handle / Expand Button */}
+        <div 
+          className={`absolute top-0 left-0 right-0 h-10 cursor-row-resize flex items-center justify-center transition-colors group ${isDragging ? 'bg-[rgba(255,215,165,0.1)]' : 'hover:bg-[rgba(255,215,165,0.06)]'}`}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          onClick={() => {
+            if (transactionsHeight < 100) {
+              setTransactionsHeight(window.innerHeight * 0.3);
+            }
+          }}
+          style={{ zIndex: 10, touchAction: 'none' }}
+        >
+          {transactionsHeight < 100 ? (
+            // Collapsed state - show expand button
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{
+              background: 'linear-gradient(180deg, rgba(255, 231, 190, 0.35), rgba(255, 196, 120, 0.22))',
+              border: '1px solid rgba(255, 210, 160, 0.65)',
+              color: '#feea88'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+              <span className="text-xs font-bold">RECENT TRANSACTIONS</span>
+            </div>
+          ) : (
+            // Expanded state - show drag handle
+            <div className={`w-16 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-[#feea88]' : 'bg-[rgba(255,215,165,0.5)] group-hover:bg-[rgba(255,215,165,0.7)]'}`}></div>
+          )}
+        </div>
+        
+        <div className="px-4 py-3 pt-12 h-full flex flex-col" style={{ display: transactionsHeight < 100 ? 'none' : 'flex' }}>
+          <h3 className="font-bold text-sm mb-3 tracking-wide" style={{ 
+            color: '#feea88',
+            fontFamily: '"Sora", "Inter", sans-serif',
+            fontWeight: 800,
+            textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
+          }}>Recent Transactions</h3>
+          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar" style={{
+            background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
+            border: '1px solid rgba(255, 215, 165, 0.4)',
+            borderRadius: '14px',
+            padding: '12px',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+          }}>
+            {/* Mock transaction data */}
+            {[
+              { 
+                type: 'Buy', 
+                amount: '1.25K ASTER', 
+                ethAmount: '0.0032 ETH',
+                price: '$1.43', 
+                time: '2m ago',
+                fullDate: '2024-01-15 14:23:45 UTC',
+                address: '0x742d35Cc6C4b73C2C4c02B8b8f42e62e2E5F6f12',
+                txHash: '0xa1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456',
+                positive: true 
+              },
+              { 
+                type: 'Sell', 
+                amount: '850 ASTER', 
+                ethAmount: '0.0025 ETH',
+                price: '$1.44', 
+                time: '5m ago',
+                fullDate: '2024-01-15 14:18:12 UTC',
+                address: '0x8f9e2a1b3c4d5e6f7890123456789012345678ab',
+                txHash: '0xb2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678',
+                positive: false 
+              },
+              { 
+                type: 'Buy', 
+                amount: '2.1K ASTER', 
+                ethAmount: '0.0055 ETH',
+                price: '$1.42', 
+                time: '8m ago',
+                fullDate: '2024-01-15 14:15:33 UTC',
+                address: '0x123456789012345678901234567890123456789a',
+                txHash: '0xc3d4e5f6789012345678901234567890abcdef1234567890abcdef123456789a',
+                positive: true 
+              },
+              { 
+                type: 'Sell', 
+                amount: '750 ASTER', 
+                ethAmount: '0.0021 ETH',
+                price: '$1.45', 
+                time: '12m ago',
+                fullDate: '2024-01-15 14:11:07 UTC',
+                address: '0xabcdef1234567890123456789012345678901234',
+                txHash: '0xd4e5f6789012345678901234567890abcdef1234567890abcdef123456789abc',
+                positive: false 
+              },
+              { 
+                type: 'Buy', 
+                amount: '3.2K ASTER', 
+                ethAmount: '0.0089 ETH',
+                price: '$1.41', 
+                time: '15m ago',
+                fullDate: '2024-01-15 14:08:19 UTC',
+                address: '0x567890123456789012345678901234567890abcd',
+                txHash: '0xe5f6789012345678901234567890abcdef1234567890abcdef123456789abcde',
+                positive: true 
+              },
+              { 
+                type: 'Sell', 
+                amount: '1.8K ASTER', 
+                ethAmount: '0.0048 ETH',
+                price: '$1.46', 
+                time: '18m ago',
+                fullDate: '2024-01-15 14:05:42 UTC',
+                address: '0x9012345678901234567890123456789012345678',
+                txHash: '0xf6789012345678901234567890abcdef1234567890abcdef123456789abcdef1',
+                positive: false 
+              },
+            ].map((tx, index) => (
+              <div key={index} className="py-2 px-3 rounded-lg space-y-1.5" style={{
+                background: 'rgba(87, 37, 1, 0.3)',
+                border: '1px solid rgba(255, 215, 165, 0.2)',
+                transition: 'all 0.2s ease'
+              }}>
+                {/* Main Transaction Row - Now on top */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {/* Compact Buy/Sell Icon */}
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border ${
+                      tx.positive 
+                        ? 'bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black border-green-300' 
+                        : 'bg-gradient-to-r from-[#ef4444] to-[#dc2626] text-white border-red-300'
+                    }`}>
+                      {tx.positive ? '↗' : '↘'}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold ${
+                        tx.positive ? 'text-[#4ade80]' : 'text-[#f87171]'
+                      }`} style={{ fontWeight: 800, textTransform: 'uppercase' }}>
+                        {tx.type.toUpperCase()}
+                      </span>
+                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.amount}</span>
+                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>({tx.ethAmount})</span>
+                      <span className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.time}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold" style={{ color: '#feea88' }}>{tx.price}</div>
+                  </div>
+                </div>
+                
+                {/* From Address and Date Row */}
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span style={{ color: '#ffe0b6', opacity: 0.9 }}>From:</span>
+                    <button
+                      onClick={() => copyToClipboard(tx.address, `address-${index}`)}
+                      className={`font-mono px-1.5 py-0.5 rounded transition-all cursor-pointer text-xs ${
+                        copiedItem === `address-${index}` ? 'bg-green-900/40 text-green-300' : 'hover:bg-black/40'
+                      }`}
+                      style={{
+                        color: copiedItem === `address-${index}` ? undefined : '#feea88',
+                        background: copiedItem === `address-${index}` ? undefined : 'rgba(0, 0, 0, 0.2)'
+                      }}
+                      title="Click to copy address"
+                    >
+                      {copiedItem === `address-${index}` ? '✓' : `${tx.address.slice(0, 6)}...${tx.address.slice(-4)}`}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs font-semibold" style={{ color: '#feea88' }}>{tx.fullDate}</div>
+                    <button 
+                      onClick={() => window.open(`https://etherscan.io/tx/${tx.txHash}`, '_blank')}
+                      className="hover:opacity-80 transition-opacity flex-shrink-0" 
+                      title="View on Etherscan"
+                    >
+                      <img 
+                        src="/images/etherscan_logo.webp" 
+                        alt="Etherscan" 
+                        className="w-4 h-4" 
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Fixed Buy/Sell bar for mobile */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
+        <div className="px-4 py-3 flex items-center gap-3 max-w-screen-md mx-auto">
+          <button onClick={handleBuyClick} type="button" className="flex-1 p-0 bg-transparent">
+            <div style={buyInnerStyle}>BUY</div>
+          </button>
+          <button onClick={handleSellClick} type="button" className="flex-1 p-0 bg-transparent">
+            <div style={sellInnerStyle}>SELL</div>
+          </button>
+          <button 
+            onClick={() => setMobileSidebarExpanded(true)} 
+            type="button" 
+            className="p-0 bg-transparent"
+            title="Open Widgets"
+          >
+            <div 
+              className="px-4 py-3 flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
+                borderRadius: '12px',
+                padding: '14px 16px',
+                textAlign: 'center',
+                fontWeight: 800,
+                color: '#1f2937',
+                letterSpacing: '0.5px',
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)'
+              }}
+            >
+              <div className="flex flex-col items-center justify-center gap-0.5">
+                <div className="w-1 h-1 bg-black rounded-full"></div>
+                <div className="w-1 h-1 bg-black rounded-full"></div>
+                <div className="w-1 h-1 bg-black rounded-full"></div>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
 
-      {/* Mobile Trade Interface - Mobile only, positioned below chart above mobile sidebar */}
-      <MobileTradeInterface
+      {/* Mobile trade modal */}
+      {isMobileTradeOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setIsMobileTradeOpen(false)} />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="w-[92vw] max-w-[480px] max-h-[85vh] rounded-2xl border border-[#daa20b]/30 bg-[#07040b] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#472303] to-[#5a2d04] border-b border-[#daa20b]/30">
+                <h2 className="text-[#daa20b] font-semibold">Trade</h2>
+                <button onClick={() => setIsMobileTradeOpen(false)} className="p-2" type="button">
+                  <X className="text-[#daa20b]" size={20} />
+                </button>
+              </div>
+              <div className="p-3 overflow-y-auto">
+                <TradePanel defaultTab={selectedTradeTab} isMobile={true} tokenAddress={tokenAddress} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Mobile Widgets Panel */}
+      <MobileBottomBar 
+        expanded={mobileSidebarExpanded} 
+        setExpanded={setMobileSidebarExpanded} 
         tokenAddress={tokenAddress}
-        onChartFullscreen={handleChartFullscreen}
-        mobileSidebarExpanded={mobileSidebarExpanded}
-        setMobileSidebarExpanded={setMobileSidebarExpanded}
-      />
-
-      {/* Fullscreen Chart Modal */}
-      <FullscreenChart
-        isOpen={isFullscreenChart}
-        onClose={handleFullscreenExit}
-        tokenAddress={tokenAddress}
-        mobileSidebarExpanded={mobileSidebarExpanded}
-        setMobileSidebarExpanded={setMobileSidebarExpanded}
-        candles={tokenData?.candles}
-        title={tokenData?.tokenInfo?.name}
-        symbol={tokenData?.tokenInfo?.symbol}
-        timeframe={timeframe}
-        onChangeTimeframe={(tf) => setTimeframe(tf)}
-      />
-
-      {/* Orientation Prompt Modal */}
-      <OrientationPrompt
-        isOpen={showOrientationPrompt}
-        onClose={handleOrientationPromptClose}
-        onContinuePortrait={handleContinueInPortrait}
-      />
-
-      {/* Mobile Bottom Sidebar - Footer Position */}
-      <MobileBottomBar
-        expanded={mobileSidebarExpanded}
-        setExpanded={setMobileSidebarExpanded}
-        tokenAddress={tokenAddress}
-        onChartFullscreen={handleChartFullscreen}
       />
     </div>
   );

@@ -51,6 +51,7 @@ export const TradingHistoryWidget: React.FC<TradingHistoryWidgetProps> = ({
             tokenData={tokenData}
             isLoading={isLoading}
             error={error}
+            isMobile={true}
           />
         </div>
       </aside>
