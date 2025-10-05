@@ -348,8 +348,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         
         <main 
           className={`flex-1 min-h-0 grid grid-cols-1 ${desktopTradeTab === 'limit' 
-            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_420px]'
-            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_280px]'} gap-[8px] p-[8px] ${
+            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_460px]'
+            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_320px]'} gap-[8px] p-[8px] ${
             'overflow-hidden'
           }`}
           style={{
