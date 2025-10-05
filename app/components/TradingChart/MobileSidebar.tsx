@@ -167,6 +167,7 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       <ChatWidget 
         isOpen={isChatWidgetOpen}
         onClose={() => setIsChatWidgetOpen(false)}
+        tokenAddress={tokenAddress || undefined}
       />
 
       {/* Saved Token Widget */}

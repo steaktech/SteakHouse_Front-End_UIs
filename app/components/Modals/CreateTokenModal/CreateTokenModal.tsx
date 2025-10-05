@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import Web3 from 'web3';
 import { CreateTokenModalProps, TokenState, ProfileType, TaxMode, FinalTokenType, DeploymentMode } from './types';
 import { initialState, updateCreationFee, getPlatformFee, validateBasics, validateCurve, validateV2Settings, fmt, generateFakeHash } from './utils';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
@@ -17,6 +18,25 @@ import Step4FeesNetwork from './Step4FeesNetwork';
 import Step5MetadataSocials from './Step5MetadataSocials';
 import Step6ReviewConfirm from './Step6ReviewConfirm';
 import styles from './CreateTokenModal.module.css';
+
+// Derive token address from receipt topics in the simplest way requested
+async function getTokenAddressFromReceiptTopics(txHash: string): Promise<string | undefined> {
+  if (typeof window === 'undefined' || !(window as any).ethereum) return undefined;
+  try {
+    const web3 = new Web3((window as any).ethereum);
+    const receipt = await web3.eth.getTransactionReceipt(txHash);
+    if (!receipt) return undefined;
+
+    const raw = receipt?.logs?.[0]?.topics?.[1];
+    if (typeof raw === 'string' && raw.length >= 66) {
+      const tokenAddress = web3.utils.toChecksumAddress('0x' + raw.slice(26));
+      return tokenAddress;
+    }
+  } catch (e) {
+    console.warn('[CreateTokenModal] Failed to decode token address from receipt topics:', e);
+  }
+  return undefined;
+}
 
 const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) => {
   const [mounted, setMounted] = useState(false);
@@ -285,9 +305,20 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       if (result.success && result.txHash) {
         setState(prev => ({ ...prev, txHash: result.txHash ?? null }));
 
-        // Always call API after on-chain confirmation. Use decoded token address if available.
+        // Resolve token address using receipt topics as authoritative source
+        let resolvedTokenAddress = result.tokenAddress;
         try {
-          await createTokenApi(state, files, result.tokenAddress);
+          const byTopics = await getTokenAddressFromReceiptTopics(result.txHash);
+          if (byTopics) {
+            resolvedTokenAddress = byTopics;
+          }
+        } catch (e) {
+          console.warn('[CreateTokenModal] Topic-based token address resolution failed:', e);
+        }
+
+        // Always call API after on-chain confirmation. Use the resolved address.
+        try {
+          await createTokenApi(state, files, resolvedTokenAddress);
         } catch (apiErr) {
           console.warn('[CreateTokenModal] API submission failed (non-blocking):', apiErr);
         }

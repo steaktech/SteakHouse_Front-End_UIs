@@ -329,9 +329,10 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
                       title="View on Etherscan"
                     >
                       <img 
-                        src="/images/etherscan_logo.webp" 
-                        alt="Etherscan" 
-                        className="w-4 h-4" 
+                        src="/images/etherscan_logo.webp"
+                        alt="Etherscan"
+                        className="w-4 h-4"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/app-logo.png'; }}
                       />
                     </button>
                   </div>

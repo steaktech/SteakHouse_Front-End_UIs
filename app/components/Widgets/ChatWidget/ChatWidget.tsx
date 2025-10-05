@@ -1,24 +1,44 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatWidgetProps, Message, SortMode } from './types';
-import { mockToken, mockMessages } from './mockData';
+import { mockToken } from './mockData';
 import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
+import { useWallet } from '@/app/hooks/useWallet';
+import {
+  getChatHistory,
+  getChatToken,
+  openChatSocket,
+  type ChatHistoryItem,
+  type ServerToClientEvent,
+} from '@/app/lib/api/chatClient';
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
-  // State management
-  const [connected, setConnected] = useState(false);
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAddress }) => {
+  // Wallet state
+  const { isConnected: walletConnected, address, connect } = useWallet();
+
+  // Chat state
+  const [wsReady, setWsReady] = useState(false);
   const [isHolder, setIsHolder] = useState(true);
   const [holdersOnly, setHoldersOnly] = useState(true);
   const [sortMode, setSortMode] = useState<SortMode>('new');
   const [watched, setWatched] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [composerInput, setComposerInput] = useState('');
 
   // Refs
   const feedRef = useRef<HTMLUListElement>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const lastCursorRef = useRef<string | null>(null);
+  const joinedChatRef = useRef<string | null>(null);
+  const idCounterRef = useRef<number>(Date.now());
+  const pendingByClientRef = useRef<Map<string, number>>(new Map()); // clientId -> local message id
+  const sentTimestampsRef = useRef<number[]>([]); // for client-side rate guard
+  const reconnectAttemptRef = useRef<number>(0);
+  const loadingHistoryRef = useRef<boolean>(false);
+  const seenMessageIdsRef = useRef<Set<string>>(new Set());
 
   // Role badge helper
   const roleBadge = (role: string) => {
@@ -30,6 +50,27 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
     }
     return null;
   };
+
+  // Helpers
+  const nextId = () => ++idCounterRef.current;
+
+  const displayFromSender = useCallback((senderId?: string) => {
+    if (!senderId) return 'anon';
+    return /^0x[a-fA-F0-9]{40}$/.test(senderId) ? shortAddr(senderId) : senderId;
+  }, []);
+
+  const mapHistoryItem = useCallback((item: ChatHistoryItem): Message => ({
+    id: nextId(),
+    messageId: item.messageId,
+    senderId: item.senderId,
+    addr: displayFromSender(item.senderId),
+    role: 'guest',
+    avatar: '👤',
+    text: item.body || '',
+    ts: Date.parse(item.serverTs),
+    reactions: {},
+    likes: 0,
+  }), [displayFromSender]);
 
   // Filter, sort, and search messages
   const filterSortSearch = (messageList: Message[]) => {
@@ -117,25 +158,57 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
 
   // Send message
   const handleSendMessage = () => {
-    if (!connected || !composerInput.trim()) return;
+    const text = composerInput.trim();
+    if (!walletConnected || !wsReady || !text || !joinedChatRef.current) return;
     if (holdersOnly && !isHolder) return;
 
-    const newMessage: Message = {
-      id: Date.now(),
-      addr: shortAddr(
-        "0x" +
-        (Math.random().toString(16).slice(2) + "0000000000000000").slice(0, 16)
-      ),
-      role: isHolder ? "holder" : "guest",
-      avatar: "🙂",
-      text: composerInput.trim(),
-      ts: Date.now(),
+    // Ensure the current socket is OPEN before sending (avoid InvalidStateError)
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      // Optionally, you could queue the message or show a toast here
+      return;
+    }
+
+    // Client-side rate guard: 10 messages / 5s
+    const now = Date.now();
+    sentTimestampsRef.current = sentTimestampsRef.current.filter(t => now - t < 5000);
+    if (sentTimestampsRef.current.length >= 10) {
+      // Soft prevent; server also enforces
+      alert('You are sending messages too quickly. Please wait a few seconds.');
+      return;
+    }
+    sentTimestampsRef.current.push(now);
+
+    const clientId = (globalThis.crypto && 'randomUUID' in globalThis.crypto)
+      ? (globalThis.crypto as any).randomUUID()
+      : String(now);
+
+    const localMessage: Message = {
+      id: nextId(),
+      clientId,
+      senderId: address || 'anon',
+      addr: displayFromSender(address || 'anon'),
+      role: isHolder ? 'holder' : 'guest',
+      avatar: '🙂',
+      text,
+      ts: now,
       reactions: {},
       likes: 0,
+      pending: true,
     };
 
-    setMessages(prev => [...prev, newMessage]);
-    setComposerInput('');
+    setMessages(prev => [...prev, localMessage]);
+    pendingByClientRef.current.set(clientId, localMessage.id);
+
+    try {
+      ws.send(JSON.stringify({
+        type: 'message',
+        payload: { clientId, chatId: joinedChatRef.current, body: text },
+      }));
+      setComposerInput('');
+    } catch (err) {
+      console.error('Failed to send message:', err);
+    }
   };
 
   // Handle key press in composer
@@ -146,10 +219,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive (only if user near bottom)
   useEffect(() => {
-    if (feedRef.current) {
-      feedRef.current.scrollTop = feedRef.current.scrollHeight;
+    const el = feedRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    if (nearBottom) {
+      el.scrollTop = el.scrollHeight;
     }
   }, [messages]);
 
@@ -167,10 +243,204 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen, onClose]);
 
+  // Load history
+  const loadHistory = useCallback(async (chatId: string, before?: number | string) => {
+    if (loadingHistoryRef.current) return;
+    loadingHistoryRef.current = true;
+    try {
+      const data = await getChatHistory(chatId, { before: before ?? Date.now(), limit: 50 });
+      lastCursorRef.current = data.nextCursor || lastCursorRef.current;
+      const newItems = data.items || [];
+
+      setMessages(prev => {
+        // Build a set of already-known messageIds from current state
+        const known = new Set(prev.map(m => m.messageId).filter(Boolean) as string[]);
+        const mapped = newItems.map(mapHistoryItem);
+        const unique = mapped.filter(m => !m.messageId || !known.has(m.messageId));
+        unique.forEach(m => m.messageId && known.add(m.messageId));
+        // Update the seen set to reflect everything we know about now
+        seenMessageIdsRef.current = known;
+        return prev.length === 0 ? unique : [...prev, ...unique];
+      });
+    } catch (err) {
+      console.error('Failed to load history:', err);
+    } finally {
+      loadingHistoryRef.current = false;
+    }
+  }, [mapHistoryItem]);
+
+  // WebSocket lifecycle
+  const closeSocket = useCallback(() => {
+    try {
+      wsRef.current?.close();
+    } catch {}
+    wsRef.current = null;
+    setWsReady(false);
+    joinedChatRef.current = null;
+  }, []);
+
+  const startSocket = useCallback(async (chatId: string, userId: string) => {
+    try {
+      // reset ready flag for the new connection
+      setWsReady(false);
+      const token = await getChatToken(userId);
+      const ws = openChatSocket(token);
+      wsRef.current = ws;
+
+      ws.addEventListener('open', () => {
+        try {
+          ws.send(JSON.stringify({ type: 'join', payload: { chatId } }));
+          joinedChatRef.current = chatId;
+        } catch (err) {
+          console.error('Failed to send join:', err);
+        }
+      });
+
+      ws.addEventListener('message', (ev) => {
+        try {
+          const evt = JSON.parse(ev.data) as ServerToClientEvent;
+          if (evt.type === 'joined') {
+            setWsReady(true);
+            reconnectAttemptRef.current = 0;
+          } else if (evt.type === 'ack') {
+            const { clientId, messageId, senderId, body, serverTs } = evt.payload;
+            const localId = pendingByClientRef.current.get(clientId);
+            if (!localId) return;
+            setMessages(prev => prev.map(m => {
+              if (m.id !== localId) return m;
+              // Swap optimistic bubble with canonical
+              const updated: Message = {
+                ...m,
+                pending: false,
+                messageId,
+                senderId,
+                addr: displayFromSender(senderId),
+                text: body,
+                ts: Date.parse(serverTs),
+              };
+              if (messageId) seenMessageIdsRef.current.add(messageId);
+              return updated;
+            }));
+            pendingByClientRef.current.delete(clientId);
+          } else if (evt.type === 'message:new') {
+            const { messageId, senderId, body, serverTs } = evt.payload;
+            // Deduplicate by messageId
+            if (messageId && seenMessageIdsRef.current.has(messageId)) return;
+            setMessages(prev => {
+              if (messageId && prev.some(m => m.messageId === messageId)) return prev;
+              const m: Message = {
+                id: nextId(),
+                messageId,
+                senderId,
+                addr: displayFromSender(senderId),
+                role: 'guest',
+                avatar: '👤',
+                text: body,
+                ts: Date.parse(serverTs),
+                reactions: {},
+                likes: 0,
+              };
+              if (messageId) seenMessageIdsRef.current.add(messageId);
+              return [...prev, m];
+            });
+          } else if (evt.type === 'error') {
+            console.warn('Chat WS error:', evt.payload);
+          }
+        } catch (e) {
+          console.error('WS parse error:', e);
+        }
+      });
+
+      ws.addEventListener('close', (e) => {
+        setWsReady(false);
+        joinedChatRef.current = null;
+        // Unauthorized -> refresh token & reconnect
+        if (e.code === 4001) {
+          console.warn('Chat WS unauthorized, refreshing token...');
+        }
+        // Reconnect with backoff while widget is open
+        if (isOpen && chatId && userId) {
+          const attempt = Math.min(6, reconnectAttemptRef.current + 1);
+          reconnectAttemptRef.current = attempt;
+          const delay = Math.min(30000, 1000 * Math.pow(2, attempt));
+          setTimeout(() => {
+            if (isOpen && walletConnected && tokenAddress?.toLowerCase() === chatId) {
+              startSocket(chatId, userId).catch(err => console.error('Reconnect failed:', err));
+            }
+          }, delay);
+        }
+      });
+
+      ws.addEventListener('error', (e) => {
+        console.error('Chat WS network error:', (e as any)?.message || e);
+      });
+    } catch (err) {
+      console.error('Failed to start chat socket:', err);
+    }
+  }, [displayFromSender, isOpen, tokenAddress, walletConnected]);
+
+  // React to open/close and token changes
+  useEffect(() => {
+    if (!isOpen) {
+      // Cleanup on close
+      closeSocket();
+      setMessages([]);
+      lastCursorRef.current = null;
+      seenMessageIdsRef.current.clear();
+      return;
+    }
+
+    const raw = (tokenAddress || '').trim();
+    if (!raw || !/^0x[a-fA-F0-9]{40}$/.test(raw)) {
+      // Invalid room id, do not proceed
+      return;
+    }
+    const chatId = raw.toLowerCase();
+
+    // Reset and load first page of history
+    setMessages([]);
+    lastCursorRef.current = null;
+    seenMessageIdsRef.current.clear();
+    loadHistory(chatId, Date.now());
+
+    // If wallet connected, start socket
+    if (walletConnected && address) {
+      startSocket(chatId, address);
+    }
+
+    return () => {
+      // If token changes or widget closes
+      closeSocket();
+    };
+  }, [isOpen, tokenAddress, walletConnected, address, loadHistory, startSocket, closeSocket]);
+
+  // If wallet connection turns on while widget is open, ensure socket exists
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!walletConnected || !address) return;
+    if (!tokenAddress || !/^0x[a-fA-F0-9]{40}$/.test(tokenAddress)) return;
+    if (wsRef.current) return; // already connected/connecting
+    startSocket(tokenAddress.toLowerCase(), address);
+  }, [isOpen, walletConnected, address, tokenAddress, startSocket]);
+
+  // Infinite scroll: load older when near top
+  useEffect(() => {
+    const el = feedRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      if (el.scrollTop <= 16 && lastCursorRef.current && tokenAddress) {
+        const before = new Date(lastCursorRef.current).getTime();
+        loadHistory(tokenAddress.toLowerCase(), before);
+      }
+    };
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [tokenAddress, loadHistory]);
+
   if (!isOpen) return null;
 
   const filteredMessages = filterSortSearch(messages);
-  const canPost = connected && (!holdersOnly || isHolder);
+  const canPost = walletConnected && wsReady && (!holdersOnly || isHolder);
 
   return (
     <>
@@ -346,11 +616,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
 
         {/* Composer */}
         <footer className={styles.composer} role="region" aria-label="Composer">
-          {!connected ? (
+          {!walletConnected ? (
             <div className={styles.walletCta}>
               <button 
                 className={styles.primary} 
-                onClick={() => setConnected(true)}
+                onClick={() => connect().catch(() => {})}
                 type="button"
               >
                 Connect wallet to post
@@ -372,12 +642,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose }) => {
                 onClick={handleSendMessage}
                 title="Enter"
                 type="button"
+                disabled={!canPost || composerInput.trim().length === 0}
+                aria-disabled={!canPost || composerInput.trim().length === 0}
               >
                 Enter
               </button>
             </div>
           )}
-          {holdersOnly && connected && !isHolder && (
+          {holdersOnly && walletConnected && !isHolder && (
             <div className={styles.holderNote}>
               Gating active: only holders can post.
             </div>

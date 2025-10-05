@@ -75,7 +75,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
 };
 
 
-export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
+export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -348,6 +348,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       <ChatWidget
         isOpen={isChatWidgetOpen}
         onClose={handleChatClose}
+        tokenAddress={tokenAddress}
       />
 
       {/* Saved Token Widget */}

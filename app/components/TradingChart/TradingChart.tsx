@@ -500,9 +500,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                       title="View on Etherscan"
                     >
                       <img 
-                        src="/images/etherscan_logo.webp" 
-                        alt="Etherscan" 
-                        className="w-4 h-4" 
+                        src="/images/etherscan_logo.webp"
+                        alt="Etherscan"
+                        className="w-4 h-4"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/app-logo.png'; }}
                       />
                     </button>
                   </div>
