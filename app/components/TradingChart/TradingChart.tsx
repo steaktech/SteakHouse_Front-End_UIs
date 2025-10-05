@@ -309,9 +309,9 @@ export default function TradingChart() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Set initial transactions height to 30% of screen height
+  // Set initial transactions height to 15% of screen height
   React.useEffect(() => {
-    const initialHeight = window.innerHeight * 0.3;
+    const initialHeight = window.innerHeight * 0.15;
     setTransactionsHeight(initialHeight);
   }, []);
 
@@ -395,7 +395,10 @@ export default function TradingChart() {
           {/* Left Column - Chart and Recent Transactions */}
           <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
             {/* Trading Chart */}
-            <div className="flex-1 overflow-hidden">
+            <div className="overflow-hidden" style={{
+              height: isMobile ? 'calc(100vh - 300px)' : 'auto',
+              flex: isMobile ? '0 0 auto' : 1
+            }}>
               <TradingView />
             </div>
 
