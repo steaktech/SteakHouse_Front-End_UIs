@@ -86,6 +86,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         .no-spinner::-ms-clear {
           display: none;
         }
+        .amount-button {
+          text-overflow: none !important;
+          overflow: visible !important;
+          white-space: nowrap !important;
+        }
       `}</style>
       <div style={{
         width: '100%',
@@ -331,28 +336,29 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: 'clamp(6px, 1vh, 10px)',
-          gap: 'clamp(4px, 1vw, 8px)',
+          gap: 'clamp(2px, 0.3vw, 3px)',
           flexShrink: 0
         }}>
           {quickAmounts.map((preset) => (
             <button
               key={preset}
               onClick={() => handleQuickAmount(preset)}
+              className="amount-button"
               style={{
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                 border: '1px solid rgba(255, 210, 160, 0.4)',
                 borderRadius: 'clamp(10px, 2vw, 14px)',
-                padding: 'clamp(12px, 2.2vh, 16px) clamp(8px, 1.6vw, 12px)',
+                padding: 'clamp(12px, 2.2vh, 16px) clamp(4px, 0.8vw, 6px)',
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 color: '#feea88',
-                fontSize: 'clamp(11px, 1.9vw, 14px)',
+                fontSize: 'clamp(10px, 1.6vw, 12px)',
                 fontWeight: 800,
                 cursor: 'pointer',
                 transition: 'all 200ms ease',
                 flex: 1,
                 whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                overflow: 'visible',
+                textAlign: 'center',
                 minHeight: 'clamp(42px, 8vh, 48px)'
               }}
             >
