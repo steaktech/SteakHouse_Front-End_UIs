@@ -2,8 +2,13 @@ export { default as TradingChart } from './TradingChart';
 export { DesktopSidebar } from './DesktopSidebar';
 export { MobileBottomBar } from './MobileSidebar';
 export { TradingView } from './TradingView';
-export { CandleChart } from './CandleChart';
-// export { TradePanel } from '../Widgets/TradeWidget/TradePanel'; // Moved to Widgets
-export { FullscreenChart } from './FullscreenChart';
+export { TradingViewWidget } from './TradingViewWidget';
+export { TradeHistory } from './TradeHistory';
+export { MarketInfo } from './MarketInfo';
+export { TradePanel } from './TradePanel';
+export { LimitOrderPanel } from './LimitOrderPanel';
+export { LimitOrderBook } from './LimitOrderBook';
+export { CompactLimitOrderBook } from './CompactLimitOrderBook';
 export * from './types';
-export * from './mockData'; 
+export * from './mockData';
+export * from './utils';

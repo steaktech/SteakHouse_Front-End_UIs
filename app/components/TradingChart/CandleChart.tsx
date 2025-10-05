@@ -101,9 +101,19 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     });
     resizeObserverRef.current.observe(container);
 
+    // Fallback: respond to window resizes as well (some layouts may not trigger RO reliably)
+    const onWindowResize = () => {
+      if (!container) return;
+      const w = Math.floor(container.clientWidth);
+      const h = Math.floor(container.clientHeight);
+      chart.applyOptions({ width: w, height: h > 0 ? h : 480 });
+    };
+    window.addEventListener('resize', onWindowResize);
+
     return () => {
       resizeObserverRef.current?.disconnect();
       resizeObserverRef.current = null;
+      window.removeEventListener('resize', onWindowResize);
       chart.remove();
       chartRef.current = null;
       candleSeriesRef.current = null;
@@ -209,7 +219,7 @@ const series = chart.addLineSeries({ color: ind.color ?? "#eab308", lineWidth: 2
   }, [indicators, candles]);
 
   return (
-    <div className="w-full h-full min-h-145">
+    <div className="w-full h-full min-h-[145px]">
       <div ref={containerRef} className="w-full h-full" style={{ background: "#07040b", borderRadius: 8 }} />
     </div>
   );

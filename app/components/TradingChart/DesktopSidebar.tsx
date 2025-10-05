@@ -75,7 +75,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
 };
 
 
-export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress }) => {
+export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -250,7 +250,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       {/* RESPONSIVE SIDEBAR CONTAINER */}
       <aside
         className={`
-          h-full bg-[#472303] flex flex-col
+          h-full flex flex-col
           transition-all duration-300 ease-in-out
           
           /* Mobile Overlay Styles */
@@ -261,6 +261,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
           lg:relative lg:translate-x-0
           ${expanded ? 'lg:w-[140px]' : 'lg:w-[60px]'}
         `}
+        style={{
+          background: 'linear-gradient(180deg, #572501 0%, #572501 65%, #7d3802 100%)',
+          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)'
+        }}
       >
         {/* Header */}
         <div className="flex-shrink-0 relative flex items-center justify-center px-[10px] pt-[12px] pb-[16px]">
@@ -348,7 +352,6 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       <ChatWidget
         isOpen={isChatWidgetOpen}
         onClose={handleChatClose}
-        tokenAddress={tokenAddress}
       />
 
       {/* Saved Token Widget */}

@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, X } from 'lucide-react';
+import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, Lock, ExternalLink, User, X } from 'lucide-react';
 import { SidebarProps } from './types';
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
-import { TokenCardInfoWidget } from '../Widgets/TokenCardInfoWidget';
-import { TradingHistoryWidget } from '../Widgets/TradingHistoryWidget';
+import { TokenWidget } from '../Widgets/TokenWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -18,46 +17,56 @@ interface WidgetCardProps {
 }
 
 const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) => {
-  const baseClasses = "flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
-  const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] border border-[#daa20b]/40";
-  const inactiveClasses = "bg-[#472303]/80 hover:bg-[#472303] border border-[#472303]/60 hover:border-[#daa20b]/30";
+  const baseClasses = "flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
+  
+  // Chat widget colors
+  const activeStyle = {
+    background: 'linear-gradient(180deg, #ffc24b, #ffb020)',
+    border: '1px solid #8b5a2b',
+    color: '#1c0f07'
+  };
+  
+  const inactiveStyle = {
+    background: 'linear-gradient(180deg, rgba(74, 38, 16, 0.75), rgba(58, 30, 14, 0.85))',
+    border: '1px solid #8b5a2b'
+  };
 
   return (
     <div 
-      className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}
+      className={baseClasses}
+      style={active ? activeStyle : inactiveStyle}
       onClick={onClick}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'linear-gradient(180deg, rgba(74, 38, 16, 0.9), rgba(58, 30, 14, 1))';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = 'linear-gradient(180deg, rgba(74, 38, 16, 0.75), rgba(58, 30, 14, 0.85))';
+        }
+      }}
     >
       {/* Icon */}
-      <div className={`mb-2 ${active ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]' : 'opacity-80'}`}>
+      <div className={`mb-1.5 ${active ? '' : 'opacity-90'}`}>
         {icon}
       </div>
 
       {/* Widget Text */}
-      <span className={`
-        text-xs font-medium text-center tracking-[0.1px]
-        ${active ? 'text-[#e6d4a3] [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]' : 'text-[#e6d4a3]/80'}
-      `}>
+      <span className="text-[10px] font-medium text-center tracking-[0.1px]" style={{
+        color: active ? '#1c0f07' : '#fcefd8'
+      }}>
         {text}
       </span>
     </div>
   );
 };
 
-interface ExtendedSidebarProps extends SidebarProps {
-  onChartFullscreen?: () => void;
-}
-
-export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({ 
-  expanded, 
-  setExpanded, 
-  tokenAddress,
-  onChartFullscreen 
-}) => {
+export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
-  const [isTokenInfoWidgetOpen, setIsTokenInfoWidgetOpen] = useState(false);
-  const [isTradeHistoryWidgetOpen, setIsTradeHistoryWidgetOpen] = useState(false);
+  const [isTokenWidgetOpen, setIsTokenWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -74,30 +83,39 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
-  const handleTokenInfoClick = () => {
-    setIsTokenInfoWidgetOpen(true);
+  const handleTokenClick = () => {
+    setIsTokenWidgetOpen(true);
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
-  const handleTradeHistoryClick = () => {
-    setIsTradeHistoryWidgetOpen(true);
-    setExpanded(false); // Close the mobile sidebar when opening the widget
+  // Handlers for new widgets
+  const handleLockerClick = () => {
+    console.log('Locker clicked');
+    setExpanded(false);
+    // TODO: Implement locker functionality
   };
 
-  const handleChartClick = () => {
-    if (onChartFullscreen) {
-      onChartFullscreen();
-    }
-    setExpanded(false); // Close the mobile sidebar when opening fullscreen chart
+  const handleExplorerClick = () => {
+    console.log('Explorer clicked');
+    setExpanded(false);
+    // TODO: Implement explorer functionality
+  };
+
+  const handleUserClick = () => {
+    console.log('User clicked');
+    setExpanded(false);
+    // TODO: Implement user functionality
   };
 
   const widgets = [
-    { icon: <BarChart3 size={24} className="text-[#ffdd00]" />, text: 'Chart', active: true, onClick: handleChartClick },
-    { icon: <Coins size={24} className="text-[#d29900]" />, text: 'Token', onClick: handleTokenInfoClick },
-    { icon: <ArrowLeftRight size={24} className="text-[#d29900]" />, text: 'History', onClick: handleTradeHistoryClick },
-    { icon: <Users size={24} className="text-[#d29900]" />, text: 'Holders', onClick: handleHoldersClick },
-    { icon: <MessageCircle size={24} className="text-[#d29900]" />, text: 'Chat', onClick: handleChatClick },
-    { icon: <Bookmark size={24} className="text-[#d29900]" />, text: 'Saved', onClick: handleSavedTokenClick },
+    { icon: <BarChart3 size={20} style={{ color: '#1c0f07' }} />, text: 'Chart', active: true },
+    { icon: <Coins size={20} style={{ color: '#ffc24b' }} />, text: 'Token', onClick: handleTokenClick },
+    { icon: <Users size={20} style={{ color: '#ffc24b' }} />, text: 'Holders', onClick: handleHoldersClick },
+    { icon: <MessageCircle size={20} style={{ color: '#ffc24b' }} />, text: 'Chat', onClick: handleChatClick },
+    { icon: <Bookmark size={20} style={{ color: '#ffc24b' }} />, text: 'Saved', onClick: handleSavedTokenClick },
+    { icon: <Lock size={20} style={{ color: '#ffc24b' }} />, text: 'Locker', onClick: handleLockerClick },
+    { icon: <ExternalLink size={20} style={{ color: '#ffc24b' }} />, text: 'Explorer', onClick: handleExplorerClick },
+    { icon: <User size={20} style={{ color: '#ffc24b' }} />, text: 'User', onClick: handleUserClick },
   ];
 
   return (
@@ -105,53 +123,98 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       {/* BACKDROP */}
       <div
         onClick={() => setExpanded(false)}
-        className={`fixed inset-0 bg-black/60 z-[50] transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-40 transition-opacity lg:hidden ${
           expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
+        style={{ background: 'rgba(0, 0, 0, 0.35)' }}
       />
 
       {/* MOBILE BOTTOM SIDEBAR */}
       <div 
         className={`
-          fixed left-0 right-0 z-[60]
-          bg-gradient-to-t from-[#472303] to-[#5a2d04]
-          border-t border-[#daa20b]/40
+          fixed bottom-0 left-0 right-0 z-50
           shadow-[0_-4px_20px_rgba(0,0,0,0.4)]
           transition-transform duration-300 ease-out
           lg:hidden
-          max-h-[70vh]
-          ${expanded ? 'bottom-0 translate-y-0' : '-bottom-full translate-y-0'}
+          ${expanded ? 'translate-y-0' : 'translate-y-full'}
         `}
+        style={{
+          background: 'linear-gradient(180deg, #3a1e0e, #241208)',
+          borderTop: '1px solid #8b5a2b'
+        }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#daa20b]/20">
-          <h2 className="text-[#daa20b] text-lg font-semibold tracking-[0.2px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(184, 137, 87, 0.25)' }}>
+          <h2 className="text-base font-semibold tracking-[0.2px]" style={{ color: '#ffc24b' }}>
             Widgets
           </h2>
           <button 
             onClick={() => setExpanded(false)}
-            className="p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+            className="p-2 rounded-full transition-all"
             type="button"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+              border: '1px solid #8b5a2b'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))';
+            }}
           >
-            <X size={18} className="text-[#daa20b]" />
+            <X size={18} style={{ color: '#ffc24b' }} />
           </button>
         </div>
 
         {/* Widget Grid */}
-        <div className="p-6 pb-8">
-          <div className="grid grid-cols-3 gap-4">
-            {widgets.map((widget, index) => (
-              <WidgetCard
-                key={index}
-                icon={widget.icon}
-                text={widget.text}
-                active={widget.active}
-                onClick={widget.onClick || (() => {
-                  // Handle widget selection here
-                  console.log(`Selected widget: ${widget.text}`);
-                })}
-              />
-            ))}
+        <div className="p-4 pb-6">
+          <div className="space-y-3">
+            {/* First Row: Chart and Token */}
+            <div className="grid grid-cols-2 gap-3">
+              {widgets.slice(0, 2).map((widget, index) => (
+                <WidgetCard
+                  key={index}
+                  icon={widget.icon}
+                  text={widget.text}
+                  active={widget.active}
+                  onClick={widget.onClick || (() => {
+                    // Handle widget selection here
+                    console.log(`Selected widget: ${widget.text}`);
+                  })}
+                />
+              ))}
+            </div>
+            {/* Second Row: Holders, Chat, Saved */}
+            <div className="grid grid-cols-3 gap-3">
+              {widgets.slice(2, 5).map((widget, index) => (
+                <WidgetCard
+                  key={index + 2}
+                  icon={widget.icon}
+                  text={widget.text}
+                  active={widget.active}
+                  onClick={widget.onClick || (() => {
+                    // Handle widget selection here
+                    console.log(`Selected widget: ${widget.text}`);
+                  })}
+                />
+              ))}
+            </div>
+            {/* Third Row: Locker, Explorer, User */}
+            <div className="grid grid-cols-3 gap-3">
+              {widgets.slice(5, 8).map((widget, index) => (
+                <WidgetCard
+                  key={index + 5}
+                  icon={widget.icon}
+                  text={widget.text}
+                  active={widget.active}
+                  onClick={widget.onClick || (() => {
+                    // Handle widget selection here
+                    console.log(`Selected widget: ${widget.text}`);
+                  })}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -160,32 +223,24 @@ export const MobileBottomBar: React.FC<ExtendedSidebarProps> = ({
       <SteakHoldersWidget 
         isOpen={isHoldersWidgetOpen}
         onClose={() => setIsHoldersWidgetOpen(false)}
-        tokenAddress={tokenAddress}
       />
 
       {/* Chat Widget */}
       <ChatWidget 
         isOpen={isChatWidgetOpen}
         onClose={() => setIsChatWidgetOpen(false)}
-        tokenAddress={tokenAddress || undefined}
       />
 
       {/* Saved Token Widget */}
-      <SavedTokenWidget
+      <SavedTokenWidget 
         isOpen={isSavedTokenWidgetOpen}
         onClose={() => setIsSavedTokenWidgetOpen(false)}
       />
-      
-      <TokenCardInfoWidget
-        isOpen={isTokenInfoWidgetOpen}
-        onClose={() => setIsTokenInfoWidgetOpen(false)}
-        tokenAddress={tokenAddress}
-      />
-      
-      <TradingHistoryWidget
-        isOpen={isTradeHistoryWidgetOpen}
-        onClose={() => setIsTradeHistoryWidgetOpen(false)}
-        tokenAddress={tokenAddress}
+
+      {/* Token Widget */}
+      <TokenWidget 
+        isOpen={isTokenWidgetOpen}
+        onClose={() => setIsTokenWidgetOpen(false)}
       />
     </>
   );
