@@ -154,6 +154,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
 
   return (
     <div 
+      className="tokenCard"
       style={{
         width: '100%',
         maxWidth: isDesktop ? '420px' : '100%',
@@ -174,7 +175,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
       }}>
       
       {/* Banner - Slightly increased bottom margin */}
-      <div style={{
+      <div className="tokenBanner" style={{
         position: 'relative',
         aspectRatio: '3 / 1',
         margin: `clamp(-16px, -3vh, -22px) clamp(-18px, -3vw, -22px) clamp(4px, 1vh, 8px) clamp(-18px, -3vw, -22px)`,
@@ -211,7 +212,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
       </div>
 
       {/* Header - Better spacing */}
-      <div style={{
+      <div className="header" style={{
         marginTop: 'clamp(2px, 0.4vh, 4px)',
         marginBottom: 'clamp(4px, 0.8vh, 6px)',
         display: 'flex',
@@ -221,7 +222,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1.2vw, 10px)' }}>
-          <div style={{
+          <div className="avatar" style={{
             width: 'clamp(36px, 5vw, 44px)',
             height: 'clamp(36px, 5vw, 44px)',
             borderRadius: '50%',
@@ -237,8 +238,8 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
             />
           </div>
-          <div>
-            <h1 style={{
+          <div className="nameBlock">
+            <h1 className="name" style={{
               color: '#feea88',
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
@@ -246,7 +247,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               lineHeight: 1,
               margin: 0
             }}>{displayData.name}</h1>
-            <div style={{
+            <div className="ticker" style={{
               marginTop: 'clamp(2px, 0.5vh, 4px)',
               fontWeight: 800,
               fontSize: 'clamp(9px, 1.6vw, 11px)',
@@ -261,7 +262,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 'clamp(4px, 0.8vw, 6px)', alignItems: 'center' }}>
-          <div style={{
+          <div className="badge" style={{
             padding: 'clamp(5px, 1vh, 7px) clamp(8px, 1.8vw, 12px)',
             background: 'linear-gradient(180deg, #ffe49c, #ffc96a)',
             color: '#3a200f',
@@ -297,7 +298,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
       </div>
 
       {/* Tax Line - Better spacing */}
-      <div style={{
+      <div className="taxLine" style={{
         marginTop: 'clamp(2px, 0.4vh, 4px)',
         marginBottom: 'clamp(3px, 0.6vh, 5px)',
         display: 'flex',
@@ -307,15 +308,15 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         flexWrap: 'wrap',
         flexShrink: 0
       }}>
-        <div style={{
+        <div className="taxStrong" style={{
           fontFamily: '"Sora", "Inter", sans-serif',
           fontWeight: 800,
           fontSize: 'clamp(12px, 2.2vw, 16px)',
           color: '#feea88',
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
         }}>Tax: {displayData.currentTax}/{displayData.finalTax}</div>
-        <div style={{ display: 'flex', gap: 'clamp(2px, 0.6vw, 4px)' }}>
-          <span style={{
+        <div className="taxChips" style={{ display: 'flex', gap: 'clamp(2px, 0.6vw, 4px)' }}>
+          <span className="chip" style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
@@ -327,7 +328,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             fontSize: 'clamp(9px, 1.4vw, 11px)',
             borderRadius: 'clamp(5px, 1.2vw, 8px)'
           }}>Current Tax: {displayData.currentTax}/{displayData.finalTax}</span>
-          <span style={{
+          <span className="chip" style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
@@ -343,7 +344,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
       </div>
 
       {/* Description - Fixed spacing without flex expansion */}
-      <div style={{
+      <div className="desc" style={{
         display: 'block',
         margin: 'clamp(4px, 0.8vh, 6px) 0 clamp(6px, 1.2vh, 8px)',
         color: '#fff1df',
@@ -358,14 +359,14 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
       </div>
 
       {/* Socials - Better spacing */}
-      <div style={{
+      <div className="socials" style={{
         display: 'flex',
         gap: 'clamp(6px, 1.2vw, 8px)',
         marginBottom: 'clamp(8px, 1.6vh, 12px)',
         flexShrink: 0
       }}>
         {displayData.telegram && (
-          <button style={{
+          <button className="socialBtn" style={{
             color: '#fff1dc',
             width: 'clamp(32px, 5.5vw, 36px)',
             height: 'clamp(32px, 5.5vw, 36px)',
@@ -382,7 +383,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
           </button>
         )}
         {displayData.twitter && (
-          <button style={{
+          <button className="socialBtn" style={{
             color: '#fff1dc',
             width: 'clamp(32px, 5.5vw, 36px)',
             height: 'clamp(32px, 5.5vw, 36px)',
@@ -399,7 +400,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
           </button>
         )}
         {displayData.website && (
-          <button style={{
+          <button className="socialBtn" style={{
             color: '#fff1dc',
             width: 'clamp(32px, 5.5vw, 36px)',
             height: 'clamp(32px, 5.5vw, 36px)',
@@ -418,7 +419,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
       </div>
 
       {/* Score Section */}
-      <div style={{
+      <div className="score" style={{
         marginTop: '0',
         background: 'linear-gradient(180deg, #7f4108, #6f3906)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
@@ -428,13 +429,13 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         flexShrink: 0
       }}>
         {/* Stats */}
-        <div style={{
+        <div className="scoreStats" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 'clamp(6px, 1.2vw, 8px)',
           marginBottom: 'clamp(10px, 2vh, 14px)'
         }}>
-          <div style={{
+          <div className="stat" style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
             borderRadius: 'clamp(8px, 2vw, 14px)',
@@ -442,14 +443,14 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             textAlign: 'center',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}>
-            <div style={{
+            <div className="statLabel" style={{
               fontWeight: 800,
               fontSize: 'clamp(10px, 1.8vw, 12px)',
               letterSpacing: '1px',
               color: '#ffe0b6',
               marginBottom: 'clamp(3px, 0.8vh, 6px)'
             }}>MCAP</div>
-            <div style={{
+            <div className="statValue" style={{
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
               fontSize: 'clamp(14px, 2.8vw, 18px)',
@@ -458,7 +459,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
             }}>{displayData.mcap}</div>
           </div>
-          <div style={{
+          <div className="stat" style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
             borderRadius: 'clamp(8px, 2vw, 14px)',
@@ -466,14 +467,14 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             textAlign: 'center',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}>
-            <div style={{
+            <div className="statLabel" style={{
               fontWeight: 800,
               fontSize: 'clamp(10px, 1.8vw, 12px)',
               letterSpacing: '1px',
               color: '#ffe0b6',
               marginBottom: 'clamp(3px, 0.8vh, 6px)'
             }}>VOLUME</div>
-            <div style={{
+            <div className="statValue" style={{
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
               fontSize: 'clamp(14px, 2.8vw, 18px)',
@@ -482,7 +483,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
             }}>{displayData.volume}</div>
           </div>
-          <div style={{
+          <div className="stat" style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
             borderRadius: 'clamp(8px, 2vw, 14px)',
@@ -490,14 +491,14 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
             textAlign: 'center',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}>
-            <div style={{
+            <div className="statLabel" style={{
               fontWeight: 800,
               fontSize: 'clamp(10px, 1.8vw, 12px)',
               letterSpacing: '1px',
               color: '#ffe0b6',
               marginBottom: 'clamp(3px, 0.8vh, 6px)'
             }}>LP</div>
-            <div style={{
+            <div className="statValue" style={{
               fontFamily: '"Sora", "Inter", sans-serif',
               fontWeight: 800,
               fontSize: 'clamp(14px, 2.8vw, 18px)',
@@ -511,6 +512,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         {/* Progress Bar */}
         <div
           ref={trackRef}
+          className="track"
           style={{
             position: 'relative',
             height: 'clamp(45px, 10vh, 64px)',
@@ -523,6 +525,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
         >
           <div 
             ref={fillRef}
+            className="fill"
             style={{
               position: 'relative',
               height: 'clamp(37px, 8vh, 52px)',
@@ -536,6 +539,7 @@ export const TradingTokenCard: React.FC<TokenCardInfoData> = ({
           >
             <div 
               ref={labelRef}
+              className="label"
               style={{
                 position: 'absolute',
                 inset: '0',

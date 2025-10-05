@@ -575,7 +575,6 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             {state.step === 6 && (
               <Step6ReviewConfirm
                 state={state}
-                onBack={() => goToStep(5)}
                 onConfirm={handleConfirm}
                 isLoading={isCreatingToken}
               />

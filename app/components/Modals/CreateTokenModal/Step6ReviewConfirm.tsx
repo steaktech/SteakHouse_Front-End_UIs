@@ -2,40 +2,20 @@ import React, { useMemo, useState } from 'react';
 import { TokenState } from './types';
 import { fmt } from './utils';
 import styles from './CreateTokenModal.module.css';
-import { useCreationFeePayment } from '@/app/hooks/useCreationFeePayment';
-import { useWallet } from '@/app/hooks/useWallet';
-import { useKitchenCreateToken } from '@/app/hooks/useKitchenCreateToken';
 
 interface Step6ReviewConfirmProps {
   state: TokenState;
-  onBack: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
 }
 
 const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   state,
-  onBack,
   onConfirm,
   isLoading = false
 }) => {
   const [understandFees, setUnderstandFees] = useState(false);
-  const { isConnected } = useWallet();
-  const { requestFeePayment, isRequesting, error } = useCreationFeePayment();
-  const { createFixedBasicTest, createFixedAdvancedTest, isLoading: isCreatingTest } = useKitchenCreateToken();
 
-  const creationFeeEth = useMemo(() => {
-    return typeof state.fees.creation === 'number' && !isNaN(state.fees.creation)
-      ? state.fees.creation
-      : 0;
-  }, [state.fees.creation]);
-
-  const handleRequestPayment = async () => {
-    // Opens wallet popup to confirm payment equal to the creation fee.
-    // This is a self-transfer, so only gas is spent if user approves. They can also cancel.
-    if (creationFeeEth <= 0) return;
-    await requestFeePayment(creationFeeEth);
-  };
 
   const getProfileDisplayName = (profile: string | null) => {
     if (!profile) return '—';
@@ -305,45 +285,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       </div>
 
       <div className={styles.footerNav}>
-        <button 
-          className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
-          onClick={onBack}
-        >
-          Back
-        </button>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button
-            className={`${styles.btn} ${styles.btnSecondary} ${styles.navButton}`}
-            disabled={!understandFees || isLoading || isRequesting || !isConnected || creationFeeEth <= 0}
-            onClick={handleRequestPayment}
-            title={!isConnected ? 'Connect your wallet to proceed' : ''}
-          >
-            {isRequesting ? 'Opening wallet...' : `Pay Fee (${fmt.format(creationFeeEth)} ETH)`}
-          </button>
-          <button
-            className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
-            disabled={!understandFees || isLoading || isCreatingTest || !isConnected}
-            onClick={async () => {
-              // For the test button, enforce Basic minimum 0.01 ETH per client
-              const value = Math.max(creationFeeEth, 0.01);
-              await createFixedBasicTest(value);
-            }}
-            title={!isConnected ? 'Connect your wallet to proceed' : 'Sends hardcoded Basic params'}
-          >
-            {isCreatingTest ? 'Sending Test…' : 'Send Basic Test'}
-          </button>
-          <button
-            className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
-            disabled={!understandFees || isLoading || isCreatingTest || !isConnected}
-            onClick={async () => {
-              // For the advanced test, enforce 0.01 ETH per client guidance
-              const value = Math.max(creationFeeEth, 0.01);
-              await createFixedAdvancedTest(value);
-            }}
-            title={!isConnected ? 'Connect your wallet to proceed' : 'Sends hardcoded Advanced params'}
-          >
-            {isCreatingTest ? 'Sending Test…' : 'Send Advanced Test'}
-          </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           <button 
             className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
             disabled={!understandFees || isLoading}
@@ -353,16 +295,6 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Optional inline error for payment popup */}
-      {error && (
-        <div className={styles.card} style={{ marginTop: '12px', borderColor: 'var(--danger-500)' }}>
-          <div className={styles.row}>
-            <div className={styles.pill} style={{ background: 'var(--danger-500)' }}>Error</div>
-            <div>{error}</div>
-          </div>
-        </div>
-      )}
 
       {state.txHash && (
         <div className={styles.card} style={{marginTop: '12px'}}>
