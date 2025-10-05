@@ -7,6 +7,7 @@ import { SidebarProps } from './types'; // Assuming this type is defined elsewhe
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -79,6 +80,11 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(170);
+  const [isResizing, setIsResizing] = useState(false);
+  
+  // Use the same price data hook as the token creation wizard
+  const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
   const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen;
@@ -169,6 +175,43 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     }
   };
 
+  // Parse GWEI from formatted gas price (e.g., "25 gwei" -> 25)
+  const gwei = formattedGasPrice ? parseFloat(formattedGasPrice.replace(/[^0-9.]/g, '')) : null;
+
+  // Resize handlers
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    if (!expanded) return;
+    setIsResizing(true);
+    e.preventDefault();
+  };
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      // Constrain width between 140px and 400px
+      setSidebarWidth(Math.max(140, Math.min(400, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
   const widgets = [
     // Chart, Token, Trade: greyed out by default, colorful when other widgets are open
     {
@@ -251,19 +294,21 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       <aside
         className={`
           h-full flex flex-col
-          transition-all duration-300 ease-in-out
+          relative
           
           /* Mobile Overlay Styles */
           fixed inset-y-0 left-0 z-30
-          ${expanded ? 'translate-x-0 w-[140px]' : '-translate-x-full w-[120px]'}
+          ${expanded ? 'translate-x-0 w-[160px]' : '-translate-x-full w-[140px]'}
 
           /* Desktop Static Styles */
           lg:relative lg:translate-x-0
-          ${expanded ? 'lg:w-[140px]' : 'lg:w-[60px]'}
+          ${expanded ? '' : 'lg:w-[70px]'}
         `}
         style={{
           background: 'linear-gradient(180deg, #572501 0%, #572501 65%, #7d3802 100%)',
-          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)'
+          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+          width: expanded ? `${sidebarWidth}px` : undefined,
+          transition: isResizing ? 'none' : 'all 300ms ease-in-out'
         }}
       >
         {/* Header */}
@@ -325,12 +370,68 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
             onClick={handleLinksClick}
           />
 
+          {/* ETH Price and GWEI Display */}
+          <div className="mx-2.5 mt-2 mb-1.5">
+            {/* ETH Price */}
+            <div 
+              className="mb-1 px-1 py-1"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '4px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className="text-[#d29900] flex-shrink-0">
+                  <path d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z" fill="#8C8C8C" />
+                  <path d="M127.962 0L0 212.32l127.962 75.639V154.158z" fill="#6C6C6C" />
+                  <path d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z" fill="#8C8C8C" />
+                  <path d="M127.962 416.905v-104.72L0 236.585z" fill="#6C6C6C" />
+                </svg>
+                {expanded && (
+                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">ETH</span>
+                )}
+              </div>
+              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+                {priceLoading ? '...' : ethPrice ? `$${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '---'}
+              </span>
+            </div>
+
+            {/* GWEI */}
+            <div 
+              className="px-1 py-1"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '4px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#d29900] flex-shrink-0">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                {expanded && (
+                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">GWEI</span>
+                )}
+              </div>
+              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+                {priceLoading ? '...' : gwei ? gwei.toFixed(1) : '---'}
+              </span>
+            </div>
+          </div>
+
           {/* Certik Badge - Full width, styled like main page Footer */}
-          <div className="mx-1.5 mt-1.5">
+          <div className="mx-1.5 mt-1.5 flex justify-center">
             <button
               onClick={handleCertikClick}
-              className="w-full p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
+              className="p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
               title="View CertiK Certificate"
+              style={{
+                width: expanded ? 'auto' : '100%'
+              }}
             >
               <img
                 src="/images/certik-logo-v2.png"
@@ -340,6 +441,17 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
             </button>
           </div>
         </div>
+
+        {/* Resize Handle - Desktop Only */}
+        {expanded && (
+          <div
+            onMouseDown={handleResizeMouseDown}
+            className="hidden lg:block absolute top-0 right-0 bottom-0 w-1 cursor-col-resize hover:bg-[rgba(255,215,165,0.3)] transition-colors z-50"
+            style={{
+              background: isResizing ? 'rgba(255, 215, 165, 0.5)' : 'transparent'
+            }}
+          />
+        )}
       </aside>
 
       {/* SteakHolders Widget */}
