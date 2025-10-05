@@ -116,7 +116,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       borderRadius: 'clamp(18px, 2.5vw, 26px)',
       background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-      padding: 'clamp(12px, 2vh, 16px)',
+      padding: 'clamp(6px, 1.1vh, 9px)',
       border: '1px solid rgba(255, 215, 165, 0.4)',
       overflow: 'hidden',
       color: '#fff7ea',
@@ -128,8 +128,8 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
-        marginBottom: 'clamp(8px, 1.5vh, 12px)'
+        gap: '6px',
+        marginBottom: 'clamp(4px, 0.8vh, 6px)'
       }}>
         <Target size={16} style={{ color: '#feea88' }} />
         <h3 style={{
@@ -163,13 +163,13 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
         position: 'relative',
         display: 'flex',
         width: '100%',
-        height: 'clamp(42px, 7vh, 48px)',
+        height: 'clamp(34px, 5vh, 40px)',
         borderRadius: 'clamp(12px, 2.5vw, 16px)',
         background: 'linear-gradient(180deg, #7f4108, #6f3906)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-        marginBottom: 'clamp(8px, 1.5vh, 12px)',
-        padding: '3px'
+        marginBottom: 'clamp(4px, 0.8vh, 6px)',
+        padding: '2px'
       }}>
         {/* Sliding Background */}
         <div style={{
@@ -232,13 +232,13 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       </div>
 
       {/* Price Input */}
-      <div style={{ marginBottom: 'clamp(8px, 1.5vh, 12px)' }}>
+      <div style={{ marginBottom: 'clamp(5px, 1vh, 7px)' }}>
         <label style={{
           display: 'block',
           fontSize: 'clamp(11px, 1.8vw, 13px)',
           fontWeight: 700,
           color: '#feea88',
-          marginBottom: '4px',
+          marginBottom: '2px',
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
         }}>
           Price ($)
@@ -262,9 +262,9 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
               width: '100%',
               background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
               color: '#feea88',
-              fontSize: 'clamp(14px, 2.8vw, 16px)',
+              fontSize: 'clamp(13px, 2.6vw, 15px)',
               fontWeight: 700,
-              padding: 'clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vw, 16px)',
+              padding: 'clamp(6px, 1.1vh, 8px) clamp(9px, 2vw, 12px)',
               borderRadius: 'clamp(7px, 1.8vw, 11px)',
               border: `2px solid ${orderSide === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
               outline: 'none',
@@ -303,8 +303,8 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 'clamp(4px, 0.8vw, 6px)',
-        marginBottom: 'clamp(8px, 1.5vh, 12px)'
+        gap: 'clamp(3px, 0.5vw, 4px)',
+        marginBottom: 'clamp(5px, 1vh, 7px)'
       }}>
         {priceLevels.slice(orderSide === 'buy' ? 0 : 3, orderSide === 'buy' ? 4 : 7).map((level) => (
           <button
@@ -316,7 +316,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
                 : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
               border: '1px solid rgba(255, 210, 160, 0.4)',
               borderRadius: 'clamp(8px, 1.8vw, 10px)',
-              padding: 'clamp(8px, 1.5vh, 10px) clamp(4px, 0.8vw, 6px)',
+              padding: 'clamp(5px, 1vh, 7px) clamp(3px, 0.5vw, 4px)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
               color: level.type === 'market' ? '#1f2937' : '#feea88',
               fontSize: 'clamp(9px, 1.6vw, 11px)',
@@ -333,13 +333,13 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       </div>
 
       {/* Amount Input */}
-      <div style={{ marginBottom: 'clamp(8px, 1.5vh, 12px)' }}>
+      <div style={{ marginBottom: 'clamp(5px, 1vh, 7px)' }}>
         <label style={{
           display: 'block',
           fontSize: 'clamp(11px, 1.8vw, 13px)',
           fontWeight: 700,
           color: '#feea88',
-          marginBottom: '4px',
+          marginBottom: '2px',
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
         }}>
           Amount {orderSide === 'sell' ? '(Tokens)' : '(Tokens)'}
@@ -363,9 +363,9 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
               width: '100%',
               background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
               color: '#feea88',
-              fontSize: 'clamp(14px, 2.8vw, 16px)',
+              fontSize: 'clamp(13px, 2.6vw, 15px)',
               fontWeight: 700,
-              padding: 'clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vw, 16px)',
+              padding: 'clamp(6px, 1.1vh, 8px) clamp(9px, 2vw, 12px)',
               borderRadius: 'clamp(7px, 1.8vw, 11px)',
               border: `2px solid ${orderSide === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
               outline: 'none',
@@ -390,8 +390,8 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       <div style={{
         display: 'grid',
         gridTemplateColumns: orderSide === 'buy' ? 'repeat(3, 1fr) auto' : 'repeat(4, 1fr)',
-        gap: 'clamp(4px, 0.8vw, 6px)',
-        marginBottom: 'clamp(8px, 1.5vh, 12px)'
+        gap: 'clamp(3px, 0.5vw, 4px)',
+        marginBottom: 'clamp(5px, 1vh, 7px)'
       }}>
         {getQuickAmounts().map((preset) => (
           <button
@@ -401,7 +401,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
               background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
               border: '1px solid rgba(255, 210, 160, 0.4)',
               borderRadius: 'clamp(8px, 1.8vw, 10px)',
-              padding: 'clamp(8px, 1.5vh, 10px) clamp(4px, 0.8vw, 6px)',
+              padding: 'clamp(5px, 1vh, 7px) clamp(3px, 0.5vw, 4px)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
               color: '#feea88',
               fontSize: 'clamp(9px, 1.6vw, 11px)',
@@ -423,9 +423,9 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
           background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%)',
           border: '1px solid rgba(255, 215, 165, 0.25)',
           borderRadius: 'clamp(8px, 1.8vw, 12px)',
-          padding: 'clamp(8px, 1.5vh, 12px)',
-          marginBottom: 'clamp(8px, 1.5vh, 12px)',
-          fontSize: 'clamp(11px, 1.8vw, 13px)'
+          padding: 'clamp(6px, 1.1vh, 9px)',
+          marginBottom: 'clamp(5px, 1vh, 7px)',
+          fontSize: 'clamp(10px, 1.6vw, 12px)'
         }}>
           <div style={{
             display: 'flex',
@@ -452,8 +452,8 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
-        marginBottom: 'clamp(8px, 1.5vh, 12px)'
+        gap: '6px',
+        marginBottom: 'clamp(5px, 1vh, 7px)'
       }}>
         <Clock size={14} style={{ color: '#feea88' }} />
         <select
@@ -463,8 +463,8 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
             background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
             border: '1px solid rgba(255, 215, 165, 0.4)',
             borderRadius: 'clamp(6px, 1.5vw, 8px)',
-            padding: 'clamp(4px, 1vh, 6px) clamp(8px, 1.6vw, 10px)',
-            fontSize: 'clamp(10px, 1.8vw, 12px)',
+            padding: 'clamp(3px, 0.8vh, 5px) clamp(7px, 1.4vw, 9px)',
+            fontSize: 'clamp(10px, 1.6vw, 11px)',
             fontWeight: 600,
             color: '#feea88',
             outline: 'none',
@@ -492,8 +492,8 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
             : 'linear-gradient(180deg, #6b7280, #4b5563)',
           color: isValidOrder && !isSubmitting ? '#1f2937' : '#9ca3af',
           fontWeight: 800,
-          fontSize: 'clamp(12px, 2.2vw, 14px)',
-          padding: 'clamp(10px, 1.8vh, 12px)',
+          fontSize: 'clamp(11px, 2vw, 13px)',
+          padding: 'clamp(8px, 1.5vh, 10px)',
           borderRadius: 'clamp(10px, 2.5vw, 14px)',
           border: 'none',
           cursor: isValidOrder && !isSubmitting ? 'pointer' : 'not-allowed',
@@ -503,9 +503,9 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
           marginTop: 'auto',
           flexShrink: 0,
           letterSpacing: '0.5px',
-          minHeight: 'clamp(36px, 5vh, 42px)',
+          minHeight: 'clamp(32px, 4.5vh, 38px)',
           opacity: isValidOrder && !isSubmitting ? 1 : 0.6
-        }}
+        }}>
       >
         {isSubmitting ? 'PLACING ORDER...' : `PLACE ${orderSide.toUpperCase()} LIMIT ORDER`}
       </button>

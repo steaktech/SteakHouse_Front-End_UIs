@@ -365,7 +365,7 @@ export default function TradingChart() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <MobileStyleTokenCard tokenData={mobileStyleTokenData} />
+              <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLimitMode={desktopTradeTab === 'limit'} />
             </div>
           </div>
 
