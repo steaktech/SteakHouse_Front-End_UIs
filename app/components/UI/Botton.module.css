@@ -494,7 +494,7 @@
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
-	font-size: 14px;
+	font-size: 12px;
 	text-transform: uppercase;
 	letter-spacing: 1.8px;
 }
@@ -578,7 +578,7 @@
 		min-width: 100px !important;
 	}
 	.headerBtnInner {
-		font-size: 14px !important;
+		font-size: 12px !important;
 		letter-spacing: 1.5px !important;
 	}
 	.headerBtnGoldenInner {
@@ -595,7 +595,7 @@
 		min-width: 80px !important;
 	}
 	.headerBtnInner {
-		font-size: 12px !important;
+		font-size: 10px !important;
 		letter-spacing: 1px !important;
 	}
 	.headerBtnGoldenInner {

@@ -102,7 +102,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         borderRadius: 'clamp(14px, 2vw, 20px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-        padding: isMobile ? '10px' : 'clamp(12px, 2.5vh, 16px)',
+        padding: isMobile ? '10px' : (activeTab === 'limit' ? 'clamp(9px, 1.8vh, 13px)' : 'clamp(12px, 2.5vh, 16px)'),
         border: '1px solid rgba(255, 215, 165, 0.4)',
         overflow: 'visible',
         color: '#fff7ea',
@@ -120,7 +120,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           background: 'linear-gradient(180deg, #7f4108, #6f3906)',
           border: '1px solid rgba(255, 215, 165, 0.4)',
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          marginBottom: '12px',
+          marginBottom: activeTab === 'limit' ? '9px' : '12px',
           padding: '4px',
           flexShrink: 0
         }}>
@@ -220,7 +220,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 'clamp(6px, 1vh, 8px)',
+          marginBottom: activeTab === 'limit' ? 'clamp(4px, 0.8vh, 6px)' : 'clamp(6px, 1vh, 8px)',
           gap: 'clamp(4px, 1vw, 8px)',
           flexWrap: 'wrap',
           flexShrink: 0
@@ -263,7 +263,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Amount Input */}
         <div style={{
           position: 'relative',
-          marginBottom: 'clamp(6px, 1vh, 8px)',
+          marginBottom: activeTab === 'limit' ? 'clamp(4px, 0.8vh, 6px)' : 'clamp(6px, 1vh, 8px)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
@@ -295,7 +295,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 fontWeight: 800,
                 padding: 'clamp(8px, 1.5vh, 10px) clamp(40px, 8vw, 48px) clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vh, 16px)',
                 borderRadius: 'clamp(8px, 2vw, 12px)',
-                border: `2px solid ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                border: `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
                 outline: 'none',
                 textAlign: 'left',
                 fontFamily: '"Sora", "Inter", sans-serif',
@@ -305,11 +305,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
               onFocus={(e) => {
-                e.target.style.border = `2px solid ${activeTab === 'buy' ? '#4ade80' : '#f87171'}`;
-                e.target.style.boxShadow = `0 0 0 2px ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+                e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '#4ade80' : '#f87171'}`;
+                e.target.style.boxShadow = `0 0 0 2px ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
               }}
               onBlur={(e) => {
-                e.target.style.border = `2px solid ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
+                e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
                 e.target.style.boxShadow = 'none';
               }}
             />
@@ -336,7 +336,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 'clamp(4px, 0.8vh, 8px)',
+          marginBottom: activeTab === 'limit' ? 'clamp(3px, 0.6vh, 6px)' : 'clamp(4px, 0.8vh, 8px)',
           gap: 'clamp(1px, 0.2vw, 2px)',
           flexShrink: 0
         }}>
@@ -422,7 +422,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               background: 'linear-gradient(180deg, #7f4108, #6f3906)',
               border: '1px solid rgba(255, 215, 165, 0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-              marginBottom: 'clamp(8px, 1.5vh, 10px)',
+              marginBottom: 'clamp(5px, 1vh, 7px)',
               padding: '3px',
               flexShrink: 0
             }}>
@@ -446,7 +446,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   position: 'relative',
                   zIndex: 10,
                   flex: 1,
-                  padding: 'clamp(6px, 1.2vh, 8px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
                   textAlign: 'center',
                   fontSize: 'clamp(10px, 1.8vw, 12px)',
                   fontWeight: 800,
@@ -466,16 +469,19 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   position: 'relative',
                   zIndex: 10,
                   flex: 1,
-                  padding: 'clamp(8px, 1.5vh, 10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
                   textAlign: 'center',
-                  fontSize: 'clamp(12px, 2.2vw, 14px)',
+                  fontSize: 'clamp(10px, 1.8vw, 12px)',
                   fontWeight: 800,
                   color: limitSide === 'sell' ? '#1f2937' : '#feea88',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all 200ms ease',
-                  letterSpacing: '0.3px'
+                  letterSpacing: '0.2px'
                 }}
               >
                 SELL LIMIT
@@ -483,7 +489,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             </div>
 
             {/* Limit Price Input */}
-            <div style={{ marginBottom: 'clamp(10px, 2vh, 14px)' }}>
+            <div style={{ marginBottom: 'clamp(8px, 1.6vh, 12px)' }}>
               <label style={{
                 display: 'block',
                 fontSize: 'clamp(11px, 1.8vw, 13px)',
@@ -544,7 +550,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
               gap: 'clamp(4px, 0.8vw, 6px)',
-              marginBottom: 'clamp(10px, 2vh, 14px)',
+              marginBottom: 'clamp(8px, 1.6vh, 12px)',
               flexShrink: 0
             }}>
               {['-5%', '-2%', '+2%', '+5%'].map((preset) => (

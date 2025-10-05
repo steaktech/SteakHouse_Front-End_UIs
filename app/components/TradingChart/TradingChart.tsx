@@ -19,6 +19,7 @@ import { TradingTokenCard } from './TradingTokenCard';
 import { useOrderManagement } from './useOrderManagement';
 import { useNotifications } from './useNotifications';
 import { OrderNotification } from './OrderNotification';
+import { MobileBuySellPanel } from './MobileBuySellPanel';
 // MODIFIED: Added ChevronUp for the new button icon
 import { X } from 'lucide-react';
 
@@ -77,7 +78,7 @@ export default function TradingChart() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
-  const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell' | 'limit'>('buy');
+  const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
   const [desktopTradeTab, setDesktopTradeTab] = useState<'buy' | 'sell' | 'limit'>('buy');
   const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height
   const [isDragging, setIsDragging] = useState(false);
@@ -276,7 +277,7 @@ export default function TradingChart() {
     }
   };
 
-  // Handlers for Buy/Sell/Limit buttons
+  // Handlers for Buy/Sell buttons
   const handleBuyClick = () => {
     setSelectedTradeTab('buy');
     setIsMobileTradeOpen(true);
@@ -284,11 +285,6 @@ export default function TradingChart() {
 
   const handleSellClick = () => {
     setSelectedTradeTab('sell');
-    setIsMobileTradeOpen(true);
-  };
-
-  const handleLimitClick = () => {
-    setSelectedTradeTab('limit');
     setIsMobileTradeOpen(true);
   };
 
@@ -471,7 +467,7 @@ export default function TradingChart() {
         </div>
       </div>
       
-      {/* Fixed Buy/Sell/Limit bar for mobile */}
+      {/* Fixed Buy/Sell bar for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
         <div className="px-3 py-3 flex items-center gap-2 max-w-screen-md mx-auto" style={{ height: '68px' }}>
           <button onClick={handleBuyClick} type="button" className="flex-1" style={{ padding: '4px' }}>
@@ -506,22 +502,6 @@ export default function TradingChart() {
               height: '36px'
             }}>SELL</div>
           </button>
-          <button onClick={handleLimitClick} type="button" className="flex-1" style={{ padding: '4px' }}>
-            <div style={{
-              background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              fontWeight: 800,
-              color: '#1f2937',
-              letterSpacing: '0.5px',
-              fontSize: '13px',
-              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '36px'
-            }}>LIMIT</div>
-          </button>
           <button 
             onClick={() => setMobileSidebarExpanded(true)} 
             type="button" 
@@ -554,15 +534,15 @@ export default function TradingChart() {
         <div className="lg:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/70" onClick={() => setIsMobileTradeOpen(false)} />
           <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className={`w-[92vw] max-w-[480px] ${selectedTradeTab === 'limit' ? 'h-fit max-h-[90vh]' : 'max-h-[80vh]'} rounded-2xl border border-[#daa20b]/30 bg-[#07040b] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]`}>
+            <div className="w-[92vw] max-w-[480px] h-fit max-h-[90vh] rounded-2xl border border-[#daa20b]/30 bg-[#07040b] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
               <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#472303] to-[#5a2d04] border-b border-[#daa20b]/30">
-                <h2 className="text-[#daa20b] font-semibold">Trade</h2>
+                <h2 className="text-[#daa20b] font-semibold">{selectedTradeTab === 'buy' ? 'Buy' : 'Sell'} Order</h2>
                 <button onClick={() => setIsMobileTradeOpen(false)} className="p-2" type="button">
                   <X className="text-[#daa20b]" size={20} />
                 </button>
               </div>
-              <div className={`p-2 ${selectedTradeTab === 'limit' ? 'overflow-visible' : 'overflow-y-auto'}`}>
-                <TradePanel initialTab={selectedTradeTab} isMobile={true} />
+              <div className="p-2 overflow-y-auto">
+                <MobileBuySellPanel orderType={selectedTradeTab} />
               </div>
             </div>
           </div>
