@@ -523,7 +523,7 @@
 
 .unlockBtn {
   flex: 1;
-  padding: 10px;
+  padding: 10px 14px;
   background: linear-gradient(180deg, #ffc24b, #ffb020);
   border: 1px solid #8b5a2b;
   border-radius: 10px;
@@ -532,6 +532,11 @@
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .unlockBtn:hover:not(:disabled) {
