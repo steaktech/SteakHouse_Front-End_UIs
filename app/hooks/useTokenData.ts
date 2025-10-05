@@ -24,7 +24,9 @@ const pendingCalls = new Map<string, Promise<FullTokenDataResponse>>();
 // Cache duration: 30 seconds (as mentioned in tokenwebsocket.txt)
 const CACHE_DURATION = 30 * 1000;
 
-export function useTokenData(tokenAddress: string | null): UseTokenDataReturn {
+type UseTokenDataOptions = { interval?: string; limit?: number };
+
+export function useTokenData(tokenAddress: string | null, options: UseTokenDataOptions = {}): UseTokenDataReturn {
   const [state, setState] = useState<UseTokenDataState>({
     data: null,
     isLoading: false,
@@ -43,20 +45,23 @@ export function useTokenData(tokenAddress: string | null): UseTokenDataReturn {
     // Update current token ref
     currentTokenRef.current = tokenAddress;
 
-    //console.log('fetchTokenData called for token:', tokenAddress);
+    const interval = options.interval ?? '1m';
+    const limit = options.limit ?? 100;
+
+    // Compose cache key with token+interval+limit to avoid collisions
+    const cacheKey = tokenAddress ? `${tokenAddress}|${interval}|${limit}` : 'null';
 
     // Check cache first
-    const cached = tokenDataCache.get(tokenAddress);
+    const cached = tokenDataCache.get(cacheKey);
     const now = Date.now();
     
     if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-      //console.log('Using cached data for token:', tokenAddress);
       setState(prev => ({ ...prev, data: cached.data, isLoading: false, error: null }));
       return;
     }
 
-    // Check if there's already a pending call for this token
-    const existingCall = pendingCalls.get(tokenAddress);
+    // Check if there's already a pending call for this key
+    const existingCall = pendingCalls.get(cacheKey);
     if (existingCall) {
       //console.log('Using existing pending call for token:', tokenAddress);
       setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -79,14 +84,14 @@ export function useTokenData(tokenAddress: string | null): UseTokenDataReturn {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     // Create new API call
-    const apiCall = getFullTokenData(tokenAddress);
-    pendingCalls.set(tokenAddress, apiCall);
+    const apiCall = getFullTokenData(tokenAddress, interval, limit);
+    pendingCalls.set(cacheKey, apiCall);
 
     try {
       const response = await apiCall;
       
       // Cache the response
-      tokenDataCache.set(tokenAddress, {
+      tokenDataCache.set(cacheKey, {
         data: response,
         timestamp: now
       });
@@ -105,9 +110,9 @@ export function useTokenData(tokenAddress: string | null): UseTokenDataReturn {
       }
     } finally {
       // Clean up pending call
-      pendingCalls.delete(tokenAddress);
+      pendingCalls.delete(cacheKey);
     }
-  }, [tokenAddress]);
+  }, [tokenAddress, options.interval, options.limit]);
 
   useEffect(() => {
     fetchTokenData();
@@ -120,12 +125,13 @@ export function useTokenData(tokenAddress: string | null): UseTokenDataReturn {
 
   const refetch = useCallback(async () => {
     if (tokenAddress) {
-      // Clear cache for this token when manually refetching
-      tokenDataCache.delete(tokenAddress);
-      //console.log('Manual refetch: cleared cache for token:', tokenAddress);
+      const interval = options.interval ?? '1m';
+      const limit = options.limit ?? 100;
+      const cacheKey = `${tokenAddress}|${interval}|${limit}`;
+      tokenDataCache.delete(cacheKey);
     }
     await fetchTokenData();
-  }, [fetchTokenData, tokenAddress]);
+  }, [fetchTokenData, tokenAddress, options.interval, options.limit]);
 
   return {
     ...state,

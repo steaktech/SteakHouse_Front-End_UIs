@@ -5,6 +5,7 @@ import { X, Minimize2 } from 'lucide-react';
 import { TradingView } from './TradingView';
 import { MobileBottomBar } from './MobileSidebar';
 import { useDeviceOrientation } from '@/app/hooks/useDeviceOrientation';
+import type { Candle } from '@/app/types/token';
 
 interface FullscreenChartProps {
   isOpen: boolean;
@@ -12,6 +13,11 @@ interface FullscreenChartProps {
   tokenAddress: string;
   mobileSidebarExpanded: boolean;
   setMobileSidebarExpanded: (expanded: boolean) => void;
+  candles?: Candle[];
+  title?: string;
+  symbol?: string;
+  timeframe?: string;
+  onChangeTimeframe?: (tf: string) => void;
 }
 
 /**
@@ -24,6 +30,11 @@ export const FullscreenChart: React.FC<FullscreenChartProps> = ({
   tokenAddress,
   mobileSidebarExpanded,
   setMobileSidebarExpanded,
+  candles,
+  title,
+  symbol,
+  timeframe,
+  onChangeTimeframe,
 }) => {
   const { isLandscape, isMobile, screenWidth, screenHeight, orientation } = useDeviceOrientation();
 
@@ -86,7 +97,7 @@ export const FullscreenChart: React.FC<FullscreenChartProps> = ({
           
           {/* Chart Container */}
           <div className="flex-1 bg-[#0a0508]">
-            <TradingView />
+            <TradingView candles={candles} title={title} symbol={symbol} timeframe={timeframe} onChangeTimeframe={onChangeTimeframe} />
           </div>
           
           {/* Mobile Bottom Controls */}

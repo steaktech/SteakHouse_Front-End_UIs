@@ -30,7 +30,8 @@ export default function TradingChart({
   const { isMobile: deviceIsMobile, isLandscape } = useDeviceOrientation();
   
   // Fetch token data at the main component level
-  const { data: tokenData, isLoading, error } = useTokenData(tokenAddress);
+  const [timeframe, setTimeframe] = useState<string>('1m');
+  const { data: tokenData, isLoading, error, refetch } = useTokenData(tokenAddress, { interval: timeframe, limit: 200 });
 
   // Mobile detection
   useEffect(() => {
@@ -136,7 +137,13 @@ export default function TradingChart({
         >
           {/* Trading Chart */}
           <div className="order-1 lg:col-start-1 lg:row-start-1">
-            <TradingView />
+            <TradingView 
+              candles={tokenData?.candles}
+              title={tokenData?.tokenInfo?.name}
+              symbol={tokenData?.tokenInfo?.symbol}
+              timeframe={timeframe}
+              onChangeTimeframe={(tf) => setTimeframe(tf)}
+            />
           </div>
 
           {/* Token Card - Desktop only, mobile uses popup from sidebar */}
@@ -190,6 +197,11 @@ export default function TradingChart({
         tokenAddress={tokenAddress}
         mobileSidebarExpanded={mobileSidebarExpanded}
         setMobileSidebarExpanded={setMobileSidebarExpanded}
+        candles={tokenData?.candles}
+        title={tokenData?.tokenInfo?.name}
+        symbol={tokenData?.tokenInfo?.symbol}
+        timeframe={timeframe}
+        onChangeTimeframe={(tf) => setTimeframe(tf)}
       />
 
       {/* Orientation Prompt Modal */}
