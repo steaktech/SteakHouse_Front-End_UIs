@@ -16,6 +16,7 @@ import { CompactLimitOrderBook } from './CompactLimitOrderBook';
 import { TokenCard } from '@/app/components/TradingDashboard/TokenCard';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
 import { TradingTokenCard } from './TradingTokenCard';
+import { MobileStyleTokenCard, TokenData } from './MobileStyleTokenCard';
 import { useOrderManagement } from './useOrderManagement';
 import { useNotifications } from './useNotifications';
 import { OrderNotification } from './OrderNotification';
@@ -100,6 +101,24 @@ export default function TradingChart() {
     volume: '$6.2K',
     progress: 82
   });
+
+  // Mobile-style token data
+  const mobileStyleTokenData: TokenData = {
+    name: tokenData.name,
+    symbol: tokenData.symbol,
+    currentTax: {
+      buy: 3,
+      sell: 3
+    },
+    maxTransaction: 2.1,
+    description: tokenData.description,
+    marketCap: tokenData.mcap,
+    volume: tokenData.volume,
+    liquidityPool: tokenData.liquidity,
+    bondingProgress: tokenData.progress,
+    tag: tokenData.tag,
+    tagColor: tokenData.tagColor
+  };
 
   // Load token data based on URL parameter
   useEffect(() => {
@@ -337,20 +356,16 @@ export default function TradingChart() {
             <TradingView />
           </div>
 
-          {/* Token Card (desktop only) */}
-          <div className={`hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center p-0 m-0 ${
-            desktopTradeTab === 'limit' ? 'items-center' : 'items-start'
-          }`}>
+          {/* Token Card (desktop only) - Mobile Style */}
+          <div className={`hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center p-0 m-0 items-center`}>
             <div style={{
               width: '100%',
-              height: desktopTradeTab === 'limit' ? 'fit-content' : '100%',
-              maxHeight: desktopTradeTab === 'limit' ? '160px' : 'none',
+              maxWidth: '420px',
               display: 'flex',
-              alignItems: desktopTradeTab === 'limit' ? 'center' : 'stretch',
-              justifyContent: 'center',
-              transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
-              <TradingTokenCard {...tokenData} compact={desktopTradeTab === 'limit'} />
+              <MobileStyleTokenCard tokenData={mobileStyleTokenData} />
             </div>
           </div>
 
