@@ -347,20 +347,19 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         </div>
         
         <main 
-          className={`flex-1 grid grid-cols-1 ${desktopTradeTab === 'limit' 
-            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[minmax(150px,1fr)_auto]' 
-            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_minmax(280px,auto)]'} gap-[8px] p-[8px] ${
+          className={`flex-1 min-h-0 grid grid-cols-1 ${desktopTradeTab === 'limit' 
+            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_420px]'
+            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_280px]'} gap-[8px] p-[8px] ${
             'overflow-hidden'
           }`}
           style={{
             paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, 8px padding on desktop
-            height: isMobile ? 'calc(100vh - 56px)' : '100%', // Subtract header height on mobile, full height on desktop
-            transition: 'grid-template-columns 400ms cubic-bezier(0.4, 0, 0.2, 1), grid-template-rows 400ms cubic-bezier(0.4, 0, 0.2, 1)'
+            height: isMobile ? 'calc(100vh - 56px)' : '100%'
           }}
         >
           
           {/* Trading Chart */}
-          <div className="order-1 lg:col-start-1 lg:row-start-1">
+          <div className="order-1 lg:col-start-1 lg:row-start-1 min-h-0">
             <TradingView 
               candles={apiTokenData?.candles}
               title={apiTokenData?.tokenInfo?.name}
@@ -384,17 +383,20 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           </div>
 
           {/* Trade Panel with Integrated Limit Orders (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-2 lg:row-start-2" style={{ height: '100%' }}>
-            <TradePanel 
-              onTabChange={(tab) => setDesktopTradeTab(tab)}
-            />
+          <div className="hidden lg:flex lg:col-start-2 lg:row-start-2 items-end min-h-0" style={{ height: '100%' }}>
+            <div style={{ width: '100%', height: '100%', alignSelf: 'flex-end', minHeight: 0 }}>
+              <TradePanel 
+                onTabChange={(tab) => setDesktopTradeTab(tab)}
+              />
+            </div>
           </div>
 
           {/* Recent Transactions Panel (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-1 lg:row-start-2" style={{ height: '100%' }}>
+          <div className="hidden lg:flex lg:col-start-1 lg:row-start-2 items-end min-h-0" style={{ height: '100%' }}>
             <div style={{
               width: '100%',
               height: '100%',
+              alignSelf: 'flex-end',
               position: 'relative',
               borderRadius: 'clamp(14px, 2vw, 20px)',
               background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
@@ -405,10 +407,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               color: '#fff7ea',
               display: 'flex',
               flexDirection: 'column',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              minHeight: 0
             }}>
               {/* Content Area */}
-              <div style={{ flex: 1, overflow: 'hidden' }}>
+              <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
                 {showLimitOrders ? (
                   <CompactLimitOrderBook 
                     orders={orderManagement.orders}

@@ -165,12 +165,28 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     }
   }, [showVolume]);
 
-  // Crosshair mode
+  // Crosshair mode (support hidden by toggling line visibility)
   useEffect(() => {
     const chart = chartRef.current;
     if (!chart) return;
-    const mode = crosshair === "normal" ? CrosshairMode.Normal : crosshair === "magnet" ? CrosshairMode.Magnet : CrosshairMode.Hidden;
-    chart.applyOptions({ crosshair: { mode } });
+    if (crosshair === 'hidden') {
+      chart.applyOptions({
+        crosshair: {
+          mode: CrosshairMode.Normal,
+          vertLine: { visible: false },
+          horzLine: { visible: false },
+        },
+      });
+    } else {
+      const mode = crosshair === 'magnet' ? CrosshairMode.Magnet : CrosshairMode.Normal;
+      chart.applyOptions({
+        crosshair: {
+          mode,
+          vertLine: { visible: true },
+          horzLine: { visible: true },
+        },
+      });
+    }
   }, [crosshair]);
 
   // Price scale mode

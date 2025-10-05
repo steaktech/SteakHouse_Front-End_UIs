@@ -95,9 +95,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       `}</style>
       <div style={{
         width: '100%',
-        height: activeTab === 'limit' ? 'fit-content' : '100%',
-        maxHeight: activeTab === 'limit' ? 'none' : 'none',
-        minHeight: activeTab === 'limit' ? 'auto' : '100%',
+        height: '100%',
+        maxHeight: 'none',
+        minHeight: '100%',
         position: 'relative',
         borderRadius: 'clamp(14px, 2vw, 20px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
