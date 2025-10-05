@@ -188,7 +188,7 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     const closes = candles.map((c) => ({ time: Math.floor(c.timestamp / 1000) as UTCTimestamp, value: c.close }));
 
     function calcSMA(length: number) {
-      const data: { time: number; value: number }[] = [];
+      const data: { time: UTCTimestamp; value: number }[] = [];
       let sum = 0;
       for (let i = 0; i < closes.length; i++) {
         sum += closes[i].value;
@@ -200,7 +200,7 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
 
     indicators.forEach((ind) => {
       if (ind.type === "sma") {
-        const series = chart.addLineSeries({ color: ind.color ?? "#eab308", lineWidth: 1.5 });
+const series = chart.addLineSeries({ color: ind.color ?? "#eab308", lineWidth: 2 });
         series.setData(calcSMA(ind.length));
         smaSeriesRefs.current.push(series);
         // Overlay must align with whichever base is visible; nothing else to do
