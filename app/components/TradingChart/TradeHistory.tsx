@@ -575,7 +575,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     
                     <span style={{
                       fontSize: '12px',
-                      fontWeight: 800,
+                      fontWeight: 400,
                       color: '#feea88',
                       marginLeft: 'auto',
                       flexShrink: 0,
@@ -742,7 +742,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   
                   <span style={{
                     fontSize: 'clamp(12px, 2.2vw, 14px)',
-                    fontWeight: 800,
+                    fontWeight: 400,
                     color: '#feea88',
                     marginLeft: 'auto',
                     flexShrink: 0

@@ -322,12 +322,12 @@ export default function TradingChart() {
         <main 
           className={`flex-1 grid grid-cols-1 ${desktopTradeTab === 'limit' 
             ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[minmax(150px,1fr)_auto]' 
-            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_280px]'} gap-[8px] p-[8px] lg:pb-[8px] ${
+            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_minmax(280px,auto)]'} gap-[8px] p-[8px] ${
             'overflow-hidden'
           }`}
           style={{
             paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, 8px padding on desktop
-            height: isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)', // Subtract header height exactly
+            height: isMobile ? 'calc(100vh - 56px)' : '100%', // Subtract header height on mobile, full height on desktop
             transition: 'grid-template-columns 400ms cubic-bezier(0.4, 0, 0.2, 1), grid-template-rows 400ms cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
@@ -355,14 +355,14 @@ export default function TradingChart() {
           </div>
 
           {/* Trade Panel with Integrated Limit Orders (desktop only) */}
-          <div className="hidden lg:block lg:col-start-2 lg:row-start-2">
+          <div className="hidden lg:flex lg:col-start-2 lg:row-start-2" style={{ height: '100%' }}>
             <TradePanel 
               onTabChange={(tab) => setDesktopTradeTab(tab)}
             />
           </div>
 
           {/* Recent Transactions Panel (desktop only) */}
-          <div className="hidden lg:block lg:col-start-1 lg:row-start-2">
+          <div className="hidden lg:flex lg:col-start-1 lg:row-start-2" style={{ height: '100%' }}>
             <div style={{
               width: '100%',
               height: '100%',

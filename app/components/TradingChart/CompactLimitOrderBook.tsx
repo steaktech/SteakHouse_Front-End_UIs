@@ -481,10 +481,10 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
               ) : (
                 // Display Mode - Matching TradeHistory exact structure
                 <>
-                  {/* Order Icon - matching TradeHistory */}
+                  {/* Order Icon - matching TradeHistory exact dimensions */}
                   <div style={{
-                    width: '18px',
-                    height: '18px',
+                    width: isMobile ? '20px' : '18px',
+                    height: isMobile ? '20px' : '18px',
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
@@ -499,18 +499,18 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
                   </div>
                   
                   <span style={{
-                    fontSize: 'clamp(11px, 2vw, 13px)',
+                    fontSize: isMobile ? '12px' : 'clamp(11px, 2vw, 13px)',
                     fontWeight: 800,
                     color: order.side === 'buy' ? '#22c55e' : '#ef4444',
                     textTransform: 'uppercase',
-                    minWidth: '28px',
+                    minWidth: isMobile ? '30px' : '28px',
                     flexShrink: 0
                   }}>
                     {order.side.toUpperCase()}
                   </span>
                   
                   <span style={{
-                    fontSize: 'clamp(11px, 2vw, 13px)',
+                    fontSize: isMobile ? '11px' : 'clamp(11px, 2vw, 13px)',
                     fontWeight: 700,
                     color: '#feea88',
                     flexShrink: 0
@@ -519,7 +519,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
                   </span>
                   
                   <span style={{
-                    fontSize: 'clamp(9px, 1.8vw, 11px)',
+                    fontSize: isMobile ? '9px' : 'clamp(9px, 1.8vw, 11px)',
                     color: '#feea88',
                     opacity: 0.8,
                     flexShrink: 0
@@ -528,7 +528,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
                   </span>
                   
                   <span style={{
-                    fontSize: 'clamp(9px, 1.8vw, 11px)',
+                    fontSize: isMobile ? '9px' : 'clamp(9px, 1.8vw, 11px)',
                     color: '#feea88',
                     opacity: 0.7,
                     flexShrink: 0
@@ -536,43 +536,16 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
                     {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   
-                  {/* Status with both icon and text */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '3px',
-                    marginLeft: 'auto',
+                  {/* Status - compact display matching transaction layout */}
+                  <span style={{
+                    fontSize: isMobile ? '9px' : 'clamp(9px, 1.8vw, 11px)',
+                    color: getStatusColor(order.status),
+                    fontWeight: 600,
                     flexShrink: 0,
-                    padding: '3px 7px',
-                    borderRadius: '10px',
-                    background: order.status === 'filled' 
-                      ? 'rgba(74, 222, 128, 0.15)' 
-                      : order.status === 'pending'
-                        ? 'rgba(96, 165, 250, 0.15)'
-                        : 'rgba(248, 113, 113, 0.15)',
-                    border: `1px solid ${order.status === 'filled' 
-                      ? 'rgba(74, 222, 128, 0.3)' 
-                      : order.status === 'pending'
-                        ? 'rgba(96, 165, 250, 0.3)'
-                        : 'rgba(248, 113, 113, 0.3)'}`,
-                    minWidth: 'fit-content',
-                    whiteSpace: 'nowrap'
+                    marginLeft: 'auto'
                   }}>
-                    <span style={{
-                      fontSize: 'clamp(10px, 1.8vw, 12px)',
-                      color: getStatusColor(order.status)
-                    }}>
-                      {getStatusIcon(order.status)}
-                    </span>
-                    <span style={{
-                      fontSize: 'clamp(9px, 1.6vw, 11px)',
-                      fontWeight: 700,
-                      color: getStatusColor(order.status),
-                      letterSpacing: '0.5px'
-                    }}>
-                      {getStatusText(order)}
-                    </span>
-                  </div>
+                    {getStatusIcon(order.status)} {getStatusText(order)}
+                  </span>
                   
                   {/* Actions for pending orders - matching TradeHistory button structure */}
                   {order.status === 'pending' && (
