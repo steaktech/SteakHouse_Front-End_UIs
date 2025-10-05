@@ -33,7 +33,11 @@ export const TOKEN_TYPE_LABELS = {
   0: 'Meme',
   1: 'Utility', 
   2: 'AI',
-  3: 'X-post'
+  3: 'Viral Post',
+  4: 'Charity',
+  5: 'Animal',
+  6: 'Governance',
+  7: 'Privacy'
 } as const;
 
 // Token launch type mappings
@@ -55,5 +59,9 @@ export const TOKEN_TAG_COLORS = {
   'Meme': 'bg-[#fade79] text-black',
   'Utility': 'bg-orange-500/20 text-orange-300',
   'AI': 'bg-cyan-500/20 text-cyan-300',
-  'X-post': 'bg-violet-500/20 text-violet-300'
+  'Viral Post': 'bg-violet-500/20 text-violet-300',
+  'Charity': 'bg-pink-500/20 text-pink-300',
+  'Animal': 'bg-lime-500/20 text-lime-300',
+  'Governance': 'bg-indigo-500/20 text-indigo-300',
+  'Privacy': 'bg-slate-500/20 text-slate-300'
 } as const;

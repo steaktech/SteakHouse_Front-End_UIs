@@ -505,7 +505,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
           letterSpacing: '0.5px',
           minHeight: 'clamp(32px, 4.5vh, 38px)',
           opacity: isValidOrder && !isSubmitting ? 1 : 0.6
-        }}>
+        }}
       >
         {isSubmitting ? 'PLACING ORDER...' : `PLACE ${orderSide.toUpperCase()} LIMIT ORDER`}
       </button>
