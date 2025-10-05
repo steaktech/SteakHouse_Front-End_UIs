@@ -461,9 +461,9 @@
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
-	width: 180px;
-	height: 50px;
-	min-width: 120px;
+	width: 150px;
+	height: 42px;
+	min-width: 100px;
 	border: none;
 	cursor: pointer;
 }
@@ -494,7 +494,7 @@
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
-	font-size: 16px;
+	font-size: 12px;
 	text-transform: uppercase;
 	letter-spacing: 1.8px;
 }
@@ -525,9 +525,9 @@
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
-	width: 180px;
-	height: 50px;
-	min-width: 120px;
+	width: 150px;
+	height: 42px;
+	min-width: 100px;
 	border: none;
 	cursor: pointer;
 }
@@ -556,7 +556,7 @@
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
-	font-size: 14px;
+	font-size: 12px;
 	text-transform: uppercase;
 	letter-spacing: 1.5px;
 }
@@ -569,6 +569,21 @@
 	);
 }
 
+/* Desktop scaling for 100% zoom appearance */
+@media (min-width: 1024px) {
+	.headerBtn,
+	.headerBtnGolden {
+		width: 120px !important;
+		height: 34px !important;
+		min-width: 80px !important;
+	}
+	.headerBtnInner,
+	.headerBtnGoldenInner {
+		font-size: 10px !important;
+		letter-spacing: 1.2px !important;
+	}
+}
+
 /* Responsive styles for header buttons */
 @media (max-width: 768px) {
 	.headerBtn,
@@ -578,7 +593,7 @@
 		min-width: 100px !important;
 	}
 	.headerBtnInner {
-		font-size: 14px !important;
+		font-size: 12px !important;
 		letter-spacing: 1.5px !important;
 	}
 	.headerBtnGoldenInner {
@@ -595,7 +610,7 @@
 		min-width: 80px !important;
 	}
 	.headerBtnInner {
-		font-size: 12px !important;
+		font-size: 10px !important;
 		letter-spacing: 1px !important;
 	}
 	.headerBtnGoldenInner {
@@ -617,5 +632,26 @@
 		padding: 8px 16px !important;
 		font-size: 12px !important;
 		letter-spacing: 1px !important;
+	}
+}
+
+/* Desktop scaling for 100% zoom appearance - buttons */
+@media (min-width: 1024px) {
+	.btn-3 {
+		padding: 10px 16px !important; /* 80% scaling */
+		font-size: 12px !important;
+		border-radius: 10px !important;
+		letter-spacing: 0.8px !important;
+	}
+	
+	.btn-5 {
+		padding: 10px 19px !important; /* 80% scaling */
+		font-size: 13px !important;
+		border-radius: 10px !important;
+		letter-spacing: 1.2px !important;
+	}
+	
+	.btn-5:hover {
+		padding: 10px 32px !important; /* 80% scaling */
 	}
 }
