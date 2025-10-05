@@ -2,9 +2,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import Web3 from 'web3';
 import { useWallet } from './useWallet';
-import { KitchenService } from '@/app/lib/web3/services/kitchenService';
-import { signAndSubmitTransaction, TransactionCallbacks } from '@/app/lib/web3/services/transactionService';
-import { getCurrentCurrencySymbol } from '@/app/lib/config/constants';
+import { fetchUserProfile } from '@/app/lib/api/services/userService';
+import type { KitchenService } from '@/app/lib/web3/services/kitchenService';
 
 export interface TradingState {
   isTrading: boolean;
@@ -13,6 +12,11 @@ export interface TradingState {
   error: string | null;
   statusMessage: string | null;
   lastTradeType: 'buy' | 'sell' | null;
+  // Trading wallet and top-up aids
+  tradingWallet: string | null;
+  canTopUp: boolean;
+  topUpSuggestionWei: string | null;
+  topUpSuggestionEth: string | null;
 }
 
 export interface UseTrading {
@@ -23,18 +27,35 @@ export interface UseTrading {
   buyToken: (tokenAddress: string, ethAmount: string) => Promise<string | null>;
   sellToken: (tokenAddress: string, ethAmount: string) => Promise<string | null>;
   clearStatus: () => void;
+  topUpTradingWallet: (amountEth: string) => Promise<string | null>;
+  refreshTradingWallet: () => Promise<void>;
   
   // Service info
   kitchenService: KitchenService | null;
   isReady: boolean;
 }
 
-/**
- * Hook for managing Web3 trading operations with the Kitchen contract
- * Handles buy/sell transactions with MetaMask popup confirmations
- */
+// API endpoints provided by backend
+const API_BASE = 'https://steak-blockchain-api-bf5e689d4321.herokuapp.com';
+
+interface BuyResponse { txHash: string }
+interface SellResponse { txHash: string }
+
+interface BackendError {
+  error?: {
+    code?: string;
+    shortMessage?: string;
+    message?: string;
+    transaction?: any;
+    info?: {
+      payload?: any;
+      error?: { code?: number; message?: string };
+    };
+  };
+}
+
 export const useTrading = (): UseTrading => {
-  const { isConnected, address, chainId } = useWallet();
+  const { isConnected, address } = useWallet();
   
   const [tradingState, setTradingState] = useState<TradingState>({
     isTrading: false,
@@ -43,255 +64,361 @@ export const useTrading = (): UseTrading => {
     error: null,
     statusMessage: null,
     lastTradeType: null,
+    tradingWallet: null,
+    canTopUp: false,
+    topUpSuggestionWei: null,
+    topUpSuggestionEth: null,
   });
   
   const [web3, setWeb3] = useState<Web3 | null>(null);
-  const [kitchenService, setKitchenService] = useState<KitchenService | null>(null);
 
-  // Initialize Web3 and KitchenService when wallet connects
+  // Initialize Web3 (for receipt polling) when wallet connects and fetch trading wallet
   useEffect(() => {
-    // console.log('🔄 useTrading: Wallet state changed', {
-    //   isConnected,
-    //   address,
-    //   chainId
-    // });
-
-    if (isConnected && address && window.ethereum) {
-      //console.log('🚀 Initializing Web3 and Kitchen service...');
-      setTradingState(prev => ({ ...prev, isInitializing: true }));
-      
-      try {
-        const web3Instance = new Web3(window.ethereum as any);
-        setWeb3(web3Instance);
-        
-        const service = new KitchenService(web3Instance, address, chainId);
-        setKitchenService(service);
-        
-        //console.log('✅ Trading services initialized');
-        //console.log('🏭 Kitchen service info:', service.getContractInfo());
-        
-        setTradingState(prev => ({ 
-          ...prev, 
-          isInitializing: false,
-          error: null 
-        }));
-      } catch (error) {
-        console.error('❌ Failed to initialize trading services:', error);
-        setTradingState(prev => ({ 
-          ...prev, 
-          isInitializing: false,
-          error: `Failed to initialize: ${(error as Error).message}` 
-        }));
+    const init = async () => {
+      if (isConnected && typeof window !== 'undefined' && (window as any).ethereum) {
+        setTradingState(prev => ({ ...prev, isInitializing: true }));
+        try {
+          const web3Instance = new Web3((window as any).ethereum);
+          setWeb3(web3Instance);
+          // Fetch trading wallet mapped to the main wallet
+          if (address) {
+            try {
+              const profile = await fetchUserProfile(address);
+              const tradingWallet = (profile as any)?.trading_wallet || null;
+              setTradingState(prev => ({ ...prev, tradingWallet }));
+            } catch (e) {
+              console.warn('Failed to fetch trading wallet:', e);
+            }
+          }
+          setTradingState(prev => ({ ...prev, isInitializing: false, error: null }));
+        } catch (error) {
+          console.error('Failed to initialize Web3:', error);
+          setTradingState(prev => ({ ...prev, isInitializing: false, error: `Failed to initialize: ${(error as Error).message}` }));
+        }
+      } else {
+        setWeb3(null);
+        setTradingState(prev => ({ ...prev, isInitializing: false }));
       }
-    } else {
-      //console.log('🔌 Wallet disconnected or not ready, cleaning up services');
-      setWeb3(null);
-      setKitchenService(null);
-      setTradingState(prev => ({ 
-        ...prev, 
-        isInitializing: false 
-      }));
-    }
-  }, [isConnected, address, chainId]);
+    };
+    init();
+  }, [isConnected, address]);
 
-  // Clear status and reset state
   const clearStatus = useCallback(() => {
-    //console.log('🧹 Clearing trading status');
     setTradingState(prev => ({
       ...prev,
       error: null,
       statusMessage: null,
       txHash: null,
       lastTradeType: null,
+      canTopUp: false,
+      topUpSuggestionWei: null,
+      topUpSuggestionEth: null,
     }));
   }, []);
 
-  // Create transaction callbacks for status updates
-  const createTransactionCallbacks = useCallback((tradeType: 'buy' | 'sell'): TransactionCallbacks => ({
-    onStatusUpdate: (message: string) => {
-      //console.log(`📢 ${tradeType.toUpperCase()} Status:`, message);
-      setTradingState(prev => ({
-        ...prev,
-        statusMessage: message,
-      }));
-    },
-    onSuccess: (contractAddress: string) => {
-      //console.log(`✅ ${tradeType.toUpperCase()} Transaction successful:`, contractAddress);
-      setTradingState(prev => ({
-        ...prev,
-        isTrading: false,
-        txHash: contractAddress, // In real implementation, this would be the tx hash
-        statusMessage: `${tradeType.charAt(0).toUpperCase() + tradeType.slice(1)} completed successfully!`,
-        error: null,
-      }));
-    },
-    onError: (error: string) => {
-      console.error(`❌ ${tradeType.toUpperCase()} Transaction failed:`, error);
-      setTradingState(prev => ({
-        ...prev,
-        isTrading: false,
-        error: `${tradeType.charAt(0).toUpperCase() + tradeType.slice(1)} failed: ${error}`,
-        statusMessage: null,
-      }));
-    },
-  }), []);
+  const postTrade = useCallback(async (
+    kind: 'buy' | 'sell',
+    tokenAddress: string,
+    amount: string,
+    walletAddress: string
+  ): Promise<string> => {
+    const url = `${API_BASE}/${kind === 'buy' ? 'buyToken' : 'sellToken'}`;
+    const body = kind === 'buy'
+      ? { tokenAddress, buyAmount: amount, walletAddress }
+      : { tokenAddress, sellAmount: amount, walletAddress };
 
-  // Buy Token function
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      let errText = 'Unexpected error while submitting trade';
+      let errCode: string | undefined;
+      let raw: any;
+      try {
+        const data = (await res.json()) as BackendError | { error?: string };
+        raw = data;
+        if (typeof (data as any)?.error === 'string') {
+          errText = (data as any).error as string;
+        } else {
+          const code = (data as BackendError)?.error?.code;
+          const shortMsg = (data as BackendError)?.error?.shortMessage;
+          const nestedMsg = (data as BackendError)?.error?.info?.error?.message;
+          errCode = code;
+          if (code === 'INSUFFICIENT_FUNDS') {
+            errText = 'Service is temporarily unable to process the trade (insufficient funds). Please top up your trading wallet.';
+          } else if (shortMsg) {
+            errText = shortMsg;
+          } else if (nestedMsg) {
+            errText = nestedMsg;
+          }
+        }
+      } catch {}
+      const err = new Error(errText) as Error & { code?: string; raw?: any };
+      if (errCode) (err as any).code = errCode;
+      if (raw) (err as any).raw = raw;
+      throw err;
+    }
+
+    const data = (await res.json()) as BuyResponse | SellResponse;
+    return data.txHash;
+  }, []);
+
+  const waitForConfirmation = useCallback(async (
+    txHash: string,
+    confirmations: number = 1,
+    pollMs: number = 3000,
+    maxWaitMs: number = 5 * 60 * 1000 // 5 minutes
+  ) => {
+    if (!web3) return null;
+    const start = Date.now();
+
+    // First wait for receipt
+    let receipt = await web3.eth.getTransactionReceipt(txHash);
+    while (!receipt) {
+      if (Date.now() - start > maxWaitMs) {
+        throw new Error('Timed out waiting for transaction confirmation');
+      }
+      await new Promise(r => setTimeout(r, pollMs));
+      receipt = await web3.eth.getTransactionReceipt(txHash);
+    }
+
+    // Optionally wait for additional confirmations
+    if (confirmations > 1) {
+      const targetBlock = (receipt.blockNumber ?? 0) + (confirmations - 1);
+      let currentBlock = await web3.eth.getBlockNumber();
+      while (currentBlock < targetBlock) {
+        if (Date.now() - start > maxWaitMs) {
+          throw new Error('Timed out waiting for transaction confirmations');
+        }
+        await new Promise(r => setTimeout(r, pollMs));
+        currentBlock = await web3.eth.getBlockNumber();
+      }
+    }
+
+    return receipt;
+  }, [web3]);
+
+  const startTradeState = useCallback((tradeType: 'buy' | 'sell') => {
+    setTradingState(prev => ({
+      ...prev,
+      isTrading: true,
+      error: null,
+      statusMessage: `Submitting ${tradeType} order...`,
+      txHash: null,
+      lastTradeType: tradeType,
+    }));
+  }, []);
+
+  const updateStatus = useCallback((message: string) => {
+    setTradingState(prev => ({ ...prev, statusMessage: message }));
+  }, []);
+
+  const finishTradeSuccess = useCallback((tradeType: 'buy' | 'sell', txHash: string) => {
+    setTradingState(prev => ({
+      ...prev,
+      isTrading: false,
+      txHash,
+      statusMessage: `${tradeType.charAt(0).toUpperCase() + tradeType.slice(1)} completed successfully!`,
+      error: null,
+    }));
+  }, []);
+
+  const finishTradeError = useCallback((tradeType: 'buy' | 'sell', error: string) => {
+    setTradingState(prev => ({
+      ...prev,
+      isTrading: false,
+      error: `${tradeType.charAt(0).toUpperCase() + tradeType.slice(1)} failed: ${error}`,
+      statusMessage: null,
+    }));
+  }, []);
+
   const buyToken = useCallback(async (tokenAddress: string, ethAmount: string): Promise<string | null> => {
-    //console.log('🟢 Starting BUY transaction...');
-    //console.log(`🎯 Token: ${tokenAddress}, Amount: ${ethAmount} ${getCurrentCurrencySymbol()}`);
-
-    if (!kitchenService || !isConnected) {
-      const error = "Trading service not ready - please ensure wallet is connected";
-      console.error('❌', error);
-      setTradingState(prev => ({ 
-        ...prev, 
-        error,
-        lastTradeType: 'buy' 
-      }));
+    if (!isConnected || !address) {
+      const msg = 'Wallet not connected';
+      setTradingState(prev => ({ ...prev, error: msg, lastTradeType: 'buy' }));
       return null;
     }
 
-    // Validate parameters
-    const validationError = kitchenService.validateBuyParams(tokenAddress, ethAmount);
-    if (validationError) {
-      console.error('❌ Buy validation failed:', validationError);
-      setTradingState(prev => ({ 
-        ...prev, 
-        error: validationError,
-        lastTradeType: 'buy' 
-      }));
+    if (!tokenAddress || !ethAmount || isNaN(Number(ethAmount)) || Number(ethAmount) <= 0) {
+      const msg = 'Invalid buy parameters';
+      setTradingState(prev => ({ ...prev, error: msg, lastTradeType: 'buy' }));
       return null;
     }
 
-    // Set trading state
-    setTradingState(prev => ({
-      ...prev,
-      isTrading: true,
-      error: null,
-      statusMessage: null,
-      txHash: null,
-      lastTradeType: 'buy',
-    }));
+    startTradeState('buy');
 
     try {
-      //console.log('🔨 Building buy transaction...');
-      const unsignedTx = await kitchenService.buildBuyTokenTx(tokenAddress, ethAmount);
-      
-      //console.log('📤 Submitting buy transaction to MetaMask...');
-      const callbacks = createTransactionCallbacks('buy');
-      
-      const result = await signAndSubmitTransaction(
-        unsignedTx,
-        false, // Not a deployment
-        callbacks
-      );
+      const txHash = await postTrade('buy', tokenAddress, ethAmount, address);
+      setTradingState(prev => ({ ...prev, txHash }));
+      updateStatus('Order broadcasted. Waiting for confirmation...');
 
-      //console.log('🎯 Buy transaction result:', result);
-      return result;
-    } catch (error) {
-      const errorMsg = `Buy transaction failed: ${(error as Error).message}`;
-      //console.error('❌', errorMsg, error);
-      setTradingState(prev => ({
-        ...prev,
-        isTrading: false,
-        error: errorMsg,
-        lastTradeType: 'buy',
-      }));
+      try {
+        await waitForConfirmation(txHash, 1);
+        finishTradeSuccess('buy', txHash);
+      } catch (confirmErr) {
+        // If waiting for confirmation fails/timeouts, still keep the tx hash and surface error
+        finishTradeError('buy', (confirmErr as Error).message);
+      }
+
+      return txHash;
+    } catch (err) {
+      const e = err as any;
+      // Detect insufficient funds from backend and surface top-up suggestion
+      if (e?.code === 'INSUFFICIENT_FUNDS' || /insufficient funds/i.test(e?.message || '')) {
+        const { needWei, needEth } = parseTopUpSuggestionFromBackendError(e?.raw) || {} as any;
+        setTradingState(prev => ({
+          ...prev,
+          isTrading: false,
+          error: 'Trading wallet has insufficient funds. Please top up to proceed.',
+          canTopUp: true,
+          topUpSuggestionWei: needWei || prev.topUpSuggestionWei,
+          topUpSuggestionEth: needEth || prev.topUpSuggestionEth,
+        }));
+      } else {
+        finishTradeError('buy', (e as Error).message);
+      }
       return null;
     }
-  }, [kitchenService, isConnected, createTransactionCallbacks]);
+  }, [isConnected, address, postTrade, startTradeState, updateStatus, waitForConfirmation, finishTradeSuccess, finishTradeError]);
 
-  // Sell Token function
   const sellToken = useCallback(async (tokenAddress: string, ethAmount: string): Promise<string | null> => {
-    //console.log('🔴 Starting SELL transaction...');
-    //console.log(`🎯 Token: ${tokenAddress}, ETH Amount: ${ethAmount} ${getCurrentCurrencySymbol()}`);
-
-    if (!kitchenService || !isConnected) {
-      const error = "Trading service not ready - please ensure wallet is connected";
-      console.error('❌', error);
-      setTradingState(prev => ({ 
-        ...prev, 
-        error,
-        lastTradeType: 'sell' 
-      }));
+    if (!isConnected || !address) {
+      const msg = 'Wallet not connected';
+      setTradingState(prev => ({ ...prev, error: msg, lastTradeType: 'sell' }));
       return null;
     }
 
-    // Validate parameters for sell (now uses ETH amount)
-    const validationError = kitchenService.validateSellParams(tokenAddress, ethAmount);
-    if (validationError) {
-      console.error('❌ Sell validation failed:', validationError);
-      setTradingState(prev => ({ 
-        ...prev, 
-        error: validationError,
-        lastTradeType: 'sell' 
-      }));
+    if (!tokenAddress || !ethAmount || isNaN(Number(ethAmount)) || Number(ethAmount) <= 0) {
+      const msg = 'Invalid sell parameters';
+      setTradingState(prev => ({ ...prev, error: msg, lastTradeType: 'sell' }));
       return null;
     }
 
-    // Set trading state
-    setTradingState(prev => ({
-      ...prev,
-      isTrading: true,
-      error: null,
-      statusMessage: null,
-      txHash: null,
-      lastTradeType: 'sell',
-    }));
+    startTradeState('sell');
 
     try {
-      //console.log('🔨 Building sell transaction...');
-      const unsignedTx = await kitchenService.buildSellTokenTx(tokenAddress, ethAmount);
-      
-      //console.log('📤 Submitting sell transaction to MetaMask...');
-      const callbacks = createTransactionCallbacks('sell');
-      
-      const result = await signAndSubmitTransaction(
-        unsignedTx,
-        false, // Not a deployment
-        callbacks
-      );
+      const txHash = await postTrade('sell', tokenAddress, ethAmount, address);
+      setTradingState(prev => ({ ...prev, txHash }));
+      updateStatus('Order broadcasted. Waiting for confirmation...');
 
-      //console.log('🎯 Sell transaction result:', result);
-      return result;
-    } catch (error) {
-      const errorMsg = `Sell transaction failed: ${(error as Error).message}`;
-      console.error('❌', errorMsg, error);
-      setTradingState(prev => ({
-        ...prev,
-        isTrading: false,
-        error: errorMsg,
-        lastTradeType: 'sell',
-      }));
+      try {
+        await waitForConfirmation(txHash, 1);
+        finishTradeSuccess('sell', txHash);
+      } catch (confirmErr) {
+        finishTradeError('sell', (confirmErr as Error).message);
+      }
+
+      return txHash;
+    } catch (err) {
+      const e = err as any;
+      if (e?.code === 'INSUFFICIENT_FUNDS' || /insufficient funds/i.test(e?.message || '')) {
+        const { needWei, needEth } = parseTopUpSuggestionFromBackendError(e?.raw) || {} as any;
+        setTradingState(prev => ({
+          ...prev,
+          isTrading: false,
+          error: 'Trading wallet has insufficient funds. Please top up to proceed.',
+          canTopUp: true,
+          topUpSuggestionWei: needWei || prev.topUpSuggestionWei,
+          topUpSuggestionEth: needEth || prev.topUpSuggestionEth,
+        }));
+      } else {
+        finishTradeError('sell', (e as Error).message);
+      }
       return null;
     }
-  }, [kitchenService, isConnected, createTransactionCallbacks]);
+  }, [isConnected, address, postTrade, startTradeState, updateStatus, waitForConfirmation, finishTradeSuccess, finishTradeError]);
 
-  // Calculate if the trading hook is ready to use
-  const isReady = isConnected && !!kitchenService && !tradingState.isInitializing;
+  // Helper: parse backend insufficient funds message to extract required wei
+  const parseTopUpSuggestionFromBackendError = (raw: any): { needWei: string; needEth: string } | null => {
+    try {
+      const msg: string | undefined = raw?.error?.info?.error?.message || raw?.error?.shortMessage || raw?.error?.message;
+      if (!msg) return null;
+      const m = msg.match(/have\s+(\d+)\s+want\s+(\d+)/i);
+      if (!m) return null;
+      const have = BigInt(m[1]);
+      const want = BigInt(m[2]);
+      const need = want > have ? want - have : BigInt(0);
+      const needWei = need.toString();
+      const needEth = web3 ? (web3.utils.fromWei(needWei, 'ether')) : (Number(needWei) / 1e18).toString();
+      return { needWei, needEth };
+    } catch {
+      return null;
+    }
+  };
 
-  // Log current state for debugging
-  useEffect(() => {
-    // console.log('📊 useTrading state update:', {
-    //   isConnected,
-    //   hasKitchenService: !!kitchenService,
-    //   isReady,
-    //   tradingState: {
-    //     isTrading: tradingState.isTrading,
-    //     isInitializing: tradingState.isInitializing,
-    //     hasError: !!tradingState.error,
-    //     lastTradeType: tradingState.lastTradeType,
-    //   }
-    // });
-  }, [isConnected, kitchenService, isReady, tradingState]);
+  // Top up trading wallet by sending ETH from user wallet
+  const topUpTradingWallet = useCallback(async (amountEth: string): Promise<string | null> => {
+    if (!isConnected || !address) {
+      setTradingState(prev => ({ ...prev, error: 'Wallet not connected' }));
+      return null;
+    }
+    if (!tradingState.tradingWallet) {
+      setTradingState(prev => ({ ...prev, error: 'Trading wallet not set up yet' }));
+      return null;
+    }
+    if (!web3) {
+      setTradingState(prev => ({ ...prev, error: 'Web3 provider not initialized' }));
+      return null;
+    }
+
+    try {
+      const sanitized = String(amountEth).trim().replace(/,/g, '');
+      // Validate up to 18 decimals
+      if (!/^\d+(?:\.\d{1,18})?$/.test(sanitized)) {
+        throw new Error('Invalid amount format');
+      }
+    const valueWei = web3.utils.toWei(sanitized, 'ether');
+      // Encode as proper hex quantity (wei)
+      const valueHex = '0x' + BigInt(valueWei).toString(16);
+      // Prefer direct provider request to avoid web3 promievent typings issues
+      const provider = (web3.currentProvider || (window as any).ethereum) as any;
+      const txParams = {
+        from: address,
+        to: tradingState.tradingWallet,
+        value: valueHex, // value in wei (0x-prefixed hex quantity)
+      };
+      const txHash: string = await provider.request({ method: 'eth_sendTransaction', params: [txParams] });
+      // Optionally wait for 1 confirmation
+      await waitForConfirmation(txHash, 1);
+      setTradingState(prev => ({
+        ...prev,
+        statusMessage: 'Top up completed',
+        error: null,
+        canTopUp: false,
+      }));
+      return txHash;
+    } catch (e) {
+      const msg = (e as any)?.message || 'Failed to top up trading wallet';
+      setTradingState(prev => ({ ...prev, error: msg }));
+      return null;
+    }
+  }, [isConnected, address, tradingState.tradingWallet, web3, waitForConfirmation]);
+
+  const refreshTradingWallet = useCallback(async () => {
+    if (!isConnected || !address) return;
+    try {
+      const profile = await fetchUserProfile(address);
+      const tradingWallet = (profile as any)?.trading_wallet || null;
+      setTradingState(prev => ({ ...prev, tradingWallet }));
+    } catch (e) {
+      console.warn('Failed to refresh trading wallet:', e);
+    }
+  }, [isConnected, address]);
+
+  // With server-side broadcast, readiness is simply wallet connected
+  const isReady = isConnected && !tradingState.isInitializing;
 
   return {
     tradingState,
     buyToken,
     sellToken,
     clearStatus,
-    kitchenService,
+    topUpTradingWallet,
+    refreshTradingWallet,
+    kitchenService: null,
     isReady,
   };
 };

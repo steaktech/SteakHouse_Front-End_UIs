@@ -25,7 +25,7 @@ export interface WalletState {
   balanceFormatted: string | undefined;
   
   // Actions
-  connect: (connectorId?: string) => Promise<void>;
+  connect: (connectorId?: string) => Promise<string | undefined>;
   disconnect: () => Promise<void>;
   
   // Available connectors
@@ -42,14 +42,14 @@ export interface WalletState {
 
 export function useWallet(): WalletState {
   const account = useAccount();
-  const { connect: wagmiConnect, connectors, isPending: isConnecting, error } = useConnect();
+  const { connectAsync: wagmiConnectAsync, connectors, isPending: isConnecting, error } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
   
   const { data: balance } = useBalance({
     address: account.address,
   });
 
-  // Connect function with error handling
+  // Connect function with error handling; returns the connected address
   const connect = useCallback(async (connectorId?: string) => {
     try {
       const connector = connectorId 
@@ -60,12 +60,15 @@ export function useWallet(): WalletState {
         throw new Error('No connector available');
       }
       
-      await wagmiConnect({ connector });
+      const result: any = await wagmiConnectAsync({ connector });
+      // Try multiple shapes to extract address for different wagmi versions
+      const addr: string | undefined = result?.account?.address || result?.account || result?.data?.account || account.address;
+      return addr;
     } catch (err) {
       console.error('Failed to connect wallet:', err);
       throw err;
     }
-  }, [connectors, wagmiConnect]);
+  }, [connectors, wagmiConnectAsync, account.address]);
 
   // Disconnect function
   const disconnect = useCallback(async () => {

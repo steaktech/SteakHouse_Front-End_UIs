@@ -5,7 +5,8 @@ import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
 import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
-import { useToastHelpers } from '@/app/lib/providers/ToastProvider';
+import { useToastHelpers } from '@/app/hooks/useToast';
+import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 
 const WalletModal = dynamic(
   () => import("../../Modals/WalletModal/WalletModal"),
@@ -49,12 +50,28 @@ export const TradePanel: React.FC<TradePanelProps> = ({
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
   
   const { isConnected, isConnecting } = useWallet();
-  const { tradingState, buyToken, sellToken, clearStatus, isReady } = useTrading();
+  const { tradingState, buyToken, sellToken, clearStatus, isReady, topUpTradingWallet } = useTrading();
   const { showError, showSuccess } = useToastHelpers();
 
   // Limit order UI state (non-breaking addition)
   const [limitPrice, setLimitPrice] = useState('');
   const [limitSide, setLimitSide] = useState<'buy' | 'sell'>('buy');
+
+  // Top-up Modal state
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState('');
+  // Gate to avoid repeated toasts/modals
+  const hasShownTopUpRef = React.useRef(false);
+  React.useEffect(() => {
+    if (tradingState.canTopUp && !hasShownTopUpRef.current) {
+      if (tradingState.topUpSuggestionEth) setTopUpAmount(tradingState.topUpSuggestionEth);
+      showError('Trading wallet has insufficient funds. Please top up to continue.', 'Insufficient funds');
+      setIsTopUpModalOpen(true);
+      hasShownTopUpRef.current = true;
+    } else if (!tradingState.canTopUp) {
+      hasShownTopUpRef.current = false;
+    }
+  }, [tradingState.canTopUp, tradingState.topUpSuggestionEth]);
 
   // Keep active tab in sync with defaultTab prop (supports 'limit' too)
   React.useEffect(() => {
@@ -130,6 +147,35 @@ export const TradePanel: React.FC<TradePanelProps> = ({
       }
     } catch (error) {
       console.error('❌ Trade execution failed:', error);
+      const msg = (error as any)?.message || 'Trade failed';
+      showError(msg, 'Trade Failed');
+    }
+  };
+
+  const handleTopUp = async () => {
+    if (!isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+    if (!tradingState.tradingWallet) {
+      showError('Trading wallet not set up yet. Please contact support.', 'Top Up Failed');
+      return;
+    }
+    if (!topUpAmount || isNaN(Number(topUpAmount)) || Number(topUpAmount) <= 0) {
+      showError('Enter a valid amount in ETH', 'Top Up');
+      return;
+    }
+    try {
+      setIsToppingUp(true);
+      const txHash = await topUpTradingWallet(topUpAmount);
+      if (txHash) {
+        showSuccess(`Top up sent: ${txHash.slice(0, 10)}...`, 'Top Up');
+      }
+    } catch (e) {
+      const msg = (e as any)?.message || 'Failed to top up';
+      showError(msg, 'Top Up Failed');
+    } finally {
+      setIsToppingUp(false);
     }
   };
 
@@ -472,55 +518,59 @@ export const TradePanel: React.FC<TradePanelProps> = ({
 
       {/* Market Confirm or Limit UI (from backup design) */}
       {activeTab !== 'limit' ? (
-        <button
-          onClick={handleConfirmTrade}
-          disabled={isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)}
-          style={{
-            width: '100%',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            marginTop: 'auto',
-            flexShrink: 0,
-            opacity: (isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1
-          }}
-        >
-          <div style={{
-            background: !isConnected 
-              ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
-              : activeTab === 'buy'
-                ? 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)'
-                : 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
-            borderRadius: 'clamp(14px, 3vw, 20px)',
-            padding: 'clamp(14px, 3vh, 18px)',
-            textAlign: 'center',
-            fontWeight: 800,
-            color: !isConnected ? '#1f2937' : '#1f2937',
-            letterSpacing: '0.5px',
-            width: '100%',
-            boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
-            fontSize: 'clamp(16px, 3.2vw, 20px)',
-            textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
-            transition: 'all 200ms ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.65), inset 0 -6px 12px rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)';
-          }}
+        <>
+          {/* Insufficient funds: open modal, no inline error UI */}
+
+          <button
+            onClick={handleConfirmTrade}
+            disabled={isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)}
+            style={{
+              width: '100%',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              marginTop: 'auto',
+              flexShrink: 0,
+              opacity: (isConnecting || tradingState.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1
+            }}
           >
-            {!isConnected 
-              ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
-              : tradingState.isTrading
-                ? `${activeTab.toUpperCase()}ING...`
-                : 'CONFIRM TRADE'
-            }
-          </div>
-        </button>
+            <div style={{
+              background: !isConnected 
+                ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
+                : activeTab === 'buy'
+                  ? 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)'
+                  : 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
+              borderRadius: 'clamp(14px, 3vw, 20px)',
+              padding: 'clamp(14px, 3vh, 18px)',
+              textAlign: 'center',
+              fontWeight: 800,
+              color: !isConnected ? '#1f2937' : '#1f2937',
+              letterSpacing: '0.5px',
+              width: '100%',
+              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+              fontSize: 'clamp(16px, 3.2vw, 20px)',
+              textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+              transition: 'all 200ms ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.65), inset 0 -6px 12px rgba(0,0,0,0.22), 0 4px 8px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)';
+            }}
+            >
+              {!isConnected 
+                ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
+                : tradingState.isTrading
+                  ? `${activeTab.toUpperCase()}ING...`
+                  : 'CONFIRM TRADE'
+              }
+            </div>
+          </button>
+        </>
       ) : (
         <>
           {/* Buy/Sell Toggle for Limit Orders */}
@@ -748,6 +798,17 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         isOpen={isWalletModalOpen}
         onClose={() => setIsWalletModalOpen(false)}
         isConnected={isConnected}
+      />
+
+      <WalletTopUpModal
+        isOpen={isTopUpModalOpen}
+        onClose={() => setIsTopUpModalOpen(false)}
+        tradingWallet={tradingState.tradingWallet}
+        defaultAmountEth={topUpAmount || tradingState.topUpSuggestionEth || ''}
+        onConfirmTopUp={async (amt) => {
+          const tx = await topUpTradingWallet(amt);
+          return tx;
+        }}
       />
       </div>
     </>
