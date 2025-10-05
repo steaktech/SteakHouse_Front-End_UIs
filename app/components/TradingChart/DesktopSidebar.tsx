@@ -379,12 +379,17 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
           <div className="mx-2.5 mt-2 mb-1.5">
             {/* ETH Price */}
             <div 
-              className="mb-1 px-1 py-1"
+              className="mb-1.5 px-2 py-1.5"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '4px'
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.2s ease'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
@@ -405,12 +410,17 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
 
             {/* GWEI */}
             <div 
-              className="px-1 py-1"
+              className="px-2 py-1.5"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '4px'
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.2s ease'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
