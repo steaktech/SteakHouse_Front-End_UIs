@@ -8,6 +8,7 @@ import {
   PriceScaleMode,
   type IChartApi,
   type ISeriesApi,
+  type UTCTimestamp,
 } from "lightweight-charts";
 
 export type ChartType = "candles" | "line";
@@ -87,7 +88,6 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       priceFormat: { type: "volume" },
       color: "#7185aa",
       priceScaleId: "volume",
-      overlay: true,
       visible: showVolume,
     });
     chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
@@ -121,20 +121,17 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     const volumeSeries = volumeSeriesRef.current;
     if (!chart || !candleSeries || !lineSeries || !volumeSeries) return;
 
-    const bars = (candles ?? []).map((c) => ({
-      time: Math.floor(c.timestamp / 1000),
-      open: c.open,
-      high: c.high,
-      low: c.low,
-      close: c.close,
-    }));
+    const bars = (candles ?? []).map((c) => {
+      const t = Math.floor(c.timestamp / 1000) as UTCTimestamp;
+      return { time: t, open: c.open, high: c.high, low: c.low, close: c.close };
+    });
 
     if (chartType === "candles") {
       candleSeries.setData(bars);
       candleSeries.applyOptions({ visible: true });
       lineSeries.applyOptions({ visible: false });
     } else {
-      const lineData = bars.map((b) => ({ time: b.time, value: b.close }));
+      const lineData = (candles ?? []).map((c) => ({ time: Math.floor(c.timestamp / 1000) as UTCTimestamp, value: c.close }));
       lineSeries.setData(lineData);
       candleSeries.applyOptions({ visible: false });
       lineSeries.applyOptions({ visible: true });
@@ -142,7 +139,7 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
 
     // Volume data
     const volumes = (candles ?? []).map((c) => ({
-      time: Math.floor(c.timestamp / 1000),
+      time: Math.floor(c.timestamp / 1000) as UTCTimestamp,
       value: c.volume,
       color: c.close >= c.open ? "#29f266" : "#ff3b3b",
     }));
@@ -188,7 +185,7 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
 
     if (!indicators.length || !(candles?.length)) return;
 
-    const closes = candles.map((c) => ({ time: Math.floor(c.timestamp / 1000), value: c.close }));
+    const closes = candles.map((c) => ({ time: Math.floor(c.timestamp / 1000) as UTCTimestamp, value: c.close }));
 
     function calcSMA(length: number) {
       const data: { time: number; value: number }[] = [];
