@@ -325,13 +325,13 @@ export default function TradingChart() {
         
         <main 
           className={`flex-1 grid grid-cols-1 ${desktopTradeTab === 'limit' 
-            ? 'lg:grid-cols-[1fr_420px] lg:grid-rows-[minmax(200px,1fr)_auto]' 
-            : 'lg:grid-cols-[1fr_380px] lg:grid-rows-[1fr_350px]'} gap-2 p-2 lg:pb-2 ${
-            isMobile ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar scrollbar scrollbar-w-2 scrollbar-track-gray-100 scrollbar-thumb-gray-700 scrollbar-thumb-rounded'
+            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[minmax(150px,1fr)_auto]' 
+            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_280px]'} gap-[8px] p-[8px] lg:pb-[8px] ${
+            'overflow-hidden'
           }`}
           style={{
-            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, normal padding on desktop
-            height: isMobile ? 'calc(100vh - 60px)' : 'auto', // Only subtract header height
+            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, 8px padding on desktop
+            height: isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)', // Subtract header height exactly
             transition: 'grid-template-columns 400ms cubic-bezier(0.4, 0, 0.2, 1), grid-template-rows 400ms cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
@@ -348,9 +348,9 @@ export default function TradingChart() {
             <div style={{
               width: '100%',
               height: desktopTradeTab === 'limit' ? 'fit-content' : '100%',
-              maxHeight: desktopTradeTab === 'limit' ? '300px' : 'none',
+              maxHeight: desktopTradeTab === 'limit' ? '160px' : 'none',
               display: 'flex',
-              alignItems: desktopTradeTab === 'limit' ? 'center' : 'flex-start',
+              alignItems: desktopTradeTab === 'limit' ? 'center' : 'stretch',
               justifyContent: 'center',
               transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)'
             }}>
@@ -371,10 +371,10 @@ export default function TradingChart() {
               width: '100%',
               height: '100%',
               position: 'relative',
-              borderRadius: 'clamp(18px, 2.5vw, 26px)',
+              borderRadius: 'clamp(14px, 2vw, 20px)',
               background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-              padding: 'clamp(16px, 3vh, 22px)',
+              boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+              padding: 'clamp(12px, 2.5vh, 16px)',
               border: '1px solid rgba(255, 215, 165, 0.4)',
               overflow: 'hidden',
               color: '#fff7ea',

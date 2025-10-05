@@ -11,3 +11,4 @@ export { LimitOrderBook } from './LimitOrderBook';
 export { CompactLimitOrderBook } from './CompactLimitOrderBook';
 export * from './types';
 export * from './mockData';
+export * from './utils';

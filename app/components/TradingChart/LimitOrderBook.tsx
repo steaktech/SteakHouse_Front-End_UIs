@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Target, TrendingUp, TrendingDown, X, Edit3, Clock, AlertCircle } from 'lucide-react';
+import { Target, Clock, AlertCircle, TrendingUp, TrendingDown, Edit3, X } from 'lucide-react';
 import { LimitOrder, OrderStatus, OrderSide, LimitOrderBookProps } from './types';
+import { formatAmount } from './utils';
 
 // Mock data for demonstration
 const mockOrders: LimitOrder[] = [
@@ -11,16 +12,16 @@ const mockOrders: LimitOrder[] = [
     type: 'limit',
     side: 'buy',
     price: 21.20,
-    amount: 150,
-    filled: 75,
-    remaining: 75,
+    amount: 1500,
+    filled: 750,
+    remaining: 750,
     status: 'pending',
     timeInForce: 'GTC',
     createdAt: '2024-01-15 14:23:45',
     updatedAt: '2024-01-15 14:35:12',
     marketPrice: 21.50,
     priceDeviation: -1.4,
-    estimatedTotal: 3180,
+    estimatedTotal: 31800,
     symbol: 'SPACE'
   },
   {
@@ -28,16 +29,16 @@ const mockOrders: LimitOrder[] = [
     type: 'limit',
     side: 'sell',
     price: 22.10,
-    amount: 200,
+    amount: 2000,
     filled: 0,
-    remaining: 200,
+    remaining: 2000,
     status: 'pending',
     timeInForce: 'GTC',
     createdAt: '2024-01-15 14:18:20',
     updatedAt: '2024-01-15 14:18:20',
     marketPrice: 21.50,
     priceDeviation: 2.8,
-    estimatedTotal: 4420,
+    estimatedTotal: 44200,
     symbol: 'SPACE'
   },
   {
@@ -45,8 +46,8 @@ const mockOrders: LimitOrder[] = [
     type: 'limit',
     side: 'buy',
     price: 20.95,
-    amount: 300,
-    filled: 300,
+    amount: 3000,
+    filled: 3000,
     remaining: 0,
     status: 'filled',
     timeInForce: 'IOC',
@@ -54,7 +55,7 @@ const mockOrders: LimitOrder[] = [
     updatedAt: '2024-01-15 14:12:33',
     marketPrice: 21.50,
     priceDeviation: -2.6,
-    estimatedTotal: 6285,
+    estimatedTotal: 62850,
     symbol: 'SPACE'
   },
   {
@@ -62,16 +63,16 @@ const mockOrders: LimitOrder[] = [
     type: 'limit',
     side: 'sell',
     price: 22.85,
-    amount: 100,
+    amount: 1000,
     filled: 0,
-    remaining: 100,
+    remaining: 1000,
     status: 'cancelled',
     timeInForce: 'DAY',
     createdAt: '2024-01-15 14:05:30',
     updatedAt: '2024-01-15 14:25:15',
     marketPrice: 21.50,
     priceDeviation: 6.3,
-    estimatedTotal: 2285,
+    estimatedTotal: 22850,
     symbol: 'SPACE'
   },
   {
@@ -79,16 +80,16 @@ const mockOrders: LimitOrder[] = [
     type: 'limit',
     side: 'buy',
     price: 21.35,
-    amount: 250,
-    filled: 50,
-    remaining: 200,
+    amount: 2500,
+    filled: 500,
+    remaining: 2000,
     status: 'pending',
     timeInForce: 'GTC',
     createdAt: '2024-01-15 14:01:45',
     updatedAt: '2024-01-15 14:15:22',
     marketPrice: 21.50,
     priceDeviation: -0.7,
-    estimatedTotal: 5337.50,
+    estimatedTotal: 53375.00,
     symbol: 'SPACE'
   }
 ];
@@ -546,14 +547,14 @@ export const LimitOrderBook: React.FC<LimitOrderBookProps> = ({
                 <div>
                   <span style={{ color: '#ffe0b6', opacity: 0.9, fontWeight: 600 }}>Amount:</span>
                   <div style={{ color: '#feea88', fontWeight: 700, marginTop: '2px' }}>
-                    {order.amount.toLocaleString()}
+                    {formatAmount(order.amount)}
                   </div>
                 </div>
 
                 <div>
                   <span style={{ color: '#ffe0b6', opacity: 0.9, fontWeight: 600 }}>Filled:</span>
                   <div style={{ color: '#feea88', fontWeight: 700, marginTop: '2px' }}>
-                    {order.filled.toLocaleString()} / {order.amount.toLocaleString()}
+                    {formatAmount(order.filled)} / {formatAmount(order.amount)}
                     <span style={{ fontSize: '10px', opacity: 0.8, marginLeft: '4px' }}>
                       ({((order.filled / order.amount) * 100).toFixed(0)}%)
                     </span>

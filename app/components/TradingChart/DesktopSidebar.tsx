@@ -20,11 +20,11 @@ interface WidgetItemProps {
 
 const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, greyedOut, onClick }) => {
   // Base classes for all items
-  const baseClasses = "flex items-center h-[36px] py-2 px-3 mx-2 mb-[6px] rounded-[10px] transition-all duration-200 ease-in-out relative";
+  const baseClasses = "flex items-center h-[30px] py-1.5 px-2.5 mx-1.5 mb-[4px] rounded-[8px] transition-all duration-200 ease-in-out relative";
 
   // Conditional classes based on the state
   const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] cursor-pointer";
-  const greyedOutClasses = "opacity-30 cursor-not-allowed bg-[rgba(0,0,0,0.2)] saturate-0";
+  const greyedOutClasses = "opacity-45 cursor-not-allowed bg-[rgba(0,0,0,0.2)] saturate-0";
   const inactiveClasses = "hover:bg-[rgba(0,0,0,0.178)] cursor-pointer";
 
   // Determine which classes to apply
@@ -41,7 +41,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
     >
       {/* Icon */}
       <div className={`flex-shrink-0 transition-all duration-200 ${greyedOut
-        ? 'opacity-40 grayscale saturate-0'
+        ? 'opacity-55 grayscale saturate-0'
         : active
           ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]'
           : 'opacity-80'
@@ -51,24 +51,24 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
 
       {/* Widget Text: transitions in and out */}
       <span className={`
-        flex-1 text-[13px] font-medium tracking-[0.1px]
+        flex-1 text-[11px] font-medium tracking-[0.08px]
         transition-all duration-200
-        ${greyedOut ? 'text-[#666] opacity-40' : 'text-[#e6d4a3]'}
+        ${greyedOut ? 'text-[#777] opacity-55' : 'text-[#e6d4a3]'}
         ${active ? '[text-shadow:0_1px_2px_rgba(0,0,0,0.4)]' : ''}
-        ${expanded ? 'ml-2 opacity-100' : 'ml-0 opacity-0 w-0 overflow-hidden'}
+        ${expanded ? 'ml-1.5 opacity-100' : 'ml-0 opacity-0 w-0 overflow-hidden'}
       `}>
         {text}
       </span>
 
       {/* Plus Icon: transitions in and out */}
       <div className={`
-        flex flex-shrink-0 items-center justify-center w-4 h-4 text-base
+        flex flex-shrink-0 items-center justify-center w-3.5 h-3.5 text-sm
         transition-all duration-200
-        ${greyedOut ? 'text-[#666] opacity-20 grayscale' : 'text-[#e0940a] opacity-90'}
+        ${greyedOut ? 'text-[#777] opacity-35 grayscale' : 'text-[#e0940a] opacity-90'}
         ${active ? 'font-medium [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]' : 'font-normal'}
         ${expanded ? 'opacity-inherit' : 'opacity-0'}
       `}>
-        <Plus size={16} />
+        <Plus size={14} />
       </div>
     </div>
   );
@@ -172,21 +172,21 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const widgets = [
     // Chart, Token, Trade: greyed out by default, colorful when other widgets are open
     {
-      icon: <BarChart3 size={18} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#444444]"} />,
+      icon: <BarChart3 size={16} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#666666]"} />,
       text: 'Chart',
       active: false,
       greyedOut: !hasActiveWidget,
       onClick: handleChartClick
     },
     {
-      icon: <Coins size={18} className={hasActiveWidget ? "text-[#d29900]" : "text-[#444444]"} />,
+      icon: <Coins size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
       text: 'Token',
       active: false,
       greyedOut: !hasActiveWidget,
       onClick: handleTokenClick
     },
     {
-      icon: <ArrowLeftRight size={18} className={hasActiveWidget ? "text-[#d29900]" : "text-[#444444]"} />,
+      icon: <ArrowLeftRight size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
       text: 'Trade',
       active: false,
       greyedOut: !hasActiveWidget,
@@ -194,21 +194,21 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     },
     // Holders, Chat, Saved: normal behavior
     {
-      icon: <Users size={18} className="text-[#d29900]" />,
+      icon: <Users size={16} className="text-[#d29900]" />,
       text: 'Holders',
       active: isHoldersWidgetOpen,
       greyedOut: false,
       onClick: handleHoldersClick
     },
     {
-      icon: <MessageCircle size={18} className="text-[#d29900]" />,
+      icon: <MessageCircle size={16} className="text-[#d29900]" />,
       text: 'Chat',
       active: isChatWidgetOpen,
       greyedOut: false,
       onClick: handleChatClick
     },
     {
-      icon: <Bookmark size={18} className="text-[#d29900]" />,
+      icon: <Bookmark size={16} className="text-[#d29900]" />,
       text: 'Saved',
       active: isSavedTokenWidgetOpen,
       greyedOut: false,
@@ -216,21 +216,21 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     },
     // New widgets
     {
-      icon: <Lock size={18} className="text-[#d29900]" />,
+      icon: <Lock size={16} className="text-[#d29900]" />,
       text: 'Locker',
       active: false,
       greyedOut: false,
       onClick: handleLockerClick
     },
     {
-      icon: <ExternalLink size={18} className="text-[#d29900]" />,
+      icon: <ExternalLink size={16} className="text-[#d29900]" />,
       text: 'Explorer',
       active: false,
       greyedOut: false,
       onClick: handleExplorerClick
     },
     {
-      icon: <User size={18} className="text-[#d29900]" />,
+      icon: <User size={16} className="text-[#d29900]" />,
       text: 'User',
       active: false,
       greyedOut: false,
@@ -255,18 +255,18 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
           
           /* Mobile Overlay Styles */
           fixed inset-y-0 left-0 z-30
-          ${expanded ? 'translate-x-0 w-[170px]' : '-translate-x-full w-[150px]'}
+          ${expanded ? 'translate-x-0 w-[140px]' : '-translate-x-full w-[120px]'}
 
           /* Desktop Static Styles */
           lg:relative lg:translate-x-0
-          ${expanded ? 'lg:w-[170px]' : 'lg:w-[72px]'} 
+          ${expanded ? 'lg:w-[140px]' : 'lg:w-[60px]'}
         `}
       >
         {/* Header */}
-        <div className="flex-shrink-0 relative flex items-center justify-center px-[12px] pt-[16px] pb-[20px]">
+        <div className="flex-shrink-0 relative flex items-center justify-center px-[10px] pt-[12px] pb-[16px]">
           <div className={`transition-opacity duration-200 ${expanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
             {/* Title styled to match the CSS */}
-            <h2 className="text-[#daa20b] text-lg font-semibold tracking-[0.2px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+            <h2 className="text-[#daa20b] text-base font-semibold tracking-[0.15px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
               Widgets
             </h2>
           </div>
@@ -300,10 +300,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
         </nav>
 
         {/* Bottom Section - Fixed at bottom, outside scrollable area */}
-        <div className="flex-shrink-0 border-t border-[rgba(255,215,165,0.3)] pt-4 pb-4">
+        <div className="flex-shrink-0 border-t border-[rgba(255,215,165,0.3)] pt-3 pb-3">
           {/* SteakTech Bot */}
           <WidgetItem
-            icon={<Bot size={18} className="text-[#d29900]" />}
+            icon={<Bot size={16} className="text-[#d29900]" />}
             text="SteakTech Bot"
             expanded={expanded}
             active={false}
@@ -313,7 +313,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
 
           {/* Links */}
           <WidgetItem
-            icon={<Link size={18} className="text-[#d29900]" />}
+            icon={<Link size={16} className="text-[#d29900]" />}
             text="Links"
             expanded={expanded}
             active={false}
@@ -322,16 +322,16 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
           />
 
           {/* Certik Badge - Full width, styled like main page Footer */}
-          <div className="mx-2 mt-2">
+          <div className="mx-1.5 mt-1.5">
             <button
               onClick={handleCertikClick}
-              className="w-full p-2 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-lg transition-all duration-200 flex items-center justify-center"
+              className="w-full p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
               title="View CertiK Certificate"
             >
               <img
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"
-                className="h-[18px] w-auto opacity-90"
+                className="h-[14px] w-auto opacity-90"
               />
             </button>
           </div>

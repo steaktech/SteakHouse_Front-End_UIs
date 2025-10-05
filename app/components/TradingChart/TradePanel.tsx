@@ -96,13 +96,13 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       <div style={{
         width: '100%',
         height: activeTab === 'limit' ? 'fit-content' : '100%',
-        maxHeight: activeTab === 'limit' ? 'none' : '350px',
-        minHeight: activeTab === 'limit' ? 'auto' : '350px',
+        maxHeight: activeTab === 'limit' ? 'none' : 'none',
+        minHeight: activeTab === 'limit' ? 'auto' : '100%',
         position: 'relative',
-        borderRadius: 'clamp(18px, 2.5vw, 26px)',
+        borderRadius: 'clamp(14px, 2vw, 20px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-        padding: isMobile ? '12px' : 'clamp(16px, 3vh, 22px)',
+        boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+        padding: isMobile ? '10px' : 'clamp(12px, 2.5vh, 16px)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         overflow: 'visible',
         color: '#fff7ea',
@@ -115,34 +115,34 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           position: 'relative',
           display: 'flex',
           width: '100%',
-          height: '50px',
-          borderRadius: '20px',
+          height: '40px',
+          borderRadius: '16px',
           background: 'linear-gradient(180deg, #7f4108, #6f3906)',
           border: '1px solid rgba(255, 215, 165, 0.4)',
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          marginBottom: '16px',
-          padding: '5px',
+          marginBottom: '12px',
+          padding: '4px',
           flexShrink: 0
         }}>
           {/* Sliding Background */}
           <div style={{
             position: 'absolute',
-            top: '5px',
+            top: '4px',
             left: activeTab === 'buy' 
-              ? '5px' 
+              ? '4px' 
               : activeTab === 'sell' 
-                ? 'calc(33.333% + 2.5px)' 
-                : 'calc(66.666% - 2.5px)',
-            height: 'calc(100% - 10px)',
-            width: 'calc(33.333% - 3.33px)',
-            borderRadius: '15px',
+                ? 'calc(33.333% + 2px)' 
+                : 'calc(66.666% - 2px)',
+            height: 'calc(100% - 8px)',
+            width: 'calc(33.333% - 2.67px)',
+            borderRadius: '12px',
             transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             background: activeTab === 'buy'
               ? 'linear-gradient(180deg, #4ade80, #22c55e)'
               : activeTab === 'sell'
                 ? 'linear-gradient(180deg, #f87171, #ef4444)'
                 : 'linear-gradient(180deg, #ffd700, #daa20b)',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
           }} />
           <button
             onClick={() => handleTabChange('buy')}
@@ -154,15 +154,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '14px',
+              fontSize: '12px',
               fontWeight: 800,
               color: activeTab === 'buy' ? '#1f2937' : '#feea88',
               background: 'transparent',
               border: 'none',
-              borderRadius: '15px',
+              borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 200ms ease',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.4px'
             }}
           >
             BUY
@@ -177,15 +177,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '14px',
+              fontSize: '12px',
               fontWeight: 800,
               color: activeTab === 'sell' ? '#1f2937' : '#feea88',
               background: 'transparent',
               border: 'none',
-              borderRadius: '15px',
+              borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 200ms ease',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.4px'
             }}
           >
             SELL
@@ -200,15 +200,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '14px',
+              fontSize: '12px',
               fontWeight: 800,
               color: activeTab === 'limit' ? '#1f2937' : '#feea88',
               background: 'transparent',
               border: 'none',
-              borderRadius: '15px',
+              borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 200ms ease',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.4px'
             }}
           >
             LIMIT
@@ -220,19 +220,19 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 'clamp(8px, 1.5vh, 12px)',
-          gap: 'clamp(6px, 1.5vw, 12px)',
+          marginBottom: 'clamp(6px, 1vh, 8px)',
+          gap: 'clamp(4px, 1vw, 8px)',
           flexWrap: 'wrap',
           flexShrink: 0
         }}>
           <button style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: 'clamp(10px, 2.2vw, 14px)',
-            padding: 'clamp(6px, 1.2vh, 8px) clamp(12px, 2.4vw, 16px)',
+            borderRadius: 'clamp(8px, 1.8vw, 12px)',
+            padding: 'clamp(4px, 1vh, 6px) clamp(8px, 2vw, 12px)',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
             color: '#feea88',
-            fontSize: 'clamp(10px, 1.8vw, 13px)',
+            fontSize: 'clamp(8px, 1.4vw, 11px)',
             fontWeight: 800,
             cursor: 'pointer',
             transition: 'all 200ms ease',
@@ -245,11 +245,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           <button style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: 'clamp(10px, 2.2vw, 14px)',
-            padding: 'clamp(6px, 1.2vh, 8px) clamp(12px, 2.4vw, 16px)',
+            borderRadius: 'clamp(8px, 1.8vw, 12px)',
+            padding: 'clamp(4px, 1vh, 6px) clamp(8px, 2vw, 12px)',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
             color: '#feea88',
-            fontSize: 'clamp(10px, 1.8vw, 13px)',
+            fontSize: 'clamp(8px, 1.4vw, 11px)',
             fontWeight: 800,
             cursor: 'pointer',
             transition: 'all 200ms ease',
@@ -263,7 +263,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Amount Input */}
         <div style={{
           position: 'relative',
-          marginBottom: 'clamp(8px, 1.5vh, 12px)',
+          marginBottom: 'clamp(6px, 1vh, 8px)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
@@ -272,8 +272,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             position: 'relative',
             background: 'linear-gradient(180deg, #7f4108, #6f3906)',
             border: '1px solid rgba(255, 215, 165, 0.4)',
-            borderRadius: 'clamp(14px, 3vw, 20px)',
-            padding: '4px',
+            borderRadius: 'clamp(12px, 2.5vw, 16px)',
+            padding: '3px',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
           }}>
             <input
@@ -291,10 +291,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 width: '100%',
                 background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
                 color: '#feea88',
-                fontSize: 'clamp(18px, 4vw, 24px)',
+                fontSize: 'clamp(14px, 3vw, 18px)',
                 fontWeight: 800,
-                padding: 'clamp(10px, 2vh, 14px) clamp(50px, 10vw, 60px) clamp(10px, 2vh, 14px) clamp(16px, 3vh, 20px)',
-                borderRadius: 'clamp(10px, 2.5vw, 16px)',
+                padding: 'clamp(8px, 1.5vh, 10px) clamp(40px, 8vw, 48px) clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vh, 16px)',
+                borderRadius: 'clamp(8px, 2vw, 12px)',
                 border: `2px solid ${activeTab === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
                 outline: 'none',
                 textAlign: 'left',
@@ -315,12 +315,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             />
             <button style={{
               position: 'absolute',
-              right: 'clamp(8px, 1.5vw, 12px)',
+              right: 'clamp(6px, 1.2vw, 8px)',
               top: '50%',
               transform: 'translateY(-50%)',
               background: 'linear-gradient(180deg, #ffe49c, #ffc96a)',
               borderRadius: '50%',
-              padding: 'clamp(8px, 1.5vw, 10px)',
+              padding: 'clamp(6px, 1.2vw, 8px)',
               color: '#3a200f',
               border: '1px solid rgba(140, 85, 35, 0.28)',
               cursor: 'pointer',
@@ -336,8 +336,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: 'clamp(6px, 1vh, 10px)',
-          gap: 'clamp(2px, 0.3vw, 3px)',
+          marginBottom: 'clamp(4px, 0.8vh, 8px)',
+          gap: 'clamp(1px, 0.2vw, 2px)',
           flexShrink: 0
         }}>
           {quickAmounts.map((preset) => (
@@ -348,11 +348,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               style={{
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                 border: '1px solid rgba(255, 210, 160, 0.4)',
-                borderRadius: 'clamp(10px, 2vw, 14px)',
-                padding: 'clamp(12px, 2.2vh, 16px) clamp(4px, 0.8vw, 6px)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                padding: 'clamp(8px, 1.8vh, 12px) clamp(3px, 0.6vw, 4px)',
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 color: '#feea88',
-                fontSize: 'clamp(10px, 1.6vw, 12px)',
+                fontSize: 'clamp(8px, 1.3vw, 10px)',
                 fontWeight: 800,
                 cursor: 'pointer',
                 transition: 'all 200ms ease',
@@ -360,7 +360,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 whiteSpace: 'nowrap',
                 overflow: 'visible',
                 textAlign: 'center',
-                minHeight: 'clamp(42px, 8vh, 48px)'
+                minHeight: 'clamp(32px, 6vh, 36px)'
               }}
             >
               {preset}
@@ -380,18 +380,18 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   : 'linear-gradient(180deg, #f87171, #ef4444)',
                 color: '#1f2937',
                 fontWeight: 800,
-                fontSize: 'clamp(13px, 2.4vw, 16px)',
-                padding: 'clamp(10px, 2vh, 14px)',
-                borderRadius: 'clamp(14px, 3vw, 20px)',
+                fontSize: 'clamp(10px, 2vw, 13px)',
+                padding: 'clamp(8px, 1.5vh, 10px)',
+                borderRadius: 'clamp(12px, 2.5vw, 16px)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 200ms ease',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1)',
                 textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
                 marginTop: 'auto',
                 flexShrink: 0,
-                letterSpacing: '0.5px',
-                minHeight: 'clamp(40px, 6vh, 46px)'
+                letterSpacing: '0.4px',
+                minHeight: 'clamp(32px, 5vh, 36px)'
               }}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLButtonElement;
@@ -417,28 +417,28 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               position: 'relative',
               display: 'flex',
               width: '100%',
-              height: 'clamp(40px, 6vh, 45px)',
-              borderRadius: 'clamp(15px, 3vw, 20px)',
+              height: 'clamp(32px, 5vh, 36px)',
+              borderRadius: 'clamp(12px, 2.5vw, 16px)',
               background: 'linear-gradient(180deg, #7f4108, #6f3906)',
               border: '1px solid rgba(255, 215, 165, 0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-              marginBottom: 'clamp(10px, 2vh, 14px)',
-              padding: '4px',
+              marginBottom: 'clamp(8px, 1.5vh, 10px)',
+              padding: '3px',
               flexShrink: 0
             }}>
               <div style={{
                 position: 'absolute',
-                top: '4px',
-                left: '4px',
-                height: 'calc(100% - 8px)',
-                width: 'calc(50% - 4px)',
-                borderRadius: 'clamp(11px, 2.5vw, 16px)',
+                top: '3px',
+                left: '3px',
+                height: 'calc(100% - 6px)',
+                width: 'calc(50% - 3px)',
+                borderRadius: 'clamp(9px, 2vw, 13px)',
                 transition: 'all 300ms ease-in-out',
-                transform: limitSide === 'buy' ? 'translateX(0)' : 'translateX(calc(100% + 4px))',
+                transform: limitSide === 'buy' ? 'translateX(0)' : 'translateX(calc(100% + 3px))',
                 background: limitSide === 'buy'
                   ? 'linear-gradient(180deg, #4ade80, #22c55e)'
                   : 'linear-gradient(180deg, #f87171, #ef4444)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)'
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15)'
               }} />
               <button
                 onClick={() => setLimitSide('buy')}
@@ -446,16 +446,16 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   position: 'relative',
                   zIndex: 10,
                   flex: 1,
-                  padding: 'clamp(8px, 1.5vh, 10px)',
+                  padding: 'clamp(6px, 1.2vh, 8px)',
                   textAlign: 'center',
-                  fontSize: 'clamp(12px, 2.2vw, 14px)',
+                  fontSize: 'clamp(10px, 1.8vw, 12px)',
                   fontWeight: 800,
                   color: limitSide === 'buy' ? '#1f2937' : '#feea88',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all 200ms ease',
-                  letterSpacing: '0.3px'
+                  letterSpacing: '0.2px'
                 }}
               >
                 BUY LIMIT

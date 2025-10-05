@@ -461,9 +461,9 @@
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
-	width: 180px;
-	height: 50px;
-	min-width: 120px;
+	width: 150px;
+	height: 42px;
+	min-width: 100px;
 	border: none;
 	cursor: pointer;
 }
@@ -494,7 +494,7 @@
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
-	font-size: 16px;
+	font-size: 14px;
 	text-transform: uppercase;
 	letter-spacing: 1.8px;
 }
@@ -525,9 +525,9 @@
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
-	width: 180px;
-	height: 50px;
-	min-width: 120px;
+	width: 150px;
+	height: 42px;
+	min-width: 100px;
 	border: none;
 	cursor: pointer;
 }
@@ -556,7 +556,7 @@
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
-	font-size: 14px;
+	font-size: 12px;
 	text-transform: uppercase;
 	letter-spacing: 1.5px;
 }

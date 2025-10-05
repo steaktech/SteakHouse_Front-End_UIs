@@ -207,13 +207,13 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 'clamp(8px, 1.5vh, 12px)'
+        marginBottom: 'clamp(6px, 1vh, 8px)'
       }}>
         <h3 style={{
           color: '#feea88',
           fontFamily: '"Sora", "Inter", sans-serif',
           fontWeight: 800,
-          fontSize: isMobile ? '14px' : 'clamp(14px, 2.5vw, 16px)',
+          fontSize: isMobile ? '12px' : 'clamp(12px, 2vw, 14px)',
           lineHeight: 1,
           margin: 0,
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
@@ -228,25 +228,25 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
             display: 'flex',
             background: 'linear-gradient(180deg, #7f4108, #6f3906)',
             border: '1px solid rgba(255, 215, 165, 0.4)',
-            borderRadius: '20px',
-            padding: '3px',
+            borderRadius: '16px',
+            padding: '2px',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             flexShrink: 0,
-            width: '150px',
-            height: '32px'
+            width: '120px',
+            height: '26px'
           }}>
             <div style={{
               position: 'absolute',
-              top: '3px',
-              left: showLimitOrders ? 'calc(50% + 1.5px)' : '3px',
-              height: 'calc(100% - 6px)',
-              width: 'calc(50% - 4.5px)',
-              borderRadius: '16px',
+              top: '2px',
+              left: showLimitOrders ? 'calc(50% + 1px)' : '2px',
+              height: 'calc(100% - 4px)',
+              width: 'calc(50% - 3px)',
+              borderRadius: '13px',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               background: showLimitOrders 
                 ? 'linear-gradient(180deg, #ffd700, #daa20b)'
                 : 'linear-gradient(180deg, #4ade80, #22c55e)',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+              boxShadow: '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }} />
             <button
               onClick={() => onToggleChange(false)}
@@ -256,7 +256,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '10px',
+                fontSize: '8px',
                 fontWeight: 700,
                 color: !showLimitOrders ? '#1f2937' : '#feea88',
                 background: 'transparent',
@@ -266,7 +266,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 whiteSpace: 'nowrap',
                 width: '50%',
                 height: '100%',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.4px'
               }}
             >
               TXN
@@ -279,7 +279,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '10px',
+                fontSize: '8px',
                 fontWeight: 700,
                 color: showLimitOrders ? '#1f2937' : '#feea88',
                 background: 'transparent',
@@ -289,7 +289,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 whiteSpace: 'nowrap',
                 width: '50%',
                 height: '100%',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.4px'
               }}
             >
               ORDERS
@@ -303,23 +303,23 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          marginBottom: 'clamp(12px, 2vh, 16px)',
+          gap: '8px',
+          marginBottom: 'clamp(8px, 1.5vh, 12px)',
           flexWrap: 'wrap',
-          padding: 'clamp(10px, 2vh, 14px) clamp(14px, 3vh, 18px)',
+          padding: 'clamp(8px, 1.5vh, 10px) clamp(10px, 2.5vh, 14px)',
           background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
           border: '1px solid rgba(255, 215, 165, 0.25)',
-          borderRadius: 'clamp(10px, 2vw, 14px)',
-          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+          borderRadius: 'clamp(8px, 1.6vw, 12px)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
         }}>
         {/* Type Filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
-            fontSize: 'clamp(11px, 2vw, 13px)', 
+            fontSize: 'clamp(9px, 1.6vw, 11px)', 
             color: '#feea88', 
             fontWeight: 800,
             textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
-            letterSpacing: '0.3px'
+            letterSpacing: '0.2px'
           }}>TYPE</span>
           <select
             value={filterType}
@@ -327,15 +327,15 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
             style={{
               background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
               border: '1px solid rgba(255, 215, 165, 0.4)',
-              borderRadius: 'clamp(6px, 1.5vw, 8px)',
-              padding: 'clamp(5px, 1.2vh, 7px) clamp(8px, 2vw, 12px)',
-              fontSize: 'clamp(10px, 1.8vw, 12px)',
+              borderRadius: 'clamp(5px, 1.2vw, 6px)',
+              padding: 'clamp(3px, 1vh, 5px) clamp(6px, 1.6vw, 8px)',
+              fontSize: 'clamp(8px, 1.4vw, 10px)',
               fontWeight: 700,
               color: '#feea88',
               outline: 'none',
               cursor: 'pointer',
-              minWidth: '65px',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.2)',
+              minWidth: '50px',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.2)',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
             }}
           >
@@ -346,13 +346,13 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         </div>
         
         {/* Sort By */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
-            fontSize: 'clamp(11px, 2vw, 13px)', 
+            fontSize: 'clamp(9px, 1.6vw, 11px)', 
             color: '#feea88', 
             fontWeight: 800,
             textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
-            letterSpacing: '0.3px'
+            letterSpacing: '0.2px'
           }}>SORT</span>
           <select
             value={sortBy}
@@ -380,13 +380,13 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         </div>
         
         {/* Address Filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
-            fontSize: 'clamp(11px, 2vw, 13px)', 
+            fontSize: 'clamp(9px, 1.6vw, 11px)', 
             color: '#feea88', 
             fontWeight: 800,
             textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
-            letterSpacing: '0.3px'
+            letterSpacing: '0.2px'
           }}>ADDRESS</span>
           <input
             type="text"
@@ -472,9 +472,9 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           height: '100%', 
           display: 'flex', 
           flexDirection: 'column', 
-          gap: isMobile ? '12px' : '8px',
-          padding: isMobile ? '0 4px' : '0 2px',
-          paddingRight: isMobile ? '4px' : '6px' // Extra space for scrollbar on desktop
+          gap: isMobile ? '8px' : '6px',
+          padding: isMobile ? '0 3px' : '0 1px',
+          paddingRight: isMobile ? '3px' : '4px' // Extra space for scrollbar on desktop
         }}>
           {getFilteredAndSortedTransactions().map((tx, index) => (
             <div key={index} style={{
@@ -484,8 +484,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               border: isMobile 
                 ? '2px solid rgba(255, 215, 165, 0.4)' 
                 : '1px solid rgba(255, 215, 165, 0.25)',
-              borderRadius: isMobile ? '16px' : 'clamp(10px, 2vw, 14px)',
-              padding: isMobile ? '12px 16px' : 'clamp(10px, 2vh, 14px) clamp(14px, 3vh, 18px)',
+              borderRadius: isMobile ? '14px' : 'clamp(8px, 1.6vw, 12px)',
+              padding: isMobile ? '10px 12px' : 'clamp(8px, 1.5vh, 10px) clamp(10px, 2.5vh, 14px)',
               boxShadow: isMobile 
                 ? '0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
                 : '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
@@ -493,7 +493,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               display: 'flex',
               flexDirection: isMobile ? 'column' : 'row',
               alignItems: 'center',
-              gap: isMobile ? '4px' : '10px',
+              gap: isMobile ? '3px' : '8px',
               width: '100%'
             }}>
               {isMobile ? (
@@ -508,34 +508,34 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   }}>
                     {/* Buy/Sell Icon */}
                     <div style={{
-                      width: '24px',
-                      height: '24px',
+                      width: '20px',
+                      height: '20px',
                       borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       background: tx.positive ? '#22c55e' : '#ef4444',
                       color: 'white',
-                      fontSize: '12px',
+                      fontSize: '10px',
                       fontWeight: 'bold',
                       flexShrink: 0
                     }}>
-                      {tx.positive ? <BuyArrow size={12} /> : <SellArrow size={12} />}
+                      {tx.positive ? <BuyArrow size={10} /> : <SellArrow size={10} />}
                     </div>
                     
                     <span style={{
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 800,
                       color: tx.positive ? '#22c55e' : '#ef4444',
                       textTransform: 'uppercase',
-                      minWidth: '35px',
+                      minWidth: '30px',
                       flexShrink: 0
                     }}>
                       {tx.type}
                     </span>
                     
                     <span style={{
-                      fontSize: '13px',
+                      fontSize: '11px',
                       fontWeight: 700,
                       color: '#feea88',
                       flex: 1,
@@ -548,7 +548,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     </span>
                     
                     <span style={{
-                      fontSize: '11px',
+                      fontSize: '9px',
                       color: '#feea88',
                       opacity: 0.8,
                       flexShrink: 1,
@@ -561,7 +561,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     </span>
                     
                     <span style={{
-                      fontSize: '11px',
+                      fontSize: '9px',
                       color: '#feea88',
                       opacity: 0.7,
                       flexShrink: 1,
@@ -574,12 +574,12 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     </span>
                     
                     <span style={{
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 800,
                       color: '#feea88',
                       marginLeft: 'auto',
                       flexShrink: 0,
-                      minWidth: '50px',
+                      minWidth: '40px',
                       textAlign: 'right'
                     }}>
                       {tx.price}
@@ -594,7 +594,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     width: '100%'
                   }}>
                     <span style={{
-                      fontSize: '12px',
+                      fontSize: '10px',
                       color: '#ffe0b6',
                       fontWeight: 600,
                       flexShrink: 0

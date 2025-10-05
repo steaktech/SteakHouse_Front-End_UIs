@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, TrendingUp, TrendingDown, BarChart3, DollarSign, Clock, Target, Wallet, PieChart } from 'lucide-react';
 import { TradingViewWidget } from './TradingViewWidget';
+import { formatAmount } from './utils';
 
 interface MobileFullScreenChartProps {
   isOpen: boolean;
@@ -40,8 +41,8 @@ export const MobileFullScreenChart: React.FC<MobileFullScreenChartProps> = ({ is
       id: '1',
       type: 'buy',
       price: 21.45,
-      amount: 100,
-      filled: 60,
+      amount: 1500,
+      filled: 600,
       status: 'pending',
       timestamp: '10:45:32'
     },
@@ -49,8 +50,8 @@ export const MobileFullScreenChart: React.FC<MobileFullScreenChartProps> = ({ is
       id: '2',
       type: 'sell',
       price: 22.80,
-      amount: 50,
-      filled: 50,
+      amount: 2200,
+      filled: 2200,
       status: 'filled',
       timestamp: '10:42:15'
     },
@@ -58,7 +59,7 @@ export const MobileFullScreenChart: React.FC<MobileFullScreenChartProps> = ({ is
       id: '3',
       type: 'buy',
       price: 20.90,
-      amount: 75,
+      amount: 750,
       filled: 0,
       status: 'cancelled',
       timestamp: '10:38:20'
@@ -256,11 +257,11 @@ export const MobileFullScreenChart: React.FC<MobileFullScreenChartProps> = ({ is
                       </div>
                       <div>
                         <span className="text-[#daa20b]/60">Amount:</span>
-                        <span className="text-[#daa20b] ml-1">{order.amount}</span>
+                        <span className="text-[#daa20b] ml-1">{formatAmount(order.amount)}</span>
                       </div>
                       <div>
                         <span className="text-[#daa20b]/60">Filled:</span>
-                        <span className="text-[#daa20b] ml-1">{order.filled}/{order.amount}</span>
+                        <span className="text-[#daa20b] ml-1">{formatAmount(order.filled)}/{formatAmount(order.amount)}</span>
                       </div>
                       <div>
                         <span className="text-[#daa20b]/60">Time:</span>
@@ -298,7 +299,7 @@ export const MobileFullScreenChart: React.FC<MobileFullScreenChartProps> = ({ is
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-[#daa20b]/60">Amount:</span>
-                      <span className="text-[#daa20b]">{position.amount.toLocaleString()}</span>
+                      <span className="text-[#daa20b]">{formatAmount(position.amount)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#daa20b]/60">Avg Price:</span>
