@@ -289,8 +289,24 @@
   .textLarge { font-size: 1.8rem; }
 }
 @media (min-width: 1024px) {
-  .textSmall { font-size: 0.8rem; }
-  .textLarge { font-size: 2rem; }
+  .glowCard {
+    height: 96px; /* 80% of original 120px */
+    border-radius: 12px; /* 80% of original 16px */
+  }
+  .xs {
+    height: 96px;
+    border-radius: 12px;
+  }
+  .textSmall { 
+    font-size: 0.64rem; /* 80% of 0.8rem */
+    margin-bottom: 0.2rem; /* 80% of 0.25rem */
+  }
+  .textLarge { 
+    font-size: 1.6rem; /* 80% of 2rem */
+  }
+  .cardContent {
+    padding: 8%; /* 80% of 10% */
+  }
 }
 
 

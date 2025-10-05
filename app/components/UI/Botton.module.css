@@ -569,6 +569,21 @@
 	);
 }
 
+/* Desktop scaling for 100% zoom appearance */
+@media (min-width: 1024px) {
+	.headerBtn,
+	.headerBtnGolden {
+		width: 120px !important;
+		height: 34px !important;
+		min-width: 80px !important;
+	}
+	.headerBtnInner,
+	.headerBtnGoldenInner {
+		font-size: 10px !important;
+		letter-spacing: 1.2px !important;
+	}
+}
+
 /* Responsive styles for header buttons */
 @media (max-width: 768px) {
 	.headerBtn,
@@ -617,5 +632,26 @@
 		padding: 8px 16px !important;
 		font-size: 12px !important;
 		letter-spacing: 1px !important;
+	}
+}
+
+/* Desktop scaling for 100% zoom appearance - buttons */
+@media (min-width: 1024px) {
+	.btn-3 {
+		padding: 10px 16px !important; /* 80% scaling */
+		font-size: 12px !important;
+		border-radius: 10px !important;
+		letter-spacing: 0.8px !important;
+	}
+	
+	.btn-5 {
+		padding: 10px 19px !important; /* 80% scaling */
+		font-size: 13px !important;
+		border-radius: 10px !important;
+		letter-spacing: 1.2px !important;
+	}
+	
+	.btn-5:hover {
+		padding: 10px 32px !important; /* 80% scaling */
 	}
 }

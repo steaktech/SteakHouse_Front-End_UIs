@@ -630,6 +630,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                         transition: 'opacity 0.2s',
                         display: 'flex',
                         alignItems: 'center',
+                        gap: '4px',
                         padding: '2px',
                         marginLeft: 'auto',
                         flexShrink: 0
@@ -638,6 +639,14 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                       onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
                       title="View on Etherscan"
                     >
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        color: '#feea88',
+                        opacity: 0.8
+                      }}>
+                        TX
+                      </span>
                       <img 
                         src="/images/etherscan_logo.webp" 
                         alt="Etherscan" 

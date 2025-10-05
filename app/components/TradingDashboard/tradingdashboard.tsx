@@ -162,6 +162,7 @@ export default function TradingDashboard() {
         @media (min-width: 1250px) {
           .token-grid {
             grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem; /* 80% of 1.5rem */
           }
         }
         
@@ -169,6 +170,7 @@ export default function TradingDashboard() {
         @media (min-width: 1650px) {
           .token-grid {
             grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem; /* 80% of 1.5rem */
           }
         }
         
@@ -179,6 +181,12 @@ export default function TradingDashboard() {
           overflow: hidden;
           padding-left: 0;
           padding-right: 0;
+        }
+        
+        @media (min-width: 1024px) {
+          .token-container {
+            min-height: 640px; /* 80% of 800px */
+          }
         }
         
         /* Ensure cards maintain consistent sizing */
@@ -225,19 +233,19 @@ export default function TradingDashboard() {
         }
       `}</style>
       <div className="bg-transparent font-sans">
-      <div className="max-w-full xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8">
-        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[-20px] md:mt-4 mb-8">
+      <div className="max-w-full xl:max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-6 pt-4 sm:pt-6 lg:pt-6">
+        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[-20px] md:mt-3 lg:mt-2 mb-8 lg:mb-6">
           <div className="md:w-2/3 text-center md:text-left z-10">
             <h1
               style={headingStyle}
               // The `font-bold` class is removed as `fontWeight` is now set in the style object
-              className="text-7xl md:text-[6rem] lg:text-[7rem] xl:text-[9rem] 2xl:text-[9rem]"
+              className="text-7xl md:text-[6rem] lg:text-[5.6rem] xl:text-[7.2rem] 2xl:text-[7.2rem]"
             >
-              The <span className="2xl:text-[10rem]">Dev's</span>{" "}
-              <span className="2xl:text-[7rem]">Kitchen</span>
+              The <span className="lg:text-[6.4rem] xl:text-[8rem] 2xl:text-[8rem]">Dev's</span>{" "}
+              <span className="lg:text-[4.8rem] xl:text-[5.6rem] 2xl:text-[5.6rem]">Kitchen</span>
             </h1>
 
-            <p className="mt-6 text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#e4bb0f]">
+            <p className="mt-6 lg:mt-4 text-3xl md:text-4xl lg:text-4xl xl:text-4xl font-semibold text-[#e4bb0f]">
               Launch A Token For $3
               {/* <span className="font-bold">
                 <img
@@ -250,7 +258,7 @@ export default function TradingDashboard() {
           </div>
         </header>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-11 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-11 lg:gap-8 mb-8 lg:mb-6">
           {statsData.map((stat, index) => (
             <DashboardStatCard
               key={index}
@@ -261,7 +269,7 @@ export default function TradingDashboard() {
         </div>
 
         <div>
-          <div className="bg-gradient-to-b from-[#532301] to-transparent p-2 sm:p-4 rounded-t-xl mb-0 shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
+          <div className="bg-gradient-to-b from-[#532301] to-transparent p-2 sm:p-4 lg:p-3 rounded-t-xl lg:rounded-t-lg mb-0 shadow-[0_10px_20px_rgba(43,18,1,0.5),_inset_0_2px_3px_rgba(255,235,205,0.2),_inset_0_-4px_5px_rgba(0,0,0,0.4)]">
             {/* Mobile Layout (0px - 639px) */}
             <div className="block sm:hidden">
               {/* Search bar at top for mobile */}
@@ -377,35 +385,35 @@ export default function TradingDashboard() {
             </div>
 
             {/* Desktop Layout (1200px+) */}
-            <div className="hidden xl:flex flex-wrap items-center gap-2 justify-between">
-              <div className="flex items-center gap-2 flex-wrap">
+            <div className="hidden xl:flex flex-wrap items-center gap-2 lg:gap-1.5 justify-between">
+              <div className="flex items-center gap-2 lg:gap-1.5 flex-wrap">
                 <FilterButton 
-                  icon={<BarChart size={16} />} 
+                  icon={<BarChart size={16} className="lg:w-3.5 lg:h-3.5" />} 
                   label="Volume" 
                   active={filters.sortBy === 'volume'}
                   onClick={sortByVolume}
                 />
                 <FilterButton 
-                  icon={<DollarSign size={16} />} 
+                  icon={<DollarSign size={16} className="lg:w-3.5 lg:h-3.5" />} 
                   label="MCAP" 
                   active={filters.sortBy === 'mcap'}
                   onClick={sortByMarketCap}
                 />
                 <FilterButton 
-                  icon={<Flame size={16} />} 
+                  icon={<Flame size={16} className="lg:w-3.5 lg:h-3.5" />} 
                   label="Trending" 
                   onClick={showAll}
                 />
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 lg:gap-1.5">
                 <button
                   type="button"
                   onClick={handleSearchClick}
-                  className={`${styles["btn-5"]} flex items-center gap-2`}
+                  className={`${styles["btn-5"]} flex items-center gap-2 lg:gap-1.5`}
                 >
                   <span className={styles.rightSteak}>🥩</span>
-                  <Search size={18} />
+                  <Search size={18} className="lg:w-4 lg:h-4" />
                   <span>Search...</span>
                 </button>
                 {/* <button
@@ -420,21 +428,21 @@ export default function TradingDashboard() {
                 </button> */}
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 lg:gap-1.5 flex-wrap">
                 <FilterButton 
-                  icon={<Star size={16} />} 
+                  icon={<Star size={16} className="lg:w-3.5 lg:h-3.5" />} 
                   label="New" 
                   active={filters.sortBy === 'age'}
                   onClick={sortByAge}
                 />
                 <FilterButton 
-                  icon={<Wrench size={16} />} 
+                  icon={<Wrench size={16} className="lg:w-3.5 lg:h-3.5" />} 
                   label="Utility" 
                   active={filters.tokenType === 'Utility'}
                   onClick={() => filterByType('Utility')}
                 />
                 <FilterButton 
-                  icon={<Smile size={16} />} 
+                  icon={<Smile size={16} className="lg:w-3.5 lg:h-3.5" />} 
                   label="Meme" 
                   active={filters.tokenType === 'Meme'}
                   onClick={() => filterByType('Meme')}
@@ -443,7 +451,7 @@ export default function TradingDashboard() {
             </div>
           </div>
 
-          <div className="token-container bg-[#1b0a03]/40 backdrop-blur-lg rounded-t-xl border-t border-l border-r border-white/20 shadow-lg p-4 sm:p-6 pb-0">
+          <div className="token-container bg-[#1b0a03]/40 backdrop-blur-lg rounded-t-xl lg:rounded-t-lg border-t border-l border-r border-white/20 shadow-lg p-4 sm:p-6 lg:p-4 pb-0">
             {isLoading ? (
               renderLoadingState()
             ) : error ? (
@@ -451,7 +459,7 @@ export default function TradingDashboard() {
             ) : tokenCards.length === 0 ? (
               renderEmptyState()
             ) : (
-              <div className="token-grid pb-4 sm:pb-6">
+              <div className="token-grid pb-4 sm:pb-6 lg:pb-4">
                 {tokenCards.map((token, index) => (
                   <div key={`${token.symbol}-${index}`}>
                     <TokenCard {...token} />

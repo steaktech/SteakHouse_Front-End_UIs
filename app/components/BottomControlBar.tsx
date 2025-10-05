@@ -22,7 +22,7 @@ const PaginationButton: React.FC<{
       disabled={disabled}
       className={`
         appearance-none inline-flex items-center justify-center gap-2
-px-4 py-2.5 font-bold text-sm whitespace-nowrap
+px-4 py-2.5 lg:px-3 lg:py-2 font-bold text-sm lg:text-xs whitespace-nowrap
         rounded-full border transition-all duration-150 ease-out
         
         /* Exact footer button styling - primary variant */
@@ -68,21 +68,21 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   const dots = Array.from({ length: 5 });
 
   return (
-    <div className="flex items-center justify-center space-x-[2vw] sm:space-x-4">
+    <div className="flex items-center justify-center space-x-[2vw] sm:space-x-4 lg:space-x-3">
       {/* Previous Button */}
-      <PaginationButton onClick={handlePrevious} disabled={currentPage === 1} className="px-[3vw] py-[2vw] sm:px-4 sm:py-2.5 text-[3.2vw] sm:text-base">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-[3.5vw] w-[3.5vw] sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+      <PaginationButton onClick={handlePrevious} disabled={currentPage === 1} className="px-[3vw] py-[2vw] sm:px-4 sm:py-2.5 lg:px-3 lg:py-2 text-[3.2vw] sm:text-base lg:text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-[3.5vw] w-[3.5vw] sm:h-4 sm:w-4 lg:h-3.5 lg:w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
         <span className="font-black">Prev</span>
       </PaginationButton>
 
       {/* Page Info and Dots */}
-      <div className="flex flex-col items-center mx-[2vw] sm:mx-6">
+      <div className="flex flex-col items-center mx-[2vw] sm:mx-6 lg:mx-4">
         {/* Page info styled like footer social icons with smooth animation */}
         <div
           className="
-            px-[4vw] py-[2.5vw] sm:px-8 sm:py-3 rounded-2xl font-bold text-[3.5vw] sm:text-sm min-w-[25vw] sm:min-w-[120px] max-w-[40vw] sm:max-w-none
+            px-[4vw] py-[2.5vw] sm:px-8 sm:py-3 lg:px-6 lg:py-2.5 rounded-2xl lg:rounded-xl font-bold text-[3.5vw] sm:text-sm lg:text-xs min-w-[25vw] sm:min-w-[120px] lg:min-w-[96px] max-w-[40vw] sm:max-w-none
             bg-gradient-to-b from-[#ffdca1] to-[#ffb95b]
             border border-[rgba(255,171,77,0.45)] text-[#5b2d05]
             shadow-[0_6px_16px_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,188,100,0.1)_inset]
@@ -95,14 +95,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         </div>
 
         {/* Indicator dots styled like mini social icons */}
-        <div className="flex space-x-2 mt-3">
+        <div className="flex space-x-2 lg:space-x-1.5 mt-3 lg:mt-2">
           {dots.map((_, index) => {
             const isActive = index === Math.floor((currentPage - 1) % 5);
             return (
               <div
                 key={index}
                 className={`
-                  w-2.5 h-2.5 rounded-lg transition-all duration-200 ease-out cursor-pointer
+                  w-2.5 h-2.5 lg:w-2 lg:h-2 rounded-lg transition-all duration-200 ease-out cursor-pointer
                   bg-gradient-to-b border border-[rgba(255,171,77,0.45)]
                   shadow-[0_3px_8px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,188,100,0.1)_inset]
                   hover:-translate-y-0.5 hover:shadow-[0_5px_12px_rgba(255,140,40,0.28),0_0_0_1px_rgba(255,188,100,0.16)_inset]
@@ -118,9 +118,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       </div>
 
       {/* Next Button */}
-      <PaginationButton onClick={handleNext} disabled={currentPage === totalPages} className="px-[3vw] py-[2vw] sm:px-4 sm:py-2.5 text-[3.2vw] sm:text-base">
+      <PaginationButton onClick={handleNext} disabled={currentPage === totalPages} className="px-[3vw] py-[2vw] sm:px-4 sm:py-2.5 lg:px-3 lg:py-2 text-[3.2vw] sm:text-base lg:text-sm">
         <span className="font-black">Next</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-[3.5vw] w-[3.5vw] sm:h-4 sm:w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-[3.5vw] w-[3.5vw] sm:h-4 sm:w-4 lg:h-3.5 lg:w-3.5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </PaginationButton>
@@ -148,9 +148,9 @@ export default function BottomControlBar() {
   return (
     <div className="w-full relative" style={{marginTop: '0', paddingTop: '0'}}>
       {/* Control buttons section with gradient background */}
-      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 flex items-center justify-between border-b border-white/20" style={{marginTop: '0'}}>
+      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 lg:p-3 flex items-center justify-between border-b border-white/20" style={{marginTop: '0'}}>
         {/* Left section - Social Icons */}
-        <div className="flex-1 flex items-center justify-start space-x-4 pl-4">
+        <div className="flex-1 flex items-center justify-start space-x-4 lg:space-x-3 pl-4 lg:pl-3">
         </div>
 
         {/* Center section - PAGINATION CONTROLS */}
@@ -163,7 +163,7 @@ export default function BottomControlBar() {
         </div>
 
         {/* Right section - Footer Links */}
-        <div className="flex-1 flex items-center justify-end space-x-6 pr-4">
+        <div className="flex-1 flex items-center justify-end space-x-6 lg:space-x-5 pr-4 lg:pr-3">
         </div>
       </div>
     </div>

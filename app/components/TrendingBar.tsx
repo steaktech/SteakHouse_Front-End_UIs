@@ -15,16 +15,16 @@ export default function TrendingBar() {
   return (
     <div>
       {/* --- Desktop Layout (Hidden on Mobile) --- */}
-      <div className="hidden md:flex h-16 relative">
+      <div className="hidden md:flex h-16 lg:h-12 relative">
         {/* "TRENDING" title section */}
-        <div className="flex-none w-50 h-17 -mt-1 flex items-center z-15 justify-start pl-4 relative" style={{backgroundImage: 'url(/images/bull-bar.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
-          <h2 className="text-[#F7F0D4] font-bold text-lg">
+        <div className="flex-none w-50 lg:w-40 h-17 lg:h-13 -mt-1 lg:-mt-0.5 flex items-center z-15 justify-start pl-4 lg:pl-3 relative" style={{backgroundImage: 'url(/images/bull-bar.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+          <h2 className="text-[#F7F0D4] font-bold text-lg lg:text-base">
             TRENDING
           </h2>
         </div>
 
         {/* Main bar with bull image and scrolling profiles */}
-        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center">
+        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-15 lg:-ml-12 z-10 h-18 lg:h-14 -mt-1 lg:-mt-0.5 flex items-center">
           {/* <Image
             src="/images/bull.png"
             alt="Bull"
@@ -36,12 +36,12 @@ export default function TrendingBar() {
           {/* This container will take up the rest of the available space. */}
           <div className="flex-1 relative flex items-center overflow-hidden w-2 h-full">
             {/* Left fade overlay */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 lg:w-19 h-14 lg:h-11 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
             
             <ProfileMarquee profiles={trendingProfiles} />
             
             {/* Right fade overlay */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 lg:w-19 h-14 lg:h-11 bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
           </div>
         </div>
       </div>

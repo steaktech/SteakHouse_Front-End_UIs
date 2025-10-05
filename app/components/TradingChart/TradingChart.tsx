@@ -382,7 +382,7 @@ export default function TradingChart() {
               <div style={{ flex: 1, overflow: 'hidden' }}>
                 {showLimitOrders ? (
                   <CompactLimitOrderBook 
-                    orders={orderManagement.getActiveOrders()}
+                    orders={orderManagement.orders}
                     onCancelOrder={handleOrderCancel}
                     onModifyOrder={handleOrderModify}
                     loading={orderManagement.loading}
@@ -430,10 +430,8 @@ export default function TradingChart() {
           style={{ zIndex: 10, touchAction: 'none' }}
         >
           {transactionsHeight < 100 ? (
-            // Collapsed state - show expand button
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full" style={{
-              background: 'linear-gradient(180deg, rgba(255, 231, 190, 0.35), rgba(255, 196, 120, 0.22))',
-              border: '1px solid rgba(255, 210, 160, 0.65)',
+            // Collapsed state - show plain text with arrow (no bubble)
+            <div className="flex items-center gap-2" style={{
               color: '#feea88'
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

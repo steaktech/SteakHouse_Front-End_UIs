@@ -102,6 +102,13 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
     }
   };
 
+  const getStatusText = (order: LimitOrder) => {
+    if (order.status === 'pending') {
+      return 'ACTIVE';
+    }
+    return order.status.toUpperCase();
+  };
+
   const handleCancelOrder = async (orderId: string) => {
     if (onCancelOrder) {
       await onCancelOrder(orderId);
@@ -376,7 +383,10 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
               fontSize: '11px',
               opacity: 0.7
             }}>
-              No active orders
+              {filterStatus === 'all' ? 'No limit orders found' : 
+               filterStatus === 'pending' ? 'No active orders' :
+               filterStatus === 'filled' ? 'No filled orders' : 
+               'No cancelled orders'}
             </div>
           )}
 
@@ -526,15 +536,43 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
                     {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   
-                  <span style={{
-                    fontSize: 'clamp(12px, 2.2vw, 14px)',
-                    fontWeight: 800,
-                    color: '#feea88',
+                  {/* Status with both icon and text */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '3px',
                     marginLeft: 'auto',
-                    flexShrink: 0
+                    flexShrink: 0,
+                    padding: '3px 7px',
+                    borderRadius: '10px',
+                    background: order.status === 'filled' 
+                      ? 'rgba(74, 222, 128, 0.15)' 
+                      : order.status === 'pending'
+                        ? 'rgba(96, 165, 250, 0.15)'
+                        : 'rgba(248, 113, 113, 0.15)',
+                    border: `1px solid ${order.status === 'filled' 
+                      ? 'rgba(74, 222, 128, 0.3)' 
+                      : order.status === 'pending'
+                        ? 'rgba(96, 165, 250, 0.3)'
+                        : 'rgba(248, 113, 113, 0.3)'}`,
+                    minWidth: 'fit-content',
+                    whiteSpace: 'nowrap'
                   }}>
-                    {getStatusIcon(order.status)}
-                  </span>
+                    <span style={{
+                      fontSize: 'clamp(10px, 1.8vw, 12px)',
+                      color: getStatusColor(order.status)
+                    }}>
+                      {getStatusIcon(order.status)}
+                    </span>
+                    <span style={{
+                      fontSize: 'clamp(9px, 1.6vw, 11px)',
+                      fontWeight: 700,
+                      color: getStatusColor(order.status),
+                      letterSpacing: '0.5px'
+                    }}>
+                      {getStatusText(order)}
+                    </span>
+                  </div>
                   
                   {/* Actions for pending orders - matching TradeHistory button structure */}
                   {order.status === 'pending' && (
