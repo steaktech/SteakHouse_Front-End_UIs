@@ -424,10 +424,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[#d29900] flex-shrink-0">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12 6 12 12 16 14"/>
-                </svg>
+                <span className="flex-shrink-0" style={{ fontSize: '12px', lineHeight: 1 }}>⛽️</span>
                 {expanded && (
                   <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">GWEI</span>
                 )}
