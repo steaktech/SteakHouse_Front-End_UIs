@@ -119,12 +119,15 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       padding: 'clamp(5px, 0.9vh, 8px)',
       paddingBottom: 'clamp(10px, 1.8vh, 14px)',
       border: '1px solid rgba(255, 215, 165, 0.4)',
-      overflow: 'auto',
+      overflowY: 'auto',
+      overflowX: 'hidden',
       color: '#fff7ea',
       display: 'flex',
       flexDirection: 'column',
-      boxSizing: 'border-box'
-    }}>
+      boxSizing: 'border-box',
+      scrollBehavior: 'smooth',
+      WebkitOverflowScrolling: 'touch'
+    } as React.CSSProperties}>
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -163,6 +166,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
       <div style={{
         position: 'relative',
         display: 'flex',
+        gap: '4px',
         width: '100%',
         height: 'clamp(32px, 4.5vh, 38px)',
         borderRadius: 'clamp(12px, 2.5vw, 16px)',
@@ -170,18 +174,17 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
         border: '1px solid rgba(255, 215, 165, 0.4)',
         boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
         marginBottom: 'clamp(3px, 0.6vh, 5px)',
-        padding: '2px'
+        padding: '3px'
       }}>
         {/* Sliding Background */}
         <div style={{
           position: 'absolute',
-          top: '2px',
-          left: '2px',
-          height: 'calc(100% - 4px)',
-          width: 'calc(50% - 2px)',
+          top: '3px',
+          left: orderSide === 'buy' ? '3px' : 'calc(50% + 2px)',
+          right: orderSide === 'buy' ? 'calc(50% + 2px)' : '3px',
+          height: 'calc(100% - 6px)',
           borderRadius: 'clamp(9px, 2vw, 13px)',
           transition: 'all 300ms ease-in-out',
-          transform: orderSide === 'buy' ? 'translateX(0)' : 'translateX(calc(100% + 2px))',
           background: orderSide === 'buy'
             ? 'linear-gradient(180deg, #4ade80, #22c55e)'
             : 'linear-gradient(180deg, #f87171, #ef4444)',
@@ -203,8 +206,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
             border: 'none',
             borderRadius: 'clamp(9px, 2vw, 13px)',
             cursor: 'pointer',
-            transition: 'all 200ms ease',
-            marginRight: '1px'
+            transition: 'all 200ms ease'
           }}
         >
           BUY LIMIT
@@ -224,8 +226,7 @@ export const LimitOrderPanel: React.FC<LimitOrderPanelProps> = ({
             border: 'none',
             borderRadius: 'clamp(9px, 2vw, 13px)',
             cursor: 'pointer',
-            transition: 'all 200ms ease',
-            marginLeft: '1px'
+            transition: 'all 200ms ease'
           }}
         >
           SELL LIMIT
