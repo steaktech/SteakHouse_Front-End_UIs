@@ -332,6 +332,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       <ChatWidget
         isOpen={isChatWidgetOpen}
         onClose={handleChatClose}
+        tokenAddress={tokenAddress}
       />
 
       {/* Saved Token Widget */}

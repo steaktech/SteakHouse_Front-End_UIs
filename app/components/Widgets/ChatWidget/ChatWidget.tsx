@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatWidgetProps, Message, SortMode } from './types';
-import { mockToken } from './mockData';
 import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
+import { useTokenData } from '@/app/hooks/useTokenData';
+import { useHoldersData } from '@/app/hooks/useHoldersData';
+import { useSaveToken } from '@/app/hooks/useSaveToken';
 import {
   getChatHistory,
   getChatToken,
@@ -18,12 +20,45 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   // Wallet state
   const { isConnected: walletConnected, address, connect } = useWallet();
 
+  // Live token data (for header)
+  const { data: apiTokenData } = useTokenData(tokenAddress || null, { interval: '1h', limit: 30 });
+  const { data: holdersData } = useHoldersData({ tokenAddress: tokenAddress, enabled: Boolean(tokenAddress) });
+
+  // Derived token header fields with graceful fallbacks
+  const tokenName = apiTokenData?.tokenInfo?.name || '';
+  const tokenSymbol = apiTokenData?.tokenInfo?.symbol || '';
+  const tokenPrice = typeof apiTokenData?.price === 'number' ? apiTokenData.price : undefined;
+  const tokenMc = typeof apiTokenData?.marketCap === 'number' ? apiTokenData.marketCap : undefined;
+  const candles = apiTokenData?.candles || [];
+  const nowMs = Date.now();
+  const dayAgoMs = nowMs - 24 * 60 * 60 * 1000;
+  let change24hPct: number | undefined = undefined;
+  if (candles.length >= 2) {
+    // Try compute 24h change from candles; pick first candle >= 24h window
+    const inWindow = candles.filter(c => (typeof c.timestamp === 'number' ? c.timestamp : 0) >= dayAgoMs);
+    const series = inWindow.length >= 2 ? inWindow : candles;
+    const first = series[0];
+    const last = series[series.length - 1];
+    const open = (first as any).open as number;
+    const close = (last as any).close as number;
+    if (typeof open === 'number' && open > 0 && typeof close === 'number') {
+      change24hPct = ((close - open) / open) * 100;
+    }
+  }
+  // Fallback if API happens to expose price_change_24h
+  if (change24hPct == null && (apiTokenData as any)?.tokenInfo?.price_change_24h != null) {
+    change24hPct = Number((apiTokenData as any).tokenInfo.price_change_24h);
+  }
+  const holdersCount = holdersData?.holders ? holdersData.holders.length : undefined;
+  const logoChar = (tokenSymbol || tokenName)?.slice(0, 1).toUpperCase() || '📈';
+
   // Chat state
   const [wsReady, setWsReady] = useState(false);
   const [isHolder, setIsHolder] = useState(true);
   const [holdersOnly, setHoldersOnly] = useState(true);
-  const [sortMode, setSortMode] = useState<SortMode>('new');
-  const [watched, setWatched] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>('old');
+  // Saved token (favorite) state via API
+  const { isSaved: savedState, isLoading: isSaveLoading, toggleSave } = useSaveToken(tokenAddress || '', false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [composerInput, setComposerInput] = useState('');
@@ -39,6 +74,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const reconnectAttemptRef = useRef<number>(0);
   const loadingHistoryRef = useRef<boolean>(false);
   const seenMessageIdsRef = useRef<Set<string>>(new Set());
+  const didInitialScrollRef = useRef<boolean>(false);
 
   // Role badge helper
   const roleBadge = (role: string) => {
@@ -82,6 +118,17 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
     if (sortMode === "top") filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
     
     return filtered;
+  };
+
+  // Scroll to bottom helper
+  const scrollToBottom = (opts?: { smooth?: boolean }) => {
+    const el = feedRef.current;
+    if (!el) return;
+    try {
+      el.scrollTo({ top: el.scrollHeight, behavior: opts?.smooth ? 'smooth' : 'auto' });
+    } catch {
+      el.scrollTop = el.scrollHeight;
+    }
   };
 
   // Render reactions
@@ -199,6 +246,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
     setMessages(prev => [...prev, localMessage]);
     pendingByClientRef.current.set(clientId, localMessage.id);
+    // Ensure we scroll to the latest message after sending
+    setTimeout(() => scrollToBottom({ smooth: true }), 0);
 
     try {
       ws.send(JSON.stringify({
@@ -262,6 +311,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
         seenMessageIdsRef.current = known;
         return prev.length === 0 ? unique : [...prev, ...unique];
       });
+      // On initial load, scroll to bottom once
+      if (!didInitialScrollRef.current) {
+        setTimeout(() => scrollToBottom({ smooth: false }), 0);
+        didInitialScrollRef.current = true;
+      }
     } catch (err) {
       console.error('Failed to load history:', err);
     } finally {
@@ -306,21 +360,29 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
             const { clientId, messageId, senderId, body, serverTs } = evt.payload;
             const localId = pendingByClientRef.current.get(clientId);
             if (!localId) return;
-            setMessages(prev => prev.map(m => {
-              if (m.id !== localId) return m;
-              // Swap optimistic bubble with canonical
-              const updated: Message = {
-                ...m,
-                pending: false,
-                messageId,
-                senderId,
-                addr: displayFromSender(senderId),
-                text: body,
-                ts: Date.parse(serverTs),
-              };
-              if (messageId) seenMessageIdsRef.current.add(messageId);
-              return updated;
-            }));
+            setMessages(prev => {
+              // Update the pending local message
+              const updatedList = prev.map(m => {
+                if (m.id !== localId) return m;
+                const updated: Message = {
+                  ...m,
+                  pending: false,
+                  messageId,
+                  senderId,
+                  addr: displayFromSender(senderId),
+                  text: body,
+                  ts: Date.parse(serverTs),
+                };
+                if (messageId) seenMessageIdsRef.current.add(messageId);
+                return updated;
+              });
+              // If a server broadcast (message:new) for this message arrived before ack,
+              // remove that duplicate, keeping the updated local message.
+              if (messageId) {
+                return updatedList.filter(m => m.messageId !== messageId || m.id === localId);
+              }
+              return updatedList;
+            });
             pendingByClientRef.current.delete(clientId);
           } else if (evt.type === 'message:new') {
             const { messageId, senderId, body, serverTs } = evt.payload;
@@ -387,6 +449,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
       setMessages([]);
       lastCursorRef.current = null;
       seenMessageIdsRef.current.clear();
+      didInitialScrollRef.current = false;
       return;
     }
 
@@ -411,6 +474,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
     return () => {
       // If token changes or widget closes
       closeSocket();
+      didInitialScrollRef.current = false;
     };
   }, [isOpen, tokenAddress, walletConnected, address, loadHistory, startSocket, closeSocket]);
 
@@ -462,41 +526,44 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
           <div className={styles.centerline}>
             <div className={styles.leftgroup}>
               <div className={styles.logo}>
-                {mockToken.logoEmoji}
+                {logoChar}
               </div>
             </div>
 
             <div className={styles.title}>
               <div className={styles.name}>
-                {mockToken.name}
-                <span className={styles.symbol}>${mockToken.symbol}</span>
+                {tokenName || '—'}
+                <span className={styles.symbol}>${tokenSymbol || ''}</span>
               </div>
               <div className={styles.meta}>
-                <span>Price {usd2.format(mockToken.priceUsd)}</span>
-                <span>MC {usd2.format(mockToken.mcUsd)}</span>
-                <span className={mockToken.change24hPct >= 0 ? styles.pos : styles.neg}>
-                  24h {formatPct(mockToken.change24hPct)}
+                <span>Price {tokenPrice != null ? usd2.format(tokenPrice) : '—'}</span>
+                <span>MC {tokenMc != null ? usd2.format(tokenMc) : '—'}</span>
+                <span className={change24hPct != null && change24hPct >= 0 ? styles.pos : styles.neg}>
+                  24h {change24hPct != null ? formatPct(change24hPct) : '—'}
                 </span>
-                <span>Holders {nf0.format(mockToken.holders)}</span>
+                <span>Holders {holdersCount != null ? nf0.format(holdersCount) : '—'}</span>
               </div>
             </div>
 
             <div className={styles.right}>
-              <button 
-                className={styles.iconBtn} 
-                onClick={() => setWatched(!watched)} 
-                title="Watch"
-                type="button"
-                style={{ color: watched ? 'var(--primary-400)' : 'var(--text-300)' }}
-              >
-                {watched ? '★' : '☆'}
-              </button>
+              {walletConnected && (
+                <button 
+                  className={styles.iconBtn} 
+                  onClick={() => toggleSave()}
+                  title={savedState ? 'Remove from saved' : 'Save token'}
+                  type="button"
+                  disabled={isSaveLoading}
+                  style={{ color: savedState ? 'var(--primary-400)' : 'var(--text-300)', opacity: isSaveLoading ? 0.6 : 1 }}
+                >
+                  {savedState ? '★' : '☆'}
+                </button>
+              )}
               <button 
                 className={styles.iconBtn} 
                 onClick={async () => {
-                  const text = `${mockToken.name} ($${mockToken.symbol}) • Price ${usd2.format(mockToken.priceUsd)} • MC ${usd2.format(mockToken.mcUsd)} • 24h ${formatPct(mockToken.change24hPct)} • Holders ${nf0.format(mockToken.holders)}`;
+                  const text = `${tokenName || ''} ($${tokenSymbol || ''}) • Price ${tokenPrice != null ? usd2.format(tokenPrice) : '—'} • MC ${tokenMc != null ? usd2.format(tokenMc) : '—'} • 24h ${change24hPct != null ? formatPct(change24hPct) : '—'} • Holders ${holdersCount != null ? nf0.format(holdersCount) : '—'}`;
                   try {
-                    await navigator.share({ title: `${mockToken.name} • ${mockToken.symbol}`, text });
+                    await navigator.share({ title: `${tokenName || ''} • ${tokenSymbol || ''}`, text });
                   } catch {
                     await navigator.clipboard.writeText(text);
                     alert("Copied to clipboard:\n" + text);
@@ -520,15 +587,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
           <div className={styles.sub}>
             <nav className={styles.tabs} role="tablist" aria-label="Pages">
-              <button className={styles.tab} role="tab" aria-selected="false" type="button">
-                Trades
-              </button>
-              <button className={styles.tab} role="tab" aria-selected="false" type="button">
-                Holders
-              </button>
-              <button className={`${styles.tab} ${styles.active}`} role="tab" aria-selected="true" type="button">
-                Chat
-              </button>
             </nav>
             <div className={styles.toggles} title="Posting policy">
               <label>

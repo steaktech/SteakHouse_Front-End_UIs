@@ -647,6 +647,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <MobileBottomBar 
         expanded={mobileSidebarExpanded} 
         setExpanded={setMobileSidebarExpanded} 
+        tokenAddress={tokenAddress}
       />
 
       {/* Order Notifications */}

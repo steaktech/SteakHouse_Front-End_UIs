@@ -62,7 +62,7 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
   );
 };
 
-export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded }) => {
+export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -229,6 +229,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <ChatWidget 
         isOpen={isChatWidgetOpen}
         onClose={() => setIsChatWidgetOpen(false)}
+        tokenAddress={tokenAddress}
       />
 
       {/* Saved Token Widget */}
