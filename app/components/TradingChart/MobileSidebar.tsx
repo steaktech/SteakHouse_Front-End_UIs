@@ -9,6 +9,7 @@ import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { TokenWidget } from '../Widgets/TokenWidget';
 import { LockerWidget } from '../Widgets/LockerWidget';
 import { UserProfileWidget } from '../Widgets/UserProfileWidget';
+import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -71,6 +72,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   const [isTokenWidgetOpen, setIsTokenWidgetOpen] = useState(false);
   const [isLockerWidgetOpen, setIsLockerWidgetOpen] = useState(false);
   const [isUserProfileWidgetOpen, setIsUserProfileWidgetOpen] = useState(false);
+  const [isExplorerWidgetOpen, setIsExplorerWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -99,9 +101,8 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   };
 
   const handleExplorerClick = () => {
-    console.log('Explorer clicked');
+    setIsExplorerWidgetOpen(true);
     setExpanded(false);
-    // TODO: Implement explorer functionality
   };
 
   const handleUserClick = () => {
@@ -255,6 +256,12 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <UserProfileWidget 
         isOpen={isUserProfileWidgetOpen}
         onClose={() => setIsUserProfileWidgetOpen(false)}
+      />
+
+      {/* Explorer Widget */}
+      <ExplorerWidget 
+        isOpen={isExplorerWidgetOpen}
+        onClose={() => setIsExplorerWidgetOpen(false)}
       />
     </>
   );

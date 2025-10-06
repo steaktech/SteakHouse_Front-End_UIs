@@ -9,6 +9,7 @@ import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { LockerWidget } from '../Widgets/LockerWidget';
 import { UserProfileWidget } from '../Widgets/UserProfileWidget';
+import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 // Props for each widget item
@@ -84,6 +85,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
   const [isLockerWidgetOpen, setIsLockerWidgetOpen] = useState(false);
   const [isUserProfileWidgetOpen, setIsUserProfileWidgetOpen] = useState(false);
+  const [isExplorerWidgetOpen, setIsExplorerWidgetOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(170);
   const [isResizing, setIsResizing] = useState(false);
   
@@ -91,7 +93,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
-  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isLockerWidgetOpen || isUserProfileWidgetOpen;
+  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isLockerWidgetOpen || isUserProfileWidgetOpen || isExplorerWidgetOpen;
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -111,8 +113,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
   };
 
   const handleExplorerClick = () => {
-    console.log('Explorer clicked');
-    // TODO: Implement explorer functionality
+    setIsExplorerWidgetOpen(true);
   };
 
   const handleUserClick = () => {
@@ -155,6 +156,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
 
   const handleUserProfileClose = () => {
     setIsUserProfileWidgetOpen(false);
+  };
+
+  const handleExplorerClose = () => {
+    setIsExplorerWidgetOpen(false);
   };
 
   // Handlers for Chart, Token, Trade (only functional when hasActiveWidget is true)
@@ -278,7 +283,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
     {
       icon: <ExternalLink size={16} className="text-[#d29900]" />,
       text: 'Explorer',
-      active: false,
+      active: isExplorerWidgetOpen,
       greyedOut: false,
       onClick: handleExplorerClick
     },
@@ -499,6 +504,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded }
       <UserProfileWidget
         isOpen={isUserProfileWidgetOpen}
         onClose={handleUserProfileClose}
+      />
+
+      {/* Explorer Widget */}
+      <ExplorerWidget
+        isOpen={isExplorerWidgetOpen}
+        onClose={handleExplorerClose}
       />
     </>
   );
