@@ -139,18 +139,25 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
   const tag = getTokenTag(token);
   const tagColor = getTokenTagColor(tag);
   const volume24h = getVolume24h(token);
-  
+
   // Calculate liquidity from ETH pool (assuming ETH = $2000)
   const ethPoolValue = parseFloat(token.eth_pool);
   const ethPriceUSD = 2000;
   const liquidityValue = isNaN(ethPoolValue) ? 0 : ethPoolValue * ethPriceUSD;
-  
+
   // Use bio from API if available, otherwise generate description
   const description = token.bio || generateTokenDescription(token);
-  
+
+  // Tax info from API
+  const { current: currentTax, final: finalTax } = getTaxInfo(token);
+  const maxTxPercent = (token.curve_max_tx && token.total_supply)
+    ? `${((parseFloat(token.curve_max_tx) / parseFloat(token.total_supply)) * 100).toFixed(1)}%`
+    : undefined;
+
   return {
     isOneStop: token.graduated, // Graduated tokens get special treatment
     imageUrl: token.image_url || DEFAULT_TOKEN_IMAGE,
+    bannerUrl: token.banner_url || undefined,
     name: token.name,
     symbol: token.symbol,
     tag,
@@ -159,11 +166,17 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
     mcap: formatNumber(marketCap, { prefix: '$', compact: true }),
     liquidity: formatNumber(liquidityValue, { prefix: '$', compact: true }),
     volume: formatNumber(volume24h, { prefix: '$', compact: true }),
+    currentTax,
+    finalTax,
+    maxTxPercent,
     progress: Math.round(progress * 10) / 10, // Round to 1 decimal place
     circulating_supply: token.circulating_supply,
     graduation_cap: token.graduation_cap,
     category: token.catagory,
-    token_address: token.token_address
+    token_address: token.token_address,
+    telegram: token.telegram,
+    twitter: token.twitter,
+    website: token.website,
   };
 }
 

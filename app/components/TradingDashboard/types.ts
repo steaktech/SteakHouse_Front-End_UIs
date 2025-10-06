@@ -6,6 +6,8 @@ export interface StatCardProps {
 export interface TokenCardProps {
   isOneStop?: boolean;
   imageUrl: string;
+  // Optional banner image for the top of the card
+  bannerUrl?: string;
   name: string;
   symbol: string;
   tag: string;
@@ -14,11 +16,19 @@ export interface TokenCardProps {
   mcap: string;
   liquidity: string;
   volume: string;
+  // Dynamic tax info (optional)
+  currentTax?: string;
+  finalTax?: string;
+  maxTxPercent?: string;
   progress?: number;
   circulating_supply?: string;
   graduation_cap?: string;
   category?: string | null;
   token_address: string;
+  // Social links (optional)
+  telegram?: string | null;
+  twitter?: string | null;
+  website?: string | null;
   isSaved?: boolean;
 }
 

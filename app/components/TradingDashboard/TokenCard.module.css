@@ -132,6 +132,11 @@
   overflow: hidden;
   z-index: 1;
   transform: translateZ(0.01px);
+  /* Banner background image (set via inline CSS variable) */
+  background-image: var(--banner-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .bannerLayer {
@@ -146,7 +151,8 @@
       rgba(255, 194, 110, 0.2) 45%,
       transparent 75%
     ),
-    linear-gradient(180deg, #9a5a2c 0%, #6a3a1c 58%, #52270f 100%);
+    /* Make the gradient translucent so the banner image is visible */
+    linear-gradient(180deg, rgba(154, 90, 44, 0.72) 0%, rgba(106, 58, 28, 0.72) 58%, rgba(82, 39, 15, 0.72) 100%);
 }
 
 .bannerLayer.texture {

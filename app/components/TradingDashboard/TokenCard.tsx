@@ -10,6 +10,7 @@ import styles from './TokenCard.module.css';
 export const TokenCard: React.FC<TokenCardProps> = ({ 
   isOneStop, 
   imageUrl, 
+  bannerUrl,
   name, 
   symbol, 
   tag, 
@@ -18,11 +19,17 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   mcap, 
   liquidity, 
   volume, 
+  currentTax,
+  finalTax,
+  maxTxPercent,
   progress,
   circulating_supply,
   graduation_cap,
   category,
   token_address,
+  telegram,
+  twitter,
+  website,
   isSaved = false
 }) => {
   const router = useRouter();
@@ -46,6 +53,13 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const handleSocialClick = (e: React.MouseEvent, action: () => void) => {
     e.stopPropagation();
     action();
+  };
+
+  const openLink = (url?: string | null) => {
+    if (!url) return;
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch {}
   };
 
   // Handle save button click
@@ -253,7 +267,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       style={{ cursor: 'pointer' }}
     >
       {/* Token banner */}
-      <div className={styles.tokenBanner} aria-hidden="true">
+      <div 
+        className={styles.tokenBanner} 
+        aria-hidden="true"
+        style={bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : undefined}
+      >
         <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
         <div className={`${styles.bannerLayer} ${styles.texture}`}></div>
         <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
@@ -299,10 +317,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   className={`${styles.socialBtn} ${styles.tg}`} 
                   aria-label="Telegram" 
                   title="Telegram"
-                  onClick={(e) => handleSocialClick(e, () => {
-                    // Add telegram link logic here
-                    console.log('Telegram clicked');
-                  })}
+                  onClick={(e) => handleSocialClick(e, () => openLink(telegram))}
+                  disabled={!telegram}
                 >
                   <Send size={16} />
                 </button>
@@ -310,10 +326,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   className={`${styles.socialBtn} ${styles.x}`} 
                   aria-label="X (Twitter)" 
                   title="X"
-                  onClick={(e) => handleSocialClick(e, () => {
-                    // Add twitter link logic here
-                    console.log('Twitter clicked');
-                  })}
+                  onClick={(e) => handleSocialClick(e, () => openLink(twitter))}
+                  disabled={!twitter}
                 >
                   <TwitterIcon />
                 </button>
@@ -321,10 +335,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   className={`${styles.socialBtn} ${styles.web}`} 
                   aria-label="Website" 
                   title="Website"
-                  onClick={(e) => handleSocialClick(e, () => {
-                    // Add website link logic here
-                    console.log('Website clicked');
-                  })}
+                  onClick={(e) => handleSocialClick(e, () => openLink(website))}
+                  disabled={!website}
                 >
                   <Globe size={16} />
                 </button>
@@ -336,10 +348,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
 
       <section className={styles.taxLine}>
-        <div className={styles.taxStrong}>Tax: 3/3</div>
+        <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
         <div className={styles.taxChips}>
-          <span className={styles.chip}>Current Tax: 3/3</span>
-          <span className={styles.chip}>MaxTX: 2,1%</span>
+          <span className={styles.chip}>Current Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</span>
+          <span className={styles.chip}>MaxTX: {maxTxPercent ?? '2.1%'}</span>
         </div>
       </section>
 
