@@ -8,6 +8,7 @@ import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { TokenWidget } from '../Widgets/TokenWidget';
 import { LockerWidget } from '../Widgets/LockerWidget';
+import { UserProfileWidget } from '../Widgets/UserProfileWidget';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -69,6 +70,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
   const [isTokenWidgetOpen, setIsTokenWidgetOpen] = useState(false);
   const [isLockerWidgetOpen, setIsLockerWidgetOpen] = useState(false);
+  const [isUserProfileWidgetOpen, setIsUserProfileWidgetOpen] = useState(false);
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -103,9 +105,8 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
   };
 
   const handleUserClick = () => {
-    console.log('User clicked');
+    setIsUserProfileWidgetOpen(true);
     setExpanded(false);
-    // TODO: Implement user functionality
   };
 
   const widgets = [
@@ -248,6 +249,12 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded 
       <LockerWidget 
         isOpen={isLockerWidgetOpen}
         onClose={() => setIsLockerWidgetOpen(false)}
+      />
+
+      {/* User Profile Widget */}
+      <UserProfileWidget 
+        isOpen={isUserProfileWidgetOpen}
+        onClose={() => setIsUserProfileWidgetOpen(false)}
       />
     </>
   );

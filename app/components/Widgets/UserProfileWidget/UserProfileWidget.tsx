@@ -314,7 +314,7 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
     setState((prev) => ({ ...prev, searchQuery: e.target.value }));
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
+  const handleOverlayClick = (e: React.MouseEvent | React.TouchEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -666,7 +666,10 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
 
   return (
     <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
-      <div className={styles.overlay} onClick={handleOverlayClick} />
+      <div 
+        className={styles.overlay} 
+        onClick={handleOverlayClick}
+      />
 
       <div className={styles.panel}>
         <header className={styles.header}>
