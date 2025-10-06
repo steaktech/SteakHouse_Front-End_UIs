@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { TradeWidget } from '../Widgets/TradeWidget';
 import { MobileBottomBar } from './MobileSidebar';
 import { ChevronUp, Loader2 } from 'lucide-react';
@@ -28,6 +28,9 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  // Refs to fixed bottom elements so we can expose their total height as a CSS var
+  const buySellBarRef = useRef<HTMLDivElement | null>(null);
+  const widgetsBarRef = useRef<HTMLButtonElement | null>(null);
   
   // Fetch recent trades data
   const { trades: recentTrades, isLoading: tradesLoading, error: tradesError } = useRecentTrades({ 
@@ -181,6 +184,52 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Publish bottom inset (widgets + buy/sell bars height) as CSS var so chart can avoid overlap
+  useEffect(() => {
+    if (!isMobile) {
+      document.documentElement.style.removeProperty('--mobile-bottom-inset');
+      document.documentElement.style.removeProperty('--chart-bottom-offset');
+      return;
+    }
+
+    // Chart bottom offset is controlled by the parent TradingChart; do not override here
+
+    const updateInset = () => {
+      const buyH = buySellBarRef.current?.getBoundingClientRect().height || 0;
+      const widH = widgetsBarRef.current?.getBoundingClientRect().height || 0;
+      const total = Math.round(buyH + widH);
+      document.documentElement.style.setProperty('--mobile-bottom-inset', `${total}px`);
+    };
+
+    const ro1 = new ResizeObserver(updateInset);
+    const ro2 = new ResizeObserver(updateInset);
+    if (buySellBarRef.current) ro1.observe(buySellBarRef.current);
+    if (widgetsBarRef.current) ro2.observe(widgetsBarRef.current);
+    window.addEventListener('resize', updateInset);
+    updateInset();
+
+    return () => {
+      ro1.disconnect();
+      ro2.disconnect();
+      window.removeEventListener('resize', updateInset);
+      document.documentElement.style.removeProperty('--mobile-bottom-inset');
+      document.documentElement.style.removeProperty('--chart-bottom-offset');
+    };
+  }, [isMobile]);
+
+  // Reflect recent transactions panel height as CSS var for chart bottom offset
+  useEffect(() => {
+    if (!isMobile) {
+      document.documentElement.style.removeProperty('--mobile-recent-inset');
+      return;
+    }
+    const px = `${Math.round(transactionsHeight)}px`;
+    document.documentElement.style.setProperty('--mobile-recent-inset', px);
+    return () => {
+      document.documentElement.style.removeProperty('--mobile-recent-inset');
+    };
+  }, [isMobile, transactionsHeight]);
 
   // Copy to clipboard function
   const copyToClipboard = async (text: string, itemId: string) => {
@@ -345,7 +394,7 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
       </div>
       
       {/* Fixed Buy/Sell bar for mobile */}
-      <div className="lg:hidden fixed bottom-12 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
+      <div ref={buySellBarRef} className="lg:hidden fixed bottom-12 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
         <div className="px-4 py-3 grid grid-cols-2 gap-3 max-w-screen-md mx-auto">
           <button onClick={handleBuyClick} type="button" className="w-full p-0 bg-transparent">
             <div style={buyInnerStyle}>BUY</div>
@@ -358,6 +407,7 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
 
       {/* Widgets Button */}
       <button
+        ref={widgetsBarRef}
         onClick={() => setMobileSidebarExpanded(true)}
         className={`
           lg:hidden fixed bottom-0 left-0 right-0 z-30

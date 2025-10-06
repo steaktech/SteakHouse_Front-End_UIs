@@ -305,6 +305,32 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     setTransactionsHeight(initialHeight);
   }, []);
 
+  // Publish only the adjustable Recent Transactions panel height as CSS var.
+  // Fixed bars (buy/sell + widgets) are provided separately by --mobile-bottom-inset.
+  React.useEffect(() => {
+    if (!isMobile) {
+      document.documentElement.style.removeProperty('--mobile-recent-inset');
+      document.documentElement.style.removeProperty('--mobile-bottom-inset');
+      document.documentElement.style.removeProperty('--chart-bottom-offset');
+      return;
+    }
+    // Adjustable recent transactions panel height only
+    // Subtract the drag handle overlay so the chart timeline aligns closer to the panel top.
+    const HANDLE_OVERLAY = 18; // px
+    const effectiveInset = Math.max(0, Math.round(transactionsHeight - HANDLE_OVERLAY));
+    document.documentElement.style.setProperty('--mobile-recent-inset', `${effectiveInset}px`);
+    // Fixed buy/sell bar height
+    document.documentElement.style.setProperty('--mobile-bottom-inset', '68px');
+    // Small breathing room so timeline isn’t flush with the panel
+    document.documentElement.style.setProperty('--chart-bottom-offset', '8px');
+
+    return () => {
+      document.documentElement.style.removeProperty('--mobile-recent-inset');
+      document.documentElement.style.removeProperty('--mobile-bottom-inset');
+      document.documentElement.style.removeProperty('--chart-bottom-offset');
+    };
+  }, [isMobile, transactionsHeight]);
+
   // Copy to clipboard function
   const copyToClipboard = async (text: string, itemId: string) => {
     try {
@@ -380,7 +406,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             'overflow-hidden'
           }`}
           style={{
-            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px', // Add space for transactions panel + buy/sell bar on mobile, 8px padding on desktop
+            paddingBottom: '8px',
             height: isMobile ? 'calc(100vh - 56px)' : '100%'
           }}
         >

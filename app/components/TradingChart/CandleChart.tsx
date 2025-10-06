@@ -90,7 +90,17 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     resizeObserverRef.current = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const cr = entry.contentRect;
-        chart.applyOptions({ width: Math.floor(cr.width), height: Math.floor(cr.height) });
+        const w = Math.floor(cr.width);
+        const h = Math.floor(cr.height);
+        if (w > 0 && h > 0) {
+          chart.applyOptions({ 
+            width: w, 
+            height: h,
+            timeScale: { barSpacing: w < 480 ? 4 : 6 }
+          });
+          // keep last candle and timeline visible when container changes
+          chart.timeScale().fitContent();
+        }
       }
     });
     resizeObserverRef.current.observe(container);
@@ -100,14 +110,23 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       if (!container) return;
       const w = Math.floor(container.clientWidth);
       const h = Math.floor(container.clientHeight);
-      chart.applyOptions({ width: w, height: h > 0 ? h : 480 });
+      if (w > 0 && h > 0) {
+        chart.applyOptions({ 
+          width: w, 
+          height: h,
+          timeScale: { barSpacing: w < 480 ? 4 : 6 }
+        });
+        chart.timeScale().fitContent();
+      }
     };
     window.addEventListener('resize', onWindowResize);
+    window.addEventListener('orientationchange', onWindowResize);
 
     return () => {
       resizeObserverRef.current?.disconnect();
       resizeObserverRef.current = null;
       window.removeEventListener('resize', onWindowResize);
+      window.removeEventListener('orientationchange', onWindowResize);
       chart.remove();
       chartRef.current = null;
       candleSeriesRef.current = null;
@@ -254,8 +273,12 @@ const series = chart.addLineSeries({ color: ind.color ?? "#eab308", lineWidth: 2
   }, [indicators, candles]);
 
   return (
-    <div className="w-full h-full min-h-[145px]">
-      <div ref={containerRef} className="w-full h-full" style={{ background: "#07040b", borderRadius: 8 }} />
+    <div className="w-full h-full min-h-[145px] relative">
+      <div
+        ref={containerRef}
+        className="absolute left-0 right-0 top-0"
+        style={{ bottom: 'calc(var(--mobile-bottom-inset, 0px) + var(--mobile-recent-inset, 0px) + var(--chart-bottom-offset, 0px))', background: "#07040b", borderRadius: 8 }}
+      />
     </div>
   );
 });
