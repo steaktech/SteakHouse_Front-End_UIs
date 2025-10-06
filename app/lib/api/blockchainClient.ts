@@ -9,6 +9,10 @@ const BLOCKCHAIN_API_URL = process.env.NEXT_PUBLIC_BLOCKCHAIN_API_BASE_URL;
  * @returns The JSON response from the blockchain API.
  */
 export async function blockchainApiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  if (!BLOCKCHAIN_API_URL) {
+    throw new Error('Missing NEXT_PUBLIC_BLOCKCHAIN_API_BASE_URL. Please set it in your environment to enable holders API calls.');
+  }
+
   const fullUrl = `${BLOCKCHAIN_API_URL}${endpoint}`;
   console.log('Blockchain API Request:', {
     url: fullUrl,

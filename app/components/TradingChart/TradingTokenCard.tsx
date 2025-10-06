@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Globe, Send } from 'lucide-react';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
+import type { FullTokenDataResponse } from '@/app/types/token';
 
 const TwitterIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 1200 1227" fill="currentColor">
@@ -10,6 +11,9 @@ const TwitterIcon = () => (
 
 interface TradingTokenCardProps extends TokenCardProps {
   compact?: boolean;
+  tokenData?: FullTokenDataResponse | null;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({ 
@@ -22,11 +26,45 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
   liquidity, 
   volume, 
   progress,
-  compact = false
+  compact = false,
+  tokenData,
+  isLoading,
+  error
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
+
+  // Build display values from API when available, fallback to props
+  const displayData = {
+    name: tokenData?.tokenInfo?.name || name,
+    symbol: tokenData?.tokenInfo?.symbol || symbol,
+    imageUrl: tokenData?.tokenInfo?.image_url || imageUrl,
+    description: tokenData?.tokenInfo?.bio || description,
+    category: tokenData?.tokenInfo?.catagory || tag,
+    mcap: tokenData ? `$${(tokenData.marketCap / 1000).toFixed(1)}K` : mcap,
+    volume: tokenData?.lastTrade ? (() => {
+      const value = typeof tokenData.lastTrade.usdValue === 'string' ?
+        parseFloat(String(tokenData.lastTrade.usdValue).replace(/[^0-9.-]+/g, '')) :
+        (tokenData.lastTrade.usdValue || 0);
+      return !isNaN(value) ? `$${Number(value).toFixed(2)}` : volume;
+    })() : volume,
+    liquidity: tokenData?.tokenInfo?.eth_pool !== undefined && tokenData?.tokenInfo?.eth_pool !== null
+      ? `${Number(tokenData.tokenInfo.eth_pool).toFixed(2)} ETH`
+      : liquidity,
+    currentTax: tokenData?.tokenInfo?.curve_starting_tax ?? 3,
+    finalTax: tokenData?.tokenInfo?.final_tax_rate ?? 3,
+    maxTxPct: tokenData?.tokenInfo?.curve_max_tx && tokenData?.tokenInfo?.total_supply
+      ? `${((Number(tokenData.tokenInfo.curve_max_tx) / Number(tokenData.tokenInfo.total_supply)) * 100).toFixed(1)}%`
+      : '2.1%',
+    calculatedProgress: tokenData?.tokenInfo
+      ? (() => {
+          const circulating = Number(tokenData.tokenInfo.circulating_supply);
+          const cap = Number(tokenData.tokenInfo.graduation_cap_norm);
+          return (!isNaN(circulating) && !isNaN(cap) && cap > 0) ? (circulating / cap) * 100 : (progress ?? 0);
+        })()
+      : (progress ?? 0),
+  };
 
   const formatPercent = (v: number) => {
     return v.toLocaleString('en-US', {
@@ -46,9 +84,9 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
 
   useEffect(() => {
     setTimeout(() => {
-      setProgress(progress);
+      setProgress(displayData.calculatedProgress);
     }, 100);
-  }, [progress]);
+  }, [displayData.calculatedProgress]);
 
   return (
     <div 
@@ -129,8 +167,8 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             overflow: 'hidden'
           }}>
             <img 
-              src={imageUrl} 
-              alt={name} 
+              src={displayData.imageUrl as string} 
+              alt={displayData.name as string} 
               style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
             />
           </div>
@@ -142,7 +180,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
               fontSize: compact ? '14px' : '16px',
               lineHeight: 1,
               margin: 0
-            }}>{name}</h1>
+            }}>{displayData.name}</h1>
             <div style={{
               marginTop: '4px',
               fontWeight: 800,
@@ -154,7 +192,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
               padding: '3px 8px',
               borderRadius: '999px',
               maxWidth: 'fit-content'
-            }}>{symbol}</div>
+            }}>{displayData.symbol}</div>
           </div>
         </div>
         <div style={{
@@ -166,7 +204,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
           fontSize: '10px',
           borderRadius: '999px',
           border: '1px solid rgba(140, 85, 35, 0.28)'
-        }}>{tag}</div>
+        }}>{(displayData.category || tag) as string}</div>
       </div>
 
       {/* Tax Line */}
@@ -185,7 +223,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
           fontSize: compact ? '12px' : '14px',
           color: '#feea88',
           textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-        }}>Tax: 3/3</div>
+        }}>Tax: {String(displayData.currentTax)}/{String(displayData.finalTax)}</div>
         <div style={{ display: 'flex', gap: '4px' }}>
           <span style={{
             display: 'inline-flex',
@@ -198,7 +236,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             fontWeight: 900,
             fontSize: '9px',
             borderRadius: '8px'
-          }}>Current Tax: 3/3</span>
+          }}>Current Tax: {String(displayData.currentTax)}/{String(displayData.finalTax)}</span>
           <span style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -210,7 +248,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             fontWeight: 900,
             fontSize: '9px',
             borderRadius: '8px'
-          }}>MaxTX: 2,1%</span>
+          }}>MaxTX: {displayData.maxTxPct}</span>
         </div>
       </div>
 
@@ -227,7 +265,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
         lineHeight: 1.3,
         textAlign: 'center'
       }}>
-        {description}
+        {displayData.description}
       </div>
 
       {/* Social Buttons - positioned to align with stat cards below */}
@@ -326,7 +364,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-            }}>{mcap}</div>
+            }}>{displayData.mcap}</div>
           </div>
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -350,7 +388,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-            }}>{volume}</div>
+            }}>{displayData.volume}</div>
           </div>
           <div style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -374,7 +412,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
               lineHeight: 1.1,
               color: '#fff6e6',
               textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
-            }}>{liquidity}</div>
+            }}>{displayData.liquidity}</div>
           </div>
         </div>
 

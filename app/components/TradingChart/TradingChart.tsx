@@ -104,6 +104,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     mcap: '$21.5K',
     liquidity: '$2.3K',
     volume: '$6.2K',
+    token_address: tokenAddress,
     progress: 82
   });
 
@@ -111,22 +112,48 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [timeframe, setTimeframe] = useState<string>('1m');
   const { data: apiTokenData, isLoading, error } = useTokenData(tokenAddress, { interval: timeframe, limit: 200 });
 
-  // Mobile-style token data
+  // Mobile-style token data derived from API (fallback to existing state values)
+  const formatShort = (n?: number) => {
+    if (n == null || isNaN(n)) return undefined as unknown as string;
+    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+    return `$${n.toFixed(2)}`;
+  };
+  const apiInfo = apiTokenData?.tokenInfo;
+  const apiLastTrade = apiTokenData?.lastTrade;
+  const taxValue = Number(apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? 3);
+  const maxTxPctNum = apiInfo?.curve_max_tx && apiInfo?.total_supply
+    ? (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100
+    : 2.1;
+  const bondingPct = apiInfo
+    ? (() => {
+        const circulating = Number(apiInfo.circulating_supply);
+        const cap = Number(apiInfo.graduation_cap_norm);
+        return !isNaN(circulating) && !isNaN(cap) && cap > 0 ? (circulating / cap) * 100 : (tokenData.progress ?? 0);
+      })()
+    : (tokenData.progress ?? 0);
+  const volumeUsd = (() => {
+    if (!apiLastTrade) return tokenData.volume;
+    const v = typeof apiLastTrade.usdValue === 'string'
+      ? parseFloat(String(apiLastTrade.usdValue).replace(/[^0-9.-]+/g, ''))
+      : Number(apiLastTrade.usdValue ?? 0);
+    return isNaN(v) ? tokenData.volume : `$${v.toFixed(2)}`;
+  })();
   const mobileStyleTokenData: TokenData = {
-    name: tokenData.name,
-    symbol: tokenData.symbol,
+    name: apiInfo?.name ?? tokenData.name,
+    symbol: apiInfo?.symbol ?? tokenData.symbol,
     currentTax: {
-      buy: 3,
-      sell: 3
+      buy: taxValue,
+      sell: taxValue,
     },
-    maxTransaction: 2.1,
-    description: tokenData.description,
-    marketCap: tokenData.mcap,
-    volume: tokenData.volume,
-    liquidityPool: tokenData.liquidity,
-    bondingProgress: tokenData.progress,
-    tag: tokenData.tag,
-    tagColor: tokenData.tagColor
+    maxTransaction: Number(maxTxPctNum.toFixed(1)),
+    description: apiInfo?.bio ?? tokenData.description,
+    marketCap: formatShort(apiTokenData?.marketCap) ?? tokenData.mcap,
+    volume: volumeUsd,
+    liquidityPool: apiInfo?.eth_pool != null ? `${Number(apiInfo.eth_pool).toFixed(2)} ETH` : tokenData.liquidity,
+    bondingProgress: bondingPct,
+    tag: apiInfo?.catagory ?? tokenData.tag,
+    tagColor: tokenData.tagColor,
   };
 
   // Load token data based on URL parameter
@@ -343,7 +370,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <div className="flex flex-1 text-white font-sans overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+          <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} tokenAddress={tokenAddress} />
         </div>
         
         <main 
@@ -387,6 +414,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             <div style={{ width: '100%', height: '100%', alignSelf: 'flex-end', minHeight: 0 }}>
               <TradePanel 
                 onTabChange={(tab) => setDesktopTradeTab(tab)}
+                tokenAddress={tokenAddress}
               />
             </div>
           </div>

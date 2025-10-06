@@ -187,14 +187,20 @@ export const useTrading = (): UseTrading => {
 
     // Optionally wait for additional confirmations
     if (confirmations > 1) {
-      const targetBlock = (receipt.blockNumber ?? 0) + (confirmations - 1);
-      let currentBlock = await web3.eth.getBlockNumber();
-      while (currentBlock < targetBlock) {
+      const receiptBlockRaw: any = receipt.blockNumber ?? 0;
+      const receiptBlockBig: bigint = typeof receiptBlockRaw === 'bigint' ? receiptBlockRaw : BigInt(receiptBlockRaw);
+      const targetBlock: bigint = receiptBlockBig + BigInt(confirmations - 1);
+
+      let currentBlockRaw: any = await web3.eth.getBlockNumber();
+      let currentBlockBig: bigint = typeof currentBlockRaw === 'bigint' ? currentBlockRaw : BigInt(currentBlockRaw);
+
+      while (currentBlockBig < targetBlock) {
         if (Date.now() - start > maxWaitMs) {
           throw new Error('Timed out waiting for transaction confirmations');
         }
         await new Promise(r => setTimeout(r, pollMs));
-        currentBlock = await web3.eth.getBlockNumber();
+        currentBlockRaw = await web3.eth.getBlockNumber();
+        currentBlockBig = typeof currentBlockRaw === 'bigint' ? currentBlockRaw : BigInt(currentBlockRaw);
       }
     }
 

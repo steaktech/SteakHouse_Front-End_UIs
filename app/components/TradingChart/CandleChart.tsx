@@ -58,16 +58,16 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       width: container.clientWidth,
       height: container.clientHeight || 480,
       layout: {
-        background: { color: "transparent" },
-        textColor: "#d1d4dc",
+        background: { color: "#07040b" }, // keep solid black background similar to test chart
+        textColor: "rgba(255,255,255,0.9)",
       },
       grid: {
-        vertLines: { color: "rgba(2, 2, 2, 0.06)" },
-        horzLines: { color: "rgba(2, 2, 2, 0.06)" },
+        vertLines: { color: "#334158" },
+        horzLines: { color: "#334158" },
       },
       crosshair: { mode: CrosshairMode.Normal },
-      rightPriceScale: { scaleMargins: { top: 0.1, bottom: 0.25 } },
-      timeScale: { rightOffset: 6, barSpacing: 6, timeVisible: true, secondsVisible: true },
+      rightPriceScale: { scaleMargins: { top: 0.1, bottom: 0.25 }, borderColor: "#485c7b" },
+      timeScale: { rightOffset: 6, barSpacing: 6, timeVisible: true, secondsVisible: true, borderColor: "#485c7b" },
     });
 
     chartRef.current = chart;
@@ -81,16 +81,10 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       wickUpColor: "#29f266",
       wickDownColor: "#ff3b3b",
     });
-    lineSeriesRef.current = chart.addLineSeries({ color: "#8ab4f8", lineWidth: 2, visible: false });
+    lineSeriesRef.current = chart.addLineSeries({ color: "#2196F3", lineWidth: 2, visible: false });
 
-    // Volume (overlay histogram)
-    volumeSeriesRef.current = chart.addHistogramSeries({
-      priceFormat: { type: "volume" },
-      color: "#7185aa",
-      priceScaleId: "volume",
-      visible: showVolume,
-    });
-    chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+    // Volume series is added/removed dynamically based on showVolume (to mirror the test component structure)
+    volumeSeriesRef.current = null;
 
     // Keep chart sized to container
     resizeObserverRef.current = new ResizeObserver((entries) => {
@@ -128,8 +122,7 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     const chart = chartRef.current;
     const candleSeries = candleSeriesRef.current;
     const lineSeries = lineSeriesRef.current;
-    const volumeSeries = volumeSeriesRef.current;
-    if (!chart || !candleSeries || !lineSeries || !volumeSeries) return;
+    if (!chart || !candleSeries || !lineSeries) return;
 
     const bars = (candles ?? []).map((c) => {
       const t = Math.floor(c.timestamp / 1000) as UTCTimestamp;
@@ -147,23 +140,49 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       lineSeries.applyOptions({ visible: true });
     }
 
-    // Volume data
-    const volumes = (candles ?? []).map((c) => ({
-      time: Math.floor(c.timestamp / 1000) as UTCTimestamp,
-      value: c.volume,
-      color: c.close >= c.open ? "#29f266" : "#ff3b3b",
-    }));
-    volumeSeries.setData(volumes);
+    // Volume data (if series exists)
+    if (volumeSeriesRef.current) {
+      const volumes = (candles ?? []).map((c) => ({
+        time: Math.floor(c.timestamp / 1000) as UTCTimestamp,
+        value: c.volume,
+        color: c.close >= c.open ? "#29f266" : "#ff3b3b",
+      }));
+      volumeSeriesRef.current.setData(volumes);
+    }
 
     chart.timeScale().fitContent();
   }, [candles, chartType]);
 
-  // Show/hide volume
+  // Show/hide volume (add/remove the series to mirror test chart structure)
   useEffect(() => {
-    if (volumeSeriesRef.current) {
-      volumeSeriesRef.current.applyOptions({ visible: showVolume });
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    if (showVolume) {
+      if (!volumeSeriesRef.current) {
+        const vs = chart.addHistogramSeries({
+          color: "#7185aa",
+          priceFormat: { type: "volume" },
+          priceScaleId: "",
+        });
+        // place volume on overlay scale with margins similar to test chart
+        vs.priceScale().applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+        // seed with current data if available
+        if (candles?.length) {
+          const vols = candles.map((c) => ({
+            time: Math.floor(c.timestamp / 1000) as UTCTimestamp,
+            value: c.volume,
+            color: c.close >= c.open ? "#29f266" : "#ff3b3b",
+          }));
+          vs.setData(vols);
+        }
+        volumeSeriesRef.current = vs;
+      }
+    } else if (volumeSeriesRef.current) {
+      chart.removeSeries(volumeSeriesRef.current);
+      volumeSeriesRef.current = null;
     }
-  }, [showVolume]);
+  }, [showVolume, candles]);
 
   // Crosshair mode (support hidden by toggling line visibility)
   useEffect(() => {

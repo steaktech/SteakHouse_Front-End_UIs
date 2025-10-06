@@ -9,7 +9,9 @@ import {
   DatasetType, 
   ProcessedHolderData,
   DistributionSegment,
-  TierFilter
+  TierFilter,
+  TokenData,
+  HolderData
 } from './types';
 
 // Demo data matching the original structure
@@ -218,7 +220,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
   });
 
   // Load dataset
-  const loadDataset = useCallback((dataset: typeof demoData) => {
+  const loadDataset = useCallback((dataset: { token: TokenData; holders: HolderData[] }) => {
     const total = dataset.token.totalSupply;
     const holders = dataset.holders.map((h) => ({
       ...h,
@@ -228,7 +230,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     
     const newDataset: DatasetType = { 
       token: { ...dataset.token }, 
-      holders 
+      holders: holders as ProcessedHolderData[]
     };
     
     setState(prev => ({ ...prev, dataset: newDataset }));
@@ -261,7 +263,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     setState(prev => ({ ...prev, dataset: newDataset }));
   }, []);
 
-  // Initialize with API data, fallback to provided data, then demo data
+  // Initialize with API data; if explicit data prop provided, use it; do not fall back to demo data
   useEffect(() => {
     if (holdersData) {
       console.log('📊 Loading API holders data');
@@ -270,8 +272,9 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
       console.log('📊 Loading provided data');
       loadDataset(data);
     } else {
-      console.log('📊 Loading demo data');
-      loadDataset(demoData);
+      // Keep dataset null so the widget can show an empty state instead of demo data
+      console.log('⏳ Waiting for API holders data...');
+      setState(prev => ({ ...prev, dataset: null }));
     }
   }, [holdersData, data, loadApiDataset, loadDataset]);
 
@@ -547,6 +550,36 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     );
   }
 
+  // Empty state: no dataset and not loading/error -> show message
+  if (!holdersLoading && !holdersError && !state.dataset) {
+    return (
+      <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
+        <div className={styles.overlay} onClick={onClose} />
+        <aside className={styles.panel} role="dialog" aria-modal="true">
+          <header className={styles.header}>
+            <div className={styles.icon}>H</div>
+            <div>
+              <div className={styles.title}>Holders</div>
+              <div className={styles.sub}>No holders data available</div>
+            </div>
+            <div className={styles.spacer} />
+            <button className={styles.btn} onClick={onClose} title="Close">Close</button>
+          </header>
+          <div className={styles.body}>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ffd79a' }}>
+              <div>Holders is empty.</div>
+              {tokenAddress && (
+                <div style={{ marginTop: '10px', fontSize: '14px', opacity: 0.7 }}>
+                  Token: {tokenAddress.slice(0, 8)}...{tokenAddress.slice(-6)}
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+    );
+  }
+
   if (!state.dataset) return null;
 
   const { token, holders } = state.dataset;
@@ -750,7 +783,12 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
               </div>
 
               <div className={styles.table}>
-                <table className={styles.tableElement}>
+                {filteredHolders.length === 0 ? (
+                  <div style={{ padding: '24px', textAlign: 'center', color: '#ffd79a' }}>
+                    Holders is empty.
+                  </div>
+                ) : (
+                  <table className={styles.tableElement}>
                   <colgroup>
                     <col style={{ width: '6%' }} />
                     <col style={{ width: '38%' }} />
@@ -803,6 +841,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                     ))}
                   </tbody>
                 </table>
+                )}
               </div>
 
               <div className={styles.foot}>

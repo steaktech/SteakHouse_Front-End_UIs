@@ -62,24 +62,24 @@ export async function getTokenHolders(
 export function transformHoldersDataForWidget(apiResponse: HoldersApiResponse): HoldersWidgetDataset {
   console.log('Transforming holders data for widget:', apiResponse.token);
 
-  // Create token data with N/A values for missing information
+  // Prefer tokenName/tokenSymbol if provided by API; fall back to N/A
   const tokenData: TokenDataForWidget = {
-    name: "N/A", // Missing from API
-    symbol: "N/A", // Missing from API
-    chain: "N/A", // Missing from API
+    name: apiResponse.tokenName ?? "N/A",
+    symbol: apiResponse.tokenSymbol ?? "N/A",
+    chain: "N/A", // Not provided by API
     address: apiResponse.token,
-    priceUSD: 0, // Missing from API (will show as N/A in UI)
+    priceUSD: 0, // Not provided by API (UI will show N/A)
     totalSupply: parseFloat(apiResponse.supply.circulatingTokens)
   };
 
   // Transform holders data
   const processedHolders: ProcessedHolderForWidget[] = apiResponse.holders.map((holder) => ({
     address: holder.address,
-    label: 'normal' as const, // Default to normal, missing from API
-    tx: 0, // Missing from API (will show as N/A in UI)
+    label: 'normal' as const, // Default to normal; API does not provide labels
+    tx: 0, // Not provided by API (UI will show N/A)
     balance: parseFloat(holder.balanceTokens),
     percent: holder.pctOfCirculating,
-    valueUSD: 0 // Missing from API (will show as N/A in UI)
+    valueUSD: 0 // Not provided by API (UI will show N/A)
   }));
 
   return {

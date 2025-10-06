@@ -22,6 +22,7 @@ export type TradeHistoryItem = {
 export type SidebarProps = {
   expanded: boolean;
   setExpanded: (expanded: boolean) => void;
+  tokenAddress?: string;
 };
 
 export type CandlestickChartProps = {

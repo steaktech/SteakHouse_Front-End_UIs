@@ -60,6 +60,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
   // Top-up Modal state
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
+  const [isToppingUp, setIsToppingUp] = useState(false);
   // Gate to avoid repeated toasts/modals
   const hasShownTopUpRef = React.useRef(false);
   React.useEffect(() => {

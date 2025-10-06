@@ -1,6 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useWallet } from '@/app/hooks/useWallet';
+import { useTrading } from '@/app/hooks/useTrading';
+import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { useToastHelpers } from '@/app/hooks/useToast';
+import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+
+const WalletModal = dynamic(
+  () => import('../Modals/WalletModal/WalletModal'),
+  { ssr: false }
+);
 
 // EthereumIcon component
 const EthereumIcon = () => (
@@ -25,13 +36,27 @@ interface TradePanelProps {
   initialTab?: 'buy' | 'sell' | 'limit';
   onTabChange?: (tab: 'buy' | 'sell' | 'limit') => void;
   isMobile?: boolean;
+  tokenAddress?: string;
 }
 
-export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange, isMobile = false }) => {
+export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange, isMobile = false, tokenAddress }) => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'limit'>(initialTab as any);
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
   const [limitSide, setLimitSide] = useState<'buy' | 'sell'>('buy');
+
+  // Wallet + trading integration
+  const { isConnected, isConnecting } = useWallet();
+  const { tradingState, buyToken, sellToken, clearStatus, isReady, topUpTradingWallet } = useTrading();
+  const { showError, showSuccess } = useToastHelpers();
+
+  // Wallet & top-up modals
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
+  const [isToppingUp, setIsToppingUp] = useState(false);
+  const hasShownTopUpRef = React.useRef(false);
 
   // Update activeTab when initialTab prop changes
   React.useEffect(() => {
@@ -44,29 +69,110 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
     onTabChange?.(tab);
   };
 
-  // Dynamic quick amounts based on buy/sell mode
-  const quickAmounts = activeTab === 'buy'
-    ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
-    : ['25%', '50%', '75%', '100%'];
+  // Show top-up suggestion when trading wallet has insufficient funds
+  React.useEffect(() => {
+    if (tradingState?.canTopUp && !hasShownTopUpRef.current) {
+      if (tradingState.topUpSuggestionEth) setTopUpAmount(tradingState.topUpSuggestionEth);
+      showError('Trading wallet has insufficient funds. Please top up to continue.', 'Insufficient funds');
+      setIsTopUpModalOpen(true);
+      hasShownTopUpRef.current = true;
+    } else if (!tradingState?.canTopUp) {
+      hasShownTopUpRef.current = false;
+    }
+  }, [tradingState?.canTopUp, tradingState?.topUpSuggestionEth, showError]);
+
+  // Buy max TX handler
+  const handleBuyMaxTx = async () => {
+    if (!tokenAddress) {
+      showError('No token selected for trading', 'Buy Max TX');
+      return;
+    }
+    setIsLoadingMaxTx(true);
+    try {
+      const maxTxData = await getMaxTxInfo(tokenAddress);
+      const ethToCurve = extractEthToCurve(maxTxData);
+      if (ethToCurve) {
+        setAmount(ethToCurve);
+        showSuccess(`Max TX amount set: ${ethToCurve} ETH`, 'Buy Max TX');
+      } else {
+        showError('Max TX data not available for this token', 'Buy Max TX Failed');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch max TX data';
+      showError(errorMessage, 'Buy Max TX Failed');
+    } finally {
+      setIsLoadingMaxTx(false);
+    }
+  };
+
+  // Confirm trade handler (market buy/sell)
+  const handleConfirmTrade = async () => {
+    if (!tokenAddress) {
+      showError('No token selected for trading', 'Trade');
+      return;
+    }
+    if (!isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+    if (tradingState?.isTrading) return;
+    if (!amount || parseFloat(amount) <= 0) return;
+
+    clearStatus?.();
+    try {
+      if (activeTab === 'buy') {
+        await buyToken(tokenAddress, amount);
+      } else {
+        await sellToken(tokenAddress, amount);
+      }
+    } catch (error) {
+      const msg = (error as any)?.message || 'Trade failed';
+      showError(msg, 'Trade Failed');
+    }
+  };
+
+  // Top up trading wallet
+  const handleTopUp = async () => {
+    if (!isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+    if (!tradingState?.tradingWallet) {
+      showError('Trading wallet not set up yet. Please contact support.', 'Top Up Failed');
+      return;
+    }
+    if (!topUpAmount || isNaN(Number(topUpAmount)) || Number(topUpAmount) <= 0) {
+      showError('Enter a valid amount in ETH', 'Top Up');
+      return;
+    }
+    try {
+      setIsToppingUp(true);
+      const txHash = await topUpTradingWallet(topUpAmount);
+      if (txHash) {
+        showSuccess(`Top up sent: ${String(txHash).slice(0, 10)}...`, 'Top Up');
+      }
+    } catch (e) {
+      const msg = (e as any)?.message || 'Failed to top up';
+      showError(msg, 'Top Up Failed');
+    } finally {
+      setIsToppingUp(false);
+    }
+  };
+
+  // Dynamic quick amounts - buy shows ETH amounts, sell shows percentages
+  const quickAmounts = activeTab === 'buy' ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'] : ['25%', '50%', '75%', '100%'];
 
   const handleQuickAmount = (value: string) => {
-    if (activeTab === 'buy') {
-      if (value === 'Max') {
-        setAmount('10.0'); // Example max amount
-      } else {
-        setAmount(value.split(' ')[0]);
-      }
+    if (value === 'Max') {
+      handleBuyMaxTx(); // Use the API to get actual max amount
+    } else if (activeTab === 'buy') {
+      setAmount(value.split(' ')[0]);
     } else {
-      // For sell mode, handle percentage values
-      if (value === '25%') {
-        setAmount('25');
-      } else if (value === '50%') {
-        setAmount('50');
-      } else if (value === '75%') {
-        setAmount('75');
-      } else if (value === '100%') {
-        setAmount('100');
-      }
+      // For sell mode, handle percentage values (placeholder logic)
+      if (value === '25%') setAmount('25');
+      else if (value === '50%') setAmount('50');
+      else if (value === '75%') setAmount('75');
+      else if (value === '100%') setAmount('100');
     }
   };
 
@@ -225,22 +331,26 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           flexWrap: 'wrap',
           flexShrink: 0
         }}>
-          <button style={{
-            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-            border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: 'clamp(8px, 1.8vw, 12px)',
-            padding: 'clamp(4px, 1vh, 6px) clamp(8px, 2vw, 12px)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-            color: '#feea88',
-            fontSize: 'clamp(8px, 1.4vw, 11px)',
-            fontWeight: 800,
-            cursor: 'pointer',
-            transition: 'all 200ms ease',
-            flex: 1,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>Buy max TX</button>
+          <button 
+            onClick={handleBuyMaxTx}
+            disabled={isLoadingMaxTx}
+            style={{
+              background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+              border: '1px solid rgba(255, 210, 160, 0.4)',
+              borderRadius: 'clamp(8px, 1.8vw, 12px)',
+              padding: 'clamp(4px, 1vh, 6px) clamp(8px, 2vw, 12px)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+              color: '#feea88',
+              fontSize: 'clamp(8px, 1.4vw, 11px)',
+              fontWeight: 800,
+              cursor: isLoadingMaxTx ? 'not-allowed' : 'pointer',
+              transition: 'all 200ms ease',
+              flex: 1,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              opacity: isLoadingMaxTx ? 0.5 : 1
+            }}>{isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}</button>
 
           <button style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -373,11 +483,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           <>
             {/* Confirm Button */}
             <button
+              onClick={handleConfirmTrade}
+              disabled={isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)}
               style={{
                 width: '100%',
-                background: activeTab === 'buy'
-                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                  : 'linear-gradient(180deg, #f87171, #ef4444)',
+                background: !isConnected 
+                  ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
+                  : activeTab === 'buy'
+                    ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                    : 'linear-gradient(180deg, #f87171, #ef4444)',
                 color: '#1f2937',
                 fontWeight: 800,
                 fontSize: 'clamp(10px, 2vw, 13px)',
@@ -391,12 +505,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 marginTop: 'auto',
                 flexShrink: 0,
                 letterSpacing: '0.4px',
-                minHeight: 'clamp(32px, 5vh, 36px)'
+                minHeight: 'clamp(32px, 5vh, 36px)',
+                opacity: (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1
               }}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLButtonElement;
-                target.style.transform = 'translateY(-1px)';
-                target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                if (!isConnecting && !tradingState?.isTrading && (isConnected ? isReady : true)) {
+                  target.style.transform = 'translateY(-1px)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                }
               }}
               onMouseLeave={(e) => {
                 const target = e.target as HTMLButtonElement;
@@ -404,7 +521,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
               }}
             >
-              CONFIRM TRADE
+              {!isConnected 
+                ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
+                : tradingState?.isTrading
+                  ? `${activeTab.toUpperCase()}ING...`
+                  : 'CONFIRM TRADE'
+              }
             </button>
           </>
         )}
@@ -632,6 +754,19 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             </button>
           </>
         )}
+      {/* Wallet & Top-Up Modals (do not change visible UI unless opened) */}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={isConnected}
+      />
+      <WalletTopUpModal
+        isOpen={isTopUpModalOpen}
+        onClose={() => setIsTopUpModalOpen(false)}
+        tradingWallet={tradingState?.tradingWallet}
+        defaultAmountEth={topUpAmount || tradingState?.topUpSuggestionEth || ''}
+        onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
+      />
       </div>
     </>
   );

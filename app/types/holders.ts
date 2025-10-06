@@ -46,6 +46,9 @@ export interface HoldersApiPage {
  */
 export interface HoldersApiResponse {
   token: string;
+  /** Optional fields present in some API responses */
+  tokenName?: string;
+  tokenSymbol?: string;
   counts: HoldersApiCounts;
   supply: HoldersApiSupply;
   totals: HoldersApiTotals;
