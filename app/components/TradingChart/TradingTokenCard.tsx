@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Globe, Send } from 'lucide-react';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
-import type { FullTokenDataResponse } from '@/app/types/token';
+import type { FullTokenDataResponse, Trade } from '@/app/types/token';
 
 const TwitterIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 1200 1227" fill="currentColor">
@@ -14,6 +14,8 @@ interface TradingTokenCardProps extends TokenCardProps {
   tokenData?: FullTokenDataResponse | null;
   isLoading?: boolean;
   error?: string | null;
+  liveMarketCap?: number;
+  liveLastTrade?: Trade;
 }
 
 export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({ 
@@ -29,7 +31,9 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
   compact = false,
   tokenData,
   isLoading,
-  error
+  error,
+  liveMarketCap,
+  liveLastTrade,
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -42,11 +46,14 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
     imageUrl: tokenData?.tokenInfo?.image_url || imageUrl,
     description: tokenData?.tokenInfo?.bio || description,
     category: tokenData?.tokenInfo?.catagory || tag,
-    mcap: tokenData ? `$${(tokenData.marketCap / 1000).toFixed(1)}K` : mcap,
-    volume: tokenData?.lastTrade ? (() => {
-      const value = typeof tokenData.lastTrade.usdValue === 'string' ?
-        parseFloat(String(tokenData.lastTrade.usdValue).replace(/[^0-9.-]+/g, '')) :
-        (tokenData.lastTrade.usdValue || 0);
+    mcap: typeof liveMarketCap === 'number'
+      ? `$${(liveMarketCap / 1000).toFixed(1)}K`
+      : (tokenData ? `$${(tokenData.marketCap / 1000).toFixed(1)}K` : mcap),
+    volume: (liveLastTrade ?? tokenData?.lastTrade) ? (() => {
+      const last = (liveLastTrade ?? tokenData?.lastTrade)!;
+      const value = typeof last.usdValue === 'string' ?
+        parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, '')) :
+        (last.usdValue || 0);
       return !isNaN(value) ? `$${Number(value).toFixed(2)}` : volume;
     })() : volume,
     liquidity: tokenData?.tokenInfo?.eth_pool !== undefined && tokenData?.tokenInfo?.eth_pool !== null

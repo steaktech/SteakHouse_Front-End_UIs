@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/app/components/Header';
 import TrendingBar from "@/app/components/TrendingBar";
@@ -24,6 +24,9 @@ import { MobileBuySellPanel } from './MobileBuySellPanel';
 // MODIFIED: Added ChevronUp for the new button icon
 import { X } from 'lucide-react';
 import { useTokenData } from '@/app/hooks/useTokenData';
+import { useTokenWebSocket } from '@/app/hooks/useTokenWebSocket';
+import type { Candle, Trade, WebSocketTrade, ChartUpdateEvent } from '@/app/types/token';
+import { aggregateCandles } from '@/app/lib/utils/candles';
 
 interface TradingChartProps {
   tokenAddress?: string;
@@ -110,7 +113,83 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   // API: timeframe + token data
   const [timeframe, setTimeframe] = useState<string>('1m');
-  const { data: apiTokenData, isLoading, error } = useTokenData(tokenAddress, { interval: timeframe, limit: 200 });
+  // Always fetch 1m base candles and token info; aggregate to other timeframes locally for live updates
+  const { data: apiTokenData, isLoading, error } = useTokenData(tokenAddress, { interval: '1m', limit: 200 });
+
+  // Local live state driven by WebSocket events
+  const [candles1m, setCandles1m] = useState<Candle[]>([]);
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const lastWsTradeRef = useRef<WebSocketTrade | null>(null);
+
+  // Seed local state from API on load/change
+  useEffect(() => {
+    if (!apiTokenData) return;
+    if (Array.isArray(apiTokenData.candles)) {
+      setCandles1m(apiTokenData.candles);
+    }
+    if (Array.isArray(apiTokenData.recentTrades)) {
+      setTrades(apiTokenData.recentTrades);
+    }
+  }, [apiTokenData]);
+
+  // Aggregate 1m into selected timeframe for display
+  const candlesForDisplay = useMemo(() => aggregateCandles(candles1m, timeframe), [candles1m, timeframe]);
+
+  // WebSocket: subscribe to token, update trades and candles
+  const handleWsTrade = (trade: WebSocketTrade) => {
+    // Normalize to Trade type; keep usdValue as number (component handles formatting)
+    const normalized: Trade = {
+      type: trade.type,
+      token: trade.token,
+      name: trade.name,
+      symbol: trade.symbol,
+      total_supply: trade.total_supply,
+      trader: trade.trader,
+      amountEth: trade.amountEth,
+      amountTokens: trade.amountTokens,
+      price: trade.price,
+      usdValue: trade.usdValue,
+      marketCap: trade.marketCap,
+      txHash: trade.txHash,
+      virtualEth: trade.virtualEth,
+      circulatingSupply: trade.circulatingSupply,
+      timestamp: trade.timestamp,
+    };
+    lastWsTradeRef.current = trade;
+    setTrades(prev => [normalized, ...prev].slice(0, 200));
+  };
+
+  const handleWsChartUpdate = ({ timeframe: tf, candle }: ChartUpdateEvent) => {
+    // Only base 1m updates are expected; parse strings to numbers
+    const newCandle: Candle = {
+      timestamp: candle.timestamp,
+      open: typeof candle.open === 'string' ? parseFloat(candle.open) : (candle.open as unknown as number),
+      high: candle.high,
+      low: candle.low,
+      close: typeof candle.close === 'string' ? parseFloat(candle.close) : (candle.close as unknown as number),
+      volume: candle.volume,
+    };
+
+    setCandles1m(prev => {
+      if (!prev.length) return [newCandle];
+      const last = prev[prev.length - 1];
+      if (last.timestamp === newCandle.timestamp) {
+        const updated = [...prev];
+        updated[updated.length - 1] = newCandle;
+        return updated;
+      }
+      // Append, ensure increasing order and trim to limit similar to API (keep latest 200)
+      const merged = [...prev, newCandle];
+      if (merged.length > 200) merged.shift();
+      return merged;
+    });
+  };
+
+  const { isConnected: wsConnected, connectionError: wsError } = useTokenWebSocket({
+    tokenAddress: tokenAddress ?? null,
+    onTrade: handleWsTrade,
+    onChartUpdate: handleWsChartUpdate,
+  });
 
   // Mobile-style token data derived from API (fallback to existing state values)
   const formatShort = (n?: number) => {
@@ -133,10 +212,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       })()
     : (tokenData.progress ?? 0);
   const volumeUsd = (() => {
-    if (!apiLastTrade) return tokenData.volume;
-    const v = typeof apiLastTrade.usdValue === 'string'
-      ? parseFloat(String(apiLastTrade.usdValue).replace(/[^0-9.-]+/g, ''))
-      : Number(apiLastTrade.usdValue ?? 0);
+    const last = lastWsTradeRef.current ?? apiLastTrade ?? null;
+    if (!last) return tokenData.volume;
+    const v = typeof last.usdValue === 'string'
+      ? parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, ''))
+      : Number(last.usdValue ?? 0);
     return isNaN(v) ? tokenData.volume : `$${v.toFixed(2)}`;
   })();
   const mobileStyleTokenData: TokenData = {
@@ -148,7 +228,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     },
     maxTransaction: Number(maxTxPctNum.toFixed(1)),
     description: apiInfo?.bio ?? tokenData.description,
-    marketCap: formatShort(apiTokenData?.marketCap) ?? tokenData.mcap,
+    marketCap: formatShort((lastWsTradeRef.current?.marketCap ?? apiTokenData?.marketCap) as number) ?? tokenData.mcap,
     volume: volumeUsd,
     liquidityPool: apiInfo?.eth_pool != null ? `${Number(apiInfo.eth_pool).toFixed(2)} ETH` : tokenData.liquidity,
     bondingProgress: bondingPct,
@@ -414,7 +494,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           {/* Trading Chart */}
           <div className="order-1 lg:col-start-1 lg:row-start-1 min-h-0">
             <TradingView 
-              candles={apiTokenData?.candles}
+              candles={candlesForDisplay}
               title={apiTokenData?.tokenInfo?.name}
               symbol={apiTokenData?.tokenInfo?.symbol}
               timeframe={timeframe}
@@ -482,6 +562,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   <TradeHistory 
                     tokenAddress={tokenAddress}
                     tokenData={apiTokenData}
+                    trades={trades}
                     isLoading={isLoading}
                     error={error}
                     showToggle={true}
@@ -548,6 +629,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             <TradeHistory 
               tokenAddress={tokenAddress}
               tokenData={apiTokenData}
+              trades={trades}
               isLoading={isLoading}
               error={error}
               showToggle={false}

@@ -44,6 +44,7 @@ const SellArrow = ({ size = 12 }: { size?: number }) => (
 interface TradeHistoryProps {
   tokenAddress?: string;
   tokenData?: FullTokenDataResponse | null;
+  trades?: Trade[];
   isLoading?: boolean;
   error?: string | null;
   showToggle?: boolean;
@@ -55,6 +56,7 @@ interface TradeHistoryProps {
 export const TradeHistory: React.FC<TradeHistoryProps> = ({
   tokenAddress,
   tokenData,
+  trades: liveTrades,
   isLoading = false,
   error = null,
   showToggle = false,
@@ -91,7 +93,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
     return `${days}d ago`;
   };
 
-  const trades: Trade[] = tokenData?.recentTrades ?? [];
+  const trades: Trade[] = (liveTrades && liveTrades.length ? liveTrades : (tokenData?.recentTrades ?? []));
   const symbol = tokenData?.tokenInfo?.symbol ?? '';
 
   // Filter and sort API trades, then map to display objects used by this panel
