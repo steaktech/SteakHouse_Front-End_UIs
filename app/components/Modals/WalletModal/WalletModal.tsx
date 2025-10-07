@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { addUser } from '@/app/lib/api/services/userService';
 import type { AddUserPayload } from '@/app/types/user';
 import { UserProfileModal } from '../UserProfileModal';
+import UserWelcomeModal from '../UserWelcomeModal';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -19,9 +20,11 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
   const [isRegisteringUser, setIsRegisteringUser] = useState(false);
   const [userRegistrationError, setUserRegistrationError] = useState<string | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
 
   // Define registerUser function with useCallback to prevent unnecessary re-renders
-  const registerUser = useCallback(async (walletAddress: string) => {
+const registerUser = useCallback(async (walletAddress: string): Promise<boolean> => {
     try {
       setIsRegisteringUser(true);
       setUserRegistrationError(null);
@@ -31,10 +34,18 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
       };
       
       const response = await addUser(payload);
-      console.log('User registered successfully:', walletAddress, response);
+      console.log('User register response:', walletAddress, response);
+      if (response.created) {
+        // New user => show welcome modal
+        setShowWelcomeModal(true);
+        return true;
+      }
+      // Existing user => do nothing
+      return false;
     } catch (error) {
       console.error('User registration failed:', error);
       setUserRegistrationError(error instanceof Error ? error.message : 'Failed to register user');
+      return false;
     } finally {
       setIsRegisteringUser(false);
     }
@@ -67,11 +78,14 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
         } catch {}
       }
       
-      if (connectedAddress && !isRegisteringUser) {
-        await registerUser(connectedAddress);
+      if (connectedAddress) {
+        setConnectedWalletAddress(connectedAddress);
+        const created = !isRegisteringUser ? await registerUser(connectedAddress) : false;
+        // If user already exists (no welcome modal), close the wallet modal
+        if (!created) {
+          onClose();
+        }
       }
-      
-      onClose();
     } catch (error) {
       console.error('Connection failed:', error);
     } finally {
@@ -97,7 +111,7 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={() => { if (!showWelcomeModal) onClose(); }}
       />
       
       {/* Modal */}
@@ -212,6 +226,15 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
           isOpen={showProfileModal}
           onClose={() => setShowProfileModal(false)}
           walletAddress={address}
+        />
+      )}
+
+      {/* User Welcome Modal */}
+      {showWelcomeModal && connectedWalletAddress && (
+        <UserWelcomeModal
+          isOpen={showWelcomeModal}
+          onClose={() => { setShowWelcomeModal(false); onClose(); }}
+          walletAddress={connectedWalletAddress}
         />
       )}
     </div>

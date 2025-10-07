@@ -17,6 +17,22 @@ import type {
 import type { UserProfile } from '@/app/types/user';
 import styles from './UserProfileModal.module.css';
 
+// Icon components
+const Icons = {
+  Close: () => <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5L5 15M5 5l10 10"/></svg>,
+  Copy: () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5.5" y="5.5" width="7" height="7" rx="1"/><path d="M4.5 10.5h-1a1 1 0 01-1-1v-6a1 1 0 011-1h6a1 1 0 011 1v1"/></svg>,
+  Check: () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8l3 3 7-7"/></svg>,
+  Camera: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+  Trash: () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4h12M5 4V2.5A1.5 1.5 0 016.5 1h3A1.5 1.5 0 0111 2.5V4m2 0v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4"/></svg>,
+  Wallet: () => <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 4h14a2 2 0 012 2v8a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2z"/><path d="M15 10a1 1 0 100-2 1 1 0 000 2z"/></svg>,
+  TrendingUp: () => <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12l4.5-4.5 3 3L14 6l4 4"/><path d="M14 6h4v4"/></svg>,
+  Sparkles: () => <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 10V7.5L2.5 10 5 12.5V10zm10 0v2.5l2.5-2.5L15 7.5V10zm-5-5H7.5L10 2.5 12.5 5H10zm0 10h2.5L10 17.5 7.5 15H10z"/></svg>,
+  User: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+};
+
+// Blockchain balance API (per provided docs)
+const BLOCKCHAIN_API_BASE = 'https://steak-blockchain-api-bf5e689d4321.herokuapp.com';
+
 const VALIDATION_RULES = {
   USERNAME: {
     MIN_LENGTH: 3,
@@ -49,6 +65,15 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
     errors: {},
     successMessage: null,
   });
+
+  // Address and balance states
+  const [walletEth, setWalletEth] = useState<string | null>(null);
+  const [tradingEth, setTradingEth] = useState<string | null>(null);
+  const [loadingWalletEth, setLoadingWalletEth] = useState(false);
+  const [loadingTradingEth, setLoadingTradingEth] = useState(false);
+  const [walletEthError, setWalletEthError] = useState<string | null>(null);
+  const [tradingEthError, setTradingEthError] = useState<string | null>(null);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   // Handle mounting for portal
   useEffect(() => {
@@ -106,9 +131,9 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
         ...prev,
         profile,
         formData: {
-          username: profile.username || '',
-          bio: profile.bio || '',
-          profile_picture: profile.profile_picture,
+          username: (profile as any).username || '',
+          bio: (profile as any).bio || '',
+          profile_picture: (profile as any).profile_picture,
         },
         isLoading: false,
       }));
@@ -297,8 +322,78 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
   }, [validateForm, state.formData, state.profile, walletAddress]);
 
   const formatAddress = useCallback((address: string) => {
+    if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   }, []);
+
+  const copy = useCallback(async (text?: string | null, addressType: string) => {
+    try {
+      if (text) {
+        await navigator.clipboard.writeText(text);
+        setCopiedAddress(addressType);
+        setTimeout(() => setCopiedAddress(null), 2000);
+      }
+    } catch {}
+  }, []);
+
+  const fetchEthBalance = useCallback(async (addr: string): Promise<string> => {
+    const res = await fetch(`${BLOCKCHAIN_API_BASE}/ethBalance/${encodeURIComponent(addr)}`);
+    if (!res.ok) throw new Error(`Failed: ${res.status}`);
+    const data = await res.json();
+    if (data?.eth) return data.eth as string;
+    if (data?.error) throw new Error(data.error);
+    throw new Error('Unexpected response');
+  }, []);
+
+  // Load balances after profile is present
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const actualWallet = (state.profile as any)?.wallet || walletAddress;
+    const tradingWallet = (state.profile as any)?.trading_wallet as string | undefined;
+
+    let active = true;
+    const run = async () => {
+      // Reset
+      setWalletEth(null);
+      setTradingEth(null);
+      setWalletEthError(null);
+      setTradingEthError(null);
+
+      // Wallet balance
+      if (actualWallet) {
+        setLoadingWalletEth(true);
+        try {
+          const eth = await fetchEthBalance(actualWallet);
+          if (!active) return;
+          setWalletEth(eth);
+        } catch (err) {
+          if (!active) return;
+          setWalletEthError(err instanceof Error ? err.message : 'Failed to fetch balance');
+        } finally {
+          if (active) setLoadingWalletEth(false);
+        }
+      }
+
+      // Trading wallet balance
+      if (tradingWallet) {
+        setLoadingTradingEth(true);
+        try {
+          const eth = await fetchEthBalance(tradingWallet);
+          if (!active) return;
+          setTradingEth(eth);
+        } catch (err) {
+          if (!active) return;
+          setTradingEthError(err instanceof Error ? err.message : 'Failed to fetch balance');
+        } finally {
+          if (active) setLoadingTradingEth(false);
+        }
+      }
+    };
+
+    run();
+    return () => { active = false; };
+  }, [isOpen, walletAddress, state.profile, fetchEthBalance]);
 
   const formatNumber = useCallback((value: string | number) => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
@@ -318,13 +413,22 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
       <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
-          <h2 className={styles.title}>User Profile</h2>
+          <div className={styles.headerContent}>
+            <div className={styles.titleWrapper}>
+              <div className={styles.titleIcon}>
+                <Icons.User />
+              </div>
+              <h2 className={styles.title}>Profile Settings</h2>
+            </div>
+            <p className={styles.headerSubtitle}>Manage your identity and trading details</p>
+          </div>
           <button
             onClick={onClose}
             disabled={state.isSaving || state.isUploadingImage}
             className={styles.closeButton}
+            aria-label="Close modal"
           >
-            ✕
+            <Icons.Close />
           </button>
         </div>
 
@@ -333,180 +437,340 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
           {/* Status Messages */}
           {state.successMessage && (
             <div className={`${styles.statusMessage} ${styles.successMessage}`}>
-              {state.successMessage}
+              <Icons.Check />
+              <span>{state.successMessage}</span>
             </div>
           )}
           
           {state.errors.general && (
             <div className={`${styles.statusMessage} ${styles.errorMessage}`}>
-              {state.errors.general}
+              <span>{state.errors.general}</span>
             </div>
           )}
 
           {state.isLoading ? (
-            <div className={styles.profileSection}>
+            <div className={styles.loadingState}>
               <div className={styles.loadingSpinner} />
-              Loading profile...
+              <p>Loading profile...</p>
             </div>
           ) : (
             <>
-              {/* Profile Image Section */}
-              <div className={styles.profileSection}>
-                <div className={styles.profileImageContainer}>
-                  <div 
-                    className={styles.imageHoverContainer}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' ? (
-                      <Image
-                        src={state.formData.profile_picture}
-                        alt="Profile"
-                        width={120}
-                        height={120}
-                        className={styles.profileImage}
-                      />
-                    ) : (
-                      <div className={styles.profileImagePlaceholder}>
-                        👤
+
+              {/* Addresses & Balances */}
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <Icons.Wallet />
+                  <h3 className={styles.sectionTitle}>Wallets & Balances</h3>
+                </div>
+                <div className={styles.balancesGrid}>
+                  {/* Actual Wallet */}
+                  <div className={styles.addressCard}>
+                    <div className={styles.addressCardHeader}>
+                      <span className={styles.addressLabel}>Main Wallet</span>
+                      <div className={styles.addressBadge}>Active</div>
+                    </div>
+                    <div className={styles.addressContent}>
+                      <div className={styles.addressRow}>
+                        <code className={styles.addressValue}>{formatAddress((state.profile as any)?.wallet || walletAddress)}</code>
+                        <button 
+                          className={styles.copyButton} 
+                          onClick={() => copy((state.profile as any)?.wallet || walletAddress, 'wallet')}
+                          data-copied={copiedAddress === 'wallet'}
+                        >
+                          {copiedAddress === 'wallet' ? <Icons.Check /> : <Icons.Copy />}
+                          <span>{copiedAddress === 'wallet' ? 'Copied!' : 'Copy'}</span>
+                        </button>
+                      </div>
+                      <div className={styles.balanceInfo}>
+                        <div className={styles.balanceRow}>
+                          <span className={styles.balanceLabel}>Balance</span>
+                          {loadingWalletEth ? (
+                            <span className={styles.balanceValue}>
+                              <span className={styles.miniSpinner} />
+                              <span>Loading...</span>
+                            </span>
+                          ) : walletEthError ? (
+                            <span className={styles.balanceError}>{walletEthError}</span>
+                          ) : walletEth !== null ? (
+                            <span className={styles.balanceValue}>
+                              <span className={styles.ethAmount}>{Number(walletEth).toFixed(6)}</span>
+                              <span className={styles.ethSymbol}>ETH</span>
+                            </span>
+                          ) : (
+                            <span className={styles.balanceValue}>—</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trading Wallet */}
+                  <div className={styles.addressCard}>
+                    <div className={styles.addressCardHeader}>
+                      <span className={styles.addressLabel}>Trading Wallet</span>
+                      <div className={styles.addressBadge} data-type="trading">Trading</div>
+                    </div>
+                    <div className={styles.addressContent}>
+                      {(state.profile as any)?.trading_wallet ? (
+                        <>
+                          <div className={styles.addressRow}>
+                            <code className={styles.addressValue}>{formatAddress((state.profile as any)?.trading_wallet)}</code>
+                            <button 
+                              className={styles.copyButton} 
+                              onClick={() => copy((state.profile as any)?.trading_wallet, 'trading')}
+                              data-copied={copiedAddress === 'trading'}
+                            >
+                              {copiedAddress === 'trading' ? <Icons.Check /> : <Icons.Copy />}
+                              <span>{copiedAddress === 'trading' ? 'Copied!' : 'Copy'}</span>
+                            </button>
+                          </div>
+                          <div className={styles.balanceInfo}>
+                            <div className={styles.balanceRow}>
+                              <span className={styles.balanceLabel}>Balance</span>
+                              {loadingTradingEth ? (
+                                <span className={styles.balanceValue}>
+                                  <span className={styles.miniSpinner} />
+                                  <span>Loading...</span>
+                                </span>
+                              ) : tradingEthError ? (
+                                <span className={styles.balanceError}>{tradingEthError}</span>
+                              ) : tradingEth !== null ? (
+                                <span className={styles.balanceValue}>
+                                  <span className={styles.ethAmount}>{Number(tradingEth).toFixed(6)}</span>
+                                  <span className={styles.ethSymbol}>ETH</span>
+                                </span>
+                              ) : (
+                                <span className={styles.balanceValue}>—</span>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className={styles.emptyState}>
+                          <p>No trading wallet configured</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile Section */}
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <Icons.Sparkles />
+                  <h3 className={styles.sectionTitle}>Your Identity</h3>
+                </div>
+                <div className={styles.profileCard}>
+                  <div className={styles.avatarSection}>
+                    <div className={styles.avatarContainer}>
+                      <div 
+                        className={styles.avatarWrapper}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' ? (
+                          <Image
+                            src={state.formData.profile_picture}
+                            alt="Profile"
+                            width={100}
+                            height={100}
+                            className={styles.avatar}
+                          />
+                        ) : (
+                          <div className={styles.avatarPlaceholder}>
+                            <Icons.User />
+                          </div>
+                        )}
+                        
+                        {!state.isUploadingImage && (
+                          <div className={styles.avatarOverlay}>
+                            <Icons.Camera />
+                            <span>Change Photo</span>
+                          </div>
+                        )}
+                        
+                        {state.isUploadingImage && (
+                          <div className={styles.avatarLoading}>
+                            <span className={styles.loadingSpinner} />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' && !state.isUploadingImage && (
+                        <button
+                          onClick={handleImageDelete}
+                          disabled={state.isUploadingImage}
+                          className={styles.removeAvatarButton}
+                          aria-label="Remove avatar"
+                        >
+                          <Icons.Trash />
+                        </button>
+                      )}
+                    </div>
+                    
+                    {state.errors.profile_picture && (
+                      <div className={styles.errorText}>
+                        {state.errors.profile_picture}
                       </div>
                     )}
                     
-                    {!state.isUploadingImage && (
-                      <div className={styles.editOverlay}>
-                        <div className={styles.editIcon}>✏️</div>
-                      </div>
-                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className={styles.hiddenFileInput}
+                    />
                   </div>
                   
-                  {state.isUploadingImage && (
-                    <div className={styles.uploadingIndicator}>
-                      <span className={styles.loadingSpinner} />
-                      Uploading...
+                  <div className={styles.identityInfo}>
+                    <div className={styles.currentIdentity}>
+                      <h4 className={styles.identityName}>
+                        {state.formData.username?.trim() || (state.profile as any)?.username || 'Anonymous Trader'}
+                      </h4>
+                      <p className={styles.identityAddress}>{formatAddress(walletAddress)}</p>
                     </div>
-                  )}
-                  
-                  {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' && !state.isUploadingImage && (
-                    <button
-                      onClick={handleImageDelete}
-                      disabled={state.isUploadingImage}
-                      className={`${styles.imageButton} ${styles.deleteButton}`}
-                    >
-                      Remove Image
-                    </button>
-                  )}
-                  
-                  {state.errors.profile_picture && (
-                    <div className={styles.errorText}>
-                      {state.errors.profile_picture}
-                    </div>
-                  )}
+                  </div>
                 </div>
-                
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className={styles.hiddenFileInput}
-                />
               </div>
 
               {/* Form Section */}
-              <div className={styles.formSection}>
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Wallet Address</label>
-                  <input
-                    type="text"
-                    value={formatAddress(walletAddress)}
-                    disabled
-                    className={styles.input}
-                  />
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <Icons.User />
+                  <h3 className={styles.sectionTitle}>Profile Details</h3>
                 </div>
-
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Username</label>
-                  <input
-                    type="text"
-                    value={state.formData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
-                    placeholder="Enter username (optional)"
-                    className={styles.input}
-                    maxLength={VALIDATION_RULES.USERNAME.MAX_LENGTH}
-                  />
-                  {state.errors.username && (
-                    <div className={styles.errorText}>{state.errors.username}</div>
-                  )}
-                </div>
-
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Bio</label>
-                  <textarea
-                    value={state.formData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
-                    placeholder="Tell us about yourself (optional)"
-                    className={`${styles.input} ${styles.textarea}`}
-                    maxLength={VALIDATION_RULES.BIO.MAX_LENGTH}
-                  />
-                  <div className={styles.label}>
-                    {state.formData.bio.length}/{VALIDATION_RULES.BIO.MAX_LENGTH}
+                <div className={styles.formGrid}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="username" className={styles.formLabel}>
+                      Username
+                      <span className={styles.optional}>(optional)</span>
+                    </label>
+                    <div className={styles.inputWrapper}>
+                      <input
+                        id="username"
+                        type="text"
+                        value={state.formData.username}
+                        onChange={(e) => handleInputChange('username', e.target.value)}
+                        placeholder="Choose a unique username"
+                        className={styles.formInput}
+                        maxLength={VALIDATION_RULES.USERNAME.MAX_LENGTH}
+                      />
+                      <div className={styles.inputHint}>
+                        {state.formData.username.length}/{VALIDATION_RULES.USERNAME.MAX_LENGTH} characters
+                      </div>
+                    </div>
+                    {state.errors.username && (
+                      <div className={styles.formError}>{state.errors.username}</div>
+                    )}
                   </div>
-                  {state.errors.bio && (
-                    <div className={styles.errorText}>{state.errors.bio}</div>
-                  )}
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="bio" className={styles.formLabel}>
+                      Bio
+                      <span className={styles.optional}>(optional)</span>
+                    </label>
+                    <div className={styles.inputWrapper}>
+                      <textarea
+                        id="bio"
+                        value={state.formData.bio}
+                        onChange={(e) => handleInputChange('bio', e.target.value)}
+                        placeholder="Tell the community about yourself, your trading style, or interests..."
+                        className={`${styles.formInput} ${styles.formTextarea}`}
+                        maxLength={VALIDATION_RULES.BIO.MAX_LENGTH}
+                        rows={3}
+                      />
+                      <div className={styles.inputHint}>
+                        {state.formData.bio.length}/{VALIDATION_RULES.BIO.MAX_LENGTH} characters
+                      </div>
+                    </div>
+                    {state.errors.bio && (
+                      <div className={styles.formError}>{state.errors.bio}</div>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Stats Section */}
               {state.profile && (
-                <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Tokens Launched</div>
-                    <div className={styles.statValue}>{state.profile.tokens_launched}</div>
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <Icons.TrendingUp />
+                    <h3 className={styles.sectionTitle}>Trading Statistics</h3>
                   </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Tokens Bought</div>
-                    <div className={styles.statValue}>{state.profile.tokens_bought}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Total P&L</div>
-                    <div className={styles.statValue}>${formatNumber(state.profile.total_pnl)}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Dev Score</div>
-                    <div className={styles.statValue}>{formatNumber(state.profile.dev_score)}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Buy Volume</div>
-                    <div className={styles.statValue}>${formatNumber(state.profile.buy_volume)}</div>
-                  </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Sell Volume</div>
-                    <div className={styles.statValue}>${formatNumber(state.profile.sell_volume)}</div>
+                  <div className={styles.statsGrid}>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon} data-type="tokens">🚀</div>
+                      <div className={styles.statContent}>
+                        <div className={styles.statValue}>{formatNumber(state.profile.tokens_launched)}</div>
+                        <div className={styles.statLabel}>Tokens Launched</div>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon} data-type="purchased">💰</div>
+                      <div className={styles.statContent}>
+                        <div className={styles.statValue}>{formatNumber(state.profile.tokens_bought)}</div>
+                        <div className={styles.statLabel}>Tokens Bought</div>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon} data-type="pnl">📈</div>
+                      <div className={styles.statContent}>
+                        <div className={styles.statValue} data-positive={state.profile.total_pnl >= 0}>
+                          ${formatNumber(state.profile.total_pnl)}
+                        </div>
+                        <div className={styles.statLabel}>Total P&L</div>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon} data-type="score">⭐</div>
+                      <div className={styles.statContent}>
+                        <div className={styles.statValue}>{formatNumber(state.profile.dev_score)}</div>
+                        <div className={styles.statLabel}>Dev Score</div>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon} data-type="buy">🔼</div>
+                      <div className={styles.statContent}>
+                        <div className={styles.statValue}>${formatNumber(state.profile.buy_volume)}</div>
+                        <div className={styles.statLabel}>Buy Volume</div>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon} data-type="sell">🔽</div>
+                      <div className={styles.statContent}>
+                        <div className={styles.statValue}>${formatNumber(state.profile.sell_volume)}</div>
+                        <div className={styles.statLabel}>Sell Volume</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Actions */}
-              <div className={styles.actions}>
+              <div className={styles.modalFooter}>
                 <button
                   onClick={onClose}
                   disabled={state.isSaving}
-                  className={`${styles.button} ${styles.secondaryButton}`}
+                  className={styles.cancelButton}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={state.isSaving || state.isUploadingImage}
-                  className={`${styles.button} ${styles.primaryButton}`}
+                  className={styles.saveButton}
                 >
                   {state.isSaving ? (
                     <>
-                      <span className={styles.loadingSpinner} />
-                      Saving...
+                      <span className={styles.buttonSpinner} />
+                      <span>Saving...</span>
                     </>
                   ) : (
-                    'Save Changes'
+                    <>
+                      <Icons.Check />
+                      <span>Save Changes</span>
+                    </>
                   )}
                 </button>
               </div>

@@ -11,28 +11,46 @@ interface SuccessResponse {
   success: boolean;
 }
 
+export interface AddUserResult {
+  success: boolean;
+  status: number;
+  created: boolean; // true if 200 (new user), false if 204 (already exists)
+}
+
 /**
  * Adds a new user.
- * [cite_start]POST /addUser [cite: 7]
+ * If the user already exists, the API returns 204 and no body — do nothing in that case.
+ * Returns an object indicating whether a new user was created.
  */
-export async function addUser(payload: AddUserPayload): Promise<SuccessResponse> {
+export async function addUser(payload: AddUserPayload): Promise<AddUserResult> {
   console.log('addUser called with:', payload);
-  try {
-    const result = await apiClient<SuccessResponse>('/addUser', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    console.log('addUser success:', result);
-    return result;
-  } catch (error) {
-    console.error('addUser error:', error);
-    // If the user already exists, treat it as success to prevent repeated calls
-    if (error instanceof Error && error.message.includes('already exists')) {
-      console.log('User already exists, treating as success');
-      return { success: true };
-    }
-    throw error;
+  const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!API_URL) throw new Error('Missing NEXT_PUBLIC_API_BASE_URL');
+
+  const url = `${API_URL}/addUser`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  // 200 => created, 204 => already exists (no content)
+  if (response.status === 200) {
+    // best-effort parse (some backends return a JSON body on 200)
+    try {
+      await response.json();
+    } catch {}
+    console.log('addUser success: created new user');
+    return { success: true, status: 200, created: true };
   }
+  if (response.status === 204) {
+    console.log('addUser success: user already exists (204)');
+    return { success: true, status: 204, created: false };
+  }
+
+  const errorText = await response.text();
+  console.error('addUser error:', response.status, response.statusText, errorText);
+  throw new Error(`addUser failed: ${response.status} ${response.statusText} - ${errorText}`);
 }
 
 /**
