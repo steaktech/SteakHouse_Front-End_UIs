@@ -128,7 +128,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
     activeTab: 'create',
     formData: {
       tokenAddress: '',
-      amount: '',
+      amount: '100', // Start at 100%
       lockDuration: 30,
     },
     searchQuery: '',
@@ -313,7 +313,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
     return (
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Token Contract Address</label>
+          <label className={styles.label}>Liquidity Pool Address</label>
           <input
             type="text"
             className={styles.input}
@@ -324,14 +324,88 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Amount to Lock</label>
-          <input
-            type="number"
-            className={styles.input}
-            placeholder="0.0"
-            value={state.formData.amount}
-            onChange={(e) => handleFormChange('amount', e.target.value)}
-          />
+          <label className={styles.label}>Amount to Lock: {state.formData.amount}%</label>
+          <div style={{ position: 'relative', marginTop: '12px' }}>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={state.formData.amount}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                // Magnetic snap near major percentages (within 3% range)
+                const snapRange = 3;
+                const majorValues = [0, 25, 50, 75, 100];
+                
+                let snappedValue = value;
+                for (const major of majorValues) {
+                  if (Math.abs(value - major) <= snapRange) {
+                    snappedValue = major;
+                    break;
+                  }
+                }
+                
+                handleFormChange('amount', snappedValue.toString());
+              }}
+              style={{
+                width: '100%',
+                height: '8px',
+                borderRadius: '4px',
+                background: `linear-gradient(to right, #4ade80 0%, #4ade80 ${state.formData.amount}%, rgba(255, 224, 185, 0.2) ${state.formData.amount}%, rgba(255, 224, 185, 0.2) 100%)`,
+                outline: 'none',
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                cursor: 'pointer',
+                border: '1px solid rgba(255, 210, 160, 0.3)'
+              }}
+              className="locker-slider"
+            />
+            <style>{`
+              .locker-slider::-webkit-slider-thumb {
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #ffe49c, #ffc96a);
+                border: 2px solid #8c5523;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+              }
+              .locker-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #ffe49c, #ffc96a);
+                border: 2px solid #8c5523;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+              }
+              .locker-slider::-webkit-slider-thumb:hover {
+                background: linear-gradient(180deg, #ffeeb0, #ffd47e);
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+              }
+              .locker-slider::-moz-range-thumb:hover {
+                background: linear-gradient(180deg, #ffeeb0, #ffd47e);
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+              }
+            `}</style>
+            {/* Percentage markers */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              marginTop: '8px',
+              fontSize: '10px',
+              color: 'rgba(254, 234, 136, 0.6)',
+              fontWeight: 600
+            }}>
+              <span>0%</span>
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
+          </div>
         </div>
 
         <div className={styles.formGroup}>
