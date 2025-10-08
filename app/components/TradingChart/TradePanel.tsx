@@ -119,15 +119,24 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
     if (!amount || parseFloat(amount) <= 0) return;
 
     clearStatus?.();
+    const action = activeTab === 'buy' ? 'Buy' : 'Sell';
     try {
+      let hash: string | null = null;
       if (activeTab === 'buy') {
-        await buyToken(tokenAddress, amount);
+        hash = await buyToken(tokenAddress, amount);
       } else {
-        await sellToken(tokenAddress, amount);
+        hash = await sellToken(tokenAddress, amount);
+      }
+      if (hash) {
+        const short = `${hash.slice(0, 10)}...${hash.slice(-6)}`;
+        showSuccess(`${action} submitted. Tx: ${short}`, `${action} success`, 10000);
+      } else if (tradingState?.error) {
+        showError(tradingState.error, `${action} failed`, 10000);
       }
     } catch (error) {
-      const msg = (error as any)?.message || 'Trade failed';
-      showError(msg, 'Trade Failed');
+      const e = error as any;
+      const reason = e?.raw?.error?.reason || e?.raw?.error?.shortMessage || e?.raw?.error?.info?.error?.message || e?.message || 'Trade failed';
+      showError(reason, `${action} failed`, 12000);
     }
   };
 

@@ -326,7 +326,7 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   }, []);
 
-  const copy = useCallback(async (text?: string | null, addressType: string) => {
+  const copy = useCallback(async (text: string | null | undefined, addressType: string) => {
     try {
       if (text) {
         await navigator.clipboard.writeText(text);
@@ -456,6 +456,68 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
           ) : (
             <>
 
+              {/* Top Avatar */}
+              <div className={styles.topAvatar}>
+                <div
+                  className={styles.avatarContainer}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className={styles.avatarWrapper}>
+                    {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' ? (
+                      <Image
+                        src={state.formData.profile_picture}
+                        alt="Profile"
+                        width={100}
+                        height={100}
+                        className={styles.avatar}
+                      />
+                    ) : (
+                      <div className={styles.avatarPlaceholder}>
+                        <Icons.User />
+                      </div>
+                    )}
+
+                    {!state.isUploadingImage && (
+                      <div className={styles.avatarOverlay}>
+                        <Icons.Camera />
+                        <span>Change Photo</span>
+                      </div>
+                    )}
+
+                    {state.isUploadingImage && (
+                      <div className={styles.avatarLoading}>
+                        <span className={styles.loadingSpinner} />
+                      </div>
+                    )}
+                  </div>
+
+                  {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' && !state.isUploadingImage && (
+                    <button
+                      onClick={handleImageDelete}
+                      disabled={state.isUploadingImage}
+                      className={styles.removeAvatarButton}
+                      aria-label="Remove avatar"
+                    >
+                      <Icons.Trash />
+                    </button>
+                  )}
+                </div>
+
+                {state.errors.profile_picture && (
+                  <div className={styles.errorText}>
+                    {state.errors.profile_picture}
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className={styles.hiddenFileInput}
+                />
+              </div>
+
               {/* Addresses & Balances */}
               <div className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -555,85 +617,6 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
                 </div>
               </div>
 
-              {/* Profile Section */}
-              <div className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <Icons.Sparkles />
-                  <h3 className={styles.sectionTitle}>Your Identity</h3>
-                </div>
-                <div className={styles.profileCard}>
-                  <div className={styles.avatarSection}>
-                    <div className={styles.avatarContainer}>
-                      <div 
-                        className={styles.avatarWrapper}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' ? (
-                          <Image
-                            src={state.formData.profile_picture}
-                            alt="Profile"
-                            width={100}
-                            height={100}
-                            className={styles.avatar}
-                          />
-                        ) : (
-                          <div className={styles.avatarPlaceholder}>
-                            <Icons.User />
-                          </div>
-                        )}
-                        
-                        {!state.isUploadingImage && (
-                          <div className={styles.avatarOverlay}>
-                            <Icons.Camera />
-                            <span>Change Photo</span>
-                          </div>
-                        )}
-                        
-                        {state.isUploadingImage && (
-                          <div className={styles.avatarLoading}>
-                            <span className={styles.loadingSpinner} />
-                          </div>
-                        )}
-                      </div>
-                      
-                      {state.formData.profile_picture && typeof state.formData.profile_picture === 'string' && !state.isUploadingImage && (
-                        <button
-                          onClick={handleImageDelete}
-                          disabled={state.isUploadingImage}
-                          className={styles.removeAvatarButton}
-                          aria-label="Remove avatar"
-                        >
-                          <Icons.Trash />
-                        </button>
-                      )}
-                    </div>
-                    
-                    {state.errors.profile_picture && (
-                      <div className={styles.errorText}>
-                        {state.errors.profile_picture}
-                      </div>
-                    )}
-                    
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className={styles.hiddenFileInput}
-                    />
-                  </div>
-                  
-                  <div className={styles.identityInfo}>
-                    <div className={styles.currentIdentity}>
-                      <h4 className={styles.identityName}>
-                        {state.formData.username?.trim() || (state.profile as any)?.username || 'Anonymous Trader'}
-                      </h4>
-                      <p className={styles.identityAddress}>{formatAddress(walletAddress)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {/* Form Section */}
               <div className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -716,7 +699,7 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
                     <div className={styles.statCard}>
                       <div className={styles.statIcon} data-type="pnl">📈</div>
                       <div className={styles.statContent}>
-                        <div className={styles.statValue} data-positive={state.profile.total_pnl >= 0}>
+                        <div className={styles.statValue} data-positive={Number(state.profile.total_pnl) >= 0}>
                           ${formatNumber(state.profile.total_pnl)}
                         </div>
                         <div className={styles.statLabel}>Total P&L</div>

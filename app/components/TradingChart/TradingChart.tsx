@@ -718,7 +718,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 </button>
               </div>
               <div className="p-2 overflow-y-auto">
-                <MobileBuySellPanel orderType={selectedTradeTab} />
+                <MobileBuySellPanel orderType={selectedTradeTab} tokenAddress={tokenAddress} />
               </div>
             </div>
           </div>

@@ -1,6 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useWallet } from '@/app/hooks/useWallet';
+import { useTrading } from '@/app/hooks/useTrading';
+import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { useToastHelpers } from '@/app/hooks/useToast';
+import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 
 // EthereumIcon component
 const EthereumIcon = () => (
@@ -21,24 +27,78 @@ const QuestionMarkIcon = () => (
   </svg>
 );
 
+const WalletModal = dynamic(
+  () => import('../Modals/WalletModal/WalletModal'),
+  { ssr: false }
+);
+
 interface MobileBuySellPanelProps {
   orderType: 'buy' | 'sell';
+  tokenAddress?: string;
 }
 
-export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderType }) => {
+export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderType, tokenAddress }) => {
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
+
+  // Wallet + trading integration (same as desktop TradePanel)
+  const { isConnected, isConnecting } = useWallet();
+  const { tradingState, buyToken, sellToken, clearStatus, isReady, topUpTradingWallet } = useTrading();
+  const { showError, showSuccess } = useToastHelpers();
+
+  // Wallet & top-up modals
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
+  const [isToppingUp, setIsToppingUp] = useState(false);
+  const hasShownTopUpRef = React.useRef(false);
+
+  // Show top-up suggestion when trading wallet has insufficient funds
+  React.useEffect(() => {
+    if (tradingState?.canTopUp && !hasShownTopUpRef.current) {
+      if (tradingState.topUpSuggestionEth) setTopUpAmount(tradingState.topUpSuggestionEth);
+      showError('Trading wallet has insufficient funds. Please top up to continue.', 'Insufficient funds');
+      setIsTopUpModalOpen(true);
+      hasShownTopUpRef.current = true;
+    } else if (!tradingState?.canTopUp) {
+      hasShownTopUpRef.current = false;
+    }
+  }, [tradingState?.canTopUp, tradingState?.topUpSuggestionEth, showError]);
 
   // Dynamic quick amounts based on buy/sell mode
   const quickAmounts = orderType === 'buy'
     ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
     : ['25%', '50%', '75%', '100%'];
 
+  const handleBuyMaxTx = async () => {
+    if (!tokenAddress) {
+      showError('No token selected for trading', 'Buy Max TX');
+      return;
+    }
+    setIsLoadingMaxTx(true);
+    try {
+      const maxTxData = await getMaxTxInfo(tokenAddress);
+      const ethToCurve = extractEthToCurve(maxTxData);
+      if (ethToCurve) {
+        setAmount(ethToCurve);
+        showSuccess(`Max TX amount set: ${ethToCurve} ETH`, 'Buy Max TX');
+      } else {
+        showError('Max TX data not available for this token', 'Buy Max TX Failed');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch max TX data';
+      showError(errorMessage, 'Buy Max TX Failed');
+    } finally {
+      setIsLoadingMaxTx(false);
+    }
+  };
+
   const handleQuickAmount = (value: string) => {
     if (orderType === 'buy') {
       if (value === 'Max') {
-        setAmount('10.0'); // Example max amount
+        handleBuyMaxTx();
       } else {
         setAmount(value.split(' ')[0]);
       }
@@ -56,11 +116,76 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
     }
   };
 
+  const handleConfirmTrade = async () => {
+    if (!tokenAddress) {
+      showError('No token selected for trading', 'Trade');
+      return;
+    }
+    if (!isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+    if (tradingState?.isTrading) return;
+    if (!amount || parseFloat(amount) <= 0) return;
+
+    clearStatus?.();
+    const action = orderType === 'buy' ? 'Buy' : 'Sell';
+    try {
+      let hash: string | null = null;
+      if (orderType === 'buy') {
+        hash = await buyToken(tokenAddress, amount);
+      } else {
+        hash = await sellToken(tokenAddress, amount);
+      }
+      if (hash) {
+        const short = `${hash.slice(0, 10)}...${hash.slice(-6)}`;
+        showSuccess(`${action} submitted. Tx: ${short}`, `${action} success`, 10000);
+      } else if (tradingState?.error) {
+        showError(tradingState.error, `${action} failed`, 10000);
+      }
+    } catch (error) {
+      const e = error as any;
+      const reason = e?.raw?.error?.reason || e?.raw?.error?.shortMessage || e?.raw?.error?.info?.error?.message || e?.message || 'Trade failed';
+      showError(reason, `${action} failed`, 12000);
+    }
+  };
+
+  const handleTopUp = async () => {
+    if (!isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+    if (!tradingState?.tradingWallet) {
+      showError('Trading wallet not set up yet. Please contact support.', 'Top Up Failed');
+      return;
+    }
+    if (!topUpAmount || isNaN(Number(topUpAmount)) || Number(topUpAmount) <= 0) {
+      showError('Enter a valid amount in ETH', 'Top Up');
+      return;
+    }
+    try {
+      setIsToppingUp(true);
+      const txHash = await topUpTradingWallet(topUpAmount);
+      if (txHash) {
+        showSuccess(`Top up sent: ${String(txHash).slice(0, 10)}...`, 'Top Up');
+      }
+    } catch (e) {
+      const msg = (e as any)?.message || 'Failed to top up';
+      showError(msg, 'Top Up Failed');
+    } finally {
+      setIsToppingUp(false);
+    }
+  };
+
   const handleSubmit = () => {
     if (tradeType === 'market') {
-      console.log(`${orderType.toUpperCase()} Market Order: ${amount} tokens`);
+      // Use the same trade execution as desktop
+      void handleConfirmTrade();
     } else {
-      console.log(`${orderType.toUpperCase()} Limit Order: ${amount} tokens at $${limitPrice}`);
+      // Placeholder for limit orders
+      if (limitPrice) {
+        console.log(`${orderType.toUpperCase()} Limit Order: ${amount} tokens at $${limitPrice}`);
+      }
     }
   };
 
@@ -188,7 +313,10 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
           flexWrap: 'wrap',
           flexShrink: 0
         }}>
-          <button style={{
+          <button 
+            onClick={handleBuyMaxTx}
+            disabled={isLoadingMaxTx}
+            style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
             borderRadius: '8px',
@@ -197,13 +325,14 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             color: '#feea88',
             fontSize: '8px',
             fontWeight: 800,
-            cursor: 'pointer',
+            cursor: isLoadingMaxTx ? 'not-allowed' : 'pointer',
             transition: 'all 200ms ease',
             flex: 1,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>Buy max TX</button>
+            textOverflow: 'ellipsis',
+            opacity: isLoadingMaxTx ? 0.5 : 1
+          }}>{isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}</button>
 
           <button style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -429,21 +558,35 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          disabled={tradeType === 'limit' && !limitPrice}
+          disabled={
+            tradeType === 'market'
+              ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady))
+              : !limitPrice
+          }
           style={{
             width: '100%',
-            background: (tradeType === 'market' || limitPrice)
-              ? (orderType === 'buy'
-                ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                : 'linear-gradient(180deg, #f87171, #ef4444)')
-              : 'linear-gradient(180deg, #6b7280, #4b5563)',
-            color: (tradeType === 'market' || limitPrice) ? '#1f2937' : '#9ca3af',
+            background: (tradeType === 'market'
+              ? (!isConnected 
+                  ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
+                  : (orderType === 'buy'
+                      ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                      : 'linear-gradient(180deg, #f87171, #ef4444)'))
+              : (limitPrice
+                  ? (orderType === 'buy'
+                      ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                      : 'linear-gradient(180deg, #f87171, #ef4444)')
+                  : 'linear-gradient(180deg, #6b7280, #4b5563)')),
+            color: (tradeType === 'market' && !isConnected) || limitPrice ? '#1f2937' : (tradeType === 'market' ? '#1f2937' : '#9ca3af'),
             fontWeight: 800,
             fontSize: '13px',
             padding: '12px',
             borderRadius: '16px',
             border: 'none',
-            cursor: (tradeType === 'market' || limitPrice) ? 'pointer' : 'not-allowed',
+            cursor: (
+              tradeType === 'market'
+                ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 'not-allowed' : 'pointer'
+                : (limitPrice ? 'pointer' : 'not-allowed')
+            ),
             transition: 'all 200ms ease',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
             textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
@@ -451,27 +594,47 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             flexShrink: 0,
             letterSpacing: '0.5px',
             minHeight: '40px',
-            opacity: (tradeType === 'market' || limitPrice) ? 1 : 0.6
+            opacity: (
+              tradeType === 'market'
+                ? ((isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1)
+                : (limitPrice ? 1 : 0.6)
+            )
           }}
           onMouseEnter={(e) => {
-            if (tradeType === 'market' || limitPrice) {
-              const target = e.target as HTMLButtonElement;
+            const target = e.target as HTMLButtonElement;
+            const disabled = tradeType === 'market'
+              ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady))
+              : !limitPrice;
+            if (!disabled) {
               target.style.transform = 'translateY(-1px)';
               target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
             }
           }}
           onMouseLeave={(e) => {
-            if (tradeType === 'market' || limitPrice) {
-              const target = e.target as HTMLButtonElement;
-              target.style.transform = 'translateY(0)';
-              target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
-            }
+            const target = e.target as HTMLButtonElement;
+            target.style.transform = 'translateY(0)';
+            target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
           }}
         >
-          {tradeType === 'market' 
-            ? `CONFIRM ${orderType.toUpperCase()} TRADE` 
+          {tradeType === 'market'
+            ? (!isConnected 
+                ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
+                : (tradingState?.isTrading ? `${orderType.toUpperCase()}ING...` : `CONFIRM ${orderType.toUpperCase()} TRADE`))
             : `PLACE ${orderType.toUpperCase()} LIMIT ORDER`}
         </button>
+        {/* Wallet & Top-Up Modals */}
+        <WalletModal
+          isOpen={isWalletModalOpen}
+          onClose={() => setIsWalletModalOpen(false)}
+          isConnected={isConnected}
+        />
+        <WalletTopUpModal
+          isOpen={isTopUpModalOpen}
+          onClose={() => setIsTopUpModalOpen(false)}
+          tradingWallet={tradingState?.tradingWallet}
+          defaultAmountEth={topUpAmount || tradingState?.topUpSuggestionEth || ''}
+          onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
+        />
       </div>
     </>
   );

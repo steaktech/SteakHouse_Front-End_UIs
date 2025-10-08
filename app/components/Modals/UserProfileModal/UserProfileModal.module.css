@@ -338,11 +338,23 @@
 .emptyState { text-align: center; padding: 20px; color: #9ca3af; font-size: 0.9rem; }
 
 /* --- Profile & Form --- */
+.topAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8px;
+  margin-bottom: 8px;
+}
+
 .profileCard {
   display: grid;
   grid-template-columns: 180px 1fr;
   gap: 24px;
   align-items: flex-start;
+}
+
+.profileCardSingle {
+  grid-template-columns: 1fr;
 }
 
 .avatarSection {
@@ -439,6 +451,13 @@
 }
 
 .hiddenFileInput { display: none; }
+
+.errorText {
+  margin-top: 8px;
+  color: #ef4444;
+  font-size: 0.8125rem;
+  text-align: center;
+}
 
 .identityInfo {
   display: flex;

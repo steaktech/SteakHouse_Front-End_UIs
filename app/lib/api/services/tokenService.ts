@@ -46,7 +46,8 @@ export async function getTokensByMarketCap(params?: URLSearchParams): Promise<Pa
 export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<FullTokenDataResponse> {
   console.log('getFullTokenData API call for:', address, { interval, limit });
   try {
-    const result = await apiClient<FullTokenDataResponse>(`/token/${address}/full?interval=${interval}&limit=${limit}`);
+    //const result = await apiClient<FullTokenDataResponse>(`/token/${address}/full?interval=${interval}&limit=${limit}`);
+    const result = await apiClient<FullTokenDataResponse>(`/token/${address}/full`);
     console.log('getFullTokenData success for:', address);
     return result;
   } catch (error) {
