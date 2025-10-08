@@ -223,7 +223,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         color: '#fff7ea',
         display: 'flex',
         flexDirection: 'column',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
       }}>
         {/* Buy/Sell/Limit Tabs - Premium Style */}
         <div style={{
@@ -336,6 +336,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: activeTab === 'limit' ? 'clamp(4px, 0.8vh, 6px)' : 'clamp(6px, 1vh, 8px)',
+          marginTop: 'auto',
           gap: 'clamp(4px, 1vw, 8px)',
           flexWrap: 'wrap',
           flexShrink: 0
@@ -382,7 +383,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Amount Input */}
         <div style={{
           position: 'relative',
-          marginBottom: activeTab === 'limit' ? 'clamp(4px, 0.8vh, 6px)' : 'clamp(6px, 1vh, 8px)',
+          marginBottom: 'auto',
+          marginTop: 'auto',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
@@ -455,7 +457,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: activeTab === 'limit' ? 'clamp(3px, 0.6vh, 6px)' : 'clamp(4px, 0.8vh, 8px)',
+          marginBottom: 'auto',
           gap: 'clamp(1px, 0.2vw, 2px)',
           flexShrink: 0
         }}>
@@ -731,7 +733,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 color: limitPrice ? '#1f2937' : '#9ca3af',
                 fontWeight: 800,
                 fontSize: 'clamp(13px, 2.4vw, 16px)',
-                padding: 'clamp(10px, 2vh, 14px)',
                 borderRadius: 'clamp(14px, 3vw, 20px)',
                 border: 'none',
                 cursor: limitPrice ? 'pointer' : 'not-allowed',

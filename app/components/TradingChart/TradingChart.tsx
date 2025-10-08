@@ -482,7 +482,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         <main 
           className={`flex-1 min-h-0 grid grid-cols-1 ${desktopTradeTab === 'limit' 
             ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_460px]'
-            : 'lg:grid-cols-[1fr_290px] lg:grid-rows-[1fr_320px]'} gap-[8px] p-[8px] ${
+            : 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_460px]'} gap-[8px] p-[8px] ${
             'overflow-hidden'
           }`}
           style={{
@@ -506,6 +506,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           <div className={`hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center p-0 m-0 items-center`}>
             <div style={{
               width: '100%',
+              height: '100%', 
               maxWidth: '420px',
               display: 'flex',
               alignItems: 'center',
