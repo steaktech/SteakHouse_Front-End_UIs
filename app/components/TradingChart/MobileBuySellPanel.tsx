@@ -330,6 +330,117 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
           ))}
         </div>
 
+        {/* User Stats Section - Fills blank space */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '3px',
+          marginTop: '6px',
+          marginBottom: '6px',
+          minHeight: 0,
+          overflow: 'auto'
+        }}>
+          {/* Balance Row */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '4px 6px',
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            border: '1px solid rgba(255, 210, 160, 0.2)',
+            borderRadius: '6px',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+          }}>
+            <span style={{
+              fontSize: '8px',
+              fontWeight: 700,
+              color: 'rgba(254, 234, 136, 0.7)',
+              letterSpacing: '0.3px'
+            }}>Balance</span>
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 800,
+              color: '#feea88',
+              letterSpacing: '0.2px'
+            }}>$45,678.90</span>
+          </div>
+
+          {/* ETH Balance Row */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '4px 6px',
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            border: '1px solid rgba(255, 210, 160, 0.2)',
+            borderRadius: '6px',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+          }}>
+            <span style={{
+              fontSize: '8px',
+              fontWeight: 700,
+              color: 'rgba(254, 234, 136, 0.7)',
+              letterSpacing: '0.3px'
+            }}>ETH Balance</span>
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 800,
+              color: '#feea88',
+              letterSpacing: '0.2px'
+            }}>12.5 ETH</span>
+          </div>
+
+          {/* Total PnL Row */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '4px 6px',
+            background: 'linear-gradient(180deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.15))',
+            border: '1px solid rgba(74, 222, 128, 0.25)',
+            borderRadius: '6px',
+            boxShadow: 'inset 0 1px 0 rgba(74, 222, 128, 0.1)'
+          }}>
+            <span style={{
+              fontSize: '8px',
+              fontWeight: 700,
+              color: 'rgba(254, 234, 136, 0.7)',
+              letterSpacing: '0.3px'
+            }}>Total PnL</span>
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 800,
+              color: '#4ade80',
+              letterSpacing: '0.2px'
+            }}>+$8,934.50 (+24.3%)</span>
+          </div>
+
+          {/* Win Rate Row */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '4px 6px',
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            border: '1px solid rgba(255, 210, 160, 0.2)',
+            borderRadius: '6px',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+          }}>
+            <span style={{
+              fontSize: '8px',
+              fontWeight: 700,
+              color: 'rgba(254, 234, 136, 0.7)',
+              letterSpacing: '0.3px'
+            }}>Win Rate</span>
+            <span style={{
+              fontSize: '9px',
+              fontWeight: 800,
+              color: '#feea88',
+              letterSpacing: '0.2px'
+            }}>68.5%</span>
+          </div>
+        </div>
+
         {/* Limit Price Input (only shown for limit orders) */}
         {tradeType === 'limit' && (
           <>
