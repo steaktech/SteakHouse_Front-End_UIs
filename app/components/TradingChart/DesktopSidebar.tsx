@@ -6,6 +6,7 @@ import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark,
 import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
+import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 
 // Props for each widget item
@@ -79,9 +80,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
+  const [isExplorerWidgetOpen, setIsExplorerWidgetOpen] = useState(false);
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
-  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen;
+  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isExplorerWidgetOpen;
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -103,7 +105,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
 
   const handleExplorerClick = () => {
     console.log('Explorer clicked');
-    // TODO: Implement explorer functionality
+    setIsExplorerWidgetOpen(true);
   };
 
   const handleUserClick = () => {
@@ -139,6 +141,10 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
 
   const handleSavedTokenClose = () => {
     setIsSavedTokenWidgetOpen(false);
+  };
+
+  const handleExplorerClose = () => {
+    setIsExplorerWidgetOpen(false);
   };
 
   // Handlers for Chart, Token, Trade (only functional when hasActiveWidget is true)
@@ -201,13 +207,13 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
     //   greyedOut: false,
     //   onClick: handleLockerClick
     // },
-    // {
-    //   icon: <ExternalLink size={16} className="text-[#d29900]" />,
-    //   text: 'Explorer',
-    //   active: false,
-    //   greyedOut: false,
-    //   onClick: handleExplorerClick
-    // },
+    {
+      icon: <ExternalLink size={16} className="text-[#d29900]" />,
+      text: 'Explorer',
+      active: isExplorerWidgetOpen,
+      greyedOut: false,
+      onClick: handleExplorerClick
+    },
     {
       icon: <User size={16} className="text-[#d29900]" />,
       text: 'User',
@@ -339,6 +345,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       <SavedTokenWidget
         isOpen={isSavedTokenWidgetOpen}
         onClose={handleSavedTokenClose}
+      />
+
+      {/* Explorer Widget */}
+      <ExplorerWidget
+        isOpen={isExplorerWidgetOpen}
+        onClose={handleExplorerClose}
       />
     </>
   );
