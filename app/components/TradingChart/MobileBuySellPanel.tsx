@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 // EthereumIcon component
 const EthereumIcon = () => (
@@ -29,6 +30,9 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
+  
+  // Get live ETH price from the same hook used in token creation wizard
+  const { ethPrice, loading: priceLoading } = useStablePriceData(true);
 
   // Dynamic quick amounts based on buy/sell mode
   const quickAmounts = orderType === 'buy'
@@ -362,7 +366,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
               fontWeight: 800,
               color: '#feea88',
               letterSpacing: '0.2px'
-            }}>$45,678.90</span>
+            }}>{ethPrice ? `$${(12.5 * ethPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '...'}</span>
           </div>
 
           {/* ETH Balance Row */}
@@ -412,7 +416,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
               fontWeight: 800,
               color: '#4ade80',
               letterSpacing: '0.2px'
-            }}>+$8,934.50 (+24.3%)</span>
+            }}>+$8,934.50</span>
           </div>
 
           {/* Win Rate Row */}
