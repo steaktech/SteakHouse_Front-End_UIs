@@ -644,7 +644,8 @@
   );
   border-radius: 999px;
   overflow: hidden;
-  margin-top: 12px;
+  margin-top: 2px;
+  margin-bottom: 12px;
   border: 1px solid #8b5a2b;
 }
 
