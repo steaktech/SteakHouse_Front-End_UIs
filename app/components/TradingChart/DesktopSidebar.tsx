@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-// Icons from lucide-react, including X for the mobile close button
-import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, Lock, ExternalLink, User, Bot, Link, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { SidebarProps } from './types'; // Assuming this type is defined elsewhere
+// Icons from lucide-react
+import { Plus, BarChart3, Coins, ArrowLeftRight, Users, MessageCircle, Bookmark, Lock, ExternalLink, User, Bot, Link, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SidebarProps } from './types';
 import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
-import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
+import { ExplorerWidget } from '../Widgets/ExplorerWidget';
+import { LockerWidget } from '../Widgets/LockerWidget';
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -75,15 +77,21 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
   );
 };
 
-
 export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
+  const [isLockerWidgetOpen, setIsLockerWidgetOpen] = useState(false);
+  const [isUserProfileWidgetOpen, setIsUserProfileWidgetOpen] = useState(false);
   const [isExplorerWidgetOpen, setIsExplorerWidgetOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(170);
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Use the same price data hook as the token creation wizard
+  const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
-  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isExplorerWidgetOpen;
+  const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isLockerWidgetOpen || isUserProfileWidgetOpen || isExplorerWidgetOpen;
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -99,34 +107,28 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
 
   // Handlers for new widgets
   const handleLockerClick = () => {
-    console.log('Locker clicked');
-    // TODO: Implement locker functionality
+    setIsLockerWidgetOpen(true);
   };
 
   const handleExplorerClick = () => {
-    console.log('Explorer clicked');
     setIsExplorerWidgetOpen(true);
   };
 
   const handleUserClick = () => {
-    console.log('User clicked');
-    // TODO: Implement user functionality
+    setIsUserProfileWidgetOpen(true);
   };
 
   // Handlers for bottom section
   const handleSteakTechBotClick = () => {
     console.log('SteakTech Bot clicked');
-    // TODO: Implement bot functionality
   };
 
   const handleLinksClick = () => {
     console.log('Links clicked');
-    // TODO: Implement links functionality
   };
 
   const handleCertikClick = () => {
     console.log('Certik clicked');
-    // Open the certificate page - this should be updated to the actual certificate URL when available
     window.open('#certik', '_blank');
   };
 
@@ -143,14 +145,17 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
     setIsSavedTokenWidgetOpen(false);
   };
 
-  const handleExplorerClose = () => {
-    setIsExplorerWidgetOpen(false);
-  };
+const handleExplorerClose = () => {
+  setIsExplorerWidgetOpen(false);
+};
+
+const handleLockerClose = () => {
+  setIsLockerWidgetOpen(false);
+};
 
   // Handlers for Chart, Token, Trade (only functional when hasActiveWidget is true)
   const handleChartClick = () => {
     if (hasActiveWidget) {
-      // Handle chart action - could navigate or perform chart-related action
       console.log('Chart clicked - widget is active');
     } else {
       console.log('Chart clicked but no active widgets - greyed out');
@@ -159,7 +164,6 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
 
   const handleTokenClick = () => {
     if (hasActiveWidget) {
-      // Handle token action - could show token details or perform token-related action
       console.log('Token clicked - widget is active');
     } else {
       console.log('Token clicked but no active widgets - greyed out');
@@ -168,15 +172,72 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
 
   const handleTradeClick = () => {
     if (hasActiveWidget) {
-      // Handle trade action - could focus trade panel or perform trade-related action
       console.log('Trade clicked - widget is active');
     } else {
       console.log('Trade clicked but no active widgets - greyed out');
     }
   };
 
+  // Parse GWEI from formatted gas price (e.g., "25 gwei" -> 25)
+  const gwei = formattedGasPrice ? parseFloat(formattedGasPrice.replace(/[^0-9.]/g, '')) : null;
+
+  // Resize handlers
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    if (!expanded) return;
+    setIsResizing(true);
+    e.preventDefault();
+  };
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      // Constrain width between 140px and 400px
+      setSidebarWidth(Math.max(140, Math.min(400, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
   const widgets = [
     // Chart, Token, Trade: greyed out by default, colorful when other widgets are open
+    {
+      icon: <BarChart3 size={16} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#666666]"} />,
+      text: 'Chart',
+      active: false,
+      greyedOut: !hasActiveWidget,
+      onClick: handleChartClick
+    },
+    {
+      icon: <Coins size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
+      text: 'Token',
+      active: false,
+      greyedOut: !hasActiveWidget,
+      onClick: handleTokenClick
+    },
+    {
+      icon: <ArrowLeftRight size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
+      text: 'Trade',
+      active: false,
+      greyedOut: !hasActiveWidget,
+      onClick: handleTradeClick
+    },
     // Holders, Chat, Saved: normal behavior
     {
       icon: <Users size={16} className="text-[#d29900]" />,
@@ -199,14 +260,14 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       greyedOut: false,
       onClick: handleSavedTokenClick
     },
-    // New widgets
-    // {
-    //   icon: <Lock size={16} className="text-[#d29900]" />,
-    //   text: 'Locker',
-    //   active: false,
-    //   greyedOut: false,
-    //   onClick: handleLockerClick
-    // },
+    // New widgets (UI only; underlying components may be added later)
+    {
+      icon: <Lock size={16} className="text-[#d29900]" />,
+      text: 'Locker',
+      active: isLockerWidgetOpen,
+      greyedOut: false,
+      onClick: handleLockerClick
+    },
     {
       icon: <ExternalLink size={16} className="text-[#d29900]" />,
       text: 'Explorer',
@@ -217,7 +278,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
     {
       icon: <User size={16} className="text-[#d29900]" />,
       text: 'User',
-      active: false,
+      active: isUserProfileWidgetOpen,
       greyedOut: false,
       onClick: handleUserClick
     },
@@ -228,33 +289,33 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       {/* BACKDROP for mobile overlay */}
       <div
         onClick={() => setExpanded(false)}
-        className={`fixed inset-0 bg-black/60 z-20 transition-opacity lg:hidden ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
+        className={`fixed inset-0 bg-black/60 z-20 transition-opacity lg:hidden ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       />
 
       {/* RESPONSIVE SIDEBAR CONTAINER */}
       <aside
         className={`
           h-full flex flex-col
-          transition-all duration-300 ease-in-out
+          relative
           
           /* Mobile Overlay Styles */
           fixed inset-y-0 left-0 z-30
-          ${expanded ? 'translate-x-0 w-[140px]' : '-translate-x-full w-[120px]'}
+          ${expanded ? 'translate-x-0 w-[160px]' : '-translate-x-full w-[140px]'}
 
           /* Desktop Static Styles */
           lg:relative lg:translate-x-0
-          ${expanded ? 'lg:w-[140px]' : 'lg:w-[60px]'}
+          ${expanded ? '' : 'lg:w-[70px]'}
         `}
         style={{
           background: 'linear-gradient(180deg, #572501 0%, #572501 65%, #7d3802 100%)',
-          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)'
+          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+          width: expanded ? `${sidebarWidth}px` : undefined,
+          transition: isResizing ? 'none' : 'all 300ms ease-in-out'
         }}
       >
         {/* Header */}
         <div className="flex-shrink-0 relative flex items-center justify-center px-[10px] pt-[12px] pb-[16px]">
-          <div className={`transition-opacity duration-200 ${expanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            {/* Title styled to match the CSS */}
+          <div className={`transition-opacity duration-200 ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <h2 className="text-[#daa20b] text-base font-semibold tracking-[0.15px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
               Widgets
             </h2>
@@ -263,14 +324,11 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
           {/* Desktop Toggle Button */}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1 rounded-full bg-black/30 hover:bg-black/50 
-                       absolute -right-3 top-[26px]
-                       hidden lg:block z-10"
+            className="p-1 rounded-full bg-black/30 hover:bg-black/50 absolute -right-3 top-[26px] hidden lg:block z-10"
             type="button"
           >
             {expanded ? <ChevronLeft size={16} className="text-amber-200" /> : <ChevronRight size={16} className="text-amber-200" />}
           </button>
-
         </div>
 
         {/* Widget List */}
@@ -310,12 +368,75 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
             onClick={handleLinksClick}
           />
 
+          {/* ETH Price and GWEI Display */}
+          <div className="mx-2.5 mt-2 mb-1.5">
+            {/* ETH Price */}
+            <div 
+              className="mb-1.5 px-2 py-1.5"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className="text-[#d29900] flex-shrink-0">
+                  <path d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z" fill="#8C8C8C" />
+                  <path d="M127.962 0L0 212.32l127.962 75.639V154.158z" fill="#6C6C6C" />
+                  <path d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z" fill="#8C8C8C" />
+                  <path d="M127.962 416.905v-104.72L0 236.585z" fill="#6C6C6C" />
+                </svg>
+                {expanded && (
+                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">ETH</span>
+                )}
+              </div>
+              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+                {priceLoading ? '...' : ethPrice ? `$${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '---'}
+              </span>
+            </div>
+
+            {/* GWEI */}
+            <div 
+              className="px-2 py-1.5"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                <span className="flex-shrink-0" style={{ fontSize: '12px', lineHeight: 1 }}>⛽️</span>
+                {expanded && (
+                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">GWEI</span>
+                )}
+              </div>
+              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+                {priceLoading ? '...' : gwei ? gwei.toFixed(1) : '---'}
+              </span>
+            </div>
+          </div>
+
           {/* Certik Badge - Full width, styled like main page Footer */}
-          <div className="mx-1.5 mt-1.5">
+          <div className="mx-1.5 mt-1.5 flex justify-center">
             <button
               onClick={handleCertikClick}
-              className="w-full p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
+              className="p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
               title="View CertiK Certificate"
+              style={{
+                width: expanded ? 'auto' : '100%'
+              }}
             >
               <img
                 src="/images/certik-logo-v2.png"
@@ -325,6 +446,17 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
             </button>
           </div>
         </div>
+
+        {/* Resize Handle - Desktop Only */}
+        {expanded && (
+          <div
+            onMouseDown={handleResizeMouseDown}
+            className="hidden lg:block absolute top-0 right-0 bottom-0 w-1 cursor-col-resize hover:bg-[rgba(255,215,165,0.3)] transition-colors z-50"
+            style={{
+              background: isResizing ? 'rgba(255, 215, 165, 0.5)' : 'transparent'
+            }}
+          />
+        )}
       </aside>
 
       {/* SteakHolders Widget */}
@@ -351,6 +483,12 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
       <ExplorerWidget
         isOpen={isExplorerWidgetOpen}
         onClose={handleExplorerClose}
+      />
+
+      {/* Locker Widget */}
+      <LockerWidget
+        isOpen={isLockerWidgetOpen}
+        onClose={handleLockerClose}
       />
     </>
   );
