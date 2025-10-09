@@ -9,6 +9,7 @@ import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 import { LockerWidget } from '../Widgets/LockerWidget';
+import { ChartUserProfileWidget } from '../Widgets/ChartUserProfile';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 // Props for each widget item
@@ -151,6 +152,10 @@ const handleExplorerClose = () => {
 
 const handleLockerClose = () => {
   setIsLockerWidgetOpen(false);
+};
+
+const handleUserProfileClose = () => {
+  setIsUserProfileWidgetOpen(false);
 };
 
   // Handlers for Chart, Token, Trade (only functional when hasActiveWidget is true)
@@ -489,6 +494,12 @@ const handleLockerClose = () => {
       <LockerWidget
         isOpen={isLockerWidgetOpen}
         onClose={handleLockerClose}
+      />
+
+      {/* Chart User Profile Widget */}
+      <ChartUserProfileWidget
+        isOpen={isUserProfileWidgetOpen}
+        onClose={handleUserProfileClose}
       />
     </>
   );
