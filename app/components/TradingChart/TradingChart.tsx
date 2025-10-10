@@ -139,6 +139,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   // WebSocket: subscribe to token, update trades and candles
   const handleWsTrade = (trade: WebSocketTrade) => {
+    // Debug: log incoming trade from WebSocket
+    console.log('[WS] Trade received', trade);
     // Normalize to Trade type; keep usdValue as number (component handles formatting)
     const normalized: Trade = {
       type: trade.type,
@@ -162,6 +164,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   };
 
   const handleWsChartUpdate = ({ timeframe: tf, candle }: ChartUpdateEvent) => {
+    // Debug: log incoming chart update from WebSocket
+    console.log('[WS] Chart update', { timeframe: tf, candle });
     // Only base 1m updates are expected; parse strings to numbers
     const newCandle: Candle = {
       timestamp: candle.timestamp,
