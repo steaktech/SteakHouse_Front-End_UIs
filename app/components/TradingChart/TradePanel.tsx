@@ -208,7 +208,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           white-space: nowrap !important;
         }
       `}</style>
-      <div style={{
+      <div className="custom-scrollbar" style={{
         width: '100%',
         height: activeTab === 'limit' ? 'fit-content' : '100%',
         maxHeight: activeTab === 'limit' ? 'none' : 'none',
@@ -219,7 +219,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
         padding: isMobile ? '10px' : (activeTab === 'limit' ? 'clamp(9px, 1.8vh, 13px)' : 'clamp(12px, 2.5vh, 16px)'),
         border: '1px solid rgba(255, 215, 165, 0.4)',
-        overflow: 'visible',
+        overflowY: 'auto',
+        overflowX: 'hidden',
         color: '#fff7ea',
         display: 'flex',
         flexDirection: 'column',
