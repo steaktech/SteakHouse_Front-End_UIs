@@ -440,7 +440,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         display: 'flex',
         flexDirection: 'column'
       }}>
-        <div style={{ 
+        <div className="custom-scrollbar" style={{ 
           overflowY: 'auto', 
           height: '100%', 
           display: 'flex', 

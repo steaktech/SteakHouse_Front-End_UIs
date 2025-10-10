@@ -210,9 +210,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       `}</style>
       <div style={{
         width: '100%',
-        height: '100%',
-        maxHeight: 'none',
-        minHeight: '100%',
+        height: activeTab === 'limit' ? 'fit-content' : '100%',
+        maxHeight: activeTab === 'limit' ? 'none' : 'none',
+        minHeight: activeTab === 'limit' ? 'auto' : '100%',
         position: 'relative',
         borderRadius: 'clamp(14px, 2vw, 20px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
@@ -336,7 +336,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: activeTab === 'limit' ? 'clamp(4px, 0.8vh, 6px)' : 'clamp(6px, 1vh, 8px)',
-          marginTop: 'auto',
           gap: 'clamp(4px, 1vw, 8px)',
           flexWrap: 'wrap',
           flexShrink: 0
@@ -383,12 +382,22 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Amount Input */}
         <div style={{
           position: 'relative',
-          marginBottom: 'auto',
-          marginTop: 'auto',
+          marginTop: '0',
+          marginBottom: 'clamp(6px, 1vh, 10px)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
+          <label style={{
+            display: 'block',
+            fontSize: 'clamp(11px, 1.8vw, 13px)',
+            fontWeight: 700,
+            color: '#feea88',
+            marginBottom: '6px',
+            textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
+          }}>
+            Amount {(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '(ETH)' : activeTab === 'sell' ? '(%)' : ''}
+          </label>
           <div style={{
             position: 'relative',
             background: 'linear-gradient(180deg, #7f4108, #6f3906)',
@@ -424,7 +433,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 boxSizing: 'border-box'
               }}
               onWheel={(e) => e.currentTarget.blur()}
-              placeholder="0"
+              placeholder="0.00"
               onFocus={(e) => {
                 e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '#4ade80' : '#f87171'}`;
                 e.target.style.boxShadow = `0 0 0 2px ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
@@ -452,13 +461,13 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           </div>
         </div>
 
-        {/* Preset Amounts - All on same line */}
+        {/* Preset Amounts */}
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 'auto',
-          gap: 'clamp(1px, 0.2vw, 2px)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 'clamp(4px, 0.8vw, 6px)',
+          marginTop: 'clamp(4px, 0.8vh, 8px)',
+          marginBottom: 'clamp(6px, 1vh, 10px)',
           flexShrink: 0
         }}>
           {quickAmounts.map((preset) => (
@@ -492,6 +501,159 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Market Order Interface */}
         {activeTab !== 'limit' && (
           <>
+            {/* Account Stats */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'clamp(4px, 0.8vh, 8px)',
+              marginTop: 'clamp(6px, 1vh, 10px)',
+              marginBottom: 'clamp(6px, 1vh, 10px)'
+            }}>
+              {/* Balance */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                border: '1px solid rgba(255, 210, 160, 0.25)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>Balance</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#feea88',
+                  letterSpacing: '0.2px'
+                }}>$54,576.75</span>
+              </div>
+
+              {/* ETH Balance */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                border: '1px solid rgba(255, 210, 160, 0.25)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>ETH Balance</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#feea88',
+                  letterSpacing: '0.2px'
+                }}>12.5 ETH</span>
+              </div>
+
+              {/* Total PnL */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(74, 222, 128, 0.10), rgba(34, 197, 94, 0.16))',
+                border: '1px solid rgba(74, 222, 128, 0.25)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(74, 222, 128, 0.1)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>Total PnL</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#4ade80',
+                  letterSpacing: '0.2px'
+                }}>+$8,934.50</span>
+              </div>
+
+              {/* Daily PnL */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(74, 222, 128, 0.08), rgba(34, 197, 94, 0.12))',
+                border: '1px solid rgba(74, 222, 128, 0.2)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(74, 222, 128, 0.08)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>Daily PnL</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#4ade80',
+                  letterSpacing: '0.2px'
+                }}>+$342.75</span>
+              </div>
+
+              {/* Win Rate */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                border: '1px solid rgba(255, 210, 160, 0.25)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>Win Rate</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#feea88',
+                  letterSpacing: '0.2px'
+                }}>68.5%</span>
+              </div>
+
+              {/* Total Trades */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                border: '1px solid rgba(255, 210, 160, 0.25)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>Total Trades</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#feea88',
+                  letterSpacing: '0.2px'
+                }}>127</span>
+              </div>
+            </div>
+
             {/* Confirm Button */}
             <button
               onClick={handleConfirmTrade}

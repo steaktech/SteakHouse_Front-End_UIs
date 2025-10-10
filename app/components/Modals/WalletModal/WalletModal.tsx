@@ -106,120 +106,174 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+  // UI styles (inspired by steakhouse WalletModal.module.css)
+  const overlayStyle = {
+    position: 'fixed' as const,
+    inset: 0,
+    background: 'rgba(0,0,0,0.3)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 9999,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '16px'
+  };
+  const containerStyle = {
+    background: 'radial-gradient(1200px 800px at 85% -10%, rgba(247,181,0,0.10) 0%, rgba(255,201,54,0.06) 25%, transparent 60%) no-repeat, #0d0704',
+    color: '#f5e6d3',
+    borderRadius: '24px',
+    width: '100%',
+    maxWidth: '500px',
+    padding: 0,
+    position: 'relative' as const,
+    boxShadow: '0 16px 60px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.03)',
+    border: '1px solid #3a2418',
+    overflow: 'hidden'
+  };
+  const headerStyle = { display: 'flex', alignItems: 'center', gap: '20px', padding: '24px 24px 16px' } as const;
+  const walletIconStyle = {
+    width: '48px', height: '48px', borderRadius: '14px',
+    background: 'linear-gradient(135deg, #f28c28, #ffb347 60%, #f28c28)',
+    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 12px 40px rgba(205,120,40,0.25)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: '24px', color: '#1a0f08', fontWeight: 700, overflow: 'hidden'
+  } as const;
+  const titleStyle = { fontSize: '24px', fontWeight: 800, color: '#f5e6d3', margin: 0, letterSpacing: '-0.01em' } as const;
+  const closeButtonStyle = {
+    position: 'absolute' as const,
+    top: '20px', right: '20px', width: '36px', height: '36px', borderRadius: '8px',
+    background: 'rgba(255,255,255,0.05)', border: '1px solid #3a2418', color: '#cbbba6',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '18px'
+  };
+  const descriptionStyle = { color: '#cbbba6', fontSize: '14px', marginBottom: '24px', lineHeight: 1.4, padding: '0 24px' } as const;
+  const listStyle = { display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 24px 24px' } as const;
+  const walletButtonStyle = {
+    display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#231611',
+    border: '1px solid #3a2418', borderRadius: '14px', color: '#f5e6d3', fontSize: '16px', fontWeight: 500,
+    cursor: 'pointer', transition: 'all 0.2s ease', width: '100%', textAlign: 'left' as const
+  };
+  const walletButtonIconStyle = { width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as const;
+  const walletButtonNameStyle = { fontSize: '16px', fontWeight: 600, color: '#f5e6d3', marginBottom: '4px' } as const;
+  const walletButtonStatusStyle = { fontSize: '12px', color: '#cbbba6' } as const;
+  const connectedWrapStyle = { display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 24px 24px' } as const;
+  const infoCardStyle = { background: '#231611', border: '1px solid #3a2418', borderRadius: '12px', padding: '12px' } as const;
+  const infoLabelStyle = { fontSize: '11px', color: '#9b8976', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '4px' };
+  const infoValueStyle = { color: '#f5e6d3', fontWeight: 500, fontSize: '14px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace' } as const;
+  const primaryButtonStyle = {
+    background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)', border: 'none', borderRadius: '12px', padding: '12px 16px',
+    color: '#1a0f08', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: '0.2s', textAlign: 'center' as const, width: '100%'
+  };
+  const dangerButtonStyle = {
+    background: '#dc2626', border: 'none', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px', fontWeight: 700,
+    cursor: 'pointer', transition: '0.2s', textAlign: 'center' as const, width: '100%'
+  };
+  const spinnerStyle = { width: '20px', height: '20px', border: '2px solid #3a2418', borderTop: '2px solid #ffb347', borderRadius: '50%' } as const;
+
+  // Resolve connector icon to an image that exists in /public/images
+  const resolveConnectorIcon = (id: string, provided?: string) => {
+    const byId: Record<string, string> = {
+      injected: '/images/metamask-wallet.webp',
+      'io.metamask': '/images/metamask-wallet.webp',
+      walletConnect: '/images/walletconnect-wallet.webp',
+      coinbaseWallet: '/images/coinbase-wallet.webp',
+      coinbaseWalletSDK: '/images/coinbase-wallet.webp',
+    };
+    if (byId[id]) return byId[id];
+    // If a provided path already targets our images folder, keep it; otherwise fallback
+    if (provided && provided.startsWith('/images/')) return provided;
+    return '/images/metamask-wallet.webp';
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !showWelcomeModal) onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={() => { if (!showWelcomeModal) onClose(); }}
-      />
-      
-      {/* Modal */}
-      <div className="relative bg-gradient-to-b from-[#2d1810] to-[#1a0f08] border border-[#8b4513] rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl">
+    <div style={overlayStyle} onClick={handleOverlayClick}>
+      <div style={containerStyle} onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} style={closeButtonStyle}>✕</button>
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#d4af37]">
-            {isConnected ? 'Wallet Connected' : 'Connect Wallet'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            ✕
-          </button>
+        <div style={headerStyle}>
+          <div style={walletIconStyle}>
+            {isConnected ? '✓' : (
+              <Image src="/images/ethereum-logo.svg" alt="Ethereum logo" width={24} height={39} style={{ objectFit: 'contain' }} />
+            )}
+          </div>
+          <h2 style={titleStyle}>{isConnected ? 'Wallet Connected' : 'Connect Wallet'}</h2>
         </div>
 
         {isConnected ? (
-          /* Connected State */
-          <div className="space-y-4">
+          <div style={connectedWrapStyle}>
             {/* User Registration Status */}
             {isRegisteringUser && (
-              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                  <div className="text-blue-400 text-sm">Registering user...</div>
-                </div>
+              <div className="flex items-center gap-2 bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                <div className="animate-spin" style={{ width: 16, height: 16, border: '2px solid #60a5fa', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                <div className="text-blue-400 text-sm">Registering user...</div>
               </div>
             )}
-            
-            {/* User Registration Error */}
             {userRegistrationError && (
-              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
-                <div className="text-red-400 text-sm">
-                  Registration failed: {userRegistrationError}
-                </div>
-              </div>
+              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">Registration failed: {userRegistrationError}</div>
             )}
 
             {/* Wallet Summary */}
-            <div className="bg-[#1a0f08] rounded-lg p-4 border border-[#8b4513]/30">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-sm text-gray-400">Connected Wallet</div>
-                <div className="text-xs text-gray-500">Chain ID: {chainId}</div>
+            <div style={infoCardStyle}>
+              <div className="flex items-center justify-between mb-2">
+                <div style={{ fontSize: 12, color: '#cbbba6' }}>Connected Wallet</div>
+                <div style={{ fontSize: 11, color: '#9b8976' }}>Chain ID: {chainId}</div>
               </div>
-              <div className="text-white font-mono text-sm break-all mb-2">
+              <div style={{ ...infoValueStyle, marginBottom: 6 }}>
                 {address && formatAddress(address)}
               </div>
               {balanceFormatted && (
-                <div className="text-gray-300 text-sm">
+                <div style={{ color: '#cbbba6', fontSize: 13 }}>
                   Balance: {parseFloat(balanceFormatted).toFixed(4)} ETH
                 </div>
               )}
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
-              <button
-                onClick={() => setShowProfileModal(true)}
-                className="w-full bg-[#d4af37] hover:bg-[#f4d03f] text-[#1a0f08] py-3 px-4 rounded-lg transition-colors font-semibold"
-              >
-                View & Edit Profile
-              </button>
-              
-              <button
-                onClick={handleDisconnect}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors font-semibold"
-              >
-                Disconnect Wallet
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button onClick={() => setShowProfileModal(true)} style={primaryButtonStyle}>View & Edit Profile</button>
+              <button onClick={handleDisconnect} style={dangerButtonStyle}>Disconnect Wallet</button>
             </div>
           </div>
         ) : (
-          /* Connection State */
-          <div className="space-y-3">
-            <p className="text-gray-300 text-sm mb-4">
-              Choose how you'd like to connect your wallet:
-            </p>
-            
-            {connectors.map((connector) => (
-              <button
-                key={connector.id}
-                onClick={() => handleConnect(connector.id)}
-                disabled={!connector.ready || isConnecting}
-                className="w-full flex items-center space-x-3 p-4 bg-[#1a0f08] hover:bg-[#2d1810] border border-[#8b4513]/30 hover:border-[#d4af37]/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center text-black font-bold text-sm">
-                  {connector.name.charAt(0)}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="text-white font-semibold">{connector.name}</div>
-                  <div className="text-sm text-gray-400">
-                    {!connector.ready ? 'Not installed' : 'Ready to connect'}
+          <div>
+            <p style={descriptionStyle}>Choose how you'd like to connect your wallet:</p>
+            <div style={listStyle}>
+              {connectors.map((connector) => (
+                <button
+                  key={connector.id}
+                  onClick={() => handleConnect(connector.id)}
+                  disabled={!connector.ready || isConnecting}
+                  style={{
+                    ...walletButtonStyle,
+                    opacity: !connector.ready || isConnecting ? 0.6 : 1,
+                    cursor: !connector.ready || isConnecting ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <div style={walletButtonIconStyle}>
+                    <Image
+                      src={resolveConnectorIcon(connector.id, connector.icon)}
+                      alt={`${connector.name} logo`}
+                      width={40}
+                      height={40}
+                      style={{ objectFit: 'cover', borderRadius: 12 }}
+                    />
                   </div>
-                </div>
-                {isConnecting && (
-                  <div className="w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin" />
-                )}
-              </button>
-            ))}
-            
-            {/* <div className="text-xs text-gray-500 mt-4 text-center">
-              By connecting, you agree to our Terms of Service and Privacy Policy
-            </div> */}
+                  <div style={{ flex: 1 }}>
+                    <div style={walletButtonNameStyle}>{connector.name}</div>
+                    <div style={walletButtonStatusStyle}>{!connector.ready ? 'Not installed' : 'Ready to connect'}</div>
+                  </div>
+                  {isConnecting && <div className="animate-spin" style={spinnerStyle} />}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
-      
+
       {/* User Profile Modal */}
       {showProfileModal && address && (
         <UserProfileModal

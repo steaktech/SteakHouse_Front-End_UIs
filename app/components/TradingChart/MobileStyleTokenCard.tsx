@@ -35,9 +35,10 @@ export interface TokenData {
 
 interface MobileStyleTokenCardProps {
   tokenData: TokenData;
+  isLimitMode?: boolean;
 }
 
-export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ tokenData }) => {
+export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ tokenData, isLimitMode = false }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
     
     const w = fillRef.current.clientWidth || 1;
     const FLAME_COUNT = 14; // Reduced for compact version
-    const FLAME_WIDTH = 20; // Match the compact CSS flame width
+    const FLAME_WIDTH = 18; // Match the compact CSS flame width
     
     const existingFlames = flamesRef.current.querySelectorAll(`.${styles.flame}`);
     if (existingFlames.length === FLAME_COUNT && w > 0) {
@@ -207,15 +208,21 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
   }, [tokenData.bondingProgress]);
 
   return (
-    <article className={styles.compactCard} role="article" aria-label={`${tokenData.name} token card`}>
+    <article className={styles.compactCard} role="article" aria-label={`${tokenData.name} token card`} style={{
+      padding: isLimitMode ? '8px 14px 6px' : undefined
+    }}>
       {/* Token banner */}
-      <div className={styles.compactBanner} aria-hidden="true">
+      <div className={styles.compactBanner} aria-hidden="true" style={{
+        margin: isLimitMode ? '-8px -14px 3px -14px' : undefined
+      }}>
         <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
         <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
       </div>
 
       {/* Identity row */}
-      <header className={styles.compactHeader}>
+      <header className={styles.compactHeader} style={{
+        marginBottom: isLimitMode ? '2px' : undefined
+      }}>
         <div className={styles.identity}>
           <div className={styles.avatar}>
             <div className={styles.avatarImage}>?</div>
@@ -242,7 +249,10 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         <div className={styles.badge}>{tokenData.tag}</div>
       </header>
 
-      <section className={styles.taxLine}>
+      <section className={styles.taxLine} style={{
+        marginTop: isLimitMode ? '2px' : undefined,
+        marginBottom: isLimitMode ? '2px' : undefined
+      }}>
         <div className={styles.taxStrong}>Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</div>
         <div className={styles.taxChips}>
           <span className="chip">Current Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</span>
@@ -250,22 +260,36 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         </div>
       </section>
 
-      <p className={styles.desc}>
+      <p className={styles.desc} style={{
+        margin: isLimitMode ? '2px 0 4px' : undefined
+      }}>
         {tokenData.description}
       </p>
 
       {/* Bottom panel: stats row + searing progress bar */}
-      <section className={styles.score}>
-        <div className={styles.scoreStats} aria-label="Token stats">
-          <div className="stat">
+      <section className={styles.score} style={{
+        marginTop: isLimitMode ? '4px' : undefined,
+        padding: isLimitMode ? '5px' : undefined
+      }}>
+        <div className={styles.scoreStats} aria-label="Token stats" style={{
+          gap: isLimitMode ? '3px' : undefined,
+          marginBottom: isLimitMode ? '3px' : undefined
+        }}>
+          <div className="stat" style={{
+            padding: isLimitMode ? '4px 5px' : undefined
+          }}>
             <div className="statLabel">MCAP</div>
             <div className="statValue">{tokenData.marketCap}</div>
           </div>
-          <div className="stat">
+          <div className="stat" style={{
+            padding: isLimitMode ? '4px 5px' : undefined
+          }}>
             <div className="statLabel">VOLUME</div>
             <div className="statValue">{tokenData.volume}</div>
           </div>
-          <div className="stat">
+          <div className="stat" style={{
+            padding: isLimitMode ? '4px 5px' : undefined
+          }}>
             <div className="statLabel">LP</div>
             <div className="statValue">{tokenData.liquidityPool}</div>
           </div>
@@ -279,8 +303,17 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={0}
+          style={{
+            height: isLimitMode ? '30px' : undefined,
+            borderRadius: isLimitMode ? '15px' : undefined,
+            padding: isLimitMode ? '2px' : undefined
+          }}
         >
-          <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
+          <div ref={fillRef} className={styles.fill} style={{ 
+            width: '0%',
+            height: isLimitMode ? '26px' : undefined,
+            borderRadius: isLimitMode ? '13px' : undefined
+          }}>
             <div ref={labelRef} className={styles.label}>0%</div>
             <div ref={flamesRef} className={styles.flames}></div>
             <div className={styles.heat} aria-hidden="true"></div>

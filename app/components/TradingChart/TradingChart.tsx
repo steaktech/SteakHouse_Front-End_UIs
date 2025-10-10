@@ -90,7 +90,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [selectedTradeTab, setSelectedTradeTab] = useState<'buy' | 'sell'>('buy');
   const [desktopTradeTab, setDesktopTradeTab] = useState<'buy' | 'sell' | 'limit'>('buy');
   const [transactionsHeight, setTransactionsHeight] = useState(160); // Default height
+  const [desktopTransactionsHeight, setDesktopTransactionsHeight] = useState(280); // Default height for desktop
   const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingDesktop, setIsDraggingDesktop] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(0);
@@ -322,11 +324,32 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   const handleMouseUp = React.useCallback(() => {
     setIsDragging(false);
+    setIsDraggingDesktop(false);
   }, []);
 
   const handleTouchEnd = React.useCallback(() => {
     setIsDragging(false);
   }, []);
+
+  // Desktop drag handlers for resizing transactions panel
+  const handleDesktopMouseDown = (e: React.MouseEvent) => {
+    setIsDraggingDesktop(true);
+    setDragStartY(e.clientY);
+    setDragStartHeight(desktopTransactionsHeight);
+    e.preventDefault();
+  };
+
+  const handleDesktopMouseMove = React.useCallback((e: MouseEvent) => {
+    if (!isDraggingDesktop) return;
+
+    const deltaY = dragStartY - e.clientY; // drag up increases height
+    const newHeight = dragStartHeight + deltaY;
+
+    const minHeight = 150; // Minimum height for desktop
+    const maxHeight = window.innerHeight * 0.7; // Max 70% of viewport height
+
+    setDesktopTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+  }, [isDraggingDesktop, dragStartY, dragStartHeight]);
 
   // Event listeners
   React.useEffect(() => {
@@ -366,6 +389,28 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       document.body.style.touchAction = '';
     };
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+
+  // Event listeners for desktop drag
+  React.useEffect(() => {
+    if (isDraggingDesktop) {
+      document.addEventListener('mousemove', handleDesktopMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'row-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', handleDesktopMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleDesktopMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDraggingDesktop, handleDesktopMouseMove, handleMouseUp]);
 
   // Mobile detection
   React.useEffect(() => {
@@ -480,98 +525,152 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         </div>
         
         <main 
-          className={`flex-1 min-h-0 grid grid-cols-1 ${desktopTradeTab === 'limit' 
-            ? 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_460px]'
-            : 'lg:grid-cols-[1fr_300px] lg:grid-rows-[1fr_460px]'} gap-[8px] p-[8px] ${
-            'overflow-hidden'
-          }`}
+          className="flex-1 p-[8px] overflow-hidden"
           style={{
-            paddingBottom: '8px',
-            height: isMobile ? 'calc(100vh - 56px)' : '100%'
+            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px',
+            height: isMobile ? 'calc(100vh - 56px)' : '100%',
+            display: isMobile ? 'block' : 'flex',
+            gap: '8px'
           }}
         >
-          
-          {/* Trading Chart */}
-          <div className="order-1 lg:col-start-1 lg:row-start-1 min-h-0">
-            <TradingView 
-              candles={candlesForDisplay}
-              title={apiTokenData?.tokenInfo?.name}
-              symbol={apiTokenData?.tokenInfo?.symbol}
-              timeframe={timeframe}
-              onChangeTimeframe={(tf) => setTimeframe(tf)}
-            />
-          </div>
-
-          {/* Token Card (desktop only) - Mobile Style */}
-          <div className={`hidden lg:flex lg:col-start-2 lg:row-start-1 justify-center p-0 m-0 items-center`}>
-            <div style={{
-              width: '100%',
-              height: '100%', 
-              maxWidth: '420px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+          {/* Left Column - Chart and Recent Transactions */}
+          <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
+            {/* Trading Chart */}
+            <div className="overflow-hidden" style={{
+              height: isMobile ? 'calc(100vh - 300px)' : 'auto',
+              flex: isMobile ? '0 0 auto' : 1
             }}>
-              <MobileStyleTokenCard tokenData={mobileStyleTokenData} />
+              <TradingView 
+                candles={candlesForDisplay}
+                title={apiTokenData?.tokenInfo?.name}
+                symbol={apiTokenData?.tokenInfo?.symbol}
+                timeframe={timeframe}
+                onChangeTimeframe={(tf) => setTimeframe(tf)}
+              />
+            </div>
+
+            {/* Recent Transactions Panel (desktop only) */}
+            <div 
+              className="hidden lg:block" 
+              style={{ 
+                height: `${desktopTransactionsHeight}px`,
+                position: 'relative',
+                flexShrink: 0
+              }}>
+              {/* Drag Handle */}
+              <div
+                onMouseDown={handleDesktopMouseDown}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '8px',
+                  cursor: 'row-resize',
+                  zIndex: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.1)' : 'transparent',
+                  transition: 'background 200ms ease'
+                }}
+              >
+                <div
+                  style={{
+                    width: '48px',
+                    height: '4px',
+                    borderRadius: '2px',
+                    background: isDraggingDesktop ? 'rgba(254, 234, 136, 0.8)' : 'rgba(255, 215, 165, 0.4)',
+                    transition: 'background 200ms ease'
+                  }}
+                />
+              </div>
+              <div style={{
+                width: '100%',
+                height: '100%',
+                position: 'relative',
+                borderRadius: 'clamp(14px, 2vw, 20px)',
+                background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+                padding: 'clamp(12px, 2.5vh, 16px)',
+                paddingTop: '20px',
+                border: '1px solid rgba(255, 215, 165, 0.4)',
+                overflow: 'hidden',
+                color: '#fff7ea',
+                display: 'flex',
+                flexDirection: 'column',
+                boxSizing: 'border-box'
+              }}>
+                {/* Content Area */}
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  {showLimitOrders ? (
+                    <CompactLimitOrderBook 
+                      orders={orderManagement.orders}
+                      onCancelOrder={handleOrderCancel}
+                      onModifyOrder={handleOrderModify}
+                      loading={orderManagement.loading}
+                      error={orderManagement.error ?? undefined}
+                      showToggle={true}
+                      showLimitOrders={showLimitOrders}
+                      onToggleChange={setShowLimitOrders}
+                      isMobile={false}
+                    />
+                  ) : (
+                    <TradeHistory 
+                      tokenAddress={tokenAddress}
+                      tokenData={apiTokenData}
+                      trades={trades}
+                      isLoading={isLoading}
+                      error={error}
+                      showToggle={true}
+                      showLimitOrders={showLimitOrders}
+                      onToggleChange={setShowLimitOrders}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Trade Panel with Integrated Limit Orders (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-2 lg:row-start-2 items-end min-h-0" style={{ height: '100%' }}>
-            <div style={{ width: '100%', height: '100%', alignSelf: 'flex-end', minHeight: 0 }}>
+          {/* Right Column - Token Card and Trade Panel (desktop only) */}
+          <div 
+            className={`hidden lg:flex flex-col gap-[8px] ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
+            style={{
+              transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+              flexShrink: 0,
+              height: '100%'
+            }}
+          >
+            {/* Token Card */}
+            <div className="flex justify-center items-center overflow-hidden" style={{ flexShrink: 0, height: 'auto' }}>
+              <div style={{
+                width: '100%',
+                height: '100%',
+                maxWidth: '420px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <MobileStyleTokenCard tokenData={mobileStyleTokenData} />
+              </div>
+            </div>
+
+            {/* Trade Panel */}
+            <div style={{ 
+              flex: 1,
+              minHeight: '280px',
+              maxHeight: 'calc(100% - 5px)',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              scrollBehavior: 'smooth',
+              WebkitOverflowScrolling: 'touch'
+            }}>
               <TradePanel 
                 onTabChange={(tab) => setDesktopTradeTab(tab)}
                 tokenAddress={tokenAddress}
               />
-            </div>
-          </div>
-
-          {/* Recent Transactions Panel (desktop only) */}
-          <div className="hidden lg:flex lg:col-start-1 lg:row-start-2 items-end min-h-0" style={{ height: '100%' }}>
-            <div style={{
-              width: '100%',
-              height: '100%',
-              alignSelf: 'flex-end',
-              position: 'relative',
-              borderRadius: 'clamp(14px, 2vw, 20px)',
-              background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-              boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-              padding: 'clamp(12px, 2.5vh, 16px)',
-              border: '1px solid rgba(255, 215, 165, 0.4)',
-              overflow: 'hidden',
-              color: '#fff7ea',
-              display: 'flex',
-              flexDirection: 'column',
-              boxSizing: 'border-box',
-              minHeight: 0
-            }}>
-              {/* Content Area */}
-              <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                {showLimitOrders ? (
-                  <CompactLimitOrderBook 
-                    orders={orderManagement.orders}
-                    onCancelOrder={handleOrderCancel}
-                    onModifyOrder={handleOrderModify}
-                    loading={orderManagement.loading}
-                    error={orderManagement.error ?? undefined}
-                    showToggle={true}
-                    showLimitOrders={showLimitOrders}
-                    onToggleChange={setShowLimitOrders}
-                    isMobile={false}
-                  />
-                ) : (
-                  <TradeHistory 
-                    tokenAddress={tokenAddress}
-                    tokenData={apiTokenData}
-                    trades={trades}
-                    isLoading={isLoading}
-                    error={error}
-                    showToggle={true}
-                    showLimitOrders={showLimitOrders}
-                    onToggleChange={setShowLimitOrders}
-                  />
-                )}
-              </div>
             </div>
           </div>
 
@@ -680,20 +779,18 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           <button 
             onClick={() => setMobileSidebarExpanded(true)} 
             type="button" 
-            className="p-0 bg-transparent"
+            className="flex-shrink-0"
             title="Open Widgets"
+            style={{ padding: '4px', width: '48px' }}
           >
             <div 
-              className="px-4 py-3 flex items-center justify-center"
+              className="flex items-center justify-center"
               style={{
                 background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
                 borderRadius: '12px',
-                padding: '14px 16px',
-                textAlign: 'center',
-                fontWeight: 800,
-                color: '#1f2937',
-                letterSpacing: '0.5px',
-                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)'
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+                width: '100%',
+                height: '36px'
               }}
             >
               <div className="flex flex-col items-center justify-center gap-0.5">
