@@ -21,6 +21,7 @@ interface TradingViewProps {
   symbol?: string;
   timeframe?: string; // e.g., '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
   onChangeTimeframe?: (tf: string) => void;
+  livePrice?: number; // latest trade price to display and feed price line
 }
 
 const TF_OPTIONS: { label: string; value: string }[] = [
@@ -32,7 +33,7 @@ const TF_OPTIONS: { label: string; value: string }[] = [
   { label: '1D', value: '1d' },
 ];
 
-export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol, timeframe = '1m', onChangeTimeframe }) => {
+export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol, timeframe = '1m', onChangeTimeframe, livePrice }) => {
   const [chartType, setChartType] = useState<'candles' | 'line'>('candles');
   const [showVolume, setShowVolume] = useState(true);
   const [showSMA9, setShowSMA9] = useState(false);
@@ -57,6 +58,20 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
           <div className="flex items-center gap-2 sm:gap-3 pr-2 border-r border-[#1f1a24]">
             <div className="text-[#e5e7eb] font-semibold text-xs sm:text-sm">{title ?? 'Token'}</div>
             {symbol ? <div className="text-[#9ca3af] text-[10px] sm:text-xs">{symbol}</div> : null}
+            {/* Live price like other platforms */}
+            {(() => {
+              const last = candles && candles.length > 0 ? candles[candles.length - 1] : undefined;
+              const prev = candles && candles.length > 1 ? candles[candles.length - 2] : undefined;
+              const price = typeof livePrice === 'number' && !Number.isNaN(livePrice) ? livePrice : last?.close;
+              if (price == null) return null;
+              const isUp = prev && last ? price >= prev.close : true;
+              const decimals = price >= 1 ? 4 : 8;
+              return (
+                <div className={`ml-1 px-2 py-0.5 rounded border text-[10px] sm:text-xs ${isUp ? 'text-[#29f266] border-[#29f266]/40' : 'text-[#ff3b3b] border-[#ff3b3b]/40'}`}>
+                  {price.toFixed(decimals)}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Timeframes */}
@@ -127,6 +142,7 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
               indicators={indicators as any}
               crosshair={crosshair}
               priceScaleMode={logScale ? 'log' : 'normal'}
+              livePrice={livePrice}
             />
           </div>
         </div>

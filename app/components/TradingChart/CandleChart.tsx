@@ -28,6 +28,8 @@ interface CandleChartProps {
   indicators?: IndicatorSMA[];
   crosshair?: CrosshairSetting;
   priceScaleMode?: PriceScaleSetting;
+  livePrice?: number; // latest trade/price to render price line like other platforms
+  showLastPriceLine?: boolean;
 }
 
 export interface CandleChartHandle {
@@ -35,7 +37,7 @@ export interface CandleChartHandle {
 }
 
 export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(function CandleChart(
-  { candles, chartType = "candles", showVolume = true, indicators = [], crosshair = "normal", priceScaleMode = "normal" },
+  { candles, chartType = "candles", showVolume = true, indicators = [], crosshair = "normal", priceScaleMode = "normal", livePrice, showLastPriceLine = true },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -45,6 +47,9 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
   const smaSeriesRefs = useRef<ISeriesApi<"Line">[]>([]);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  // Price line references for candle/line series
+  const priceLineCandleRef = useRef<any>(null);
+  const priceLineLineRef = useRef<any>(null);
 
   useImperativeHandle(ref, () => ({
     fitContent: () => chartRef.current?.timeScale().fitContent(),
@@ -133,6 +138,8 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       lineSeriesRef.current = null;
       volumeSeriesRef.current = null;
       smaSeriesRefs.current = [];
+      priceLineCandleRef.current = null;
+      priceLineLineRef.current = null;
     };
   }, []);
 
@@ -233,6 +240,50 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     if (!chart) return;
     chart.applyOptions({ rightPriceScale: { mode: priceScaleMode === "log" ? PriceScaleMode.Logarithmic : PriceScaleMode.Normal } });
   }, [priceScaleMode]);
+
+  // Last price line (like TradingView) using latest livePrice or last close
+  useEffect(() => {
+    const candleSeries = candleSeriesRef.current;
+    const lineSeries = lineSeriesRef.current;
+    if (!candleSeries || !lineSeries || !showLastPriceLine) return;
+
+    const last = candles && candles.length > 0 ? candles[candles.length - 1] : undefined;
+    const prev = candles && candles.length > 1 ? candles[candles.length - 2] : undefined;
+    const fallbackPrice = last?.close ?? undefined;
+    const price = typeof livePrice === 'number' && !Number.isNaN(livePrice) ? livePrice : fallbackPrice;
+    if (price == null) return;
+
+    const isUp = prev && last ? last.close >= prev.close : true;
+    const color = isUp ? '#29f266' : '#ff3b3b';
+
+    // Format label with sensible precision
+    const decimals = price >= 1 ? 4 : 8;
+    const title = price.toFixed(decimals);
+
+    // Remove existing price lines before creating new ones
+    if (priceLineCandleRef.current) {
+      try { candleSeries.removePriceLine(priceLineCandleRef.current); } catch {}
+    }
+    if (priceLineLineRef.current) {
+      try { lineSeries.removePriceLine(priceLineLineRef.current); } catch {}
+    }
+
+    priceLineCandleRef.current = candleSeries.createPriceLine({
+      price,
+      color,
+      lineWidth: 2,
+      axisLabelVisible: true,
+      title,
+    });
+
+    priceLineLineRef.current = lineSeries.createPriceLine({
+      price,
+      color,
+      lineWidth: 2,
+      axisLabelVisible: true,
+      title,
+    });
+  }, [candles, livePrice, showLastPriceLine]);
 
   // Indicators (SMAs)
   useEffect(() => {

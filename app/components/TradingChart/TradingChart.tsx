@@ -137,6 +137,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Aggregate 1m into selected timeframe for display
   const candlesForDisplay = useMemo(() => aggregateCandles(candles1m, timeframe), [candles1m, timeframe]);
 
+  // Determine live price for display and price line: prefer last trade, then API price, then last close
+  const livePrice: number | undefined = (() => {
+    const fromTrade = lastWsTradeRef.current?.price;
+    if (typeof fromTrade === 'number' && !Number.isNaN(fromTrade)) return fromTrade;
+    const fromApi = apiTokenData?.price;
+    if (typeof fromApi === 'number' && !Number.isNaN(fromApi)) return fromApi;
+    const lastClose = candles1m.length ? candles1m[candles1m.length - 1].close : undefined;
+    return typeof lastClose === 'number' && !Number.isNaN(lastClose) ? lastClose : undefined;
+  })();
+
   // WebSocket: subscribe to token, update trades and candles
   const handleWsTrade = (trade: WebSocketTrade) => {
     // Debug: log incoming trade from WebSocket
@@ -550,6 +560,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 symbol={apiTokenData?.tokenInfo?.symbol}
                 timeframe={timeframe}
                 onChangeTimeframe={(tf) => setTimeframe(tf)}
+                livePrice={livePrice}
               />
             </div>
 
