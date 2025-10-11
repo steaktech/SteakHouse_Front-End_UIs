@@ -44,6 +44,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
     name: tokenData?.tokenInfo?.name || name,
     symbol: tokenData?.tokenInfo?.symbol || symbol,
     imageUrl: tokenData?.tokenInfo?.image_url || imageUrl,
+    bannerUrl: tokenData?.tokenInfo?.banner_url,
     description: tokenData?.tokenInfo?.bio || description,
     category: tokenData?.tokenInfo?.catagory || tag,
     mcap: typeof liveMarketCap === 'number'
@@ -126,6 +127,13 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
         zIndex: 1,
         flexShrink: 0
       }}>
+        {displayData.bannerUrl && (
+          <img
+            src={displayData.bannerUrl as string}
+            alt={`${displayData.name as string} banner`}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+          />
+        )}
         {/* Gradient layer */}
         <div style={{
           position: 'absolute',
@@ -136,7 +144,9 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             rgba(255, 194, 110, 0.2) 45%,
             transparent 75%
           ),
-          linear-gradient(180deg, #9a5a2c 0%, #6a3a1c 58%, #52270f 100%)`
+          linear-gradient(180deg, #9a5a2c 0%, #6a3a1c 58%, #52270f 100%)`,
+          pointerEvents: 'none',
+          zIndex: 1
         }} />
         {/* Inner bevel layer */}
         <div style={{
@@ -149,7 +159,8 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
           ),
           linear-gradient(0deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0) 22%)`,
           borderBottom: '1px solid rgba(255, 220, 170, 0.38)',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          zIndex: 2
         }} />
       </div>
 
@@ -267,9 +278,9 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
         border: '1px solid rgba(100, 60, 30, 0.6)',
         background: 'rgba(60, 35, 20, 0.4)',
         color: '#fff1df',
-        fontSize: compact ? '12px' : '14px',
+        fontSize: compact ? '14px' : '16px',
         fontWeight: 800,
-        lineHeight: 1.3,
+        lineHeight: 1.5,
         textAlign: 'center'
       }}>
         {displayData.description}

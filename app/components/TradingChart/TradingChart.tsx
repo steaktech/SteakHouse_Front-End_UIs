@@ -238,6 +238,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const mobileStyleTokenData: TokenData = {
     name: apiInfo?.name ?? tokenData.name,
     symbol: apiInfo?.symbol ?? tokenData.symbol,
+    logo: apiInfo?.image_url ?? undefined,
+    bannerUrl: apiInfo?.banner_url ?? undefined,
     currentTax: {
       buy: taxValue,
       sell: taxValue,

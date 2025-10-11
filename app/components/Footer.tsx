@@ -83,7 +83,7 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">Stealth Launchpad</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Fairness Guard (anti‑snipe)</a>
+                    <a href="/coming-soon">Bonding Curve For Tax / Limit Tokens</a>
                   </li>
                   <li>
                     <a href="/coming-soon">Virtual AMM Trades</a>
@@ -91,22 +91,29 @@ const Footer: React.FC = () => {
                   <li>
                     <a href="/coming-soon">Liquidity Lock & Vesting</a>
                   </li>
+                  <li>
+                    <a href="/coming-soon">$3 ERC-20 Deploys</a>
+                  </li>
                 </ul>
 
                 {/* CertiK certificate block under Solutions */}
               </div>
 
               <div className={styles.col}>
-                <h3>Products</h3>
+                <h3>FAQ'S</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">$3 Token Generator</a>
+                    <a href="/coming-soon">Developer</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Tax Manager</a>
+                    <a href="/coming-soon">Investor</a>
                   </li>
+                </ul>
+                
+                <h3 style={{ marginTop: '24px' }}>Partner With Us</h3>
+                <ul>
                   <li>
-                    <a href="/coming-soon">Migration & Ownership</a>
+                    <a href="https://form.typeform.com/to/cCMVLuxI" target="_blank" rel="noopener noreferrer">Request Form</a>
                   </li>
                 </ul>
               </div>
@@ -121,22 +128,22 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">SDK / API</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Minimal ERC‑20 Templates</a>
+                    <a href="/coming-soon">Marketing Menu</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Verify on Etherscan</a>
+                    <a href="/coming-soon">Direct Launch</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Changelog</a>
+                    <a href="/coming-soon">Creation Fees</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Status</a>
+                    <a href="https://form.typeform.com/to/cCMVLuxI" target="_blank" rel="noopener noreferrer">Support</a>
                   </li>
                 </ul>
               </div>
 
               <div className={styles.col}>
-                <h3>Policies</h3>
+                <h3>Investors</h3>
                 <ul>
                   <li>
                     <a href="/coming-soon">Fair Distribution Policy</a>
@@ -145,10 +152,13 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">Anti‑Bot & Anti‑Snipe Standard</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Fee Schedule</a>
+                    <a href="/coming-soon">Fee Structure</a>
                   </li>
                   <li>
                     <a href="/coming-soon">Security & Responsible Disclosure</a>
+                  </li>
+                  <li>
+                    <a href="/coming-soon">Login / Setup</a>
                   </li>
                 </ul>
               </div>
@@ -166,7 +176,7 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">Brand & Press</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Contact</a>
+                    <a href="https://form.typeform.com/to/cCMVLuxI" target="_blank" rel="noopener noreferrer">Contact</a>
                   </li>
                 </ul>
               </div>
@@ -195,7 +205,7 @@ const Footer: React.FC = () => {
           <div className={styles.footerBottom} aria-label="Legal">
             <div className={styles.certikBadge} aria-label="CertiK certificate">
               <img
-                className={styles.certikBadgeimg }
+                className={styles.certikBadgeimg}
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"
               />

@@ -3,6 +3,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import type { Candle } from '@/app/types/token';
 import { CandleChart, type CandleChartHandle } from './CandleChart';
+import { ToolSidebar, ToolButton } from '@/app/components/UI/ToolSidebar';
 import {
   CandlestickChart,
   LineChart,
@@ -13,6 +14,10 @@ import {
   Eye,
   EyeOff,
   Activity,
+  Ruler,
+  TrendingUp,
+  Layers,
+  Trash2,
 } from 'lucide-react';
 
 interface TradingViewProps {
@@ -40,6 +45,7 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
   const [showSMA21, setShowSMA21] = useState(false);
   const [crosshair, setCrosshair] = useState<'normal' | 'magnet' | 'hidden'>('normal');
   const [logScale, setLogScale] = useState(false);
+  const [activeTool, setActiveTool] = useState<'none' | 'trendline' | 'ruler' | 'fib'>('none');
 
   const handleRef = useRef<CandleChartHandle | null>(null);
 
@@ -120,17 +126,41 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
         {/* Body with Side Toolbar + Chart */}
         <div className="flex-1 grid grid-cols-[32px_1fr] sm:grid-cols-[40px_1fr] lg:grid-cols-[44px_1fr] grid-rows-[1fr] min-h-0">
           {/* Left toolbar */}
-          <div className="bg-[#07040b] border-r border-[#1f1a24] flex flex-col items-center py-1 sm:py-2 gap-1.5 sm:gap-2">
-            <button onClick={() => setCrosshair((c) => (c === 'hidden' ? 'normal' : 'hidden'))} title="Toggle Crosshair" className={`p-1.5 sm:p-2 rounded ${crosshair === 'hidden' ? 'text-[#c0c0c0] hover:bg-black/30' : 'bg-[#111215] text-[#feea88]'}`}>
+          <ToolSidebar>
+            {/* Crosshair toggle */}
+            <ToolButton onClick={() => setCrosshair((c) => (c === 'hidden' ? 'normal' : 'hidden'))} title="Toggle Crosshair" active={crosshair !== 'hidden'}>
               <Crosshair className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={() => setLogScale((l) => !l)} title="Log Scale" className={`p-1.5 sm:p-2 rounded ${logScale ? 'bg-[#111215] text-[#feea88]' : 'text-[#c0c0c0] hover:bg-black/30'}`}>
+            </ToolButton>
+
+            {/* Log scale */}
+            <ToolButton onClick={() => setLogScale((l) => !l)} title="Log Scale" active={logScale}>
               <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={() => handleRef.current?.fitContent()} title="Fit Content" className="p-1.5 sm:p-2 rounded text-[#c0c0c0] hover:bg-black/30">
+            </ToolButton>
+
+            {/* Fit content */}
+            <ToolButton onClick={() => handleRef.current?.fitContent()} title="Fit Content">
               <RefreshCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-          </div>
+            </ToolButton>
+
+            {/* Divider */}
+            <div className="h-[1px] w-6 sm:w-7 bg-[#1f1a24] my-1 sm:my-2" />
+
+            {/* Drawing tools */}
+            <ToolButton title="Trendline" active={activeTool === 'trendline'} onClick={() => setActiveTool((t) => (t === 'trendline' ? 'none' : 'trendline'))}>
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </ToolButton>
+            <ToolButton title="Ruler" active={activeTool === 'ruler'} onClick={() => setActiveTool((t) => (t === 'ruler' ? 'none' : 'ruler'))}>
+              <Ruler className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </ToolButton>
+            <ToolButton title="Fibonacci Retracement" active={activeTool === 'fib'} onClick={() => setActiveTool((t) => (t === 'fib' ? 'none' : 'fib'))}>
+              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </ToolButton>
+
+            {/* Clear drawings */}
+            <ToolButton title="Clear Drawings" onClick={() => handleRef.current?.clearDrawings()}>
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </ToolButton>
+          </ToolSidebar>
 
           {/* Chart area */}
           <div className="relative min-h-0 h-full">
@@ -143,6 +173,7 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
               crosshair={crosshair}
               priceScaleMode={logScale ? 'log' : 'normal'}
               livePrice={livePrice}
+              activeTool={activeTool}
             />
           </div>
         </div>

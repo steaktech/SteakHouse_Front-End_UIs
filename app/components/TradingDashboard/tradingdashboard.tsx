@@ -94,7 +94,7 @@ export default function TradingDashboard() {
     { title: "TVL", value: "$5.7m" },
     { title: "24H VOLUME", value: "$726k" },
     { title: "GRADUATION RATE", value: "3.69%" },
-    { title: "DEV TAX'S", value: "$388k" },
+    { title: "CREATOR REVENUE", value: "$388k" },
     { title: "AVERAGE X'S", value: "15.8 X" },
   ];
 

@@ -15,6 +15,7 @@ export interface TokenData {
   name: string;
   symbol: string;
   logo?: string;
+  bannerUrl?: string;
   currentTax: {
     buy: number;
     sell: number;
@@ -213,10 +214,29 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
     }}>
       {/* Token banner */}
       <div className={styles.compactBanner} aria-hidden="true" style={{
-        margin: isLimitMode ? '-8px -14px 3px -14px' : undefined
+        margin: isLimitMode ? '-8px -14px 3px -14px' : undefined,
+        position: 'relative'
       }}>
-        <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
-        <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
+        {tokenData.bannerUrl && (
+          <img
+            src={tokenData.bannerUrl}
+            alt={`${tokenData.name} banner`}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+          />
+        )}
+        <div
+          className={`${styles.bannerLayer} ${styles.gradient}`}
+          style={{
+            pointerEvents: 'none',
+            zIndex: 1,
+            ...(tokenData.bannerUrl
+              ? {
+                  background: `radial-gradient(90% 100% at 50% 0%, rgba(255, 218, 150, 0.35), rgba(255, 194, 110, 0.2) 45%, transparent 75%), linear-gradient(180deg, rgba(154, 90, 44, 0.55) 0%, rgba(106, 58, 28, 0.55) 58%, rgba(82, 39, 15, 0.55) 100%)`,
+                }
+              : {}),
+          }}
+        ></div>
+        <div className={`${styles.bannerLayer} ${styles.innerBevel}`} style={{ pointerEvents: 'none', zIndex: 2 }}></div>
       </div>
 
       {/* Identity row */}
@@ -225,7 +245,13 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       }}>
         <div className={styles.identity}>
           <div className={styles.avatar}>
-            <div className={styles.avatarImage}>?</div>
+            <div className={styles.avatarImage}>
+              {tokenData.logo ? (
+                <img src={tokenData.logo} alt={`${tokenData.name} logo`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              ) : (
+                '?'
+              )}
+            </div>
           </div>
           <div className={styles.nameBlock}>
             <h1 className="name">{tokenData.name}</h1>
@@ -261,7 +287,10 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       </section>
 
       <p className={styles.desc} style={{
-        margin: isLimitMode ? '2px 0 4px' : undefined
+        margin: isLimitMode ? '2px 0 4px' : undefined,
+        fontSize: isLimitMode ? '14px' : '16px',
+        lineHeight: 1.5,
+        fontWeight: 700
       }}>
         {tokenData.description}
       </p>
