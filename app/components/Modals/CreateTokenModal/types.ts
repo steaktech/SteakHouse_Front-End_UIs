@@ -8,7 +8,7 @@ export interface TokenBasics {
   symbol: string;
   totalSupply: string;
   gradCap: string;
-  tokenCategory: 'Meme' | 'Utility' | 'AI' | 'X-post' | null;
+  tokenCategory: 'Meme' | 'Utility' | 'AI' | 'X-post' | 'Charity' | 'Animal' | 'Governance' | 'Privacy' | null;
   startMode: 'NOW' | 'SCHEDULE';
   startTime: number;
   lpMode: 'LOCK' | 'BURN';

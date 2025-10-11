@@ -189,96 +189,100 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
   };
 
   return (
-    <div style={overlayStyle} onClick={handleOverlayClick}>
-      <div style={containerStyle} onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} style={closeButtonStyle}>✕</button>
+    <>
+      {!showProfileModal && (
+        <div style={overlayStyle} onClick={handleOverlayClick}>
+          <div style={containerStyle} onClick={(e) => e.stopPropagation()}>
+            <button onClick={onClose} style={closeButtonStyle}>✕</button>
 
-        {/* Header */}
-        <div style={headerStyle}>
-          <div style={walletIconStyle}>
-            {isConnected ? '✓' : (
-              <Image src="/images/ethereum-logo.svg" alt="Ethereum logo" width={24} height={39} style={{ objectFit: 'contain' }} />
-            )}
-          </div>
-          <h2 style={titleStyle}>{isConnected ? 'Wallet Connected' : 'Connect Wallet'}</h2>
-        </div>
+            {/* Header */}
+            <div style={headerStyle}>
+              <div style={walletIconStyle}>
+                {isConnected ? '✓' : (
+                  <Image src="/images/ethereum-logo.svg" alt="Ethereum logo" width={24} height={39} style={{ objectFit: 'contain' }} />
+                )}
+              </div>
+              <h2 style={titleStyle}>{isConnected ? 'Wallet Connected' : 'Connect Wallet'}</h2>
+            </div>
 
-        {isConnected ? (
-          <div style={connectedWrapStyle}>
-            {/* User Registration Status */}
-            {isRegisteringUser && (
-              <div className="flex items-center gap-2 bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
-                <div className="animate-spin" style={{ width: 16, height: 16, border: '2px solid #60a5fa', borderTopColor: 'transparent', borderRadius: '50%' }} />
-                <div className="text-blue-400 text-sm">Registering user...</div>
-              </div>
-            )}
-            {userRegistrationError && (
-              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">Registration failed: {userRegistrationError}</div>
-            )}
+            {isConnected ? (
+              <div style={connectedWrapStyle}>
+                {/* User Registration Status */}
+                {isRegisteringUser && (
+                  <div className="flex items-center gap-2 bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                    <div className="animate-spin" style={{ width: 16, height: 16, border: '2px solid #60a5fa', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                    <div className="text-blue-400 text-sm">Registering user...</div>
+                  </div>
+                )}
+                {userRegistrationError && (
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">Registration failed: {userRegistrationError}</div>
+                )}
 
-            {/* Wallet Summary */}
-            <div style={infoCardStyle}>
-              <div className="flex items-center justify-between mb-2">
-                <div style={{ fontSize: 12, color: '#cbbba6' }}>Connected Wallet</div>
-                <div style={{ fontSize: 11, color: '#9b8976' }}>Chain ID: {chainId}</div>
-              </div>
-              <div style={{ ...infoValueStyle, marginBottom: 6 }}>
-                {address && formatAddress(address)}
-              </div>
-              {balanceFormatted && (
-                <div style={{ color: '#cbbba6', fontSize: 13 }}>
-                  Balance: {parseFloat(balanceFormatted).toFixed(4)} ETH
+                {/* Wallet Summary */}
+                <div style={infoCardStyle}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div style={{ fontSize: 12, color: '#cbbba6' }}>Connected Wallet</div>
+                    <div style={{ fontSize: 11, color: '#9b8976' }}>Chain ID: {chainId}</div>
+                  </div>
+                  <div style={{ ...infoValueStyle, marginBottom: 6 }}>
+                    {address && formatAddress(address)}
+                  </div>
+                  {balanceFormatted && (
+                    <div style={{ color: '#cbbba6', fontSize: 13 }}>
+                      Balance: {parseFloat(balanceFormatted).toFixed(4)} ETH
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <button onClick={() => setShowProfileModal(true)} style={primaryButtonStyle}>View & Edit Profile</button>
-              <button onClick={handleDisconnect} style={dangerButtonStyle}>Disconnect Wallet</button>
-            </div>
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <button onClick={() => setShowProfileModal(true)} style={primaryButtonStyle}>View & Edit Profile</button>
+                  <button onClick={handleDisconnect} style={dangerButtonStyle}>Disconnect Wallet</button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p style={descriptionStyle}>Choose how you'd like to connect your wallet:</p>
+                <div style={listStyle}>
+                  {connectors.map((connector) => (
+                    <button
+                      key={connector.id}
+                      onClick={() => handleConnect(connector.id)}
+                      disabled={!connector.ready || isConnecting}
+                      style={{
+                        ...walletButtonStyle,
+                        opacity: !connector.ready || isConnecting ? 0.6 : 1,
+                        cursor: !connector.ready || isConnecting ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      <div style={walletButtonIconStyle}>
+                        <Image
+                          src={resolveConnectorIcon(connector.id, connector.icon)}
+                          alt={`${connector.name} logo`}
+                          width={40}
+                          height={40}
+                          style={{ objectFit: 'cover', borderRadius: 12 }}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={walletButtonNameStyle}>{connector.name}</div>
+                        <div style={walletButtonStatusStyle}>{!connector.ready ? 'Not installed' : 'Ready to connect'}</div>
+                      </div>
+                      {isConnecting && <div className="animate-spin" style={spinnerStyle} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div>
-            <p style={descriptionStyle}>Choose how you'd like to connect your wallet:</p>
-            <div style={listStyle}>
-              {connectors.map((connector) => (
-                <button
-                  key={connector.id}
-                  onClick={() => handleConnect(connector.id)}
-                  disabled={!connector.ready || isConnecting}
-                  style={{
-                    ...walletButtonStyle,
-                    opacity: !connector.ready || isConnecting ? 0.6 : 1,
-                    cursor: !connector.ready || isConnecting ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  <div style={walletButtonIconStyle}>
-                    <Image
-                      src={resolveConnectorIcon(connector.id, connector.icon)}
-                      alt={`${connector.name} logo`}
-                      width={40}
-                      height={40}
-                      style={{ objectFit: 'cover', borderRadius: 12 }}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={walletButtonNameStyle}>{connector.name}</div>
-                    <div style={walletButtonStatusStyle}>{!connector.ready ? 'Not installed' : 'Ready to connect'}</div>
-                  </div>
-                  {isConnecting && <div className="animate-spin" style={spinnerStyle} />}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* User Profile Modal */}
       {showProfileModal && address && (
         <UserProfileModal
           isOpen={showProfileModal}
-          onClose={() => setShowProfileModal(false)}
+          onClose={() => { setShowProfileModal(false); onClose(); }}
           walletAddress={address}
         />
       )}
@@ -291,6 +295,6 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
           walletAddress={connectedWalletAddress}
         />
       )}
-    </div>
+    </>
   );
 }

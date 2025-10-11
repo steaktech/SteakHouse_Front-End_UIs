@@ -54,7 +54,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
             <HelpTooltip content="Choose the type that best describes your token's purpose. This helps users understand what your token is for." />
           </label>
           <div className={styles.radioCards}>
-            {(['Meme', 'Utility', 'AI', 'X-post'] as const).map(category => (
+            {(['Meme', 'Utility', 'AI', 'X-post', 'Charity', 'Animal', 'Governance', 'Privacy'] as const).map(category => (
               <div
                 key={category}
                 className={`${styles.radioCard} ${basics.tokenCategory === category ? styles.active : ''}`}
@@ -66,6 +66,10 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
                   {category === 'Utility' && 'Practical use'}
                   {category === 'AI' && 'AI-powered'}
                   {category === 'X-post' && 'Social platform'}
+                  {category === 'Charity' && 'For a cause'}
+                  {category === 'Animal' && 'Pet & wildlife'}
+                  {category === 'Governance' && 'DAO & voting'}
+                  {category === 'Privacy' && 'Anonymous'}
                 </div>
               </div>
             ))}

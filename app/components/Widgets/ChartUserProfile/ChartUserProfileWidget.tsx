@@ -13,6 +13,10 @@ import {
   WalletStats,
   UserProfileData
 } from './types';
+import { fetchUserPositions, type UserPositionApiItem, fetchUserSummary, type UserSummaryApiResponse } from '@/app/lib/api/services/userService';
+import { useWallet } from '@/app/hooks/useWallet';
+import { resolveTradingWallet } from '@/app/lib/user/tradingWalletCache';
+import { getCurrentChainId } from '@/app/lib/config/constants';
 
 // Demo data for user profile
 const demoUserData: UserProfileData = {
@@ -224,17 +228,45 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
     sortOrder: 'desc',
   });
 
-  const userData = data || demoUserData;
+  const userData = data;
+  const { address: eoa, chainId: walletChainId } = useWallet();
+  const [positions, setPositions] = useState<TokenPosition[]>([]);
   const [filteredPositions, setFilteredPositions] = useState<TokenPosition[]>([]);
+  const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<TokenTransaction[]>([]);
+  const [isLoadingPositions, setIsLoadingPositions] = useState<boolean>(false);
+  const [positionsError, setPositionsError] = useState<string | null>(null);
+
+  // Overview stats (loaded from summary API)
+  const initialStats: WalletStats = {
+    address: eoa || '',
+    totalBalanceUSD: 0,
+    ethBalance: 0,
+    ethBalanceUSD: 0,
+    totalPnL: 0,
+    totalPnLPercent: 0,
+    dailyPnL: 0,
+    dailyPnLPercent: 0,
+    weeklyPnL: 0,
+    weeklyPnLPercent: 0,
+    totalTrades: 0,
+    winRate: 0,
+    bestTrade: 0,
+    worstTrade: 0,
+    avgTradeSize: 0,
+  };
+  const [stats, setStats] = useState<WalletStats>(initialStats);
+  const [isLoadingSummary, setIsLoadingSummary] = useState<boolean>(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [summaryLoaded, setSummaryLoaded] = useState<boolean>(false);
 
   // Apply filters and sorting
   const applyFiltersAndSort = useCallback(() => {
     // Filter positions
-    let positions = [...userData.positions];
+    let posList = [...positions];
     if (state.searchQuery.trim()) {
       const query = state.searchQuery.toLowerCase();
-      positions = positions.filter(
+      posList = posList.filter(
         (pos) =>
           pos.tokenName.toLowerCase().includes(query) ||
           pos.tokenSymbol.toLowerCase().includes(query) ||
@@ -243,7 +275,7 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
     }
 
     // Sort positions
-    positions.sort((a, b) => {
+    posList.sort((a, b) => {
       let aValue: any, bValue: any;
       switch (state.sortBy) {
         case 'value':
@@ -266,13 +298,13 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
       }
     });
 
-    setFilteredPositions(positions);
+    setFilteredPositions(posList);
 
-    // Filter transactions
-    let transactions = [...userData.recentTransactions];
+    // Filter transactions (from state; no demo fallback)
+    let txs = [...transactions];
     if (state.searchQuery.trim()) {
       const query = state.searchQuery.toLowerCase();
-      transactions = transactions.filter(
+      txs = txs.filter(
         (tx) =>
           tx.tokenName.toLowerCase().includes(query) ||
           tx.tokenSymbol.toLowerCase().includes(query) ||
@@ -281,10 +313,10 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
     }
 
     // Sort by most recent
-    transactions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    txs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-    setFilteredTransactions(transactions);
-  }, [userData, state.searchQuery, state.sortBy, state.sortOrder]);
+    setFilteredTransactions(txs);
+  }, [positions, transactions, state.searchQuery, state.sortBy, state.sortOrder]);
 
   useEffect(() => {
     applyFiltersAndSort();
@@ -306,6 +338,101 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
     setState((prev) => ({ ...prev, activeTab: tab }));
   };
 
+  // Fetch overview stats when the Overview tab is active
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+    async function loadSummary() {
+      try {
+        if (!isOpen || state.activeTab !== 'overview') return;
+        const baseEoa = eoa || userData?.walletStats?.address;
+        if (!baseEoa) return;
+        const chainId = walletChainId || getCurrentChainId();
+        setIsLoadingSummary(true);
+        setSummaryError(null);
+        const tradingWallet = await resolveTradingWallet(baseEoa, chainId);
+        if (cancelled) return;
+        const summary: UserSummaryApiResponse = await fetchUserSummary(tradingWallet);
+        if (cancelled) return;
+        setStats(prev => ({
+          ...prev,
+          address: tradingWallet,
+          totalPnL: summary?.performance?.totalPnlUsd ?? prev.totalPnL,
+          // Percentages not provided by API; set to 0 to avoid misleading values
+          totalPnLPercent: 0,
+          dailyPnL: summary?.performance?.pnl24hUsd ?? prev.dailyPnL,
+          dailyPnLPercent: 0,
+          weeklyPnL: summary?.performance?.pnl7dUsd ?? prev.weeklyPnL,
+          weeklyPnLPercent: 0,
+          totalTrades: summary?.tradingStats?.totalTrades ?? prev.totalTrades,
+          winRate: summary?.tradingStats?.winRate !== undefined ? summary.tradingStats.winRate * 100 : prev.winRate,
+          bestTrade: summary?.tradingStats?.bestTradeUsd ?? prev.bestTrade,
+          worstTrade: summary?.tradingStats?.worstTradeUsd ?? prev.worstTrade,
+          avgTradeSize: summary?.tradingStats?.avgTradeSizeUsd ?? prev.avgTradeSize,
+        }));
+        setSummaryLoaded(true);
+      } catch (err: any) {
+        setSummaryError(err?.message || 'Failed to load user summary');
+      } finally {
+        if (!cancelled) setIsLoadingSummary(false);
+      }
+    }
+    loadSummary();
+    return () => { cancelled = true; controller.abort(); };
+  }, [isOpen, state.activeTab, eoa, walletChainId, userData?.walletStats?.address]);
+
+  // Fetch positions when the Positions tab is active
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+    async function loadPositions() {
+      try {
+        // Only fetch when the widget is open and Positions tab is active
+        if (!isOpen || state.activeTab !== 'positions') return;
+        // Prefer connected EOA; fallback to provided data's wallet address if needed
+        const baseEoa = eoa || userData?.walletStats?.address;
+        if (!baseEoa) return;
+        const chainId = walletChainId || getCurrentChainId();
+        setIsLoadingPositions(true);
+        setPositionsError(null);
+        // Resolve trading wallet with cache (cache-first)
+        const tradingWallet = await resolveTradingWallet(baseEoa, chainId);
+        if (cancelled) return;
+        const apiItems = await fetchUserPositions(tradingWallet);
+        if (cancelled) return;
+        // Map API response to UI TokenPosition structure
+        const mapped: TokenPosition[] = (apiItems || []).map((it: UserPositionApiItem) => {
+          const addr = it.token;
+          const safeCostBasis = typeof it.costBasisUsd === 'number' ? it.costBasisUsd : 0;
+          const safeMarketValue = typeof it.marketValueUsd === 'number' ? it.marketValueUsd : 0;
+          const pnlUsd = (it.openPnlUsd || 0) + (it.realizedPnlUsd || 0);
+          const pnlPercent = safeCostBasis > 0 ? ((safeMarketValue - safeCostBasis) / safeCostBasis) * 100 : 0;
+          const symbol = addr?.startsWith('0x') && addr.length >= 6 ? addr.slice(2, 6).toUpperCase() : 'TOKEN';
+          const name = `Token ${shortAddress(addr)}`;
+          return {
+            tokenAddress: addr,
+            tokenName: name,
+            tokenSymbol: symbol,
+            amount: it.qtyTokens || 0,
+            avgBuyPrice: it.avgCostUsd || 0,
+            currentPrice: it.lastPriceUsd || 0,
+            valueUSD: it.marketValueUsd || 0,
+            pnlUSD: pnlUsd,
+            pnlPercent,
+          } as TokenPosition;
+        });
+        setPositions(mapped);
+      } catch (err: any) {
+        setPositionsError(err?.message || 'Failed to load positions');
+      } finally {
+        if (!cancelled) setIsLoadingPositions(false);
+      }
+    }
+
+    loadPositions();
+    return () => { cancelled = true; controller.abort(); };
+  }, [isOpen, state.activeTab, eoa, walletChainId, userData?.walletStats?.address]);
+
   const handleTimeframeChange = (timeframe: TimeframeType) => {
     setState((prev) => ({ ...prev, timeframe }));
   };
@@ -322,7 +449,7 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
 
   // Render functions
   const renderOverviewTab = () => {
-    const stats = userData.walletStats;
+    const currentStats = stats;
 
     return (
       <div className={styles.overviewContent}>
@@ -335,13 +462,13 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
           </div>
           <div className={styles.walletInfo}>
             <div className={styles.walletName}>
-              {userData.username || 'Wallet User'}
+              {userData?.username || (stats.address ? shortAddress(stats.address) : 'Wallet User')}
             </div>
             <div className={styles.walletAddress}>
-              {shortAddress(stats.address)}
+              {shortAddress(currentStats.address)}
               <button
                 className={styles.copyBtn}
-                onClick={() => copyToClipboard(stats.address)}
+                onClick={() => copyToClipboard(currentStats.address)}
                 title="Copy address"
               >
                 <Copy size={12} />
@@ -355,16 +482,16 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
           <div className={styles.balanceCard}>
             <div className={styles.balanceLabel}>Total Balance</div>
             <div className={styles.balanceValue}>
-              {formatCompactCurrency(stats.totalBalanceUSD)}
+              {formatCompactCurrency(currentStats.totalBalanceUSD)}
             </div>
           </div>
           <div className={styles.balanceCard}>
             <div className={styles.balanceLabel}>ETH Balance</div>
             <div className={styles.balanceValue}>
-              {formatNumber(stats.ethBalance)} ETH
+              {formatNumber(currentStats.ethBalance)} ETH
             </div>
             <div className={styles.balanceSubValue}>
-              {formatCompactCurrency(stats.ethBalanceUSD)}
+              {formatCompactCurrency(currentStats.ethBalanceUSD)}
             </div>
           </div>
         </div>
@@ -376,37 +503,56 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
             Performance
           </div>
 
-          <div className={styles.pnlCards}>
-            <div className={styles.pnlCard}>
-              <div className={styles.pnlLabel}>Total P&L</div>
-              <div className={`${styles.pnlValue} ${stats.totalPnL >= 0 ? styles.positive : styles.negative}`}>
-                {formatCompactCurrency(stats.totalPnL)}
-              </div>
-              <div className={`${styles.pnlPercent} ${stats.totalPnLPercent >= 0 ? styles.positive : styles.negative}`}>
-                {formatPercent(stats.totalPnLPercent)}
-              </div>
+          {isLoadingSummary ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><Activity size={28} /></div>
+              <div className={styles.emptyTitle}>Loading Performance…</div>
             </div>
+          ) : summaryError ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><TrendingDown size={28} /></div>
+              <div className={styles.emptyTitle}>Failed to Load Performance</div>
+              <div className={styles.emptyMessage}>{summaryError}</div>
+            </div>
+          ) : !summaryLoaded ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><Clock size={28} /></div>
+              <div className={styles.emptyTitle}>No Performance Data</div>
+              <div className={styles.emptyMessage}>Connect and trade to see your stats.</div>
+            </div>
+          ) : (
+            <div className={styles.pnlCards}>
+              <div className={styles.pnlCard}>
+                <div className={styles.pnlLabel}>Total P&L</div>
+                <div className={`${styles.pnlValue} ${currentStats.totalPnL >= 0 ? styles.positive : styles.negative}`}>
+                  {formatCompactCurrency(currentStats.totalPnL)}
+                </div>
+                <div className={`${styles.pnlPercent} ${currentStats.totalPnLPercent >= 0 ? styles.positive : styles.negative}`}>
+                  {formatPercent(currentStats.totalPnLPercent)}
+                </div>
+              </div>
 
-            <div className={styles.pnlCard}>
-              <div className={styles.pnlLabel}>24h P&L</div>
-              <div className={`${styles.pnlValue} ${stats.dailyPnL >= 0 ? styles.positive : styles.negative}`}>
-                {formatCompactCurrency(stats.dailyPnL)}
+              <div className={styles.pnlCard}>
+                <div className={styles.pnlLabel}>24h P&L</div>
+                <div className={`${styles.pnlValue} ${currentStats.dailyPnL >= 0 ? styles.positive : styles.negative}`}>
+                  {formatCompactCurrency(currentStats.dailyPnL)}
+                </div>
+                <div className={`${styles.pnlPercent} ${currentStats.dailyPnLPercent >= 0 ? styles.positive : styles.negative}`}>
+                  {formatPercent(currentStats.dailyPnLPercent)}
+                </div>
               </div>
-              <div className={`${styles.pnlPercent} ${stats.dailyPnLPercent >= 0 ? styles.positive : styles.negative}`}>
-                {formatPercent(stats.dailyPnLPercent)}
-              </div>
-            </div>
 
-            <div className={styles.pnlCard}>
-              <div className={styles.pnlLabel}>7d P&L</div>
-              <div className={`${styles.pnlValue} ${stats.weeklyPnL >= 0 ? styles.positive : styles.negative}`}>
-                {formatCompactCurrency(stats.weeklyPnL)}
-              </div>
-              <div className={`${styles.pnlPercent} ${stats.weeklyPnLPercent >= 0 ? styles.positive : styles.negative}`}>
-                {formatPercent(stats.weeklyPnLPercent)}
+              <div className={styles.pnlCard}>
+                <div className={styles.pnlLabel}>7d P&L</div>
+                <div className={`${styles.pnlValue} ${currentStats.weeklyPnL >= 0 ? styles.positive : styles.negative}`}>
+                  {formatCompactCurrency(currentStats.weeklyPnL)}
+                </div>
+                <div className={`${styles.pnlPercent} ${currentStats.weeklyPnLPercent >= 0 ? styles.positive : styles.negative}`}>
+                  {formatPercent(currentStats.weeklyPnLPercent)}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Stats Grid */}
@@ -416,69 +562,111 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
             Trading Stats
           </div>
 
-          <div className={styles.statsGrid}>
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <Activity size={18} />
-              </div>
-              <div className={styles.statContent}>
-                <div className={styles.statLabel}>Total Trades</div>
-                <div className={styles.statValue}>{stats.totalTrades}</div>
-              </div>
+          {isLoadingSummary ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><Activity size={28} /></div>
+              <div className={styles.emptyTitle}>Loading Trading Stats…</div>
             </div>
-
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <Target size={18} />
-              </div>
-              <div className={styles.statContent}>
-                <div className={styles.statLabel}>Win Rate</div>
-                <div className={styles.statValue}>{stats.winRate.toFixed(1)}%</div>
-              </div>
+          ) : summaryError ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><TrendingDown size={28} /></div>
+              <div className={styles.emptyTitle}>Failed to Load Stats</div>
+              <div className={styles.emptyMessage}>{summaryError}</div>
             </div>
-
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <ArrowUpRight size={18} />
+          ) : !summaryLoaded ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><Clock size={28} /></div>
+              <div className={styles.emptyTitle}>No Trading Stats</div>
+            </div>
+          ) : (
+            <div className={styles.statsGrid}>
+              <div className={styles.statItem}>
+                <div className={styles.statIcon}>
+                  <Activity size={18} />
+                </div>
+                <div className={styles.statContent}>
+                  <div className={styles.statLabel}>Total Trades</div>
+                  <div className={styles.statValue}>{currentStats.totalTrades}</div>
+                </div>
               </div>
-              <div className={styles.statContent}>
-                <div className={styles.statLabel}>Best Trade</div>
-                <div className={`${styles.statValue} ${styles.positive}`}>
-                  +{USD.format(stats.bestTrade)}
+
+              <div className={styles.statItem}>
+                <div className={styles.statIcon}>
+                  <Target size={18} />
+                </div>
+                <div className={styles.statContent}>
+                  <div className={styles.statLabel}>Win Rate</div>
+                  <div className={styles.statValue}>{currentStats.winRate.toFixed(1)}%</div>
+                </div>
+              </div>
+
+              <div className={styles.statItem}>
+                <div className={styles.statIcon}>
+                  <ArrowUpRight size={18} />
+                </div>
+                <div className={styles.statContent}>
+                  <div className={styles.statLabel}>Best Trade</div>
+                  <div className={`${styles.statValue} ${styles.positive}`}>
+                    +{USD.format(currentStats.bestTrade)}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.statItem}>
+                <div className={styles.statIcon}>
+                  <ArrowDownRight size={18} />
+                </div>
+                <div className={styles.statContent}>
+                  <div className={styles.statLabel}>Worst Trade</div>
+                  <div className={`${styles.statValue} ${styles.negative}`}>
+                    {formatCompactCurrency(currentStats.worstTrade)}
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.statItem}>
+                <div className={styles.statIcon}>
+                  <DollarSign size={18} />
+                </div>
+                <div className={styles.statContent}>
+                  <div className={styles.statLabel}>Avg Trade Size</div>
+                  <div className={styles.statValue}>
+                    {formatCompactCurrency(currentStats.avgTradeSize)}
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <ArrowDownRight size={18} />
-              </div>
-              <div className={styles.statContent}>
-                <div className={styles.statLabel}>Worst Trade</div>
-                <div className={`${styles.statValue} ${styles.negative}`}>
-                  {formatCompactCurrency(stats.worstTrade)}
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.statItem}>
-              <div className={styles.statIcon}>
-                <DollarSign size={18} />
-              </div>
-              <div className={styles.statContent}>
-                <div className={styles.statLabel}>Avg Trade Size</div>
-                <div className={styles.statValue}>
-                  {formatCompactCurrency(stats.avgTradeSize)}
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     );
   };
 
   const renderPositionsTab = () => {
+    if (isLoadingPositions) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
+            <Activity size={28} />
+          </div>
+          <div className={styles.emptyTitle}>Loading Positions…</div>
+          <div className={styles.emptyMessage}>Fetching your latest positions.</div>
+        </div>
+      );
+    }
+
+    if (positionsError) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
+            <TrendingDown size={28} />
+          </div>
+          <div className={styles.emptyTitle}>Failed to Load Positions</div>
+          <div className={styles.emptyMessage}>{positionsError}</div>
+        </div>
+      );
+    }
+
     if (filteredPositions.length === 0) {
       return (
         <div className={styles.emptyState}>

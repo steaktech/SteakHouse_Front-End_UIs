@@ -11,6 +11,75 @@ interface SuccessResponse {
   success: boolean;
 }
 
+// ============== USER POSITIONS ==============
+export interface UserPositionApiItem {
+  token: string; // token address
+  qtyTokens: number;
+  avgCostUsd: number; // average cost per token in USD
+  costBasisUsd: number; // total cost basis in USD
+  realizedPnlUsd: number;
+  lastPriceUsd: number; // current price per token in USD
+  marketValueUsd: number; // current total value in USD
+  openPnlUsd: number; // unrealized PnL in USD
+  updatedAt: string; // ISO date
+}
+
+// ============== USER SUMMARY (STATS/PNL) ==============
+export interface UserSummaryApiResponse {
+  wallet: string;
+  performance: {
+    totalPnlUsd: number;
+    pnl24hUsd: number;
+    pnl7dUsd: number;
+    realizedLifetimeUsd: number;
+  };
+  tradingStats: {
+    totalTrades: number;
+    winRate: number; // 0..1 fraction
+    bestTradeUsd: number;
+    worstTradeUsd: number;
+    avgTradeSizeUsd: number;
+  };
+  daily?: Array<unknown>;
+}
+
+/**
+ * Fetches positions for a given wallet address.
+ * POST /api/user/positions
+ */
+export async function fetchUserPositions(wallet: string): Promise<UserPositionApiItem[]> {
+  if (!wallet) throw new Error('Wallet address is required');
+  try {
+    // Note: API base likely already includes "/api", so we do not prefix it here
+    const result = await apiClient<UserPositionApiItem[]>(`/user/positions`, {
+      method: 'POST',
+      body: JSON.stringify({ wallet }),
+    });
+    return result;
+  } catch (error) {
+    console.error('fetchUserPositions error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetches user summary stats/pnl for a given wallet address.
+ * POST /user/summary
+ */
+export async function fetchUserSummary(wallet: string): Promise<UserSummaryApiResponse> {
+  if (!wallet) throw new Error('Wallet address is required');
+  try {
+    const result = await apiClient<UserSummaryApiResponse>(`/user/summary`, {
+      method: 'POST',
+      body: JSON.stringify({ wallet }),
+    });
+    return result;
+  } catch (error) {
+    console.error('fetchUserSummary error:', error);
+    throw error;
+  }
+}
+
 export interface AddUserResult {
   success: boolean;
   status: number;
