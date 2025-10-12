@@ -46,6 +46,8 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
   const [crosshair, setCrosshair] = useState<'normal' | 'magnet' | 'hidden'>('normal');
   const [logScale, setLogScale] = useState(false);
   const [activeTool, setActiveTool] = useState<'none' | 'trendline' | 'ruler' | 'fib'>('none');
+  const [autoFibEnabled, setAutoFibEnabled] = useState(true);
+  const [autoTrendEnabled, setAutoTrendEnabled] = useState(true);
 
   const handleRef = useRef<CandleChartHandle | null>(null);
 
@@ -114,6 +116,11 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
             <div className="text-[#9ca3af] text-[10px] sm:text-xs flex items-center gap-1"><Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Indicators</div>
             <button onClick={() => setShowSMA9((s) => !s)} className={`px-2 py-1 rounded text-[10px] sm:text-xs ${showSMA9 ? 'bg-[#111215] text-[#feea88]' : 'text-[#c0c0c0] hover:bg-black/30'}`}>SMA 9</button>
             <button onClick={() => setShowSMA21((s) => !s)} className={`px-2 py-1 rounded text-[10px] sm:text-xs ${showSMA21 ? 'bg-[#111215] text-[#feea88]' : 'text-[#c0c0c0] hover:bg-black/30'}`}>SMA 21</button>
+            {/* Auto Overlays */}
+            <div className="ml-2 flex items-center gap-1 border-l border-[#1f1a24] pl-2">
+              <button onClick={() => setAutoFibEnabled((v) => !v)} title="Toggle Auto Fib (tracks visible range)" className={`px-2 py-1 rounded text-[10px] sm:text-xs ${autoFibEnabled ? 'bg-[#166534] text-white' : 'text-[#c0c0c0] hover:bg-black/30'}`}>Fib Auto</button>
+              <button onClick={() => setAutoTrendEnabled((v) => !v)} title="Toggle Auto Trendline (tracks visible range)" className={`px-2 py-1 rounded text-[10px] sm:text-xs ${autoTrendEnabled ? 'bg-[#4c1d95] text-white' : 'text-[#c0c0c0] hover:bg-black/30'}`}>Trend Auto</button>
+            </div>
           </div>
 
           <div className="ml-auto flex items-center gap-1">
@@ -174,6 +181,8 @@ export const TradingView: React.FC<TradingViewProps> = ({ candles, title, symbol
               priceScaleMode={logScale ? 'log' : 'normal'}
               livePrice={livePrice}
               activeTool={activeTool}
+              autoFibEnabled={autoFibEnabled}
+              autoTrendEnabled={autoTrendEnabled}
             />
           </div>
         </div>

@@ -16,6 +16,29 @@ export type CrosshairSetting = "normal" | "magnet" | "hidden";
 export type PriceScaleSetting = "normal" | "log";
 export type DrawingTool = 'none' | 'trendline' | 'ruler' | 'fib';
 
+// How many candles to consider if visible range isn't available
+const FALLBACK_WINDOW = 200;
+
+// Formatting helpers similar to the provided reference implementation
+const computePriceFormat = (p?: number | null) => {
+  const n = Number(p);
+  if (!Number.isFinite(n) || n <= 0) return { type: "price" as const, precision: 8, minMove: 1e-8 };
+  if (n >= 1) return { type: "price" as const, precision: 2, minMove: 0.01 };
+  if (n >= 0.01) return { type: "price" as const, precision: 4, minMove: 0.0001 };
+  const order = Math.floor(Math.log10(n)); // negative for < 1
+  const precision = Math.min(12, Math.max(6, -order + 2));
+  const minMove = Number((10 ** -precision).toFixed(precision));
+  return { type: "price" as const, precision, minMove };
+};
+
+const formatPriceLabel = (p: number) => {
+  if (!Number.isFinite(p)) return "-";
+  if (p === 0) return "0.00";
+  if (p >= 1) return p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  if (p >= 0.01) return p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  return p.toLocaleString(undefined, { maximumSignificantDigits: 10, minimumSignificantDigits: 2, useGrouping: false });
+};
+
 interface IndicatorSMA {
   type: "sma";
   length: number;
@@ -32,6 +55,8 @@ interface CandleChartProps {
   livePrice?: number; // latest trade/price to render price line like other platforms
   showLastPriceLine?: boolean;
   activeTool?: DrawingTool; // drawing tool from parent UI
+  autoFibEnabled?: boolean; // automatic Fibonacci retracement based on visible range
+  autoTrendEnabled?: boolean; // automatic regression trendline based on visible range
 }
 
 export interface CandleChartHandle {
@@ -46,7 +71,7 @@ type FibShape = { id: string; type: 'fib'; a: Anchor; b: Anchor };
 type Shape = TrendlineShape | RulerShape | FibShape;
 
 export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(function CandleChart(
-  { candles, chartType = "candles", showVolume = true, indicators = [], crosshair = "normal", priceScaleMode = "normal", livePrice, showLastPriceLine = true, activeTool = 'none' },
+  { candles, chartType = "candles", showVolume = true, indicators = [], crosshair = "normal", priceScaleMode = "normal", livePrice, showLastPriceLine = true, activeTool = 'none', autoFibEnabled = true, autoTrendEnabled = true },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -60,6 +85,9 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
   // Price line references for candle/line series
   const priceLineCandleRef = useRef<any>(null);
   const priceLineLineRef = useRef<any>(null);
+  // Auto overlays
+  const autoFibLinesRef = useRef<any[]>([]);
+  const autoTrendSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   // Drawing state
   const drawingsRef = useRef<Shape[]>([]);
   const draftRef = useRef<{ tool: Exclude<DrawingTool, 'none'>; a?: Anchor; b?: Anchor } | null>(null);
@@ -99,8 +127,11 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     // keep overlay sized when created
     syncOverlaySize();
 
-    // redraw on pan/zoom horizontally
-    const handleRangeChange = () => redraw();
+    // redraw on pan/zoom horizontally and recompute auto overlays
+    const handleRangeChange = () => {
+      redraw();
+      recomputeAutoOverlays();
+    };
     chart.timeScale().subscribeVisibleTimeRangeChange(handleRangeChange);
     subsRef.current.onRange = handleRangeChange;
 
@@ -170,6 +201,9 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       window.removeEventListener('orientationchange', onWindowResize);
       try { if (subsRef.current.onRange) chart.timeScale().unsubscribeVisibleTimeRangeChange(subsRef.current.onRange); } catch {}
       try { if (subsRef.current.onCrosshair) chart.unsubscribeCrosshairMove(subsRef.current.onCrosshair as any); } catch {}
+      // Clear auto overlays before removing chart
+      try { clearAutoTrend(); } catch {}
+      try { clearAutoFib(); } catch {}
       chart.remove();
       chartRef.current = null;
       candleSeriesRef.current = null;
@@ -215,7 +249,19 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     }
 
     chart.timeScale().fitContent();
+    // Ensure price format follows current price level
+    const current = (() => {
+      if (typeof livePrice === 'number' && !Number.isNaN(livePrice)) return livePrice;
+      const last = candles && candles.length ? candles[candles.length - 1].close : undefined;
+      return last;
+    })();
+    const fmt = computePriceFormat(current);
+    candleSeries.applyOptions({ priceFormat: fmt });
+    lineSeries.applyOptions({ priceFormat: fmt });
+
     redraw();
+    // Auto overlays depend on data shape and visibility
+    recomputeAutoOverlays();
   }, [candles, chartType]);
 
   // Show/hide volume (add/remove the series to mirror test chart structure)
@@ -293,12 +339,15 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     const price = typeof livePrice === 'number' && !Number.isNaN(livePrice) ? livePrice : fallbackPrice;
     if (price == null) return;
 
-    const isUp = prev && last ? last.close >= prev.close : true;
+    const isUp = prev && last ? (price >= prev.close) : true;
     const color = isUp ? '#29f266' : '#ff3b3b';
 
-    // Format label with sensible precision
-    const decimals = price >= 1 ? 4 : 8;
-    const title = price.toFixed(decimals);
+    // Improve series price format dynamically for tiny prices
+    const fmt = computePriceFormat(price);
+    candleSeries.applyOptions({ priceFormat: fmt });
+    lineSeries.applyOptions({ priceFormat: fmt });
+
+    const title = formatPriceLabel(price);
 
     // Remove existing price lines before creating new ones
     if (priceLineCandleRef.current) {
@@ -370,6 +419,147 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       redraw();
     }
   }, [activeTool]);
+
+  // ---------- Auto overlays (Fibonacci, Trend) ----------
+  const toSeconds = (ts: number | UTCTimestamp) => {
+    const n = Number(ts);
+    if (Number.isNaN(n)) return undefined;
+    return n > 1e12 ? Math.floor(n / 1000) : n;
+  };
+
+  const getRangeCandles = () => {
+    const list = candles ?? [];
+    if (!list.length) return [] as Candle[];
+    try {
+      const ts = chartRef.current?.timeScale?.();
+      const vr = ts?.getVisibleRange?.();
+      if (vr && (vr as any).from != null && (vr as any).to != null) {
+        const from = Number((vr as any).from);
+        const to = Number((vr as any).to);
+        return list.filter((c) => {
+          const t = toSeconds(c.timestamp);
+          return t && t >= from && t <= to;
+        });
+      }
+    } catch {}
+    return list.slice(-FALLBACK_WINDOW);
+  };
+
+  const regressionLineFor = (subset: Candle[]) => {
+    if (subset.length < 2) return null as null | { time: UTCTimestamp; value: number }[];
+    const points = subset
+      .map((c) => ({ x: toSeconds(c.timestamp) as number | undefined, y: Number(c.close) }))
+      .filter((p) => p.x && Number.isFinite(p.y)) as { x: number; y: number }[];
+    if (points.length < 2) return null;
+
+    const n = points.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+    for (const p of points) { sumX += p.x; sumY += p.y; sumXY += p.x * p.y; sumXX += p.x * p.x; }
+    const denom = (n * sumXX - sumX * sumX);
+    if (denom === 0) return null;
+    const a = (n * sumXY - sumX * sumY) / denom; // slope
+    const b = (sumY - a * sumX) / n;             // intercept
+
+    const x1 = points[0].x;
+    const x2 = points[points.length - 1].x;
+    return [
+      { time: x1 as UTCTimestamp, value: a * x1 + b },
+      { time: x2 as UTCTimestamp, value: a * x2 + b },
+    ];
+  };
+
+  const clearAutoFib = () => {
+    const series = getActiveSeries();
+    if (series && (series as any).removePriceLine) {
+      autoFibLinesRef.current.forEach((pl) => { try { (series as any).removePriceLine(pl); } catch {} });
+    }
+    autoFibLinesRef.current = [];
+  };
+
+  const updateAutoFib = () => {
+    clearAutoFib();
+    if (!autoFibEnabled) return;
+    const series = getActiveSeries();
+    if (!series || !(series as any).createPriceLine) return;
+
+    const subset = getRangeCandles();
+    if (subset.length < 2) return;
+
+    let min = +Infinity, max = -Infinity;
+    for (const c of subset) {
+      const hi = Number(c.high ?? c.close);
+      const lo = Number(c.low ?? c.close);
+      if (Number.isFinite(hi)) max = Math.max(max, hi);
+      if (Number.isFinite(lo)) min = Math.min(min, lo);
+    }
+    if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return;
+
+    const span = max - min;
+    const levels = [
+      { r: 0.0,   color: "#6b7280" },
+      { r: 0.236, color: "#a78bfa" },
+      { r: 0.382, color: "#60a5fa" },
+      { r: 0.5,   color: "#34d399" },
+      { r: 0.618, color: "#f59e0b" },
+      { r: 0.786, color: "#ef4444" },
+      { r: 1.0,   color: "#6b7280" },
+    ];
+
+    const created: any[] = [];
+    for (const { r, color } of levels) {
+      const price = min + span * r;
+      const pl = (series as any).createPriceLine({
+        price,
+        color,
+        lineStyle: 2,
+        lineWidth: 1,
+        title: `${(r * 100).toFixed(1)}%`,
+      });
+      if (pl) created.push(pl);
+    }
+    autoFibLinesRef.current = created;
+  };
+
+  const clearAutoTrend = () => {
+    if (autoTrendSeriesRef.current) {
+      try { chartRef.current?.removeSeries(autoTrendSeriesRef.current); } catch {}
+      autoTrendSeriesRef.current = null;
+    }
+  };
+
+  const updateAutoTrend = () => {
+    clearAutoTrend();
+    if (!autoTrendEnabled) return;
+
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    const subset = getRangeCandles();
+    if (subset.length < 2) return;
+
+    const line = regressionLineFor(subset);
+    if (!line) return;
+
+    const current = (() => {
+      if (typeof livePrice === 'number' && !Number.isNaN(livePrice)) return livePrice;
+      const last = candles && candles.length ? candles[candles.length - 1].close : undefined;
+      return last;
+    })();
+    const fmt = computePriceFormat(current);
+
+    const s = chart.addLineSeries({
+      lineWidth: 2,
+      color: "#8b5cf6",
+      priceFormat: fmt,
+    });
+    s.setData(line);
+    autoTrendSeriesRef.current = s;
+  };
+
+  const recomputeAutoOverlays = () => {
+    updateAutoFib();
+    updateAutoTrend();
+  };
 
   // ---------- Drawing overlay helpers ----------
   const getActiveSeries = () => {
@@ -761,6 +951,29 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     }
     redraw();
   };
+
+  // Recompute auto overlays when toggles change or price changes substantially
+  useEffect(() => {
+    const candleSeries = candleSeriesRef.current;
+    const lineSeries = lineSeriesRef.current;
+    if (!candleSeries || !lineSeries) return;
+    // Adjust base series price format to match live price granularity
+    const current = (() => {
+      if (typeof livePrice === 'number' && !Number.isNaN(livePrice)) return livePrice;
+      const last = candles && candles.length ? candles[candles.length - 1].close : undefined;
+      return last;
+    })();
+    const fmt = computePriceFormat(current);
+    candleSeries.applyOptions({ priceFormat: fmt });
+    lineSeries.applyOptions({ priceFormat: fmt });
+
+    recomputeAutoOverlays();
+  }, [autoFibEnabled, autoTrendEnabled, livePrice]);
+
+  // Recompute auto overlays when data or chart type changes
+  useEffect(() => {
+    recomputeAutoOverlays();
+  }, [chartType, candles]);
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (activeTool === 'none') return;
