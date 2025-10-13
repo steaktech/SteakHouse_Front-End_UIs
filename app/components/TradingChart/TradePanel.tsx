@@ -597,7 +597,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               </div>
 
               {/* Total PnL (open + realized) */}
-              <div style={{
+              {/* <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -618,10 +618,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   color: (position && (position.openPnlUsd + position.realizedPnlUsd) < 0) ? '#f87171' : '#4ade80',
                   letterSpacing: '0.2px'
                 }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((position.openPnlUsd || 0) + (position.realizedPnlUsd || 0)) : (positionError ? '—' : '$0.00'))}</span>
-              </div>
+              </div> */}
 
               {/* Average Buy Price (avgCostUsd) */}
-              <div style={{
+              {/* <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -642,7 +642,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   color: '#feea88',
                   letterSpacing: '0.2px'
                 }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 8 }).format(position.avgCostUsd || 0) : (positionError ? '—' : '$0.00'))}</span>
-              </div>
+              </div> */}
             </div>
 
             {/* Confirm Button */}
