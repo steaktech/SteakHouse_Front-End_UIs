@@ -228,24 +228,31 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded,
         />
       )}
 
-      {/* Chat Widget */}
-      <ChatWidget 
-        isOpen={isChatWidgetOpen}
-        onClose={() => setIsChatWidgetOpen(false)}
-        tokenAddress={tokenAddress}
-      />
+      {/* Chat Widget - mount only when open to avoid early API calls */}
+      {isChatWidgetOpen && (
+        <ChatWidget 
+          isOpen={isChatWidgetOpen}
+          onClose={() => setIsChatWidgetOpen(false)}
+          tokenAddress={tokenAddress}
+        />
+      )}
 
-      {/* Saved Token Widget */}
-      <SavedTokenWidget 
-        isOpen={isSavedTokenWidgetOpen}
-        onClose={() => setIsSavedTokenWidgetOpen(false)}
-      />
+      {/* Saved Token Widget - mount only when open */}
+      {isSavedTokenWidgetOpen && (
+        <SavedTokenWidget 
+          isOpen={isSavedTokenWidgetOpen}
+          onClose={() => setIsSavedTokenWidgetOpen(false)}
+        />
+      )}
 
-      {/* Token Widget */}
-      <TokenWidget 
-        isOpen={isTokenWidgetOpen}
-        onClose={() => setIsTokenWidgetOpen(false)}
-      />
+      {/* Token Widget - mount only when open */}
+      {isTokenWidgetOpen && (
+        <TokenWidget 
+          isOpen={isTokenWidgetOpen}
+          onClose={() => setIsTokenWidgetOpen(false)}
+          tokenAddress={tokenAddress}
+        />
+      )}
     </>
   );
 };

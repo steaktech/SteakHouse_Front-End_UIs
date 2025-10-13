@@ -37,9 +37,10 @@ export interface TokenData {
 interface MobileStyleTokenCardProps {
   tokenData: TokenData;
   isLimitMode?: boolean;
+  isLoading?: boolean;
 }
 
-export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ tokenData, isLimitMode = false }) => {
+export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ tokenData, isLimitMode = false, isLoading = false }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -186,6 +187,16 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
   // Initialize progress bar animation on mount
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // If loading, ensure animations are stopped and skip animating progress
+    if (isLoading) {
+      stopSparks();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      return;
+    }
     
     setProgress(0);
     seedFlames();
@@ -206,24 +217,83 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         animationFrameRef.current = null;
       }
     };
-  }, [tokenData.bondingProgress]);
+  }, [tokenData.bondingProgress, isLoading]);
+
+  // Render skeleton while loading to avoid showing any dummy/placeholder data
+  if (isLoading) {
+    return (
+      <article
+        className={styles.compactCard}
+        role="article"
+        aria-busy="true"
+        aria-label="Loading token data"
+        style={{ padding: isLimitMode ? '8px 14px 6px' : undefined }}
+      >
+        {/* Skeleton Banner */}
+        <div
+          className={`${styles.compactBanner} ${styles.skeleton}`}
+          aria-hidden="true"
+          style={{ margin: isLimitMode ? '-8px -14px 3px -14px' : undefined, position: 'relative' }}
+        />
+
+        {/* Skeleton Header */}
+        <header className={styles.compactHeader} style={{ marginBottom: isLimitMode ? '2px' : undefined }}>
+          <div className={styles.identity}>
+            <div className={`${styles.avatar} ${styles.skeleton}`}></div>
+            <div className={styles.nameBlock}>
+              <div className={styles.skeletonText} style={{ width: '60%', height: '14px' }}></div>
+              <div className="tickerRow" style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div className={`${styles.skeletonChip}`} style={{ width: 60 }}></div>
+                <div className={`${styles.skeletonChip}`} style={{ width: 28 }}></div>
+                <div className={`${styles.skeletonChip}`} style={{ width: 28 }}></div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.skeletonBadge}></div>
+        </header>
+
+        {/* Skeleton Tax Line */}
+        <section className={styles.taxLine} style={{ marginTop: isLimitMode ? '2px' : undefined, marginBottom: isLimitMode ? '2px' : undefined }}>
+          <div className={styles.skeletonText} style={{ width: '40%', height: '12px' }}></div>
+          <div className={styles.taxChips}>
+            <span className={styles.skeletonChip} style={{ width: 100 }}></span>
+            <span className={styles.skeletonChip} style={{ width: 80 }}></span>
+          </div>
+        </section>
+
+        {/* Skeleton Description */}
+        <div className={styles.skeletonText} style={{ width: '100%', height: isLimitMode ? '12px' : '14px', margin: isLimitMode ? '2px 0 4px' : '4px 0 6px' }}></div>
+
+        {/* Skeleton Stats + Progress Bar */}
+        <section className={styles.score} style={{ marginTop: isLimitMode ? '4px' : undefined, padding: isLimitMode ? '5px' : undefined }}>
+          <div className={styles.scoreStats} style={{ gap: isLimitMode ? '3px' : undefined, marginBottom: isLimitMode ? '3px' : undefined }}>
+            <div className={styles.skeletonStat}></div>
+            <div className={styles.skeletonStat}></div>
+            <div className={styles.skeletonStat}></div>
+          </div>
+          <div className={styles.track} aria-hidden="true" style={{ height: isLimitMode ? '30px' : undefined, borderRadius: isLimitMode ? '15px' : undefined, padding: isLimitMode ? '2px' : undefined }}>
+            <div className={`${styles.skeletonBar}`}></div>
+          </div>
+        </section>
+      </article>
+    );
+  }
 
   return (
     <article className={styles.compactCard} role="article" aria-label={`${tokenData.name} token card`} style={{
       padding: isLimitMode ? '8px 14px 6px' : undefined
     }}>
       {/* Token banner */}
-      <div className={styles.compactBanner} aria-hidden="true" style={{
-        margin: isLimitMode ? '-8px -14px 3px -14px' : undefined,
-        position: 'relative'
-      }}>
-        {tokenData.bannerUrl && (
-          <img
-            src={tokenData.bannerUrl}
-            alt={`${tokenData.name} banner`}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
-          />
-        )}
+      <div
+        className={styles.compactBanner}
+        aria-hidden="true"
+        style={{
+          margin: isLimitMode ? '-8px -14px 3px -14px' : undefined,
+          position: 'relative',
+          ...(tokenData.bannerUrl
+            ? ({ ['--banner-image' as any]: `url(${tokenData.bannerUrl})` } as React.CSSProperties)
+            : {})
+        }}>
         <div
           className={`${styles.bannerLayer} ${styles.gradient}`}
           style={{
@@ -245,13 +315,17 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       }}>
         <div className={styles.identity}>
           <div className={styles.avatar}>
-            <div className={styles.avatarImage}>
-              {tokenData.logo ? (
-                <img src={tokenData.logo} alt={`${tokenData.name} logo`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              ) : (
-                '?'
-              )}
-            </div>
+            {tokenData.logo ? (
+              <img
+                src={tokenData.logo}
+                alt={`${tokenData.name} logo`}
+                className={styles.avatarImage}
+              />
+            ) : (
+              <div className={styles.avatarFallback} aria-hidden="true">
+                {tokenData.symbol?.[0] ?? '?'}
+              </div>
+            )}
           </div>
           <div className={styles.nameBlock}>
             <h1 className="name">{tokenData.name}</h1>

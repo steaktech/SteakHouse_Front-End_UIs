@@ -473,36 +473,46 @@ const handleUserProfileClose = () => {
         />
       )}
 
-      {/* Chat Widget */}
-      <ChatWidget
-        isOpen={isChatWidgetOpen}
-        onClose={handleChatClose}
-        tokenAddress={tokenAddress}
-      />
+      {/* Chat Widget - mount only when open to avoid early API calls */}
+      {isChatWidgetOpen && (
+        <ChatWidget
+          isOpen={isChatWidgetOpen}
+          onClose={handleChatClose}
+          tokenAddress={tokenAddress}
+        />
+      )}
 
-      {/* Saved Token Widget */}
-      <SavedTokenWidget
-        isOpen={isSavedTokenWidgetOpen}
-        onClose={handleSavedTokenClose}
-      />
+      {/* Saved Token Widget - mount only when open */}
+      {isSavedTokenWidgetOpen && (
+        <SavedTokenWidget
+          isOpen={isSavedTokenWidgetOpen}
+          onClose={handleSavedTokenClose}
+        />
+      )}
 
-      {/* Explorer Widget */}
-      <ExplorerWidget
-        isOpen={isExplorerWidgetOpen}
-        onClose={handleExplorerClose}
-      />
+      {/* Explorer Widget - mount only when open */}
+      {isExplorerWidgetOpen && (
+        <ExplorerWidget
+          isOpen={isExplorerWidgetOpen}
+          onClose={handleExplorerClose}
+        />
+      )}
 
-      {/* Locker Widget */}
-      <LockerWidget
-        isOpen={isLockerWidgetOpen}
-        onClose={handleLockerClose}
-      />
+      {/* Locker Widget - mount only when open */}
+      {isLockerWidgetOpen && (
+        <LockerWidget
+          isOpen={isLockerWidgetOpen}
+          onClose={handleLockerClose}
+        />
+      )}
 
-      {/* Chart User Profile Widget */}
-      <ChartUserProfileWidget
-        isOpen={isUserProfileWidgetOpen}
-        onClose={handleUserProfileClose}
-      />
+      {/* Chart User Profile Widget - mount only when open */}
+      {isUserProfileWidgetOpen && (
+        <ChartUserProfileWidget
+          isOpen={isUserProfileWidgetOpen}
+          onClose={handleUserProfileClose}
+        />
+      )}
     </>
   );
 };

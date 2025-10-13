@@ -24,6 +24,8 @@ export interface TokenWidgetProps {
   isOpen: boolean;
   onClose: () => void;
   tokenData?: TokenData;
+  // Optional: fetch live data when a token address is provided
+  tokenAddress?: string | null;
 }
 
 export interface SocialLink {

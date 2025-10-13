@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { X, Send, Globe } from 'lucide-react';
 import styles from './TokenWidget.module.css';
 import { TokenWidgetProps, TokenData } from './types';
+import { useTokenData } from '@/app/hooks/useTokenData';
 
 // Twitter icon component
 const TwitterIcon = () => (
@@ -37,7 +38,8 @@ const defaultTokenData: TokenData = {
 export const TokenWidget: React.FC<TokenWidgetProps> = ({ 
   isOpen, 
   onClose, 
-  tokenData = defaultTokenData 
+  tokenData = defaultTokenData,
+  tokenAddress = null,
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -77,6 +79,68 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
   const handleWebsiteClick = () => {
     window.open('https://spaceman.com', '_blank');
   };
+
+  // Fetch live token data when tokenAddress is provided
+  const { data: apiTokenData } = useTokenData(tokenAddress ?? null, { interval: '1m', limit: 200 });
+
+  // Map API data to widget TokenData shape (using MobileStyleTokenCard approach)
+  const resolved = useMemo<TokenData>(() => {
+    const apiInfo = apiTokenData?.tokenInfo;
+    const apiLastTrade = apiTokenData?.lastTrade;
+
+    // Helpers
+    const formatShort = (n?: number) => {
+      if (n == null || isNaN(n)) return undefined as unknown as string;
+      if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+      if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+      return `$${n.toFixed(2)}`;
+    };
+
+    const taxValue = Number(apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? tokenData.currentTax?.buy ?? 3);
+    const maxTxPctNum = apiInfo?.curve_max_tx && apiInfo?.total_supply
+      ? (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100
+      : tokenData.maxTransaction;
+    const bondingPct = apiInfo
+      ? (() => {
+          const circulating = Number(apiInfo.circulating_supply);
+          const cap = Number(apiInfo.graduation_cap_norm);
+          return !isNaN(circulating) && !isNaN(cap) && cap > 0 ? (circulating / cap) * 100 : (tokenData.bondingProgress ?? 0);
+        })()
+      : (tokenData.bondingProgress ?? 0);
+    const volumeUsd = (() => {
+      const last = apiLastTrade ?? null;
+      if (!last) return tokenData.volume;
+      const v = typeof last.usdValue === 'string'
+        ? parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, ''))
+        : Number(last.usdValue ?? 0);
+      return isNaN(v) ? tokenData.volume : `$${v.toFixed(2)}`;
+    })();
+
+    return {
+      name: apiInfo?.name ?? tokenData.name,
+      symbol: apiInfo?.symbol ?? tokenData.symbol,
+      logo: apiInfo?.image_url ?? tokenData.logo,
+      currentTax: {
+        buy: taxValue,
+        sell: taxValue,
+      },
+      maxTax: {
+        buy: taxValue,
+        sell: taxValue,
+      },
+      maxTransaction: typeof maxTxPctNum === 'number' ? parseFloat(maxTxPctNum.toFixed(1)) : (maxTxPctNum as number),
+      description: apiInfo?.bio ?? tokenData.description,
+      marketCap: formatShort(apiTokenData?.marketCap as number) ?? tokenData.marketCap,
+      volume: volumeUsd,
+      liquidityPool: apiInfo?.eth_pool != null ? `${Number(apiInfo.eth_pool).toFixed(2)} ETH` : tokenData.liquidityPool,
+      bondingProgress: bondingPct,
+      tag: apiInfo?.catagory ?? tokenData.tag,
+      tagColor: tokenData.tagColor,
+    };
+  }, [apiTokenData, tokenData]);
+
+  // Also expose bannerUrl locally to support banner background
+  const bannerUrl = apiTokenData?.tokenInfo?.banner_url as string | undefined;
 
   // Progress bar functions (copied from TokenCard)
   const normalizePercent = (val: number) => {
@@ -200,7 +264,7 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     animationFrameRef.current = requestAnimationFrame(frame);
   };
 
-  // Initialize progress bar animation on mount
+  // Initialize progress bar animation on mount and when progress changes
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
@@ -211,7 +275,7 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
       startSparks();
     }
 
-    const normalizedProgress = normalizePercent(tokenData.bondingProgress);
+    const normalizedProgress = normalizePercent(resolved.bondingProgress);
     setTimeout(() => {
       animateTo(normalizedProgress, 1800);
     }, 100);
@@ -223,7 +287,7 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
         animationFrameRef.current = null;
       }
     };
-  }, [tokenData.bondingProgress]);
+  }, [resolved.bondingProgress]);
 
   return (
     <div 
@@ -270,10 +334,14 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
             <X size={16} />
           </button>
 
-          {/* Token card structure - matching current TokenCard */}
-          <article className={styles.tokenCard} role="article" aria-label={`${tokenData.name} token card`}>
+          {/* Token card structure - now with API-backed data mapping */}
+          <article className={styles.tokenCard} role="article" aria-label={`${resolved.name} token card`}>
             {/* Token banner */}
-            <div className={styles.tokenBanner} aria-hidden="true">
+            <div 
+              className={styles.tokenBanner} 
+              aria-hidden="true"
+              style={bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : undefined}
+            >
               <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
               <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
             </div>
@@ -282,12 +350,16 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
             <header className={styles.header}>
               <div className={styles.identity}>
                 <div className={styles.avatar}>
-                  <div className={styles.avatarImage}>?</div>
+                  {resolved.logo ? (
+                    <img src={resolved.logo} alt={`${resolved.name} logo`} className={styles.avatarImage} />
+                  ) : (
+                    <div className={styles.avatarFallback} aria-hidden="true">{resolved.symbol?.[0] ?? '?'}</div>
+                  )}
                 </div>
                 <div className={styles.nameBlock}>
-                  <h1 className={styles.name}>{tokenData.name}</h1>
+                  <h1 className={styles.name}>{resolved.name}</h1>
                   <div className={styles.tickerRow}>
-                    <div className={styles.ticker}>{tokenData.symbol}</div>
+                    <div className={styles.ticker}>{resolved.symbol}</div>
                     <nav className={styles.socialsTop} aria-label="Social links">
                       <button className={`${styles.socialBtn} ${styles.tg}`} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
                         <Send size={16} />
@@ -303,19 +375,19 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
                 </div>
               </div>
 
-              <div className={styles.badge}>{tokenData.tag}</div>
+              <div className={styles.badge}>{resolved.tag}</div>
             </header>
 
             <section className={styles.taxLine}>
-              <div className={styles.taxStrong}>Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</div>
+              <div className={styles.taxStrong}>Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</div>
               <div className={styles.taxChips}>
-                <span className={styles.chip}>Current Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</span>
-                <span className={styles.chip}>MaxTX: {tokenData.maxTransaction}%</span>
+                <span className={styles.chip}>Current Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</span>
+                <span className={styles.chip}>MaxTX: {resolved.maxTransaction}%</span>
               </div>
             </section>
 
             <p className={styles.desc}>
-              {tokenData.description}
+              {resolved.description}
             </p>
 
             {/* Bottom panel: stats row + searing progress bar */}
@@ -323,15 +395,15 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
               <div className={styles.scoreStats} aria-label="Token stats">
                 <div className={styles.stat}>
                   <div className={styles.statLabel}>MCAP</div>
-                  <div className={styles.statValue}>{tokenData.marketCap}</div>
+                  <div className={styles.statValue}>{resolved.marketCap}</div>
                 </div>
                 <div className={styles.stat}>
                   <div className={styles.statLabel}>VOLUME</div>
-                  <div className={styles.statValue}>{tokenData.volume}</div>
+                  <div className={styles.statValue}>{resolved.volume}</div>
                 </div>
                 <div className={styles.stat}>
                   <div className={styles.statLabel}>LP</div>
-                  <div className={styles.statValue}>{tokenData.liquidityPool}</div>
+                  <div className={styles.statValue}>{resolved.liquidityPool}</div>
                 </div>
               </div>
 

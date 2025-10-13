@@ -668,7 +668,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <MobileStyleTokenCard tokenData={mobileStyleTokenData} />
+                <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLoading={!apiTokenData} />
               </div>
             </div>
 

@@ -515,7 +515,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     );
   }
 
-  // Show error state
+  // Show error state: render only the error string
   if (holdersError && !state.dataset) {
     return (
       <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
@@ -525,35 +525,15 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
             <div className={styles.icon}>H</div>
             <div>
               <div className={styles.title}>Holders</div>
-              <div className={styles.sub}>Error loading data</div>
             </div>
             <div className={styles.spacer} />
-            <button className={styles.btn} onClick={refetchHolders} title="Retry">Retry</button>
             <button className={styles.btn} onClick={onClose} title="Close">Close</button>
           </header>
           <div className={styles.body}>
-            <div style={{ padding: '40px', textAlign: 'center', color: '#ff5c5c' }}>
-              <div>Failed to load holders data</div>
-              <div style={{ marginTop: '10px', fontSize: '14px' }}>{holdersError}</div>
-              {tokenAddress && (
-                <div style={{ marginTop: '10px', fontSize: '14px', opacity: 0.7 }}>
-                  Token: {tokenAddress.slice(0, 8)}...{tokenAddress.slice(-6)}
-                </div>
-              )}
-              <button 
-                onClick={refetchHolders}
-                style={{ 
-                  marginTop: '20px', 
-                  padding: '10px 20px', 
-                  background: '#8C7BFF', 
-                  border: 'none', 
-                  borderRadius: '6px',
-                  color: 'white',
-                  cursor: 'pointer'
-                }}
-              >
-                Try Again
-              </button>
+            <div style={{ padding: '16px' }}>
+              <div style={{ fontSize: '12px', color: '#e6d4a3', opacity: 0.85 }}>
+                {holdersError}
+              </div>
             </div>
           </div>
         </aside>
