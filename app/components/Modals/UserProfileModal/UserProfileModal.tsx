@@ -16,6 +16,9 @@ import type {
 } from './types';
 import type { UserProfile } from '@/app/types/user';
 import styles from './UserProfileModal.module.css';
+import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+import WalletWithdrawModal from '@/app/components/Modals/WalletWithdrawModal/WalletWithdrawModal';
+import { useTrading } from '@/app/hooks/useTrading';
 
 // Icon components
 const Icons = {
@@ -74,6 +77,13 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
   const [walletEthError, setWalletEthError] = useState<string | null>(null);
   const [tradingEthError, setTradingEthError] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+
+  // Deposit/Withdraw modal state
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState<string>('');
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState<string>('');
+  const { topUpTradingWallet } = useTrading();
 
   // Handle mounting for portal
   useEffect(() => {
@@ -563,6 +573,39 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
                           )}
                         </div>
                       </div>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                        <button
+                          onClick={() => setIsWithdrawModalOpen(true)}
+                          style={{
+                            flex: 1,
+                            background: 'linear-gradient(180deg, #f87171, #ef4444)',
+                            color: '#1f2937',
+                            fontWeight: 800,
+                            fontSize: 'clamp(10px, 2vw, 13px)',
+                            padding: 'clamp(8px, 1.5vh, 10px)',
+                            borderRadius: 'clamp(10px, 2vw, 14px)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'all 200ms ease',
+                            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1)',
+                            textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                            letterSpacing: '0.4px',
+                            minHeight: 'clamp(28px, 4.5vh, 34px)'
+                          }}
+                          onMouseEnter={(e) => {
+                            const target = e.target as HTMLButtonElement;
+                            target.style.transform = 'translateY(-1px)';
+                            target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            const target = e.target as HTMLButtonElement;
+                            target.style.transform = 'translateY(0)';
+                            target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+                          }}
+                        >
+                          WITHDRAW
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -605,6 +648,39 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
                                 <span className={styles.balanceValue}>—</span>
                               )}
                             </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                            <button
+                              onClick={() => setIsTopUpModalOpen(true)}
+                              style={{
+                                flex: 1,
+                                background: 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)',
+                                color: '#1f2937',
+                                fontWeight: 800,
+                                fontSize: 'clamp(10px, 2vw, 13px)',
+                                padding: 'clamp(8px, 1.5vh, 10px)',
+                                borderRadius: 'clamp(10px, 2vw, 14px)',
+                                border: 'none',
+                                cursor: 'pointer',
+                                transition: 'all 200ms ease',
+                                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1)',
+                                textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                                letterSpacing: '0.4px',
+                                minHeight: 'clamp(28px, 4.5vh, 34px)'
+                              }}
+                              onMouseEnter={(e) => {
+                                const target = e.target as HTMLButtonElement;
+                                target.style.transform = 'translateY(-1px)';
+                                target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                              }}
+                              onMouseLeave={(e) => {
+                                const target = e.target as HTMLButtonElement;
+                                target.style.transform = 'translateY(0)';
+                                target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+                              }}
+                            >
+                              DEPOSIT
+                            </button>
                           </div>
                         </>
                       ) : (
@@ -759,6 +835,18 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
               </div>
             </>
           )}
+          <WalletTopUpModal
+            isOpen={isTopUpModalOpen}
+            onClose={() => setIsTopUpModalOpen(false)}
+            tradingWallet={(state.profile as any)?.trading_wallet || null}
+            defaultAmountEth={topUpAmount}
+            onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
+          />
+          <WalletWithdrawModal
+            isOpen={isWithdrawModalOpen}
+            onClose={() => setIsWithdrawModalOpen(false)}
+            defaultAmountEth={withdrawAmount}
+          />
         </div>
       </div>
     </div>
