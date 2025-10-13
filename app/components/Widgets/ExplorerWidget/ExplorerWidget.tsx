@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, Search, TrendingUp, TrendingDown, Clock, Users, Eye, MessageCircle, ThumbsUp, Flame, Award, AlertTriangle, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { X, Search, TrendingUp, TrendingDown, Clock, Users, Eye, MessageCircle, ThumbsUp, Flame, Award, AlertTriangle, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './ExplorerWidget.module.css';
 import {
   ExplorerWidgetProps,
@@ -10,7 +10,10 @@ import {
   SectionType,
   ExplorerSection
 } from './types';
+import type { Token } from '@/app/types/token';
+import { useExplorerRecent, useExplorerGraduated, useExplorerNearlyGraduated } from '@/app/hooks/useExplorerTokens';
 
+/*
 // Demo data for explorer
 const demoExplorerData: ExplorerSection[] = [
   {
@@ -893,6 +896,7 @@ const demoExplorerData: ExplorerSection[] = [
     ]
   }
 ];
+*/
 
 // Utility functions
 const USD = new Intl.NumberFormat("en-US", {
@@ -916,11 +920,14 @@ const formatNumber = (num: number): string => {
   return num.toString();
 };
 
-const formatPercent = (num: number): string => {
-  return (num >= 0 ? '+' : '') + num.toFixed(1) + '%';
+const formatPercent = (num: number | string | null | undefined): string => {
+  const n = typeof num === 'number' ? num : num == null ? 0 : Number(num);
+  const safe = Number.isFinite(n) ? n : 0;
+  return (safe >= 0 ? '+' : '') + safe.toFixed(1) + '%';
 };
 
 const shortAddress = (address: string): string => {
+  if (!address) return 'unknown';
   return address.slice(0, 6) + '...' + address.slice(-4);
 };
 
@@ -940,6 +947,37 @@ const getTokenInitials = (symbol: string): string => {
   return symbol.slice(0, 2).toUpperCase();
 };
 
+// Map API Token to TokenPair for UI rendering
+const tokenToPair = (t: Token, status: SectionType): TokenPair => {
+  const marketCap = t.market_cap ? Number(t.market_cap) : 0;
+  const volume24h = t.volume_24h ? Number(t.volume_24h) : 0;
+  const createdAtMs = t.created_at_timestamp ? Number(t.created_at_timestamp) : Date.now();
+  const graduationMcGoalRaw = (t as any).graduation_cap_norm ?? t.graduation_cap;
+  const gradGoalNum = graduationMcGoalRaw ? Number(graduationMcGoalRaw) : undefined;
+  return {
+    id: t.token_address,
+    name: t.name || t.symbol || 'Unknown',
+    symbol: t.symbol || '',
+    address: t.token_address,
+    creator: (t as any).creator || '',
+    marketCap,
+    price: 0,
+    volume24h,
+    priceChange24h: Number(t.price_change_24h ?? 0),
+    holders: 0,
+    createdAt: new Date(createdAtMs),
+    status,
+    chain: 'EVM',
+    graduationMcGoal: status === 'about-to-graduate' ? gradGoalNum : undefined,
+    graduationProgress: (() => {
+      if (status !== 'about-to-graduate') return undefined;
+      const raw: any = (t as any).progress;
+      const val = raw == null ? undefined : Number(raw);
+      return Number.isFinite(val as number) ? (val as number) : undefined;
+    })(),
+  };
+};
+
 export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
   isOpen,
   onClose,
@@ -954,7 +992,33 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
     filterChain: 'all',
   });
 
-  const explorerData = data || demoExplorerData;
+  // Fetch data for sections
+  const recent = useExplorerRecent({ pageSize: 20 });
+  const nearly = useExplorerNearlyGraduated({ threshold: 80, pageSize: 25 });
+  const graduated = useExplorerGraduated({ pageSize: 25 });
+
+  const sectionsFromApi: ExplorerSection[] = useMemo(() => [
+    {
+      id: 'newly-created',
+      title: 'Newly Created',
+      description: 'Recently launched token pairs',
+      pairs: (recent.data || []).map((t) => tokenToPair(t, 'newly-created')),
+    },
+    {
+      id: 'about-to-graduate',
+      title: 'About to Graduate',
+      description: 'Pairs close to reaching graduation threshold',
+      pairs: (nearly.data || []).map((t) => tokenToPair(t, 'about-to-graduate')),
+    },
+    {
+      id: 'graduated',
+      title: 'Graduated',
+      description: 'Successfully graduated pairs',
+      pairs: (graduated.data || []).map((t) => tokenToPair(t, 'graduated')),
+    },
+  ], [recent.data, nearly.data, graduated.data]);
+
+  const explorerData = data || sectionsFromApi;
   const [filteredPairs, setFilteredPairs] = useState<TokenPair[]>([]);
 
   // Get current section
@@ -1052,6 +1116,16 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
       onClose();
     }
   };
+
+  const renderLoading = (label = 'Loading...') => (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyIcon}>
+        <Clock size={24} />
+      </div>
+      <div className={styles.emptyTitle}>{label}</div>
+      <div className={styles.emptyMessage}>Fetching data from the network</div>
+    </div>
+  );
 
   // Render empty state
   const renderEmptyState = () => (
@@ -1183,6 +1257,24 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
     </div>
   );
 
+  // Small pagination controls per section
+  const SectionPagination: React.FC<{ id: SectionType }> = ({ id }) => {
+    const pg = id === 'newly-created' ? recent : id === 'about-to-graduate' ? nearly : graduated;
+    const isPrevDisabled = pg.page <= 1 || pg.isLoading;
+    const isNextDisabled = !pg.hasMore || pg.isLoading;
+    return (
+      <div className={styles.paginationRow}>
+        <button className={styles.pageButton} onClick={pg.prevPage} disabled={isPrevDisabled}>
+          <ChevronLeft size={14} /> Prev
+        </button>
+        <div className={styles.pageInfo}>Page {pg.page}</div>
+        <button className={styles.pageButton} onClick={pg.nextPage} disabled={isNextDisabled}>
+          Next <ChevronRight size={14} />
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
       <div className={styles.overlay} onClick={handleOverlayClick} />
@@ -1256,21 +1348,28 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
 
         {/* Desktop: Three Column Layout */}
         <div className={styles.sectionsContainer}>
-          {explorerData.map((section) => (
-            <div key={section.id} className={styles.sectionColumn}>
+          {[
+            { section: explorerData[0], id: 'newly-created' as SectionType, loading: recent.isLoading },
+            { section: explorerData[1], id: 'about-to-graduate' as SectionType, loading: nearly.isLoading },
+            { section: explorerData[2], id: 'graduated' as SectionType, loading: graduated.isLoading },
+          ].map(({ section, id, loading }) => (
+            <div key={id} className={styles.sectionColumn}>
               <div className={styles.sectionHeader}>
                 <div className={styles.sectionTitle}>
-                  {section.id === 'newly-created' && <Flame size={18} />}
-                  {section.id === 'about-to-graduate' && <Clock size={18} />}
-                  {section.id === 'graduated' && <Award size={18} />}
-                  {section.title}
+                  {id === 'newly-created' && <Flame size={18} />}
+                  {id === 'about-to-graduate' && <Clock size={18} />}
+                  {id === 'graduated' && <Award size={18} />}
+                  {section?.title}
                 </div>
                 <div className={styles.sectionDescription}>
-                  {section.description}
+                  {section?.description}
                 </div>
+                <SectionPagination id={id} />
               </div>
               <div className={styles.sectionContent}>
-                {section.pairs.length === 0 ? (
+                {loading ? (
+                  renderLoading()
+                ) : !section || section.pairs.length === 0 ? (
                   <div className={styles.emptyState}>
                     <div className={styles.emptyIcon}>
                       <Flame size={24} />
@@ -1292,13 +1391,18 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
 
         {/* Mobile: Single Content with Tabs */}
         <div className={styles.mobileContent}>
-          {filteredPairs.length === 0 ? (
-            renderEmptyState()
-          ) : (
-            <div className={styles.pairsList}>
-              {filteredPairs.map((pair) => renderPairCard(pair))}
-            </div>
-          )}
+          {(() => {
+            const mobileLoading = state.activeSection === 'newly-created' ? recent.isLoading : state.activeSection === 'about-to-graduate' ? nearly.isLoading : graduated.isLoading;
+            if (mobileLoading) return renderLoading();
+            return filteredPairs.length === 0 ? (
+              renderEmptyState()
+            ) : (
+              <div className={styles.pairsList}>
+                {filteredPairs.map((pair) => renderPairCard(pair))}
+                <SectionPagination id={state.activeSection} />
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

@@ -647,6 +647,52 @@
   text-align: center;
 }
 
+/* Pagination */
+.paginationRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pageButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.14),
+    rgba(255, 178, 32, 0.06)
+  );
+  border: 1px solid var(--border-500);
+  color: var(--primary-400);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.24),
+    rgba(255, 178, 32, 0.16)
+  );
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-300);
+}
+
 .emptyIcon {
   width: 64px;
   height: 64px;
