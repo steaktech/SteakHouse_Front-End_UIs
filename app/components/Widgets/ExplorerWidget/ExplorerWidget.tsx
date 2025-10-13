@@ -12,6 +12,7 @@ import {
 } from './types';
 import type { Token } from '@/app/types/token';
 import { useExplorerRecent, useExplorerGraduated, useExplorerNearlyGraduated } from '@/app/hooks/useExplorerTokens';
+import { useRouter } from 'next/navigation';
 
 /*
 // Demo data for explorer
@@ -992,6 +993,8 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
     filterChain: 'all',
   });
 
+  const router = useRouter();
+
   // Fetch data for sections
   const recent = useExplorerRecent({ pageSize: 20 });
   const nearly = useExplorerNearlyGraduated({ threshold: 80, pageSize: 25 });
@@ -1106,6 +1109,11 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
   };
 
   const handlePairClick = (pair: TokenPair) => {
+    // Navigate to /trading-chart/[token] with the token address
+    const target = `/trading-chart/${encodeURIComponent(pair.address)}`;
+    router.push(target);
+
+    // Preserve any additional click behavior provided by parent components
     if (onPairClick) {
       onPairClick(pair);
     }
