@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
 import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+import { useBalance } from 'wagmi';
+import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
 
 const WalletModal = dynamic(
   () => import('../Modals/WalletModal/WalletModal'),
@@ -50,6 +52,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   const { tradingState, buyToken, sellToken, clearStatus, isReady, topUpTradingWallet } = useTrading();
   const { showError, showSuccess } = useToastHelpers();
 
+  // Position state from API via shared client
+  // Loaded using a dedicated hook for structure and reuse
+
   // Wallet & top-up modals
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
@@ -57,6 +62,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
   const [isToppingUp, setIsToppingUp] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
+
+  // Resolve trading wallet and ETH balance for that wallet
+  const tradingWalletAddress = tradingState?.tradingWallet || null;
+  const { data: tradingEthBalance } = useBalance({
+    address: (tradingWalletAddress || undefined) as `0x${string}` | undefined,
+  });
+
+  // Load token position using shared api client and structured hook
+  const { data: position, isLoading: loadingPosition, error: positionError } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
 
   // Update activeTab when initialTab prop changes
   React.useEffect(() => {
@@ -502,7 +516,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Market Order Interface */}
         {activeTab !== 'limit' && (
           <>
-            {/* Account Stats */}
+            {/* Account Stats (live from /api/user/position) */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -510,7 +524,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               marginTop: 'clamp(6px, 1vh, 10px)',
               marginBottom: 'clamp(6px, 1vh, 10px)'
             }}>
-              {/* Balance */}
+              {/* Token Balance (qtyTokens) */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -525,16 +539,40 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
                   color: 'rgba(254, 234, 136, 0.75)'
-                }}>Balance</span>
+                }}>Token Balance</span>
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
                   color: '#feea88',
                   letterSpacing: '0.2px'
-                }}>$54,576.75</span>
+                }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 }).format(position.qtyTokens) : (positionError ? '—' : '0'))}</span>
               </div>
 
-              {/* ETH Balance */}
+              {/* Token Balance Worth (marketValueUsd) */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                border: '1px solid rgba(255, 210, 160, 0.25)',
+                borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+              }}>
+                <span style={{
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: 'rgba(254, 234, 136, 0.75)'
+                }}>Token Worth</span>
+                <span style={{
+                  fontSize: 'clamp(11px, 1.8vw, 13px)',
+                  fontWeight: 800,
+                  color: '#feea88',
+                  letterSpacing: '0.2px'
+                }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(position.marketValueUsd || 0) : (positionError ? '—' : '$0.00'))}</span>
+              </div>
+
+              {/* ETH Balance (trading wallet) */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -555,10 +593,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   fontWeight: 800,
                   color: '#feea88',
                   letterSpacing: '0.2px'
-                }}>12.5 ETH</span>
+                }}>{tradingWalletAddress ? ((tradingEthBalance?.formatted ? `${Number(tradingEthBalance.formatted).toFixed(4)} ETH` : 'Loading…')) : '—'}</span>
               </div>
 
-              {/* Total PnL */}
+              {/* Total PnL (open + realized) */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -573,40 +611,16 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
                   color: 'rgba(254, 234, 136, 0.75)'
-                }}>Total PnL</span>
+                }}>PnL</span>
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
-                  color: '#4ade80',
+                  color: (position && (position.openPnlUsd + position.realizedPnlUsd) < 0) ? '#f87171' : '#4ade80',
                   letterSpacing: '0.2px'
-                }}>+$8,934.50</span>
+                }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((position.openPnlUsd || 0) + (position.realizedPnlUsd || 0)) : (positionError ? '—' : '$0.00'))}</span>
               </div>
 
-              {/* Daily PnL */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
-                background: 'linear-gradient(180deg, rgba(74, 222, 128, 0.08), rgba(34, 197, 94, 0.12))',
-                border: '1px solid rgba(74, 222, 128, 0.2)',
-                borderRadius: 'clamp(8px, 1.6vw, 12px)',
-                boxShadow: 'inset 0 1px 0 rgba(74, 222, 128, 0.08)'
-              }}>
-                <span style={{
-                  fontSize: 'clamp(10px, 1.6vw, 12px)',
-                  fontWeight: 700,
-                  color: 'rgba(254, 234, 136, 0.75)'
-                }}>Daily PnL</span>
-                <span style={{
-                  fontSize: 'clamp(11px, 1.8vw, 13px)',
-                  fontWeight: 800,
-                  color: '#4ade80',
-                  letterSpacing: '0.2px'
-                }}>+$342.75</span>
-              </div>
-
-              {/* Win Rate */}
+              {/* Average Buy Price (avgCostUsd) */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -621,37 +635,13 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
                   color: 'rgba(254, 234, 136, 0.75)'
-                }}>Win Rate</span>
+                }}>Average Buy Price</span>
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
                   color: '#feea88',
                   letterSpacing: '0.2px'
-                }}>68.5%</span>
-              </div>
-
-              {/* Total Trades */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
-                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
-                border: '1px solid rgba(255, 210, 160, 0.25)',
-                borderRadius: 'clamp(8px, 1.6vw, 12px)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
-              }}>
-                <span style={{
-                  fontSize: 'clamp(10px, 1.6vw, 12px)',
-                  fontWeight: 700,
-                  color: 'rgba(254, 234, 136, 0.75)'
-                }}>Total Trades</span>
-                <span style={{
-                  fontSize: 'clamp(11px, 1.8vw, 13px)',
-                  fontWeight: 800,
-                  color: '#feea88',
-                  letterSpacing: '0.2px'
-                }}>127</span>
+                }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 8 }).format(position.avgCostUsd || 0) : (positionError ? '—' : '$0.00'))}</span>
               </div>
             </div>
 

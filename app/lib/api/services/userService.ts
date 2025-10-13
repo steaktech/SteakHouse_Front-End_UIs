@@ -63,6 +63,25 @@ export async function fetchUserPositions(wallet: string): Promise<UserPositionAp
 }
 
 /**
+ * Fetch a single token position for a given wallet and token address.
+ * POST /user/position (API base likely already includes /api)
+ */
+export async function fetchUserTokenPosition(wallet: string, token: string): Promise<UserPositionApiItem> {
+  if (!wallet) throw new Error('Wallet address is required');
+  if (!token) throw new Error('Token address is required');
+  try {
+    const result = await apiClient<UserPositionApiItem>(`/user/position`, {
+      method: 'POST',
+      body: JSON.stringify({ wallet, token }),
+    });
+    return result;
+  } catch (error) {
+    console.error('fetchUserTokenPosition error:', error);
+    throw error;
+  }
+}
+
+/**
  * Fetches user summary stats/pnl for a given wallet address.
  * POST /user/summary
  */

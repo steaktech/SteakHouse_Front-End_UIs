@@ -464,12 +464,14 @@ const handleUserProfileClose = () => {
         )}
       </aside>
 
-      {/* SteakHolders Widget */}
-      <SteakHoldersWidget
-        isOpen={isHoldersWidgetOpen}
-        onClose={handleHoldersClose}
-        tokenAddress={tokenAddress}
-      />
+      {/* SteakHolders Widget - mount only when open to avoid early API calls */}
+      {isHoldersWidgetOpen && (
+        <SteakHoldersWidget
+          isOpen={isHoldersWidgetOpen}
+          onClose={handleHoldersClose}
+          tokenAddress={tokenAddress}
+        />
+      )}
 
       {/* Chat Widget */}
       <ChatWidget

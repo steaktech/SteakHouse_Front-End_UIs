@@ -219,11 +219,14 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded,
         </div>
       </div>
 
-      {/* SteakHolders Widget */}
-      <SteakHoldersWidget 
-        isOpen={isHoldersWidgetOpen}
-        onClose={() => setIsHoldersWidgetOpen(false)}
-      />
+      {/* SteakHolders Widget - mount only when open to avoid early API calls */}
+      {isHoldersWidgetOpen && (
+        <SteakHoldersWidget 
+          isOpen={isHoldersWidgetOpen}
+          onClose={() => setIsHoldersWidgetOpen(false)}
+          tokenAddress={tokenAddress}
+        />
+      )}
 
       {/* Chat Widget */}
       <ChatWidget 

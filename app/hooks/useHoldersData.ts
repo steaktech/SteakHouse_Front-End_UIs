@@ -7,6 +7,11 @@ export interface UseHoldersDataOptions {
   tokenAddress?: string;
   params?: HoldersApiParams;
   enabled?: boolean;
+  /**
+   * If true (default), the hook will automatically fetch on mount/changes when enabled.
+   * If false, fetching is manual via refetch().
+   */
+  autoFetch?: boolean;
 }
 
 export interface UseHoldersDataReturn {
@@ -23,7 +28,8 @@ export interface UseHoldersDataReturn {
 export function useHoldersData({
   tokenAddress,
   params = DEFAULT_HOLDERS_PARAMS,
-  enabled = true
+  enabled = true,
+  autoFetch = true,
 }: UseHoldersDataOptions): UseHoldersDataReturn {
   const [data, setData] = useState<HoldersWidgetDataset | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,10 +58,12 @@ export function useHoldersData({
     }
   }, [tokenAddress, params, enabled]);
 
-  // Initial fetch when dependencies change
+  // Optional initial fetch when dependencies change
   useEffect(() => {
-    fetchHoldersData();
-  }, [fetchHoldersData]);
+    if (autoFetch) {
+      fetchHoldersData();
+    }
+  }, [fetchHoldersData, autoFetch]);
 
   const refetch = useCallback(async () => {
     await fetchHoldersData();

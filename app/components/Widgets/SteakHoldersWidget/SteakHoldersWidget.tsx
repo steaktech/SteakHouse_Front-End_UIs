@@ -216,7 +216,8 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     refetch: refetchHolders
   } = useHoldersData({
     tokenAddress,
-    enabled: isOpen && !!tokenAddress
+    enabled: isOpen && !!tokenAddress,
+    autoFetch: false,
   });
 
   // Load dataset
@@ -277,6 +278,16 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
       setState(prev => ({ ...prev, dataset: null }));
     }
   }, [holdersData, data, loadApiDataset, loadDataset]);
+
+  // Fetch when widget opens (manual trigger) with guard to prevent duplicate calls in StrictMode
+  const lastOpenKeyRef = React.useRef<string | null>(null);
+  useEffect(() => {
+    const key = isOpen && tokenAddress ? `${tokenAddress}-open` : null;
+    if (!key) return;
+    if (lastOpenKeyRef.current === key) return; // already fetched for this open state
+    lastOpenKeyRef.current = key;
+    refetchHolders();
+  }, [isOpen, tokenAddress, refetchHolders]);
 
   // Build distribution segments - now showing top 5 holders
   const buildDistribution = useCallback(() => {
