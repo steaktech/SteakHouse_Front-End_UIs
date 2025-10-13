@@ -24,7 +24,7 @@ export const waitForTransactionConfirmation = async (
 ): Promise<TransactionResult> => {
   console.log(`🔄 Awaiting confirmation for tx: ${txHash}`);
 
-  const maxRetries = 10;
+  const maxRetries = 24; // allow up to ~2 minutes by default
   const retryInterval = 5000; // 5 seconds
   let retryCount = 0;
 

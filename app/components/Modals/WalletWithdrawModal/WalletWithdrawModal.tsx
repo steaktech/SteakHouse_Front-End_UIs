@@ -1,29 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@/app/hooks/useWallet";
-import { useToastHelpers } from "@/app/hooks/useToast";
-import { parseEther } from "viem";
 import { useTrading } from "@/app/hooks/useTrading";
+import { useToastHelpers } from "@/app/hooks/useToast";
+import { blockchainApiClient } from "@/app/lib/api/blockchainClient";
 
-interface WalletTopUpModalProps {
+interface WalletWithdrawModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tradingWallet?: string | null;
   defaultAmountEth?: string;
-  onConfirmTopUp: (amountEth: string) => Promise<string | null>;
 }
 
-export default function WalletTopUpModal({
+export default function WalletWithdrawModal({
   isOpen,
   onClose,
-  tradingWallet,
   defaultAmountEth,
-  onConfirmTopUp,
-}: WalletTopUpModalProps) {
+}: WalletWithdrawModalProps) {
   const { isConnected, address } = useWallet();
-  const { showError, showSuccess, showInfo } = useToastHelpers();
   const { tradingState } = useTrading();
+  const { showError, showSuccess } = useToastHelpers();
 
   const [amount, setAmount] = useState<string>(defaultAmountEth || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,63 +29,48 @@ export default function WalletTopUpModal({
   }, [defaultAmountEth, isOpen]);
 
   const handleConfirm = useCallback(async () => {
-    if (!isConnected) {
-      showError("Please connect your wallet first.", "Top up");
+    if (!isConnected || !address) {
+      showError("Please connect your wallet first.", "Withdraw");
       return;
     }
-    if (!tradingWallet) {
-      showError("Trading wallet is not available.", "Top up");
+    if (!tradingState?.tradingWallet) {
+      showError("Trading wallet is not available.", "Withdraw");
       return;
     }
     const sanitized = String(amount).trim().replace(/,/g, "");
     if (!sanitized || /^\d*(?:\.\d{1,18})?$/.test(sanitized) === false || Number(sanitized) <= 0) {
-      showError("Enter a valid amount in ETH", "Top up");
+      showError("Enter a valid amount in ETH", "Withdraw");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      let hash = await onConfirmTopUp(sanitized);
-      if (!hash) {
-        // Try to surface a more accurate error first
-        if (tradingState?.error) {
-          showError(tradingState.error, "Top up");
+      const data = await blockchainApiClient<{ txHash?: string; error?: string }>(
+        "/withdraw",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            ethAmount: sanitized,
+            walletAddress: address,
+          }),
         }
-        // Attempt direct send as a fallback if we have a target trading wallet
-        if (typeof window !== 'undefined' && (window as any).ethereum && tradingWallet && address) {
-          try {
-            const valueHex = '0x' + parseEther(sanitized).toString(16);
-            const txParams = { from: address as `0x${string}`, to: tradingWallet as `0x${string}`, value: valueHex } as any;
-            hash = await (window as any).ethereum.request({ method: 'eth_sendTransaction', params: [txParams] });
-          } catch (fallbackErr: any) {
-            const msg = fallbackErr?.shortMessage || fallbackErr?.message || 'Transaction rejected or failed to submit.';
-            showError(msg, 'Top up');
-            setIsSubmitting(false);
-            return;
-          }
-        } else {
-          if (!tradingState?.error) {
-            showError("Transaction rejected or failed to submit.", "Top up");
-          }
-          setIsSubmitting(false);
-          return;
-        }
+      );
+
+      const txHash = data?.txHash;
+      if (!txHash) {
+        throw new Error(data?.error || "No transaction hash returned");
       }
-      if (!hash) {
-        showError('Transaction not submitted.', 'Top up');
-        setIsSubmitting(false);
-        return;
-      }
-      const short = `${hash.slice(0, 10)}...${hash.slice(-6)}`;
-      showSuccess(`Top up submitted. Tx: ${short}`, "Top up", 8000);
+
+      const short = `${txHash.slice(0, 10)}...${txHash.slice(-6)}`;
+      showSuccess(`Withdrawal submitted. Tx: ${short}`, "Withdraw", 8000);
       setIsSubmitting(false);
       onClose();
-    } catch (e) {
-      const msg = (e as any)?.message || "Failed to top up";
-      showError(msg, "Top up failed");
+    } catch (e: any) {
+      const msg = e?.message || "Withdraw failed";
+      showError(msg, "Withdraw failed", 12000);
       setIsSubmitting(false);
     }
-  }, [amount, isConnected, tradingWallet, onConfirmTopUp, showError, showSuccess, tradingState, address, onClose]);
+  }, [isConnected, address, tradingState?.tradingWallet, amount, showError, showSuccess, onClose]);
 
   if (!isOpen) return null;
 
@@ -104,7 +85,7 @@ export default function WalletTopUpModal({
       <div className="relative bg-gradient-to-b from-[#2d1810] to-[#1a0f08] border border-[#8b4513] rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#d4af37]">Top up trading wallet</h2>
+          <h2 className="text-xl font-bold text-[#d4af37]">Withdraw from trading wallet</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
             ✕
           </button>
@@ -113,10 +94,10 @@ export default function WalletTopUpModal({
         {/* Body */}
         <div className="space-y-4">
           <div className="bg-[#1a0f08] rounded-lg p-4 border border-[#8b4513]/30">
-            <div className="text-sm text-gray-400 mb-1">From (your wallet)</div>
-            <div className="text-white font-mono text-sm break-all mb-2">{shortAddr(address)}</div>
-            <div className="text-sm text-gray-400 mb-1">To (trading wallet)</div>
-            <div className="text-white font-mono text-sm break-all">{shortAddr(tradingWallet || undefined)}</div>
+            <div className="text-sm text-gray-400 mb-1">From (trading wallet)</div>
+            <div className="text-white font-mono text-sm break-all mb-2">{shortAddr(tradingState?.tradingWallet)}</div>
+            <div className="text-sm text-gray-400 mb-1">To (your wallet)</div>
+            <div className="text-white font-mono text-sm break-all">{shortAddr(address)}</div>
           </div>
 
           <div className="space-y-2">
@@ -156,7 +137,7 @@ export default function WalletTopUpModal({
               disabled={isSubmitting}
               className="flex-1 bg-[#d4af37] hover:bg-[#f4d03f] text-[#1a0f08] py-3 px-4 rounded-lg transition-colors font-semibold disabled:opacity-60"
             >
-              {isSubmitting ? "Processing..." : "Confirm Top Up"}
+              {isSubmitting ? "Processing..." : "Confirm Withdraw"}
             </button>
           </div>
         </div>

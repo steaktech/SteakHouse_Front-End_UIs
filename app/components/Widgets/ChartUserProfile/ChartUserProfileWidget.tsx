@@ -15,6 +15,9 @@ import {
 } from './types';
 import { fetchUserPositions, type UserPositionApiItem, fetchUserSummary, type UserSummaryApiResponse } from '@/app/lib/api/services/userService';
 import { useWallet } from '@/app/hooks/useWallet';
+import { useTrading } from '@/app/hooks/useTrading';
+import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+import WalletWithdrawModal from '@/app/components/Modals/WalletWithdrawModal/WalletWithdrawModal';
 import { resolveTradingWallet } from '@/app/lib/user/tradingWalletCache';
 import { getCurrentChainId } from '@/app/lib/config/constants';
 
@@ -230,6 +233,7 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
 
   const userData = data;
   const { address: eoa, chainId: walletChainId } = useWallet();
+  const { tradingState, topUpTradingWallet } = useTrading();
   const [positions, setPositions] = useState<TokenPosition[]>([]);
   const [filteredPositions, setFilteredPositions] = useState<TokenPosition[]>([]);
   const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
@@ -259,6 +263,10 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
   const [isLoadingSummary, setIsLoadingSummary] = useState<boolean>(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [summaryLoaded, setSummaryLoaded] = useState<boolean>(false);
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState<boolean>(false);
+  const [topUpAmount, setTopUpAmount] = useState<string>('');
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState<boolean>(false);
+  const [withdrawAmount, setWithdrawAmount] = useState<string>('');
 
   // Apply filters and sorting
   const applyFiltersAndSort = useCallback(() => {
@@ -472,6 +480,71 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
                 title="Copy address"
               >
                 <Copy size={12} />
+              </button>
+            </div>
+            {/* Action Buttons: Deposit & Withdraw */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+              <button
+                onClick={() => setIsTopUpModalOpen(true)}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)',
+                  color: '#1f2937',
+                  fontWeight: 800,
+                  fontSize: 'clamp(10px, 2vw, 13px)',
+                  padding: 'clamp(8px, 1.5vh, 10px)',
+                  borderRadius: 'clamp(10px, 2vw, 14px)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 200ms ease',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1)',
+                  textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                  letterSpacing: '0.4px',
+                  minHeight: 'clamp(28px, 4.5vh, 34px)'
+                }}
+                onMouseEnter={(e) => {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.transform = 'translateY(-1px)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                DEPOSIT
+              </button>
+              <button
+                onClick={() => setIsWithdrawModalOpen(true)}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(180deg, #f87171, #ef4444)',
+                  color: '#1f2937',
+                  fontWeight: 800,
+                  fontSize: 'clamp(10px, 2vw, 13px)',
+                  padding: 'clamp(8px, 1.5vh, 10px)',
+                  borderRadius: 'clamp(10px, 2vw, 14px)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 200ms ease',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1)',
+                  textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+                  letterSpacing: '0.4px',
+                  minHeight: 'clamp(28px, 4.5vh, 34px)'
+                }}
+                onMouseEnter={(e) => {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.transform = 'translateY(-1px)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                WITHDRAW
               </button>
             </div>
           </div>
@@ -908,6 +981,20 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
           {state.activeTab === 'positions' && renderPositionsTab()}
           {state.activeTab === 'history' && renderHistoryTab()}
         </div>
+
+        {/* Wallet & Top-Up Modal */}
+        <WalletTopUpModal
+          isOpen={isTopUpModalOpen}
+          onClose={() => setIsTopUpModalOpen(false)}
+          tradingWallet={tradingState?.tradingWallet || (stats.address || null)}
+          defaultAmountEth={topUpAmount}
+          onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
+        />
+        <WalletWithdrawModal
+          isOpen={isWithdrawModalOpen}
+          onClose={() => setIsWithdrawModalOpen(false)}
+          defaultAmountEth={withdrawAmount}
+        />
       </div>
     </div>
   );

@@ -376,7 +376,7 @@ export const useTrading = (): UseTrading => {
       if (!/^\d+(?:\.\d{1,18})?$/.test(sanitized)) {
         throw new Error('Invalid amount format');
       }
-    const valueWei = web3.utils.toWei(sanitized, 'ether');
+      const valueWei = web3.utils.toWei(sanitized, 'ether');
       // Encode as proper hex quantity (wei)
       const valueHex = '0x' + BigInt(valueWei).toString(16);
       // Prefer direct provider request to avoid web3 promievent typings issues
@@ -387,11 +387,12 @@ export const useTrading = (): UseTrading => {
         value: valueHex, // value in wei (0x-prefixed hex quantity)
       };
       const txHash: string = await provider.request({ method: 'eth_sendTransaction', params: [txParams] });
-      // Optionally wait for 1 confirmation
-      await waitForConfirmation(txHash, 1);
+
+      // Do NOT wait here; let UI (modal) await confirmation to avoid double prompts
       setTradingState(prev => ({
         ...prev,
-        statusMessage: 'Top up completed',
+        txHash,
+        statusMessage: 'Top up submitted. Waiting for confirmation...',
         error: null,
         canTopUp: false,
       }));
@@ -401,7 +402,7 @@ export const useTrading = (): UseTrading => {
       setTradingState(prev => ({ ...prev, error: msg }));
       return null;
     }
-  }, [isConnected, address, tradingState.tradingWallet, web3, waitForConfirmation]);
+  }, [isConnected, address, tradingState.tradingWallet, web3]);
 
   const refreshTradingWallet = useCallback(async () => {
     if (!isConnected || !address) return;
