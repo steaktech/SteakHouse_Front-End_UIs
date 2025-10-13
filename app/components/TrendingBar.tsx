@@ -3,13 +3,12 @@ import ProfileMarquee from './Widgets/TrendingWidget/ProfileMarquee';
 import type { ProfileWidgetProps } from './Widgets/TrendingWidget/ProfileWidget';
 
 export default function TrendingBar() {
-  // Define your profile data here. This could also come from an API.
+  // Featured tokens: NUTTERBUTTER, BURN, and GROYPER
+  // Arrows automatically correlate: positive % = up arrow (green), negative % would = down arrow (red)
   const trendingProfiles: ProfileWidgetProps[] = [
-    { imageUrl: '/images/info_icon.jpg', name: 'Zeus', percentage: 89, showArrow: true, arrowDirection: 'up' },
-    { imageUrl: '/images/info_icon.jpg', name: 'Apollo', percentage: 76, showArrow: true, arrowDirection: 'up' },
-    { imageUrl: '/images/info_icon.jpg', name: 'Hades', percentage: 92, showArrow: true, arrowDirection: 'up' },
-    { imageUrl: '/images/info_icon.jpg', name: 'Hera', percentage: 85, showArrow: true, arrowDirection: 'down' },
-    { imageUrl: '/images/info_icon.jpg', name: 'Ares', percentage: 70, showArrow: true, arrowDirection: 'down' },
+    { imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmq6wLPreTp0RPdc75gSA85CvopA9sZtWhkA&s', name: 'NUTTERBUTTER', percentage: 156, showArrow: true, arrowDirection: 'up' },
+    { imageUrl: 'https://pbs.twimg.com/media/G3Fi03YXsAA66pj?format=jpg&name=medium', name: 'BURN', percentage: 243, showArrow: true, arrowDirection: 'up' },
+    { imageUrl: 'https://pbs.twimg.com/profile_images/1851836711245930496/Rd9y0Kmj_400x400.png', name: 'GROYPER', percentage: 189, showArrow: true, arrowDirection: 'up' },
   ];
 
   return (

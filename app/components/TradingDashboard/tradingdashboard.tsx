@@ -13,6 +13,9 @@ import {
 import DashboardStatCard from "./DashboardStatCard";
 import { FilterButton } from "./FilterButton";
 import { TokenCard } from "./TokenCard";
+import FeaturedTokenCard from "./FeaturedTokenCard";
+import FeaturedTokenCard2 from "./FeaturedTokenCard2";
+import FeaturedTokenCard3 from "./FeaturedTokenCard3";
 import { StatCardProps } from "./types";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SmartVideo from "../UI/SmartVideo";
@@ -460,6 +463,18 @@ export default function TradingDashboard() {
               renderEmptyState()
             ) : (
               <div className="token-grid pb-4 sm:pb-6 lg:pb-4">
+                {/* Featured NUTTERBUTTER Token */}
+                <div>
+                  <FeaturedTokenCard />
+                </div>
+                {/* Featured BURN Token */}
+                <div>
+                  <FeaturedTokenCard2 />
+                </div>
+                {/* Featured GROYPER Token */}
+                <div>
+                  <FeaturedTokenCard3 />
+                </div>
                 {tokenCards.map((token, index) => (
                   <div key={`${token.symbol}-${index}`}>
                     <TokenCard {...token} />
