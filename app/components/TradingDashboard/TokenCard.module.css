@@ -57,8 +57,9 @@
   overflow: hidden;
   transition: border-color 0.25s ease;
   color: var(--text);
-  height: auto;
-  min-height: 450px;
+  height: 580px;
+  display: flex;
+  flex-direction: column;
 }
 
 
@@ -220,6 +221,12 @@
   line-height: 1.44;
   font-size: 14.5px;
   font-weight: 800;
+  height: 105px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
 }
 
 .socials {
@@ -264,7 +271,7 @@
 
 /* Bottom panel: stats row + progress bar */
 .score {
-  margin-top: 14px;
+  margin-top: auto;
   background: linear-gradient(180deg, #7f4108, #6f3906);
   border: 1px solid rgba(255, 215, 165, 0.4);
   border-radius: 20px;
