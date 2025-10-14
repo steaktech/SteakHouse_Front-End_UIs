@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from 'react';
-import { X, Send, Globe } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { X, Send, Globe, Copy, Check } from 'lucide-react';
 import styles from './TokenWidget.module.css';
 import { TokenWidgetProps, TokenData } from './types';
 import { useTokenData } from '@/app/hooks/useTokenData';
@@ -82,6 +82,38 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
 
   // Fetch live token data when tokenAddress is provided
   const { data: apiTokenData } = useTokenData(tokenAddress ?? null, { interval: '1m', limit: 200 });
+
+  // Copy token address handler with small animation
+  const [copied, setCopied] = useState(false);
+  const handleCopyToken = async () => {
+    try {
+      const addr = apiTokenData?.tokenInfo?.real_token_address
+        || apiTokenData?.tokenInfo?.token_address
+        || tokenAddress
+        || '';
+      if (!addr) return;
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(addr);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = addr;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch (err) {
+      console.error('Failed to copy token address to clipboard', err);
+    }
+  };
 
   // Map API data to widget TokenData shape (using MobileStyleTokenCard approach)
   const resolved = useMemo<TokenData>(() => {
@@ -375,7 +407,17 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
                 </div>
               </div>
 
-              <div className={styles.badge}>{resolved.tag}</div>
+              <div className={styles.badgeRow}>
+                <div className={styles.badge}>{resolved.tag}</div>
+                <button
+                  className={`${styles.copyTokenBtn} ${copied ? styles.copied : ''}`}
+                  onClick={handleCopyToken}
+                  aria-label={copied ? 'Copied token address' : 'Copy token address'}
+                  title={copied ? 'Copied!' : 'Copy token address to clipboard'}
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                </button>
+              </div>
             </header>
 
             <section className={styles.taxLine}>
