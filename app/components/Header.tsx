@@ -49,13 +49,15 @@ export default function Header() {
                 src="/images/app-logo.png"
                 alt="Logo"
                 fill
-                className="object-contain pointer-events-auto md:hidden"
+                className="object-contain pointer-events-auto cursor-pointer md:hidden"
+                onClick={handleLogoClick}
               />
               <Image
                 src="/images/header-logo-lg.png"
                 alt="Logo"
                 fill
-                className="object-contain pointer-events-auto hidden md:block overflow-hidden"
+                className="object-contain pointer-events-auto cursor-pointer hidden md:block overflow-hidden"
+                onClick={handleLogoClick}
               />
             </div>
 
