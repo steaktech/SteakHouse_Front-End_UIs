@@ -178,6 +178,9 @@ const Footer: React.FC = () => {
                   <li>
                     <a href="https://form.typeform.com/to/cCMVLuxI" target="_blank" rel="noopener noreferrer">Contact</a>
                   </li>
+                  <li>
+                    <a href="/docs/certificate.pdf" download>Certificate of Incorporation</a>
+                  </li>
                 </ul>
               </div>
 
