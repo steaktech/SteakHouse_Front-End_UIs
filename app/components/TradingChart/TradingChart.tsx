@@ -252,6 +252,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     bondingProgress: bondingPct,
     tag: apiInfo?.catagory ?? tokenData.tag,
     tagColor: tokenData.tagColor,
+    address: apiInfo?.real_token_address ?? apiInfo?.token_address ?? tokenAddress,
+    contractAddress: apiInfo?.token_address ?? undefined,
   };
 
   // Load token data based on URL parameter

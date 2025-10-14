@@ -10,9 +10,11 @@ import {
   SectionType,
   ExplorerSection
 } from './types';
-import type { Token } from '@/app/types/token';
+import type { Token, FullTokenDataResponse } from '@/app/types/token';
 import { useExplorerRecent, useExplorerGraduated, useExplorerNearlyGraduated } from '@/app/hooks/useExplorerTokens';
 import { useRouter } from 'next/navigation';
+import { getFullTokenData } from '@/app/lib/api/services/tokenService';
+import { normalizeEthereumAddress } from '@/app/lib/utils/addressValidation';
 
 /*
 // Demo data for explorer
@@ -1024,6 +1026,12 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
   const explorerData = data || sectionsFromApi;
   const [filteredPairs, setFilteredPairs] = useState<TokenPair[]>([]);
 
+  // Search states
+  const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchResult, setSearchResult] = useState<FullTokenDataResponse | null>(null);
+
   // Get current section
   const currentSection = explorerData.find(section => section.id === state.activeSection);
 
@@ -1107,6 +1115,91 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setState((prev) => ({ ...prev, searchQuery: e.target.value }));
   };
+
+  const submitSearch = useCallback(async () => {
+    const raw = state.searchQuery.trim();
+    if (!raw) return;
+
+    // Validate and normalize address before calling the API
+    const normalized = normalizeEthereumAddress(raw);
+    setShowSearchResults(true);
+    setSearchError(null);
+    setSearchResult(null);
+
+    if (!normalized) {
+      setSearchError('Please enter a valid token address (0x followed by 40 hex characters).');
+      return;
+    }
+
+    try {
+      setSearchLoading(true);
+      const res = await getFullTokenData(normalized);
+      if ((res as any)?.error) {
+        setSearchError((res as any).error || 'Token not found');
+        setSearchResult(null);
+      } else {
+        setSearchResult(res);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to fetch token';
+      setSearchError(msg);
+      setSearchResult(null);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [state.searchQuery]);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      void submitSearch();
+    }
+  };
+
+  const clearSearchResults = () => {
+    setShowSearchResults(false);
+    setSearchLoading(false);
+    setSearchError(null);
+    setSearchResult(null);
+  };
+
+  // Map API FullTokenDataResponse to TokenPair for consistent UI card
+  const fullToPair = useCallback((data: FullTokenDataResponse): TokenPair => {
+    const t = data.tokenInfo;
+    const marketCap = Number(data.marketCap) || 0;
+    const vol = (() => {
+      const last = data.lastTrade;
+      if (!last) return 0;
+      const v = typeof last.usdValue === 'string' ? parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, '')) : Number(last.usdValue || 0);
+      return Number.isFinite(v) ? v : 0;
+    })();
+    const createdAtMs = Number(t.created_at_timestamp) || Date.now();
+    const status: SectionType = t.graduated ? 'graduated' : 'newly-created';
+
+    return {
+      id: t.token_address,
+      name: t.name || t.symbol || 'Unknown',
+      symbol: t.symbol || '',
+      address: t.token_address,
+      creator: t.creator || '',
+      marketCap,
+      price: Number(data.price) || 0,
+      volume24h: vol,
+      priceChange24h: 0,
+      holders: 0,
+      createdAt: new Date(createdAtMs),
+      status,
+      chain: 'EVM',
+      graduationMcGoal: undefined,
+      graduationProgress: undefined,
+      replies: undefined,
+      views: undefined,
+      likes: undefined,
+      tags: t.catagory ? [t.catagory] : [],
+    };
+  }, []);
+
+  const searchPair = useMemo(() => (searchResult ? fullToPair(searchResult) : null), [searchResult, fullToPair]);
 
   const handlePairClick = (pair: TokenPair) => {
     // Navigate to /trading-chart/[token] with the token address
@@ -1343,7 +1436,18 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
               placeholder="Search by name, symbol, or address..."
               value={state.searchQuery}
               onChange={handleSearch}
+              onKeyDown={handleSearchKeyDown}
+              aria-label="Search by token name, symbol, or address"
             />
+            <button
+              className={styles.searchBtn}
+              onClick={() => void submitSearch()}
+              disabled={searchLoading || !state.searchQuery.trim()}
+              aria-label="Search token"
+              title="Search token"
+            >
+              <Search size={14} />
+            </button>
           </div>
         </div>
 
@@ -1354,8 +1458,44 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
           </div>
         )}
 
+        {/* Search Results (if any) */}
+        {showSearchResults && (
+          <div className={styles.searchResults}>
+            <div className={styles.resultsHeader}>
+              <div className={styles.resultsTitle}>Search Results :</div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <button className={styles.pageButton} onClick={clearSearchResults} aria-label="Close results" title="Close results">
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+            <div className={styles.resultsBody}>
+              {searchLoading ? (
+                renderLoading('Searching...')
+              ) : searchError ? (
+                <div className={styles.errorBox} role="alert">
+                  {searchError}
+                </div>
+              ) : searchPair ? (
+                <div className={styles.pairsList}>
+                  {renderPairCard(searchPair)}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>
+                    <AlertTriangle size={24} />
+                  </div>
+                  <div className={styles.emptyTitle}>No results</div>
+                  <div className={styles.emptyMessage}>Try another token address.</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Desktop: Three Column Layout */}
-        <div className={styles.sectionsContainer}>
+        {!showSearchResults && (
+          <div className={styles.sectionsContainer}>
           {[
             { section: explorerData[0], id: 'newly-created' as SectionType, loading: recent.isLoading },
             { section: explorerData[1], id: 'about-to-graduate' as SectionType, loading: nearly.isLoading },
@@ -1396,8 +1536,10 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
             </div>
           ))}
         </div>
+        )}
 
         {/* Mobile: Single Content with Tabs */}
+        {!showSearchResults && (
         <div className={styles.mobileContent}>
           {(() => {
             const mobileLoading = state.activeSection === 'newly-created' ? recent.isLoading : state.activeSection === 'about-to-graduate' ? nearly.isLoading : graduated.isLoading;
@@ -1412,6 +1554,7 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
             );
           })()}
         </div>
+        )}
       </div>
     </div>
   );

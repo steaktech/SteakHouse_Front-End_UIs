@@ -223,6 +223,36 @@
   font-size: 13px;
 }
 
+.searchBtn {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.18),
+    rgba(255, 178, 32, 0.10)
+  );
+  border: 1px solid var(--border-500);
+  color: var(--primary-400);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.searchBtn:hover:not(:disabled) {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.28),
+    rgba(255, 178, 32, 0.18)
+  );
+}
+
+.searchBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .searchInput::placeholder {
   color: var(--muted-400);
 }
@@ -236,6 +266,96 @@
   border-bottom: 1px solid rgba(184, 137, 87, 0.18);
   text-align: center;
   display: none;
+}
+
+/* Search Results Area */
+.searchResults {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(184, 137, 87, 0.18);
+  background: var(--bg-950);
+}
+
+.resultsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.resultsTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-100);
+}
+
+.resultsBody {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8px 0 0;
+}
+
+/* Make search result card a bit bigger than list cards */
+.searchResults .pairsList {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 8px;
+}
+
+.searchResults .pairCard {
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.searchResults .tokenAvatar {
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+
+.searchResults .tokenName {
+  font-size: 15px;
+}
+
+.searchResults .tokenMeta {
+  font-size: 11px;
+}
+
+.searchResults .priceChange {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.searchResults .pairStats {
+  gap: 10px;
+}
+
+.searchResults .statLabel {
+  font-size: 9px;
+}
+
+.searchResults .statValue {
+  font-size: 14px;
+}
+
+.resultCardWrap {
+  width: 100%;
+  max-width: 360px;
+}
+
+.errorBox {
+  width: 100%;
+  max-width: 600px;
+  margin: 8px auto 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(255, 92, 92, 0.12);
+  border: 1px solid rgba(255, 92, 92, 0.32);
+  color: var(--danger-400);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
 }
 
 @media (max-width: 768px) {

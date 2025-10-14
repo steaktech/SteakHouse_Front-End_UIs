@@ -189,6 +189,56 @@
   flex-shrink: 0;
 }
 
+/* Badge + copy icon row */
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copyTokenBtn {
+  color: #fff1dc;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 230, 195, 0.22),
+    rgba(255, 196, 120, 0.16)
+  );
+  border: 1px solid rgba(255, 215, 165, 0.5);
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.copyTokenBtn.copied {
+  animation: pop 220ms ease;
+  border-color: rgba(255, 230, 190, 0.9);
+  box-shadow: 0 0 0 1px rgba(255, 230, 190, 0.35), 0 0 10px rgba(255, 200, 120, 0.5);
+  background: linear-gradient(180deg, rgba(255, 240, 210, 0.35), rgba(255, 210, 140, 0.22));
+  color: #2b160a;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Export a bare .copied class so CSS Modules provides styles.copied */
+.copied {}
+
+.copyTokenBtn:hover {
+  border-color: rgba(255, 220, 170, 0.75);
+}
+
+.copyTokenBtn svg {
+  width: 12px;
+  height: 12px;
+}
+
 /* Compact tax line */
 .taxLine {
   margin-top: 4px;
