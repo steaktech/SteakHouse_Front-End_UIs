@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { X, Search, TrendingUp, TrendingDown, Clock, Users, Eye, MessageCircle, ThumbsUp, Flame, Award, AlertTriangle, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Search, TrendingUp, TrendingDown, Clock, Users, Eye, MessageCircle, ThumbsUp, Flame, Award, AlertTriangle, ExternalLink, ChevronLeft, ChevronRight, Hash, Type } from 'lucide-react';
 import styles from './ExplorerWidget.module.css';
 import {
   ExplorerWidgetProps,
@@ -15,6 +15,7 @@ import { useExplorerRecent, useExplorerGraduated, useExplorerNearlyGraduated } f
 import { useRouter } from 'next/navigation';
 import { getFullTokenData } from '@/app/lib/api/services/tokenService';
 import { normalizeEthereumAddress } from '@/app/lib/utils/addressValidation';
+import { useNameSearch } from '@/app/hooks/useNameSearch';
 
 /*
 // Demo data for explorer
@@ -995,6 +996,9 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
     filterChain: 'all',
   });
 
+  // Search mode: 'token' address vs 'name'
+  const [searchMode, setSearchMode] = useState<'token' | 'name'>('token');
+
   const router = useRouter();
 
   // Fetch data for sections
@@ -1025,6 +1029,17 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
 
   const explorerData = data || sectionsFromApi;
   const [filteredPairs, setFilteredPairs] = useState<TokenPair[]>([]);
+
+  // Name search hook (debounced)
+  const nameSearch = useNameSearch(state.searchQuery, {
+    enabled: searchMode === 'name' && state.searchQuery.trim().length >= 2,
+    pageSize: 10,
+    debounceMs: 300,
+  });
+
+  const nameSearchPairs = useMemo(() =>
+    (nameSearch.data || []).map((t) => tokenToPair(t, t.graduated ? 'graduated' : 'newly-created'))
+  , [nameSearch.data]);
 
   // Search states
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
@@ -1113,7 +1128,12 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setState((prev) => ({ ...prev, searchQuery: e.target.value }));
+    const value = e.target.value;
+    setState((prev) => ({ ...prev, searchQuery: value }));
+    if (searchMode === 'name') {
+      const hasQuery = value.trim().length >= 2;
+      setShowSearchResults(hasQuery);
+    }
   };
 
   const submitSearch = useCallback(async () => {
@@ -1161,6 +1181,16 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
     setSearchLoading(false);
     setSearchError(null);
     setSearchResult(null);
+  };
+
+  const handleModeChange = (mode: 'token' | 'name') => {
+    setSearchMode(mode);
+    if (mode === 'name') {
+      const q = state.searchQuery.trim();
+      setShowSearchResults(q.length >= 2);
+    } else {
+      setShowSearchResults(false);
+    }
   };
 
   // Map API FullTokenDataResponse to TokenPair for consistent UI card
@@ -1429,11 +1459,30 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
         {/* Search and Filters */}
         <div className={styles.controls}>
           <div className={styles.searchBar}>
-            <Search size={14} />
+            <div className={styles.modeToggle} role="tablist" aria-label="Search mode">
+              <button
+                className={`${styles.modeBtn} ${searchMode === 'token' ? styles.active : ''}`}
+                onClick={() => handleModeChange('token')}
+                aria-label="Search by token address"
+                aria-pressed={searchMode === 'token'}
+                title="Search by token address"
+              >
+                <Hash size={14} />
+              </button>
+              <button
+                className={`${styles.modeBtn} ${searchMode === 'name' ? styles.active : ''}`}
+                onClick={() => handleModeChange('name')}
+                aria-label="Search by token name"
+                aria-pressed={searchMode === 'name'}
+                title="Search by token name"
+              >
+                <Type size={14} />
+              </button>
+            </div>
             <input
               type="text"
               className={styles.searchInput}
-              placeholder="Search by name, symbol, or address..."
+              placeholder={searchMode === 'name' ? 'Search by name…' : 'Search by address…'}
               value={state.searchQuery}
               onChange={handleSearch}
               onKeyDown={handleSearchKeyDown}
@@ -1470,24 +1519,46 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
               </div>
             </div>
             <div className={styles.resultsBody}>
-              {searchLoading ? (
-                renderLoading('Searching...')
-              ) : searchError ? (
-                <div className={styles.errorBox} role="alert">
-                  {searchError}
-                </div>
-              ) : searchPair ? (
-                <div className={styles.pairsList}>
-                  {renderPairCard(searchPair)}
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyIcon}>
-                    <AlertTriangle size={24} />
+              {searchMode === 'token' ? (
+                searchLoading ? (
+                  renderLoading('Searching...')
+                ) : searchError ? (
+                  <div className={styles.errorBox} role="alert">
+                    {searchError}
                   </div>
-                  <div className={styles.emptyTitle}>No results</div>
-                  <div className={styles.emptyMessage}>Try another token address.</div>
-                </div>
+                ) : searchPair ? (
+                  <div className={styles.pairsList}>
+                    {renderPairCard(searchPair)}
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    <div className={styles.emptyIcon}>
+                      <AlertTriangle size={24} />
+                    </div>
+                    <div className={styles.emptyTitle}>No results</div>
+                    <div className={styles.emptyMessage}>Try another token address.</div>
+                  </div>
+                )
+              ) : (
+                nameSearch.isLoading ? (
+                  renderLoading('Searching...')
+                ) : nameSearch.error ? (
+                  <div className={styles.errorBox} role="alert">
+                    {nameSearch.error.message}
+                  </div>
+                ) : nameSearchPairs.length > 0 ? (
+                  <div className={styles.pairsList}>
+                    {nameSearchPairs.map((pair) => renderPairCard(pair))}
+                  </div>
+                ) : (
+                  <div className={styles.emptyState}>
+                    <div className={styles.emptyIcon}>
+                      <AlertTriangle size={24} />
+                    </div>
+                    <div className={styles.emptyTitle}>No results</div>
+                    <div className={styles.emptyMessage}>Try another name.</div>
+                  </div>
+                )
               )}
             </div>
           </div>

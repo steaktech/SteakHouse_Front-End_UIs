@@ -66,3 +66,26 @@ export async function getChartData(address: string, timeframe = '1m', limit = 10
 
 // Re-export category service functions for easier imports
 export { getTokensByCategory, type CategoryType, type CategoryParams } from './categoryService';
+
+/**
+ * Searches tokens by name. Returns a paginated response.
+ * GET /api/filtered/:name
+ */
+export async function searchTokensByName(name: string, page = 1, pageSize = 10): Promise<PaginatedTokenResponse> {
+  const endpoint = `/filtered/${encodeURIComponent(name)}?page=${page}&page_size=${pageSize}`;
+  const res = await apiClient<any>(endpoint);
+
+  // Adapt backend pagination to our standard shape
+  const totalPages = Number(res?.total_pages ?? 0);
+  const currentPage = Number(res?.page ?? page);
+  const size = Number(res?.page_size ?? pageSize);
+
+  return {
+    page: currentPage,
+    page_size: size,
+    has_more: totalPages ? currentPage < totalPages : false,
+    next_page: totalPages && currentPage < totalPages ? currentPage + 1 : null,
+    prev_page: currentPage > 1 ? currentPage - 1 : null,
+    items: (res?.items ?? []) as Token[],
+  };
+}

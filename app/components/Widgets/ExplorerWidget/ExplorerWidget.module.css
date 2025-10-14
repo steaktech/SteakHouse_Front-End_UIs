@@ -201,6 +201,13 @@
   .controls {
     padding: 12px 16px;
   }
+  .modeToggle {
+    gap: 4px;
+  }
+  .modeBtn {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .searchBar {
@@ -212,6 +219,42 @@
   border-radius: 10px;
   padding: 8px 12px;
   color: var(--muted-400);
+}
+
+/* Embedded toggle for search mode (left side) */
+.modeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border: 1px solid var(--border-500);
+  border-radius: 8px;
+  background: rgba(255, 178, 32, 0.05);
+}
+
+.modeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted-400);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.modeBtn:hover {
+  color: var(--primary-400);
+  background: rgba(255, 178, 32, 0.08);
+}
+
+.modeBtn.active {
+  color: var(--primary-400);
+  border-color: var(--border-500);
+  background: rgba(255, 178, 32, 0.12);
 }
 
 .searchInput {
