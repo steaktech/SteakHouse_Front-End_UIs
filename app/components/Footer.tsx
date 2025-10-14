@@ -170,6 +170,9 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">About SteakHouse</a>
                   </li>
                   <li>
+                    <a href="/docs/certificate.pdf" download>Certificate of Incorporation</a>
+                  </li>
+                  <li>
                     <a href="/coming-soon">Careers</a>
                   </li>
                   <li>
@@ -177,10 +180,7 @@ const Footer: React.FC = () => {
                   </li>
                   <li>
                     <a href="https://form.typeform.com/to/cCMVLuxI" target="_blank" rel="noopener noreferrer">Contact</a>
-                  </li>
-                  <li>
-                    <a href="/docs/certificate.pdf" download>Certificate of Incorporation</a>
-                  </li>
+                  </li> 
                 </ul>
               </div>
 
