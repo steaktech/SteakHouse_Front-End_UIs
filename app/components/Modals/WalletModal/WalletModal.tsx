@@ -169,6 +169,14 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
   };
   const spinnerStyle = { width: '20px', height: '20px', border: '2px solid #3a2418', borderTop: '2px solid #ffb347', borderRadius: '50%' } as const;
 
+  type DisplayConnector = { id: string; name: string; ready: boolean; icon?: string; connectId: string };
+  const phantomInjected = typeof window !== 'undefined' && ((window as any).ethereum?.isPhantom || (window as any).phantom?.ethereum);
+  const displayConnectors: DisplayConnector[] = [
+    ...connectors.map((c) => ({ ...c, connectId: c.id })),
+    { id: 'phantom', name: 'Phantom', ready: true, icon: '/images/phantom-wallet.webp', connectId: phantomInjected ? 'injected' : 'walletConnect' },
+    { id: 'rainbow', name: 'Rainbow', ready: true, icon: '/images/walletconnect-wallet.webp', connectId: 'walletConnect' },
+  ];
+
   // Resolve connector icon to an image that exists in /public/images
   const resolveConnectorIcon = (id: string, provided?: string) => {
     const byId: Record<string, string> = {
@@ -177,6 +185,8 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
       walletConnect: '/images/walletconnect-wallet.webp',
       coinbaseWallet: '/images/coinbase-wallet.webp',
       coinbaseWalletSDK: '/images/coinbase-wallet.webp',
+      phantom: '/images/phantom-wallet.webp',
+      rainbow: '/images/walletconnect-wallet.webp',
     };
     if (byId[id]) return byId[id];
     // If a provided path already targets our images folder, keep it; otherwise fallback
@@ -244,10 +254,10 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
               <div>
                 <p style={descriptionStyle}>Choose how you'd like to connect your wallet:</p>
                 <div style={listStyle}>
-                  {connectors.map((connector) => (
+                  {displayConnectors.map((connector) => (
                     <button
                       key={connector.id}
-                      onClick={() => handleConnect(connector.id)}
+                      onClick={() => handleConnect(connector.connectId)}
                       disabled={!connector.ready || isConnecting}
                       style={{
                         ...walletButtonStyle,
