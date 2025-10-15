@@ -64,7 +64,7 @@ export default function Header() {
   return (
     <>
       {/* <header className="relative w-full h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md"> */}
-      <header className="relative w-full h-16 lg:h-12 bg-gradient-to-b from-[#4c2001] to-transparent shadow-md">
+      <header className="relative z-50 w-full h-16 lg:h-12 bg-gradient-to-b from-[#4c2001] to-transparent shadow-md">
         {/* Header Content */}
         <div className="relative z-10 flex items-center justify-between h-full px-2 sm:px-4 md:px-6 lg:px-8">
           {/* Logo & Socials Section */}
@@ -212,7 +212,7 @@ export default function Header() {
               </button>
 
               {isNetworkOpen && (
-                <div className="absolute right-0 top-full mt-2 w-36 sm:w-40 rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
+                <div className="absolute z-50 right-0 top-full mt-2 w-36 sm:w-40 rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
                   <ul className="py-1">
                     {["Base", "BSC", "Arb", "Eth"].map((n) => (
                       <li key={n}>
