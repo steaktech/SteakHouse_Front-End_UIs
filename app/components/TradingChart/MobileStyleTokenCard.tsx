@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Globe, Copy, Check } from 'lucide-react';
+import { Send, Globe, Copy, Check, Bookmark } from 'lucide-react';
 import styles from './MobileStyleTokenCard.module.css';
+import { useSaveToken } from '@/app/hooks/useSaveToken';
+import { useWallet } from '@/app/hooks/useWallet';
 
 // Twitter icon component
 const TwitterIcon = () => (
@@ -49,6 +51,19 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
   const flamesRef = useRef<HTMLDivElement>(null);
   const sparkTimer = useRef<NodeJS.Timeout | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+
+  // Save token hook/state
+  const anyData = tokenData as any;
+  const tokenAddress: string = anyData?.address || anyData?.tokenAddress || anyData?.contractAddress || anyData?.ca || '';
+  const initialSavedState: boolean = Boolean(anyData?.isSaved);
+  const { isSaved: savedState, isLoading: isSaveLoading, toggleSave } = useSaveToken(tokenAddress, initialSavedState);
+  const { isConnected } = useWallet();
+  const [saveClicked, setSaveClicked] = useState(false);
+  const handleSaveClick = () => {
+    setSaveClicked(true);
+    void toggleSave();
+    window.setTimeout(() => setSaveClicked(false), 240);
+  };
 
   // Social button handlers
   const handleTelegramClick = () => {
@@ -361,7 +376,24 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             )}
           </div>
           <div className={styles.nameBlock}>
-            <h1 className="name">{tokenData.name}</h1>
+            <div className={styles.nameRow}>
+              <h1 className="name">{tokenData.name}</h1>
+              {isConnected && (
+                <button
+                  className={`${styles.saveTokenBtn} ${saveClicked ? styles.copied : ''}`}
+                  onClick={handleSaveClick}
+                  aria-label={savedState ? 'Remove from saved' : 'Save token'}
+                  title={savedState ? 'Remove from saved' : 'Save token'}
+                  disabled={isSaveLoading || !tokenAddress}
+                  style={{
+                    opacity: isSaveLoading ? 0.6 : 1,
+                    color: savedState ? '#ffdd00' : '#fff1dc'
+                  }}
+                >
+                  <Bookmark size={12} fill={savedState ? 'currentColor' : 'none'} />
+                </button>
+              )}
+            </div>
             <div className="tickerRow">
               <div className="ticker">{tokenData.symbol}</div>
               <nav className={styles.socialsTop} aria-label="Social links">

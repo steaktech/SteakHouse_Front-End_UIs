@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Globe, Send, Bookmark } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
@@ -43,6 +43,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Save token functionality
   const { isSaved: savedState, isLoading: isSaveLoading, toggleSave } = useSaveToken(token_address, isSaved);
   const { isConnected } = useWallet();
+  const [saveClicked, setSaveClicked] = useState(false);
 
   // Handle card click for navigation
   const handleCardClick = () => {
@@ -65,7 +66,9 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Handle save button click
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setSaveClicked(true);
     toggleSave();
+    setTimeout(() => setSaveClicked(false), 240);
   };
 
   // Normalize percentage (0-1 or 0-100 to 0-100)
@@ -295,7 +298,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                 <div className={styles.badge}>{category || "N/A"}</div>
                 {isConnected && (
                   <button 
-                    className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''}`}
+                    className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''} ${saveClicked ? styles.clicked : ''}`}
                     aria-label={savedState ? "Remove from saved" : "Save token"}
                     title={savedState ? "Remove from saved" : "Save token"}
                     onClick={handleSaveClick}

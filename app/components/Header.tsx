@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import styles from "./UI/Botton.module.css";
@@ -25,6 +25,32 @@ export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  
+  const [isNetworkOpen, setIsNetworkOpen] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("Base");
+  const networkRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (networkRef.current && !networkRef.current.contains(e.target as Node)) {
+        setIsNetworkOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsNetworkOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, []);
+
+  const handleSelectNetwork = (net: string) => {
+    setSelectedNetwork(net);
+    setIsNetworkOpen(false);
+  };
   
   const { isConnected, address, isConnecting } = useWallet();
 
@@ -161,6 +187,47 @@ export default function Header() {
                 )}
               </div>
             </button>
+
+            {/* Network Dropdown */}
+            <div className="relative" ref={networkRef}>
+              <button
+                className={`${styles.headerBtn}`}
+                onClick={() => setIsNetworkOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={isNetworkOpen}
+              >
+                <div className={styles.headerBtnInner}>
+                  <span className="hidden sm:inline">{selectedNetwork}</span>
+                  <span className="sm:hidden">Net</span>
+                  <svg
+                    className="ml-2 h-3 w-3"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </button>
+
+              {isNetworkOpen && (
+                <div className="absolute right-0 top-full mt-2 w-36 sm:w-40 rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
+                  <ul className="py-1">
+                    {["Base", "BSC", "Arb", "Eth"].map((n) => (
+                      <li key={n}>
+                        <button
+                          className="w-full text-left px-3 py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
+                          onClick={() => handleSelectNetwork(n)}
+                        >
+                          {n}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>

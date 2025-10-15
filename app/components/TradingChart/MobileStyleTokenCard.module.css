@@ -123,6 +123,12 @@
   margin: 0;
 }
 
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .nameBlock :global(.tickerRow) {
   margin-top: 4px;
   display: flex;
@@ -196,7 +202,7 @@
   gap: 6px;
 }
 
-.copyTokenBtn {
+.copyTokenBtn, .saveTokenBtn {
   color: #fff1dc;
   width: 22px;
   height: 22px;
@@ -213,7 +219,7 @@
   cursor: pointer;
 }
 
-.copyTokenBtn.copied {
+.copyTokenBtn.copied, .saveTokenBtn.copied {
   animation: pop 220ms ease;
   border-color: rgba(255, 230, 190, 0.9);
   box-shadow: 0 0 0 1px rgba(255, 230, 190, 0.35), 0 0 10px rgba(255, 200, 120, 0.5);
