@@ -51,6 +51,152 @@ const MediaKitPage = () => {
     }
   };
 
+  const handleDownloadAll = async () => {
+    try {
+      console.log('Starting download...');
+      showToast('Preparing download...');
+      
+      // List of all assets to download
+      const assets = [
+        { path: '/images/steakhouse-logo-horizontal.png', name: 'steakhouse-logo-horizontal.png' },
+        { path: '/images/steakhouse-logo-v2.png', name: 'steakhouse-logo-stacked.png' },
+        { path: '/images/steakhouse-logo-v2.png', name: 'steakhouse-logo-monochrome.png' },
+        { path: '/images/logo-legacy.png', name: 'logo-legacy.png' },
+        { path: '/images/logo-variant-1.png', name: 'logo-variant-1.png' },
+        { path: '/images/logo-variant-2.png', name: 'logo-variant-2.png' },
+        { path: '/images/favicon.ico', name: 'favicon.ico' },
+      ];
+
+      console.log('Fetching assets...');
+      // Fetch all assets
+      const filePromises = assets.map(async (asset) => {
+        console.log('Fetching:', asset.path);
+        const response = await fetch(asset.path);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${asset.path}: ${response.statusText}`);
+        }
+        const blob = await response.blob();
+        console.log('Fetched:', asset.name, blob.size, 'bytes');
+        return { name: asset.name, blob };
+      });
+
+      const files = await Promise.all(filePromises);
+      console.log('All files fetched:', files.length);
+
+      // Create zip using custom implementation
+      console.log('Creating zip...');
+      const zipBlob = await createZipBlob(files);
+      console.log('Zip created:', zipBlob.size, 'bytes');
+
+      // Download the zip
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = 'steakhouse-media-kit.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+
+      showToast('All assets downloaded!');
+    } catch (error) {
+      console.error('Failed to download all assets:', error);
+      showToast(`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Custom zip file creator
+  const createZipBlob = async (files: { name: string; blob: Blob }[]): Promise<Blob> => {
+    const encoder = new TextEncoder();
+    const chunks: Uint8Array[] = [];
+    const centralDirectory: Uint8Array[] = [];
+    let offset = 0;
+
+    for (const file of files) {
+      const data = new Uint8Array(await file.blob.arrayBuffer());
+      const nameBytes = encoder.encode(file.name);
+      const crc = calculateCRC32(data);
+      const dosTime = toDosTime(new Date());
+
+      // Local file header
+      const localHeader = new Uint8Array(30 + nameBytes.length);
+      const view = new DataView(localHeader.buffer);
+      view.setUint32(0, 0x04034b50, true); // signature
+      view.setUint16(4, 20, true); // version needed
+      view.setUint16(6, 0, true); // flags
+      view.setUint16(8, 0, true); // compression (stored)
+      view.setUint32(10, dosTime, true); // mod time
+      view.setUint32(14, crc, true); // crc32
+      view.setUint32(18, data.length, true); // compressed size
+      view.setUint32(22, data.length, true); // uncompressed size
+      view.setUint16(26, nameBytes.length, true); // filename length
+      view.setUint16(28, 0, true); // extra field length
+      localHeader.set(nameBytes, 30);
+
+      chunks.push(localHeader);
+      chunks.push(data);
+
+      // Central directory header
+      const cdHeader = new Uint8Array(46 + nameBytes.length);
+      const cdView = new DataView(cdHeader.buffer);
+      cdView.setUint32(0, 0x02014b50, true); // signature
+      cdView.setUint16(4, 20, true); // version made by
+      cdView.setUint16(6, 20, true); // version needed
+      cdView.setUint16(8, 0, true); // flags
+      cdView.setUint16(10, 0, true); // compression
+      cdView.setUint32(12, dosTime, true); // mod time
+      cdView.setUint32(16, crc, true); // crc32
+      cdView.setUint32(20, data.length, true); // compressed size
+      cdView.setUint32(24, data.length, true); // uncompressed size
+      cdView.setUint16(28, nameBytes.length, true); // filename length
+      cdView.setUint16(30, 0, true); // extra field length
+      cdView.setUint16(32, 0, true); // comment length
+      cdView.setUint16(34, 0, true); // disk number
+      cdView.setUint16(36, 0, true); // internal attrs
+      cdView.setUint32(38, 0, true); // external attrs
+      cdView.setUint32(42, offset, true); // local header offset
+      cdHeader.set(nameBytes, 46);
+
+      centralDirectory.push(cdHeader);
+      offset += localHeader.length + data.length;
+    }
+
+    // End of central directory
+    const cdSize = centralDirectory.reduce((sum, cd) => sum + cd.length, 0);
+    const eocd = new Uint8Array(22);
+    const eocdView = new DataView(eocd.buffer);
+    eocdView.setUint32(0, 0x06054b50, true); // signature
+    eocdView.setUint16(4, 0, true); // disk number
+    eocdView.setUint16(6, 0, true); // cd disk number
+    eocdView.setUint16(8, files.length, true); // cd entries on disk
+    eocdView.setUint16(10, files.length, true); // total cd entries
+    eocdView.setUint32(12, cdSize, true); // cd size
+    eocdView.setUint32(16, offset, true); // cd offset
+    eocdView.setUint16(20, 0, true); // comment length
+
+    return new Blob([...chunks, ...centralDirectory, eocd], { type: 'application/zip' });
+  };
+
+  const calculateCRC32 = (data: Uint8Array): number => {
+    let crc = 0xffffffff;
+    for (let i = 0; i < data.length; i++) {
+      crc = crc ^ data[i];
+      for (let j = 0; j < 8; j++) {
+        crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+      }
+    }
+    return crc ^ 0xffffffff;
+  };
+
+  const toDosTime = (date: Date): number => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = Math.floor(date.getSeconds() / 2);
+    return ((year - 1980) << 25) | (month << 21) | (day << 16) | (hours << 11) | (minutes << 5) | seconds;
+  };
+
   return (
     <div className={styles.mediaKitPage}>
       {/* Header */}
@@ -67,7 +213,7 @@ const MediaKitPage = () => {
             <a href="#typography">Typography</a>
           </nav>
         </div>
-        <button className={styles.downloadAllBtn}>Download All</button>
+        <button className={styles.downloadAllBtn} onClick={handleDownloadAll}>Download All</button>
       </header>
 
       {/* Hero Section */}
@@ -80,7 +226,7 @@ const MediaKitPage = () => {
           <p className={styles.heroDescription}>
             Everything you need to present SteakHouse consistently across websites, decks, and listings. Download vector logos and color tokens.
           </p>
-          <button className={styles.downloadAssetsBtn}>Download All Assets</button>
+          <button className={styles.downloadAssetsBtn} onClick={handleDownloadAll}>Download All Assets</button>
         </section>
 
         {/* Logos & Icons Section */}
