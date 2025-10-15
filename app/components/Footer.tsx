@@ -172,6 +172,9 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">About SteakHouse</a>
                   </li>
                   <li>
+                    <a href="/media-kit">Media Kit</a>
+                  </li>
+                  <li>
                     <a href="/coming-soon">Careers</a>
                   </li>
                   <li>
