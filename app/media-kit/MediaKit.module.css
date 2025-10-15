@@ -1,0 +1,715 @@
+/* Media Kit Page Styles - Matching The Dev's Kitchen design */
+
+.mediaKitPage {
+    min-height: 100vh;
+    background: linear-gradient(
+      to bottom,
+      #3A2013 0%,
+      #0E0402 100%
+    );
+    background-attachment: fixed;
+    color: #ffe1b3;
+    padding-bottom: 40px;
+  }
+  
+  .header {
+    background: rgba(31, 15, 7, 0.85);
+    border-bottom: 1px solid rgba(255, 171, 77, 0.18);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(100px) saturate(200%);
+    -webkit-backdrop-filter: blur(100px) saturate(200%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  
+  .headerLogo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  
+  .headerLogo img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .headerLogo h1 {
+    font-family: 'Outfit', system-ui;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffe1b3;
+    margin: 0;
+  }
+  
+  .headerNav {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  
+  .headerNav a {
+    color: #ffd199;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  
+  .headerNav a:hover {
+    color: #ffbe63;
+  }
+  
+  .downloadAllBtn {
+    background: linear-gradient(to right, #F27635 0%, #F6A452 100%);
+    color: #2a1008;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(242, 118, 53, 0.3);
+  }
+  
+  .downloadAllBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 140, 40, 0.4);
+  }
+  
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 48px;
+    padding-top: 32px;
+  }
+  
+  .heroSection {
+    padding: 32px 48px;
+    text-align: left;
+    background: linear-gradient(
+      135deg,
+      rgba(70, 40, 25, 0.35) 0%,
+      rgba(50, 28, 18, 0.4) 50%,
+      rgba(60, 35, 22, 0.35) 100%
+    );
+    border: 1px solid rgba(255, 171, 77, 0.22);
+    border-radius: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: visible;
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 171, 77, 0.15),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+      0 8px 24px rgba(0, 0, 0, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .heroSection::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    background: radial-gradient(120% 60% at 50% -20%, rgba(255, 214, 170, 0.12) 0%, rgba(255, 214, 170, 0.05) 40%, transparent 70%),
+                radial-gradient(120% 60% at 50% 120%, rgba(0, 0, 0, 0.25) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .heroSection::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -30px;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 80px;
+    background: radial-gradient(ellipse at center, 
+      rgba(255, 180, 100, 0.5) 0%, 
+      rgba(246, 164, 82, 0.4) 20%, 
+      rgba(242, 118, 53, 0.3) 40%, 
+      rgba(246, 164, 82, 0.15) 60%, 
+      transparent 80%);
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(40px);
+    mix-blend-mode: screen;
+  }
+  
+  .heroSection > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .mediaKitBadge {
+    display: inline-block;
+    background: linear-gradient(180deg, rgba(80, 46, 28, 0.7) 0%, rgba(60, 34, 20, 0.7) 100%);
+    color: #D4A574;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    border: 1px solid rgba(120, 70, 40, 0.5);
+    box-shadow: inset 0 1px 0 rgba(255, 220, 170, 0.2), 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .heroTitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    background: linear-gradient(180deg, #F6A452 0%, #F27635 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  }
+  
+  .heroDescription {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #ffd199;
+    margin-bottom: 20px;
+  }
+  
+  .downloadAssetsBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(to right, #F27635 0%, #F6A452 100%);
+    color: #2a1008;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(242, 118, 53, 0.3);
+  }
+  
+  .downloadAssetsBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(242, 118, 53, 0.4);
+  }
+  
+  .downloadIcon {
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 190, 99, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .section {
+    margin-bottom: 20px;
+  }
+  
+  .sectionTitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: #ffe1b3;
+  }
+  
+  .sectionDescription {
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(255, 209, 153, 0.78);
+    margin-bottom: 32px;
+  }
+  
+  .logoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  
+  .logoCard {
+    background: rgba(45, 24, 14, 0.4);
+    border: 1px solid rgba(255, 171, 77, 0.15);
+    border-radius: 16px;
+    padding: 0;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .logoCard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at top right,
+      rgba(255, 140, 40, 0.08) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+  
+  .logoCard:hover {
+    border-color: rgba(255, 171, 77, 0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+  
+  .logoPreview {
+    background: rgba(58, 32, 19, 0.6);
+    border: 1px dashed rgba(255, 171, 77, 0.2);
+    border-radius: 16px 16px 0 0;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    position: relative;
+  }
+  
+  .logoPreview img {
+    max-width: 85%;
+    max-height: 70%;
+    object-fit: contain;
+  }
+  
+  .logoCardTitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #ffe1b3;
+    padding: 0 24px;
+    padding-top: 24px;
+  }
+  
+  .logoCardDescription {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 209, 153, 0.65);
+    margin: 0;
+    padding: 0 24px;
+    padding-bottom: 16px;
+  }
+  
+  .logoCardActions {
+    display: flex;
+    gap: 12px;
+    padding: 0 24px 24px 24px;
+  }
+  
+  .faviconSection {
+    background: rgba(45, 24, 14, 0.4);
+    border: 1px solid rgba(255, 171, 77, 0.15);
+    border-radius: 16px;
+    padding: 0;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  
+  .faviconPreview {
+    background: rgba(58, 32, 19, 0.6);
+    border: 1px dashed rgba(255, 171, 77, 0.2);
+    border-radius: 16px 0 0 16px;
+    min-width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .faviconPreview img {
+    max-width: 80px;
+    max-height: 80px;
+    object-fit: contain;
+  }
+  
+  .faviconContent {
+    padding: 28px;
+    flex: 1;
+  }
+  
+  .faviconTitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #ffe1b3;
+  }
+  
+  .faviconDescription {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 209, 153, 0.7);
+    margin-bottom: 24px;
+  }
+  
+  .faviconActions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .downloadBtn {
+    background: linear-gradient(to right, #F27635 0%, #F6A452 100%);
+    color: #2a1008;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .downloadBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 40, 0.4);
+  }
+  
+  .copyBtn {
+    background: rgba(255, 170, 80, 0.15);
+    color: #ffe1b3;
+    border: 1px solid rgba(255, 170, 80, 0.3);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .copyBtn:hover {
+    background: rgba(255, 170, 80, 0.25);
+  }
+  
+  .colorSystem {
+    margin-bottom: 20px;
+  }
+  
+  .paletteSection {
+    background: rgba(45, 24, 14, 0.4);
+    border: 1px solid rgba(255, 171, 77, 0.15);
+    border-radius: 16px;
+    padding: 28px 32px;
+  }
+  
+  .paletteTitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #ffe1b3;
+  }
+  
+  .paletteDescription {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 209, 153, 0.7);
+    margin-bottom: 28px;
+  }
+  
+  .colorGrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+  }
+  
+  .colorToken {
+    display: flex;
+    flex-direction: column;
+    background: rgba(45, 24, 14, 0.4);
+    border: 1px solid rgba(255, 171, 77, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  
+  .colorToken:hover {
+    border-color: rgba(255, 171, 77, 0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  }
+  
+  .colorSwatch {
+    height: 100px;
+    border-bottom: 1px solid rgba(255, 171, 77, 0.15);
+  }
+  
+  .colorInfo {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .colorLabel {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffe1b3;
+    text-align: center;
+  }
+  
+  .colorHex {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .hexPill {
+    font-family: 'Monaco', 'Courier New', monospace;
+    background: rgba(28, 16, 10, 0.9);
+    color: #fff3e0;
+    border: 1px solid rgba(255, 240, 210, 0.18);
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 13px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+  }
+  
+  .copyButton {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, #6e4a2b 0%, #5a3a1f 100%);
+    color: #D4A574;
+    border: 1px solid rgba(140, 100, 60, 0.5);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .copyButton:hover {
+    background: linear-gradient(180deg, #7a5231 0%, #684225 100%);
+    border-color: rgba(160, 110, 70, 0.6);
+    transform: translateY(-1px);
+  }
+  
+  .typographySection {
+    margin-bottom: 20px;
+  }
+  
+  .typographyGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  
+  .typographyCard {
+    background: rgba(45, 24, 14, 0.4);
+    border: 1px solid rgba(255, 171, 77, 0.15);
+    border-radius: 16px;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  .typographyCardHeader {
+    background: rgba(25, 15, 9, 0.6);
+    padding: 20px 28px;
+    border-bottom: 1px solid rgba(255, 171, 77, 0.1);
+  }
+  
+  .typographyCardTitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: #ffe1b3;
+  }
+  
+  .typographyPreview {
+    background: rgba(30, 15, 7, 0.7);
+    border: 1px solid rgba(255, 171, 77, 0.1);
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    margin: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .outfitExample {
+    font-family: 'Outfit', system-ui;
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    background: linear-gradient(180deg, #F8BB83 0%, #F48341 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    text-align: center;
+  }
+  
+  .outfitSubtitle {
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #ffd199;
+    margin: 12px 0 0;
+    text-align: center;
+  }
+  
+  .interExample {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #ffe1b3;
+    margin: 0;
+    text-align: left;
+  }
+  
+  .typographySpecs {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: rgba(255, 209, 153, 0.6);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    margin: 0 28px 28px 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 171, 77, 0.1);
+  }
+  
+  @media (max-width: 1024px) {
+    .logoGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  
+    .colorGrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  
+    .typographyGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .footer {
+    margin-top: 60px;
+    padding-top: 32px;
+    padding-bottom: 0;
+    border-top: 1px solid rgba(255, 171, 77, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  
+  .footerCopyright {
+    font-size: 14px;
+    color: rgba(255, 209, 153, 0.7);
+    margin: 0;
+  }
+  
+  .footerDisclaimer {
+    font-size: 14px;
+    color: rgba(255, 209, 153, 0.7);
+    margin: 0;
+    text-align: right;
+  }
+  
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: rgba(20, 10, 5, 0.95);
+    color: #ffe1b3;
+    padding: 16px 28px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 1000;
+    border: 1px solid rgba(255, 171, 77, 0.3);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.5),
+      0 0 40px rgba(242, 118, 53, 0.3),
+      inset 0 1px 0 rgba(255, 171, 77, 0.2);
+    animation: toastSlideIn 0.3s ease-out;
+  }
+  
+  @keyframes toastSlideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .header {
+      padding: 16px 24px;
+      flex-direction: column;
+      gap: 16px;
+    }
+  
+    .headerNav {
+      gap: 16px;
+    }
+  
+    .container {
+      padding: 0 24px;
+    }
+  
+    .heroTitle {
+      font-size: 42px;
+    }
+  
+    .logoGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .colorGrid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .footer {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .footerDisclaimer {
+      text-align: center;
+    }
+  
+    .toast {
+      bottom: 16px;
+      right: 16px;
+      left: 16px;
+      text-align: center;
+    }
+  }

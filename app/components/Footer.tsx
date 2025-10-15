@@ -170,6 +170,9 @@ const Footer: React.FC = () => {
                     <a href="/coming-soon">About SteakHouse</a>
                   </li>
                   <li>
+                    <a href="/media-kit">Media Kit</a>
+                  </li>
+                  <li>
                     <a href="/docs/certificate.pdf" download>Certificate of Incorporation</a>
                   </li>
                   <li>
