@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
-import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { getMaxTxInfo, extractEthToCurve, getMaxWalletInfo, extractMaxWalletEthToCurve } from '@/app/lib/api/services/blockchainService';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 import { useBalance } from 'wagmi';
@@ -60,6 +60,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
+  const [isLoadingMaxWallet, setIsLoadingMaxWallet] = useState(false);
   const [isToppingUp, setIsToppingUp] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
 
@@ -116,6 +117,30 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       showError(errorMessage, 'Buy Max TX Failed');
     } finally {
       setIsLoadingMaxTx(false);
+    }
+  };
+
+  // Set max wallet handler
+  const handleSetMaxWallet = async () => {
+    if (!tokenAddress) {
+      showError('No token selected for trading', 'Set Max Wallet');
+      return;
+    }
+    setIsLoadingMaxWallet(true);
+    try {
+      const maxWalletData = await getMaxWalletInfo(tokenAddress);
+      const ethToCurve = extractMaxWalletEthToCurve(maxWalletData);
+      if (ethToCurve) {
+        setAmount(ethToCurve);
+        showSuccess(`Max wallet amount set: ${ethToCurve} ETH`, 'Set Max Wallet');
+      } else {
+        showError('Max wallet data not available for this token', 'Set Max Wallet Failed');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch max wallet data';
+      showError(errorMessage, 'Set Max Wallet Failed');
+    } finally {
+      setIsLoadingMaxWallet(false);
     }
   };
 
@@ -376,7 +401,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
               opacity: isLoadingMaxTx ? 0.5 : 1
             }}>{isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}</button>
 
-          <button style={{
+          <button 
+            onClick={handleSetMaxWallet}
+            disabled={isLoadingMaxWallet}
+            style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
             borderRadius: 'clamp(8px, 1.8vw, 12px)',
@@ -385,13 +413,14 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             color: '#feea88',
             fontSize: 'clamp(8px, 1.4vw, 11px)',
             fontWeight: 800,
-            cursor: 'pointer',
+            cursor: isLoadingMaxWallet ? 'not-allowed' : 'pointer',
             transition: 'all 200ms ease',
             flex: 1,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>Set max wallet</button>
+            textOverflow: 'ellipsis',
+            opacity: isLoadingMaxWallet ? 0.5 : 1
+          }}>{isLoadingMaxWallet ? 'Loading...' : 'Set max wallet'}</button>
         </div>
 
         {/* Amount Input */}

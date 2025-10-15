@@ -16,8 +16,8 @@ export interface MaxTxResponse {
   circulatingSupply: string;
   ethPoolWei: string;
   human: {
-    maxWalletTokens: string;
-    maxTxTokens: string;
+    maxWalletTokens: string | null;
+    maxTxTokens: string | null;
     totalSupplyTokens: string;
     circulatingSupplyTokens: string;
     ethPoolEth: string;
@@ -35,6 +35,44 @@ export interface MaxTxResponse {
         priceEthPerToken: string;
       };
     };
+  };
+}
+
+/**
+ * Response from the maxWallet API endpoint
+ * Mirrors MaxTxResponse but with quotes.maxWallet
+ */
+export interface MaxWalletResponse {
+  token: string;
+  limitsLifted: boolean;
+  maxWallet: string;
+  maxTx: string;
+  tradeFeeBps: string;
+  currentTaxBps: string;
+  finalTaxRateBps: string;
+  totalSupply: string;
+  circulatingSupply: string;
+  ethPoolWei: string;
+  human: {
+    maxWalletTokens: string | null;
+    maxTxTokens: string | null;
+    totalSupplyTokens: string;
+    circulatingSupplyTokens: string;
+    ethPoolEth: string;
+  };
+  quotes: {
+    maxWallet: {
+      tokensRaw: string;
+      curveWei: string;
+      grossWei: string;
+      priceWeiPer1e18: string;
+      human: {
+        tokens: string;
+        ethToCurve: string;
+        ethGrossToSend: string;
+        priceEthPerToken: string;
+      };
+    } | null;
   };
 }
 
