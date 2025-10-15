@@ -166,6 +166,31 @@ const MediaKitPage = () => {
               </div>
             </div>
 
+            {/* Logo - Legacy */}
+            <div className={styles.logoCard}>
+              <div className={styles.logoPreview}>
+                <img src="/images/logo-legacy.png" alt="SteakHouse Legacy Logo" />
+              </div>
+              <h3 className={styles.logoCardTitle}>Logo - Legacy</h3>
+              <p className={styles.logoCardDescription}>
+                Legacy version of our logo.
+              </p>
+              <div className={styles.logoCardActions}>
+                <button 
+                  className={styles.downloadBtn}
+                  onClick={() => handleDownloadLogo('/images/logo-legacy.png', 'logo-legacy.png')}
+                >
+                  Download PNG
+                </button>
+                <button 
+                  className={styles.copyBtn}
+                  onClick={() => handleCopyLogo('/images/logo-legacy.png')}
+                >
+                  Copy as PNG
+                </button>
+              </div>
+            </div>
+
             {/* Logo Variant 1 */}
             <div className={styles.logoCard}>
               <div className={styles.logoPreview}>
@@ -176,13 +201,13 @@ const MediaKitPage = () => {
                 Alternative logo design for special occasions or contexts.
               </p>
               <div className={styles.logoCardActions}>
-                <button
+                <button 
                   className={styles.downloadBtn}
                   onClick={() => handleDownloadLogo('/images/logo-variant-1.png', 'logo-variant-1.png')}
                 >
                   Download PNG
                 </button>
-                <button
+                <button 
                   className={styles.copyBtn}
                   onClick={() => handleCopyLogo('/images/logo-variant-1.png')}
                 >
