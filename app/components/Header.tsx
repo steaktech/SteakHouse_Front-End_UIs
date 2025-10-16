@@ -227,12 +227,12 @@ export default function Header() {
               </button>
 
               {isNetworkOpen && (
-                <div className="absolute z-50 right-0 top-full mt-2 w-32 sm:w-36 rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
+                <div className="absolute z-50 left-0 top-full mt-2 min-w-full w-auto rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
                   <ul className="py-1">
                     {["ETH", "BSC", "BASE", "ARB"].map((n) => (
                       <li key={n}>
                         <button
-                          className="w-full flex items-center text-left px-3 py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
+                          className="w-full flex items-center text-left px-2 py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
                           onClick={() => handleSelectNetwork(n)}
                         >
                           <Image
@@ -242,8 +242,8 @@ export default function Header() {
                                 : n === "BSC"
                                 ? "/images/bsc-chain.png"
                                 : n === "BASE"
-                                ? "/images/base-chain.png"
-                                : "/images/arbitrum-chain.png"
+                                ? "/images/base-logo.svg"
+                                : "/images/arbitrum-logo.svg"
                             }
                             alt=""
                             width={14}
