@@ -1,0 +1,7 @@
+/* public/custom_chart_styles.css */
+
+/* Target the main toolbar wrapper */
+.header-widget-wrapper {
+    background-color: #000000 !important; /* Set background to black */
+    border-bottom: none !important;      /* Hide the border */
+  }
