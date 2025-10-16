@@ -204,7 +204,7 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
       coinbaseWallet: '/images/coinbase-wallet.webp',
       coinbaseWalletSDK: '/images/coinbase-wallet.webp',
       phantom: '/images/phantom-wallet.webp',
-      rainbow: '/images/walletconnect-wallet.webp',
+      rainbow: '/images/rainbow-wallet.webp',
     };
     if (byId[id]) return byId[id];
     // If a provided path already targets our images folder, keep it; otherwise fallback
