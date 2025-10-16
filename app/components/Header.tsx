@@ -242,8 +242,8 @@ export default function Header() {
                                 : n === "BSC"
                                 ? "/images/bsc-chain.png"
                                 : n === "BASE"
-                                ? "/images/base-logo.svg"
-                                : "/images/arbitrum-logo.svg"
+                                ? "/images/base-chain.png"
+                                : "/images/arbitrum-chain.png"
                             }
                             alt=""
                             width={14}
