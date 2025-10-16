@@ -303,6 +303,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     title={savedState ? "Remove from saved" : "Save token"}
                     onClick={handleSaveClick}
                     disabled={isSaveLoading}
+                    
                     style={{ 
                       opacity: isSaveLoading ? 0.6 : 1,
                       color: savedState ? '#ffdd00' : '#fff1dc'
