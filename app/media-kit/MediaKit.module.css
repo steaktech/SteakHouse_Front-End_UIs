@@ -672,13 +672,46 @@
   
   @media (max-width: 768px) {
     .header {
-      padding: 16px 24px;
+      padding: 12px 16px;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+    }
+  
+    .headerLeft {
       flex-direction: column;
       gap: 16px;
+      align-items: center;
+      width: 100%;
+    }
+  
+    .headerLogo {
+      justify-content: center;
+    }
+  
+    .headerLogo img {
+      width: 32px;
+      height: 32px;
+    }
+  
+    .headerLogo h1 {
+      font-size: 18px;
     }
   
     .headerNav {
-      gap: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .headerNav a {
+      font-size: 14px;
+    }
+  
+    .downloadAllBtn {
+      width: 100%;
+      padding: 10px 20px;
+      font-size: 13px;
     }
   
     .container {
@@ -691,6 +724,25 @@
   
     .logoGrid {
       grid-template-columns: 1fr;
+    }
+  
+    .faviconSection {
+      flex-direction: column;
+    }
+  
+    .faviconPreview {
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      min-width: 100%;
+      height: 180px;
+    }
+  
+    .faviconContent {
+      padding: 24px;
+    }
+  
+    .faviconActions {
+      flex-direction: column;
     }
   
     .colorGrid {
