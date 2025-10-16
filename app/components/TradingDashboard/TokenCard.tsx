@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
-import { useWallet } from '@/app/hooks/useWallet';
 import styles from './TokenCard.module.css';
 
 export const TokenCard: React.FC<TokenCardProps> = ({ 
@@ -41,8 +40,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const sparkTimer = useRef<NodeJS.Timeout | null>(null);
   
   // Save token functionality
-  const { isSaved: savedState, isLoading: isSaveLoading, toggleSave } = useSaveToken(token_address, isSaved);
-  const { isConnected } = useWallet();
+  const { isSaved: savedState, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken(token_address, isSaved);
   const [saveClicked, setSaveClicked] = useState(false);
 
   // Handle card click for navigation
@@ -296,22 +294,20 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             <h1 className={styles.name}>{name}</h1>
               <div className={styles.rightSection}>
                 <div className={styles.badge}>{category || "N/A"}</div>
-                {isConnected && (
-                  <button 
-                    className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''} ${saveClicked ? styles.clicked : ''}`}
-                    aria-label={savedState ? "Remove from saved" : "Save token"}
-                    title={savedState ? "Remove from saved" : "Save token"}
-                    onClick={handleSaveClick}
-                    disabled={isSaveLoading}
-                    
-                    style={{ 
-                      opacity: isSaveLoading ? 0.6 : 1,
-                      color: savedState ? '#ffdd00' : '#fff1dc'
-                    }}
-                  >
-                    <Bookmark size={16} fill={savedState ? 'currentColor' : 'none'} />
-                  </button>
-                )}
+                <button 
+                  className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''} ${saveClicked ? styles.clicked : ''}`}
+                  aria-label={savedState ? "Remove from saved" : "Save token"}
+                  title={savedState ? "Remove from saved" : "Save token"}
+                  onClick={handleSaveClick}
+                  disabled={isSaveLoading || !token_address}
+                  
+                  style={{ 
+                    opacity: isSaveLoading ? 0.6 : 1,
+                    color: savedState ? '#ffdd00' : '#fff1dc'
+                  }}
+                >
+                  <Bookmark size={16} fill={savedState ? 'currentColor' : 'none'} />
+                </button>
               </div>
             </div>
             <div className={styles.symbolRow}>
@@ -350,6 +346,18 @@ export const TokenCard: React.FC<TokenCardProps> = ({
         </div>
       </header>
 
+      {saveError && (
+        <div className={styles.saveError} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.errorText}>{saveError}</div>
+          <button
+            className={styles.errorClose}
+            onClick={(e) => { e.stopPropagation(); clearError(); }}
+            aria-label="Dismiss error"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       <section className={styles.taxLine}>
         <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
