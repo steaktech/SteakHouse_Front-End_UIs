@@ -27,7 +27,7 @@ export default function Header() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState<string>("Base");
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("BASE");
   const networkRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -197,6 +197,21 @@ export default function Header() {
                 aria-expanded={isNetworkOpen}
               >
                 <div className={styles.headerBtnInner}>
+                  <Image
+                    src={
+                      selectedNetwork === "ETH"
+                        ? "/images/ethereum-logo.svg"
+                        : selectedNetwork === "BSC"
+                        ? "/images/bsc-chain.png"
+                        : selectedNetwork === "BASE"
+                        ? "/images/base-chain.png"
+                        : "/images/arbitrum-chain.png"
+                    }
+                    alt=""
+                    width={14}
+                    height={14}
+                    className="mr-2"
+                  />
                   <span className="hidden sm:inline">{selectedNetwork}</span>
                   <span className="sm:hidden">Net</span>
                   <svg
@@ -212,14 +227,29 @@ export default function Header() {
               </button>
 
               {isNetworkOpen && (
-                <div className="absolute z-50 right-0 top-full mt-2 w-36 sm:w-40 rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
+                <div className="absolute z-50 right-0 top-full mt-2 w-32 sm:w-36 rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
                   <ul className="py-1">
-                    {["Base", "BSC", "Arb", "Eth"].map((n) => (
+                    {["ETH", "BSC", "BASE", "ARB"].map((n) => (
                       <li key={n}>
                         <button
-                          className="w-full text-left px-3 py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
+                          className="w-full flex items-center text-left px-3 py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
                           onClick={() => handleSelectNetwork(n)}
                         >
+                          <Image
+                            src={
+                              n === "ETH"
+                                ? "/images/ethereum-logo.svg"
+                                : n === "BSC"
+                                ? "/images/bsc-chain.png"
+                                : n === "BASE"
+                                ? "/images/base-chain.png"
+                                : "/images/arbitrum-chain.png"
+                            }
+                            alt=""
+                            width={14}
+                            height={14}
+                            className="mr-2"
+                          />
                           {n}
                         </button>
                       </li>

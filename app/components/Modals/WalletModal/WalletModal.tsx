@@ -22,6 +22,8 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [isExternalFlow, setIsExternalFlow] = useState(false);
 
   // Define registerUser function with useCallback to prevent unnecessary re-renders
 const registerUser = useCallback(async (walletAddress: string): Promise<boolean> => {
@@ -68,6 +70,9 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
       setIsConnecting(true);
       setUserRegistrationError(null);
       
+      const external = connectorId === 'walletConnect' || connectorId === 'coinbaseWallet' || connectorId === 'coinbaseWalletSDK';
+      if (external) setIsExternalFlow(true);
+      
       let connectedAddress = await connect(connectorId);
       
       // Fallback: if address not returned yet, attempt to read from provider
@@ -90,6 +95,7 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
       console.error('Connection failed:', error);
     } finally {
       setIsConnecting(false);
+      setIsExternalFlow(false);
     }
   };
 
@@ -148,11 +154,23 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
   const descriptionStyle = { color: '#cbbba6', fontSize: '14px', marginBottom: '24px', lineHeight: 1.4, padding: '0 24px' } as const;
   const listStyle = { display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 24px 24px' } as const;
   const walletButtonStyle = {
-    display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#231611',
-    border: '1px solid #3a2418', borderRadius: '14px', color: '#f5e6d3', fontSize: '16px', fontWeight: 500,
-    cursor: 'pointer', transition: 'all 0.2s ease', width: '100%', textAlign: 'left' as const
+    display: 'flex', alignItems: 'center', gap: '12px',
+    padding: '16px',
+    background: '#231611',
+    border: '1px solid #3a2418',
+    borderRadius: '14px',
+    color: '#f5e6d3',
+    fontSize: '16px',
+    fontWeight: 500,
+    cursor: 'pointer',
+    width: '100%',
+    textAlign: 'left' as const,
+    position: 'relative' as const,
+    transform: 'translateY(0px)',
+    transition: 'transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease',
+    boxShadow: '0 0 0 rgba(0,0,0,0)'
   };
-  const walletButtonIconStyle = { width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as const;
+  const walletButtonIconStyle = { width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', transition: 'box-shadow 160ms ease, transform 160ms ease' } as const;
   const walletButtonNameStyle = { fontSize: '16px', fontWeight: 600, color: '#f5e6d3', marginBottom: '4px' } as const;
   const walletButtonStatusStyle = { fontSize: '12px', color: '#cbbba6' } as const;
   const connectedWrapStyle = { display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 24px 24px' } as const;
@@ -201,7 +219,10 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
   return (
     <>
       {!showProfileModal && (
-        <div style={overlayStyle} onClick={handleOverlayClick}>
+        <div style={{
+            ...overlayStyle,
+            ...(isExternalFlow ? { zIndex: 1, pointerEvents: 'none', background: 'transparent', backdropFilter: 'none' } : {})
+          }} onClick={handleOverlayClick}>
           <div style={containerStyle} onClick={(e) => e.stopPropagation()}>
             <button onClick={onClose} style={closeButtonStyle}>✕</button>
 
@@ -258,14 +279,27 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
                     <button
                       key={connector.id}
                       onClick={() => handleConnect(connector.connectId)}
+                      onMouseEnter={() => setHoveredId(connector.id)}
+                      onMouseLeave={() => setHoveredId((prev) => (prev === connector.id ? null : prev))}
                       disabled={!connector.ready || isConnecting}
                       style={{
                         ...walletButtonStyle,
+                        ...(connector.ready && hoveredId === connector.id ? {
+                          transform: 'translateY(-2px)',
+                          background: 'linear-gradient(180deg, #2b1a13, #1c100c)',
+                          border: '1px solid #5a3828',
+                          boxShadow: '0 8px 24px rgba(205,120,40,0.18), inset 0 1px 0 rgba(255,255,255,0.06)'
+                        } : {}),
                         opacity: !connector.ready || isConnecting ? 0.6 : 1,
                         cursor: !connector.ready || isConnecting ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      <div style={walletButtonIconStyle}>
+                      <div style={{
+                        ...walletButtonIconStyle,
+                        ...(connector.ready && hoveredId === connector.id ? {
+                          boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 8px 20px rgba(255,179,71,0.25)'
+                        } : {})
+                      }}>
                         <Image
                           src={resolveConnectorIcon(connector.id, connector.icon)}
                           alt={`${connector.name} logo`}
