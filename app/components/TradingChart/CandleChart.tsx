@@ -107,8 +107,7 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
     const container = containerRef.current;
 
     const chart = createChart(container, {
-      width: container.clientWidth,
-      height: container.clientHeight || 480,
+      autoSize: true,
       layout: {
         background: { color: "#07040b" }, // keep solid black background similar to test chart
         textColor: "rgba(255,255,255,0.9)",
@@ -161,13 +160,8 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
         const w = Math.floor(cr.width);
         const h = Math.floor(cr.height);
         if (w > 0 && h > 0) {
-          chart.applyOptions({ 
-            width: w, 
-            height: h,
-            timeScale: { barSpacing: w < 480 ? 4 : 6 }
-          });
-          // keep last candle and timeline visible when container changes
-          chart.timeScale().fitContent();
+          // Let autoSize handle width/height; adjust spacing only
+          chart.applyOptions({ timeScale: { barSpacing: w < 480 ? 4 : 6 } });
           syncOverlaySize();
           redraw();
         }
@@ -181,12 +175,8 @@ export const CandleChart = forwardRef<CandleChartHandle, CandleChartProps>(funct
       const w = Math.floor(container.clientWidth);
       const h = Math.floor(container.clientHeight);
       if (w > 0 && h > 0) {
-        chart.applyOptions({ 
-          width: w, 
-          height: h,
-          timeScale: { barSpacing: w < 480 ? 4 : 6 }
-        });
-        chart.timeScale().fitContent();
+        // autoSize handles size; tweak spacing only
+        chart.applyOptions({ timeScale: { barSpacing: w < 480 ? 4 : 6 } });
         syncOverlaySize();
         redraw();
       }

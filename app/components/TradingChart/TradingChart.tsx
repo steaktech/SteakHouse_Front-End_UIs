@@ -457,15 +457,12 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       document.documentElement.style.removeProperty('--chart-bottom-offset');
       return;
     }
-    // Adjustable recent transactions panel height only
-    // Subtract the drag handle overlay so the chart timeline aligns closer to the panel top.
-    const HANDLE_OVERLAY = 18; // px
-    const effectiveInset = Math.max(0, Math.round(transactionsHeight - HANDLE_OVERLAY));
-    document.documentElement.style.setProperty('--mobile-recent-inset', `${effectiveInset}px`);
+    // Recent transactions panel height (exact), so chart aligns exactly to its top
+    document.documentElement.style.setProperty('--mobile-recent-inset', `${Math.max(0, Math.round(transactionsHeight))}px`);
     // Fixed buy/sell bar height
     document.documentElement.style.setProperty('--mobile-bottom-inset', '68px');
-    // Small breathing room so timeline isn’t flush with the panel
-    document.documentElement.style.setProperty('--chart-bottom-offset', '8px');
+    // No extra breathing room so it matches the interface precisely
+    document.documentElement.style.setProperty('--chart-bottom-offset', '0px');
 
     return () => {
       document.documentElement.style.removeProperty('--mobile-recent-inset');
@@ -542,22 +539,19 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} tokenAddress={tokenAddress} />
         </div>
         
-        <main 
+          <main 
           className="flex-1 p-[8px] overflow-hidden"
           style={{
-            paddingBottom: isMobile ? `${transactionsHeight + 68}px` : '8px',
+            paddingBottom: '8px',
             height: isMobile ? 'calc(100vh - 56px)' : '100%',
-            display: isMobile ? 'block' : 'flex',
+            display: 'flex',
             gap: '8px'
           }}
         >
           {/* Left Column - Chart and Recent Transactions */}
           <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
             {/* Trading Chart */}
-            <div className="overflow-hidden" style={{
-              height: isMobile ? 'calc(100vh - 300px)' : 'auto',
-              flex: isMobile ? '0 0 auto' : 1
-            }}>
+            <div className="flex-1 min-h-0 overflow-hidden">
               <TradingView 
                 candles={candlesForDisplay}
                 title={apiTokenData?.tokenInfo?.name}

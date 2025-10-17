@@ -92,9 +92,19 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
   const handlePointerUp = useCallback((e: PointerEvent) => {
     setIsDragging(false);
     if (e.target instanceof Element) {
-      e.target.releasePointerCapture(e.pointerId);
+      try { e.target.releasePointerCapture(e.pointerId); } catch {}
     }
   }, []);
+
+  // Ensure quick clicks end drag even before document listeners attach
+  const handlePointerUpImmediate = (e: React.PointerEvent) => {
+    setIsDragging(false);
+    try { (e.currentTarget as Element).releasePointerCapture(e.pointerId); } catch {}
+  };
+  const handlePointerCancelImmediate = (e: React.PointerEvent) => {
+    setIsDragging(false);
+    try { (e.currentTarget as Element).releasePointerCapture(e.pointerId); } catch {}
+  };
 
   // Legacy mouse support for older browsers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -287,7 +297,11 @@ export const MobileTradeInterface: React.FC<MobileTradeInterfaceProps> = ({
             isDragging ? 'bg-[#daa20b]/20 h-6' : ''
           }`}
           onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUpImmediate}
+          onPointerCancel={handlePointerCancelImmediate}
+          onLostPointerCapture={handlePointerCancelImmediate}
           onMouseDown={handleMouseDown}
+          onMouseUp={() => setIsDragging(false)}
           style={{ 
             zIndex: 10,
             touchAction: 'none', // Prevent scrolling on touch
