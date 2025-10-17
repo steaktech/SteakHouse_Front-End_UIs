@@ -27,7 +27,7 @@ export default function Header() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState<string>("BASE");
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("ETH");
   const networkRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
