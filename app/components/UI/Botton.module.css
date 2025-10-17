@@ -605,9 +605,9 @@
 @media (max-width: 640px) {
 	.headerBtn,
 	.headerBtnGolden {
-		width: 120px !important;
-		height: 36px !important;
-		min-width: 80px !important;
+		width: 110px !important;
+		height: 34px !important;
+		min-width: 76px !important;
 	}
 	.headerBtnInner {
 		font-size: 10px !important;

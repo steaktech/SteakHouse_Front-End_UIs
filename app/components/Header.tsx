@@ -198,9 +198,9 @@ export default function Header() {
               >
                 <div className={styles.headerBtnInner}>
                   <Image
-                    src={
+                  src={
                       selectedNetwork === "ETH"
-                        ? "/images/ethereum-logo-blue.blue"
+                        ? "/images/ethereum-logo-blue.png"
                         : selectedNetwork === "BSC"
                         ? "/images/bsc-chain.png"
                         : selectedNetwork === "BASE"
@@ -215,7 +215,7 @@ export default function Header() {
                   <span className="hidden sm:inline">{selectedNetwork}</span>
                   <span className="sm:hidden">Net</span>
                   <svg
-                    className="ml-2 h-3 w-3"
+                    className="ml-2 h-2.5 w-2.5 sm:h-3 sm:w-3"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -227,12 +227,12 @@ export default function Header() {
               </button>
 
               {isNetworkOpen && (
-                <div className="absolute z-50 left-0 top-full mt-2 min-w-full w-auto rounded-lg border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur">
+                <div className="absolute z-50 right-0 sm:left-0 sm:right-auto top-full mt-1 min-w-full w-auto rounded-md border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur max-h-[50vh] overflow-auto overscroll-contain">
                   <ul className="py-1">
                     {["ETH", "BSC", "BASE", "ARB"].map((n) => (
                       <li key={n}>
                         <button
-                          className="w-full flex items-center text-left px-2 py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
+                          className="w-full flex items-center text-left px-2 py-1.5 sm:py-2 hover:bg-[#4a2a16] hover:text-[#fff5d6] transition-colors text-xs sm:text-sm"
                           onClick={() => handleSelectNetwork(n)}
                         >
                           <Image
