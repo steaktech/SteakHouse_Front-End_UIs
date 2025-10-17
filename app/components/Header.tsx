@@ -200,7 +200,7 @@ export default function Header() {
                   <Image
                     src={
                       selectedNetwork === "ETH"
-                        ? "/images/ethereum-logo.svg"
+                        ? "/images/ethereum-logo-blue.blue"
                         : selectedNetwork === "BSC"
                         ? "/images/bsc-chain.png"
                         : selectedNetwork === "BASE"
@@ -238,7 +238,7 @@ export default function Header() {
                           <Image
                             src={
                               n === "ETH"
-                                ? "/images/ethereum-logo.svg"
+                                ? "/images/ethereum-logo-blue.png"
                                 : n === "BSC"
                                 ? "/images/bsc-chain.png"
                                 : n === "BASE"

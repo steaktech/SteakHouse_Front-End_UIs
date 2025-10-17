@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
+import { useToastHelpers } from '@/app/hooks/useToast';
+import { useWallet } from '@/app/hooks/useWallet';
 import styles from './TokenCard.module.css';
 
 export const TokenCard: React.FC<TokenCardProps> = ({ 
@@ -42,6 +44,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Save token functionality
   const { isSaved: savedState, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken(token_address, isSaved);
   const [saveClicked, setSaveClicked] = useState(false);
+  const { showError, showSuccess } = useToastHelpers();
+  const { isConnected } = useWallet();
 
   // Handle card click for navigation
   const handleCardClick = () => {
@@ -62,11 +66,14 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   };
 
   // Handle save button click
-  const handleSaveClick = (e: React.MouseEvent) => {
+  const handleSaveClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!isConnected) {
+      showError('Please connect your wallet to save tokens', 'Save token');
+      return;
+    }
     setSaveClicked(true);
-    toggleSave();
-    setTimeout(() => setSaveClicked(false), 240);
+    await toggleSave();
   };
 
   // Normalize percentage (0-1 or 0-100 to 0-100)
@@ -226,6 +233,25 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     };
   };
 
+  // Show error toast when hook surfaces an error
+  useEffect(() => {
+    if (saveError) {
+      showError(saveError, 'Save token');
+      clearError();
+      setSaveClicked(false);
+    }
+  }, [saveError, showError, clearError]);
+
+  // Show success toast only when the saved state actually changes due to our click
+  const prevSavedRef = useRef(savedState);
+  useEffect(() => {
+    if (saveClicked && prevSavedRef.current !== savedState) {
+      showSuccess(savedState ? 'Saved token' : 'Removed from saved');
+      setSaveClicked(false);
+    }
+    prevSavedRef.current = savedState;
+  }, [savedState, saveClicked, showSuccess]);
+
   useEffect(() => {
     let cleanupParallax: (() => void) | undefined;
     
@@ -345,19 +371,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           </div>
         </div>
       </header>
-
-      {saveError && (
-        <div className={styles.saveError} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.errorText}>{saveError}</div>
-          <button
-            className={styles.errorClose}
-            onClick={(e) => { e.stopPropagation(); clearError(); }}
-            aria-label="Dismiss error"
-          >
-            ×
-          </button>
-        </div>
-      )}
 
       <section className={styles.taxLine}>
         <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
