@@ -332,7 +332,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                     color: savedState ? '#ffdd00' : '#fff1dc'
                   }}
                 >
-                  <Bookmark size={16} fill={savedState ? 'currentColor' : 'none'} />
+                  <Bookmark size={12} fill={savedState ? 'currentColor' : 'none'} />
                 </button>
               </div>
             </div>
@@ -346,7 +346,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   onClick={(e) => handleSocialClick(e, () => openLink(telegram))}
                   disabled={!telegram}
                 >
-                  <Send size={16} />
+                  <Send size={12} />
                 </button>
                 <button 
                   className={`${styles.socialBtn} ${styles.x}`} 
@@ -364,7 +364,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   onClick={(e) => handleSocialClick(e, () => openLink(website))}
                   disabled={!website}
                 >
-                  <Globe size={16} />
+                  <Globe size={12} />
                 </button>
               </nav>
             </div>

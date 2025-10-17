@@ -153,85 +153,56 @@ export default function TradingDashboard() {
       <style jsx>{`
         /* Custom responsive grid for token cards with container-based breakpoints */
 
-
-
-
-
-
-
-
-
-
-
-
         .token-grid {
           /* Default: 1 column on mobile, 2 on small screens */
           grid-template-columns: repeat(1, 1fr);
-
-
-
         }
         
-
         @media (min-width: 640px) {
           .token-grid {
             grid-template-columns: repeat(2, 1fr);
-
           }
         }
         
-        /* 3 cards when container can fit 3 × 367px + gaps + padding */
+        /* 3 cards when container can fit 3 × min card width */
         @media (min-width: 1250px) {
           .token-grid {
             grid-template-columns: repeat(3, 1fr) !important;
           }
         }
         
-        /* 4 cards when container can fit 4 × 357px + gaps + padding */
+        /* 5 cards on wide screens */
         @media (min-width: 1650px) {
           .token-grid {
-            grid-template-columns: repeat(4, 1fr) !important;
+            grid-template-columns: repeat(5, 1fr) !important;
           }
         }
         
         /* Ensure container doesn't overflow */
         .token-container {
-
           max-width: 100%;
           overflow: visible;
           container-type: inline-size;
         }
         
-                /* Use CSS auto-fit for more responsive behavior */
-        @supports (grid-template-columns: repeat(auto-fit, minmax(357px, 1fr))) {
+        /* Use CSS auto-fit for more responsive behavior with smaller min card width */
+        @supports (grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))) {
           .token-grid {
-            grid-template-columns: repeat(auto-fit, minmax(357px, 1fr)) !important;
-            justify-content: center;
-            place-items: center;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+            place-items: stretch;
           }
         }
         
-        /* Ensure cards don't get too wide when centered */
+        /* Ensure cards don't get too wide */
         .token-grid > div {
-          max-width: 420px;
+          max-width: 320px;
           width: 100%;
-
-
-
-
-
-
-
-
         }
         
         /* Override centering on mobile for left alignment */
         @media (max-width: 639px) {
           .token-grid {
             place-items: start !important;
-
-
-
           }
         }
       `}</style>
@@ -482,7 +453,7 @@ export default function TradingDashboard() {
             ) : tokenCards.length === 0 ? (
               renderEmptyState()
             ) : (
-              <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="token-grid grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
                 {tokenCards.map((token, index) => (
                   <div key={`${token.symbol}-${index}`} className="h-full">
                     <TokenCard {...token} />
