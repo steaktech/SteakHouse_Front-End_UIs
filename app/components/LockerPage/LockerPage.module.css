@@ -1,8 +1,14 @@
 /* LockerPage full-screen layout */
 .root {
-  max-width: 960px;
+  width: 100%;
+  margin: 0;
+  padding: 16px 0 32px;
+}
+
+.container {
+  width: min(1100px, 92vw);
   margin: 0 auto;
-  padding: 20px 16px 40px;
+  padding: 0 16px;
 }
 
 .header {
@@ -10,9 +16,9 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  margin: 12px 0 16px;
+  margin: 8px 0 16px;
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(58, 30, 14, 0.78), rgba(28, 15, 7, 0.86));
+  background: linear-gradient(180deg, #3a1e0e, #1c0f07);
   border: 1px solid #8b5a2b;
   color: #fcefd8;
 }
@@ -44,6 +50,7 @@
   font-size: 12px;
 }
 
+/* Mobile horizontal tabs */
 .tabs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -53,7 +60,7 @@
 
 .tab {
   padding: 12px 16px;
-  background: linear-gradient(180deg, rgba(255, 178, 32, 0.15), rgba(255, 178, 32, 0.1));
+  background: linear-gradient(180deg, #ffc24b22, #ffb0201a);
   border: 1px solid #8b5a2b;
   border-radius: 12px;
   color: #fcefd8;
@@ -68,7 +75,7 @@
 }
 
 .tab:hover {
-  background: linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16));
+  background: linear-gradient(180deg, #ffc24b3d, #ffb02029);
 }
 
 .active {
@@ -78,11 +85,33 @@
   box-shadow: 0 2px 8px rgba(255, 178, 32, 0.3);
 }
 
+/* Desktop grid layout */
+.main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.sidebar {
+  display: none;
+}
+
+.vTabs {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .root {
+    padding: 20px 24px 40px;
+  }
+}
+
 .content {
-  background: linear-gradient(180deg, rgba(255, 178, 32, 0.03), rgba(0, 0, 0, 0.25));
+  background: #1c0f07;
   border: 1px solid #8b5a2b;
   border-radius: 14px;
   padding: 16px;
+  min-height: 70vh;
 }
 
 @media (max-width: 640px) {

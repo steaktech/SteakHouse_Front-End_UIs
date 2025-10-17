@@ -374,32 +374,37 @@ export default function LockerPage() {
     <>
       <Header />
       <main className={pageStyles.root}>
-        <section className={pageStyles.header}>
-          <div className={pageStyles.icon}>🔒</div>
-          <div>
-            <h1 className={pageStyles.title}>Token Locker</h1>
-            <p className={pageStyles.subtitle}>Lock tokens securely for any duration</p>
+        <div className={pageStyles.container}>
+          <section className={pageStyles.header}>
+            <div className={pageStyles.icon}>🔒</div>
+            <div>
+              <h1 className={pageStyles.title}>Token Locker</h1>
+              <p className={pageStyles.subtitle}>Lock tokens securely for any duration</p>
+            </div>
+          </section>
+
+          {/* Top tabs on all sizes */}
+          <nav className={pageStyles.tabs}>
+            <button
+              className={`${pageStyles.tab} ${activeTab === "create" ? pageStyles.active : ""}`}
+              onClick={() => setActiveTab("create")}
+            >
+              <Lock size={16} /> Create Lock
+            </button>
+            <button
+              className={`${pageStyles.tab} ${activeTab === "manage" ? pageStyles.active : ""}`}
+              onClick={() => setActiveTab("manage")}
+            >
+              <Clock size={16} /> Manage Locks
+            </button>
+          </nav>
+
+          <div className={pageStyles.main}>
+            <section className={pageStyles.content}>
+              {activeTab === "create" ? renderCreate() : renderManage()}
+            </section>
           </div>
-        </section>
-
-        <nav className={pageStyles.tabs}>
-          <button
-            className={`${pageStyles.tab} ${activeTab === "create" ? pageStyles.active : ""}`}
-            onClick={() => setActiveTab("create")}
-          >
-            <Lock size={16} /> Create Lock
-          </button>
-          <button
-            className={`${pageStyles.tab} ${activeTab === "manage" ? pageStyles.active : ""}`}
-            onClick={() => setActiveTab("manage")}
-          >
-            <Clock size={16} /> Manage Locks
-          </button>
-        </nav>
-
-        <section className={pageStyles.content}>
-          {activeTab === "create" ? renderCreate() : renderManage()}
-        </section>
+        </div>
       </main>
     </>
   );
