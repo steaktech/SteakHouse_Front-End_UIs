@@ -62,8 +62,8 @@ export default function TradingChartSearchPage() {
     <div className="min-h-screen flex flex-col bg-[#0d0b09] text-[#fff1d6]">
       <Header />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-2xl">
+      <main className="flex-1 flex items-center justify-center px-4 py-10 relative">
+        <div className="w-full max-w-2xl relative">
           <form onSubmit={onSubmit} aria-label="Token search">
             <div className="relative group">
               {/* Animated glow backdrop */}
@@ -94,7 +94,7 @@ export default function TradingChartSearchPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="absolute right-1.5 top-1.5 sm:top-1.5 md:top-2 h-9 w-14 sm:h-9 sm:w-16 md:h-10 md:w-20 rounded-full bg-gradient-to-r from-[#e3a34a] to-[#c8802a] text-[#2b1300] font-semibold flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#e3a34a] focus:ring-offset-2 focus:ring-offset-[#0d0b09] transition-transform duration-200 group-hover:translate-x-[1px] hover:scale-105 active:scale-95 hover:shadow-[0_6px_24px_rgba(227,163,74,0.45)]"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 h-9 w-14 sm:h-9 sm:w-16 md:h-10 md:w-20 rounded-full bg-gradient-to-r from-[#e3a34a] to-[#c8802a] text-[#2b1300] font-semibold flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#e3a34a] focus:ring-offset-2 focus:ring-offset-[#0d0b09] transition-transform duration-200 group-hover:translate-x-[1px] hover:scale-105 active:scale-95 hover:shadow-[0_6px_24px_rgba(227,163,74,0.45)]"
                     aria-label="Go"
                   >
                     {isLoading ? (
