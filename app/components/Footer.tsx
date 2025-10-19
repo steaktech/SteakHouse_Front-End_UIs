@@ -40,22 +40,22 @@ const Footer: React.FC = () => {
               aria-label="Social and quick actions"
             >
               <nav className={styles.social} aria-label="Social media">
-                <a href="#" aria-label="YouTube" title="YouTube">
+                <a href="/coming-soon" aria-label="YouTube" title="YouTube">
                   <i className="ri-youtube-fill" aria-hidden="true"></i>
                 </a>
-                <a href="#" aria-label="Medium" title="Medium">
+                <a href="https://medium.com/@steakhousefinance" aria-label="Medium" title="Medium">
                   <i className="ri-medium-fill" aria-hidden="true"></i>
                 </a>
-                <a href="#" aria-label="GitHub" title="GitHub">
+                <a href="https://github.com/steaktech" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
                   <i className="ri-github-fill" aria-hidden="true"></i>
                 </a>
-                <a href="#" aria-label="Twitter" title="Twitter">
+                <a href="https://x.com/steak_tech" target="_blank" rel="noopener noreferrer" aria-label="Twitter" title="Twitter">
                   <i className="ri-twitter-x-fill" aria-hidden="true"></i>
                 </a>
-                <a href="#" aria-label="Discord" title="Discord">
+                <a href="/coming-soon" aria-label="Discord" title="Discord">
                   <i className="ri-discord-fill" aria-hidden="true"></i>
                 </a>
-                <a href="#" aria-label="Telegram" title="Telegram">
+                <a href="https://t.me/steakhouse" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram">
                   <i className="ri-telegram-fill" aria-hidden="true"></i>
                 </a>
               </nav>
