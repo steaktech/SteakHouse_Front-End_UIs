@@ -104,7 +104,11 @@ export function useTokenData(tokenAddress: string | null, options: UseTokenDataO
       //console.log('Successfully fetched and cached token data for:', tokenAddress);
     } catch (err) {
       if (currentTokenRef.current === tokenAddress) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch token data';
+        let errorMessage = err instanceof Error ? err.message : 'Failed to fetch token data';
+        const lower = (errorMessage || '').toLowerCase();
+        if (lower.includes('not found') || lower.includes('404')) {
+          errorMessage = 'Token not found';
+        }
         setState(prev => ({ ...prev, data: null, isLoading: false, error: errorMessage }));
         console.error('Error fetching token data:', err);
       }
