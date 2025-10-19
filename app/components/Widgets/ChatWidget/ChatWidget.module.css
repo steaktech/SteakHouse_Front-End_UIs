@@ -294,6 +294,29 @@
   gap: 10px;
   overflow: auto;
   height: 100%;
+  /* Themed scrollbar for Firefox */
+  scrollbar-color: var(--primary-400) rgba(255, 178, 32, 0.12);
+  scrollbar-width: thin;
+}
+
+/* Themed scrollbar for Chromium/WebKit */
+.feed::-webkit-scrollbar {
+  width: 10px;
+}
+.feed::-webkit-scrollbar-track {
+  background: rgba(255, 178, 32, 0.08);
+  border-radius: 999px;
+}
+.feed::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary-400), var(--primary-500));
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.feed::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--primary-500), var(--primary-400));
+}
+.feed::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .msg {
@@ -491,6 +514,20 @@
   border-radius: 12px;
   box-shadow: var(--shadow);
   z-index: 6;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.98);
+  transform-origin: left bottom;
+  pointer-events: none;
+  will-change: opacity, transform;
+  transition: opacity 140ms ease, transform 140ms ease, visibility 140ms linear;
+}
+
+.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 
 /* Emoji Picker React theme overrides */
@@ -510,18 +547,33 @@
   --epr-focus-bg-color: rgba(255, 178, 32, 0.18);
   color: var(--text-100);
   background: transparent !important;
-  border: 1px solid var(--border-500);
+  border: none; /* remove inner border to align with outer popover */
   border-radius: 10px;
   /* Firefox scrollbar */
   scrollbar-color: var(--primary-400) rgba(255, 178, 32, 0.12);
   scrollbar-width: thin;
 }
 
+/* Ensure skin tone (color) button hidden even if rendered */
+.emojiPopover :global(.EmojiPickerReact .epr-emoji-variation-picker),
+.emojiPopover :global(.EmojiPickerReact .epr-skin-tones),
+.emojiPopover :global(.EmojiPickerReact [data-epr-skin-tones]),
+.emojiPopover :global(.EmojiPickerReact [data-epr-skin-tone-picker]) {
+  display: none !important;
+}
+
 /* Inputs */
+.emojiPopover :global(.EmojiPickerReact .epr-search-container) {
+  padding: 6px;
+}
 .emojiPopover :global(.EmojiPickerReact .epr-search-container input) {
   background: var(--epr-search-input-bg-color);
   color: var(--epr-search-input-text-color);
   border: 1px solid var(--border-500);
+  height: 30px;
+  font-size: 12px;
+  padding: 4px 8px 4px 34px; /* extra left padding so text doesn't overlap search icon */
+  border-radius: 8px;
 }
 
 .emojiPopover :global(.EmojiPickerReact .epr-emoji-category-label) {

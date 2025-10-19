@@ -66,6 +66,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const [searchQuery, setSearchQuery] = useState('');
   const [composerInput, setComposerInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [hasEmojiPickerMounted, setHasEmojiPickerMounted] = useState(false);
   // Refs
   const feedRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -610,7 +611,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   {savedState ? '★' : '☆'}
                 </button>
               )}
-              <button 
+              {/* <button 
                 className={styles.iconBtn} 
                 onClick={async () => {
                   const text = `${tokenName || ''} ($${tokenSymbol || ''}) • Price ${tokenPrice != null ? usd2.format(tokenPrice) : '—'} • MC ${tokenMc != null ? usd2.format(tokenMc) : '—'} • 24h ${change24hPct != null ? formatPct(change24hPct) : '—'} • Holders ${holdersCount != null ? nf0.format(holdersCount) : '—'}`;
@@ -625,7 +626,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                 type="button"
               >
                 ⤴
-              </button>
+              </button> */}
               <button 
                 className={styles.iconBtn} 
                 onClick={onClose} 
@@ -743,7 +744,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   <button
                     ref={emojiBtnRef}
                     className={`${styles.iconBtn} ${showEmojiPicker ? styles.emojiBtnActive : ''}`}
-                    onClick={() => setShowEmojiPicker(v => !v)}
+                  onClick={() => { setHasEmojiPickerMounted(true); setShowEmojiPicker(v => !v); }}
                     aria-expanded={showEmojiPicker}
                     aria-haspopup="dialog"
                     aria-controls="emoji-picker"
@@ -752,14 +753,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   >
                     😊
                   </button>
-                  {showEmojiPicker && (
-                    <div
-                      ref={emojiPopoverRef}
-                      id="emoji-picker"
-                      className={styles.emojiPopover}
-                      role="dialog"
-                      aria-label="Emoji picker"
-                    >
+                  <div
+                    ref={emojiPopoverRef}
+                    id="emoji-picker"
+                    className={`${styles.emojiPopover} ${showEmojiPicker ? styles.open : ''}`}
+                    role="dialog"
+                    aria-label="Emoji picker"
+                    aria-hidden={!showEmojiPicker}
+                  >
+                    {hasEmojiPickerMounted && (
                       <EmojiPicker
                         onEmojiClick={(emojiData: any) => {
                           const ch = (emojiData?.emoji || emojiData?.unified || '').toString();
@@ -773,12 +775,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                         previewConfig={{ showPreview: false }}
                         lazyLoadEmojis={true}
                         autoFocusSearch={false}
-                        skinTonesDisabled={false}
+                        skinTonesDisabled={true}
                         suggestedEmojisMode="recent"
                         width={320}
                       />
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
                 <button className={styles.iconBtn} title="GIF" type="button">GIF</button>
                 <input
