@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { ChatWidgetProps, Message, SortMode } from './types';
 import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
@@ -15,6 +16,8 @@ import {
   type ChatHistoryItem,
   type ServerToClientEvent,
 } from '@/app/lib/api/chatClient';
+
+const EmojiPicker = dynamic<any>(() => import('emoji-picker-react'), { ssr: false });
 
 export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAddress }) => {
   // Wallet state
@@ -62,9 +65,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const [messages, setMessages] = useState<Message[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [composerInput, setComposerInput] = useState('');
-
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   // Refs
   const feedRef = useRef<HTMLUListElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const emojiPopoverRef = useRef<HTMLDivElement>(null);
+  const emojiBtnRef = useRef<HTMLButtonElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const lastCursorRef = useRef<string | null>(null);
   const joinedChatRef = useRef<string | null>(null);
@@ -89,6 +95,36 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
   // Helpers
   const nextId = () => ++idCounterRef.current;
+
+  const MAX_LEN = 400;
+
+  const emojiAliasMap: Record<string, string> = {
+    rocket: '🚀', fire: '🔥', heart: '❤️', thumbsup: '👍', hundred: '💯', party: '🎉', smile: '😊', laughing: '😂', cry: '😭', bull: '🐂', bear: '🐻', moneybag: '💰', chart_up: '📈', chart_down: '📉', diamond: '💎'
+  };
+
+  const normalizeEmojiAliases = (text: string) => text.replace(/:([a-z_]+):/g, (full, key) => {
+    const k = String(key);
+    return emojiAliasMap[k] ?? full;
+  });
+
+  const insertAtCursor = (snippet: string) => {
+    const el = inputRef.current;
+    if (!el) {
+      setComposerInput(prev => (prev + snippet).slice(0, MAX_LEN));
+      return;
+    }
+    const start = el.selectionStart ?? composerInput.length;
+    const end = el.selectionEnd ?? composerInput.length;
+    const before = composerInput.slice(0, start);
+    const after = composerInput.slice(end);
+    const next = (before + snippet + after).slice(0, MAX_LEN);
+    setComposerInput(next);
+    requestAnimationFrame(() => {
+      const pos = Math.min(start + snippet.length, next.length);
+      try { el.setSelectionRange(pos, pos); } catch {}
+      el.focus();
+    });
+  };
 
   const displayFromSender = useCallback((senderId?: string) => {
     if (!senderId) return 'anon';
@@ -205,7 +241,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
   // Send message
   const handleSendMessage = () => {
-    const text = composerInput.trim();
+    const textRaw = composerInput.trim();
+    const text = normalizeEmojiAliases(textRaw);
     if (!walletConnected || !wsReady || !text || !joinedChatRef.current) return;
     if (holdersOnly && !isHolder) return;
 
@@ -267,6 +304,21 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
       handleSendMessage();
     }
   };
+
+  // Close emoji picker when clicking outside of it or the toggle button
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!showEmojiPicker) return;
+      const pop = emojiPopoverRef.current;
+      const btn = emojiBtnRef.current;
+      const target = e.target as Node | null;
+      if (pop && target && pop.contains(target)) return;
+      if (btn && target && btn.contains(target)) return;
+      setShowEmojiPicker(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [showEmojiPicker]);
 
   // Scroll to bottom when new messages arrive (only if user near bottom)
   useEffect(() => {
@@ -685,27 +737,70 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
               </button>
             </div>
           ) : (
-            <div className={styles.inputrow}>
-              <button className={styles.iconBtn} title="Emoji" type="button">😊</button>
-              <button className={styles.iconBtn} title="GIF" type="button">GIF</button>
-              <input
-                placeholder="Add a comment..."
-                maxLength={400}
-                value={composerInput}
-                onChange={(e) => setComposerInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-              />
-              <button 
-                className={`${styles.primary} ${!canPost ? styles.disabled : ''}`}
-                onClick={handleSendMessage}
-                title="Enter"
-                type="button"
-                disabled={!canPost || composerInput.trim().length === 0}
-                aria-disabled={!canPost || composerInput.trim().length === 0}
-              >
-                Enter
-              </button>
-            </div>
+            <>
+              <div className={styles.inputrow}>
+                <div className={styles.emojiWrap}>
+                  <button
+                    ref={emojiBtnRef}
+                    className={`${styles.iconBtn} ${showEmojiPicker ? styles.emojiBtnActive : ''}`}
+                    onClick={() => setShowEmojiPicker(v => !v)}
+                    aria-expanded={showEmojiPicker}
+                    aria-haspopup="dialog"
+                    aria-controls="emoji-picker"
+                    title="Emoji"
+                    type="button"
+                  >
+                    😊
+                  </button>
+                  {showEmojiPicker && (
+                    <div
+                      ref={emojiPopoverRef}
+                      id="emoji-picker"
+                      className={styles.emojiPopover}
+                      role="dialog"
+                      aria-label="Emoji picker"
+                    >
+                      <EmojiPicker
+                        onEmojiClick={(emojiData: any) => {
+                          const ch = (emojiData?.emoji || emojiData?.unified || '').toString();
+                          if (!ch) return;
+                          insertAtCursor(emojiData.emoji);
+                          setShowEmojiPicker(false);
+                        }}
+                        theme="dark"
+                        emojiStyle="native"
+                        searchPlaceHolder="Search"
+                        previewConfig={{ showPreview: false }}
+                        lazyLoadEmojis={true}
+                        autoFocusSearch={false}
+                        skinTonesDisabled={false}
+                        suggestedEmojisMode="recent"
+                        width={320}
+                      />
+                    </div>
+                  )}
+                </div>
+                <button className={styles.iconBtn} title="GIF" type="button">GIF</button>
+                <input
+                  ref={inputRef}
+                  placeholder="Add a comment..."
+                  maxLength={400}
+                  value={composerInput}
+                  onChange={(e) => setComposerInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                />
+                <button 
+                  className={`${styles.primary} ${!canPost ? styles.disabled : ''}`}
+                  onClick={handleSendMessage}
+                  title="Enter"
+                  type="button"
+                  disabled={!canPost || composerInput.trim().length === 0}
+                  aria-disabled={!canPost || composerInput.trim().length === 0}
+                >
+                  Enter
+                </button>
+              </div>
+            </>
           )}
           {holdersOnly && walletConnected && !isHolder && (
             <div className={styles.holderNote}>
