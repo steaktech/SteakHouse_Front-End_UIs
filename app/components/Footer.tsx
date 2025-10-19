@@ -233,6 +233,9 @@ const Footer: React.FC = () => {
               contracts on Ethereum. No investment advice. Launch responsibly
               and DYOR.
             </p>
+            <p className={styles.disclaimer}>
+              Charts by <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView</a>
+            </p>
             <p className={styles.copyright}>© 2025 SteakHouse</p>
           </div>
         </div>

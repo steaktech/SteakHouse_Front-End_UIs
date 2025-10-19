@@ -1,5 +1,5 @@
 import { createConfig, http, Config } from 'wagmi';
-import { mainnet, sepolia, polygon, bsc, arbitrum } from 'wagmi/chains';
+import { mainnet, sepolia, polygon, bsc, arbitrum, base } from 'wagmi/chains';
 import { walletConnect, injected, coinbaseWallet } from 'wagmi/connectors';
 
 // WalletConnect Project ID - Get this from https://cloud.walletconnect.com
@@ -14,7 +14,7 @@ const metadata = {
 };
 
 // Configure supported chains
-export const chains = [mainnet, sepolia, polygon, bsc, arbitrum] as const;
+export const chains = [mainnet, sepolia, polygon, bsc, arbitrum, base] as const;
 
 // Cache for the config
 let _config: Config | null = null;
@@ -63,6 +63,7 @@ export function getWagmiConfig(): Config {
       [polygon.id]: http(),
       [bsc.id]: http(),
       [arbitrum.id]: http(),
+      [base.id]: http(),
     },
     ssr: true,
   });
@@ -80,6 +81,7 @@ const ssrConfig = createConfig({
     [polygon.id]: http(),
     [bsc.id]: http(),
     [arbitrum.id]: http(),
+    [base.id]: http(),
   },
   ssr: true,
 });

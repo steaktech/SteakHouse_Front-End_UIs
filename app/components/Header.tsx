@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import styles from "./UI/Botton.module.css";
 import { useWallet } from "@/app/hooks/useWallet";
+import { useSwitchChain } from "wagmi";
 
 const CreateTokenModal = dynamic(
   () => import("./Modals/CreateTokenModal/CreateTokenModal"),
@@ -30,6 +31,15 @@ export default function Header() {
   const [selectedNetwork, setSelectedNetwork] = useState<string>("ETH");
   const networkRef = useRef<HTMLDivElement | null>(null);
 
+  const NETWORK_TO_CHAIN_ID: Record<string, number> = {
+    ETH: 1,
+    BSC: 56,
+    BASE: 8453,
+    ARB: 42161,
+  };
+
+  const { switchChain } = useSwitchChain();
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (networkRef.current && !networkRef.current.contains(e.target as Node)) {
@@ -47,16 +57,49 @@ export default function Header() {
     };
   }, []);
 
+  const { isConnected, address, isConnecting, chainId } = useWallet();
+
   const handleSelectNetwork = (net: string) => {
     setSelectedNetwork(net);
     setIsNetworkOpen(false);
+
+    const targetChainId = NETWORK_TO_CHAIN_ID[net];
+    if (!targetChainId) return;
+
+    // Require connection before switching chains
+    if (!isConnected) {
+      setIsWalletModalOpen(true);
+      return;
+    }
+
+    try {
+      if (switchChain) {
+        // This triggers the wallet popup to request a chain change
+        // wagmi v2 useSwitchChain API
+        // @ts-ignore - allow call-time inference regardless of wagmi minor versions
+        switchChain({ chainId: targetChainId });
+      } else if (typeof window !== 'undefined' && (window as any).ethereum?.request) {
+        // Fallback to direct EIP-3326 if needed
+        (window as any).ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x' + targetChainId.toString(16) }],
+        });
+      }
+    } catch (e) {
+      console.error('Failed to switch chain', e);
+    }
   };
   
-  const { isConnected, address, isConnecting } = useWallet();
-
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
+
+  // Keep selectedNetwork in sync with the actually connected chain
+  useEffect(() => {
+    if (!chainId) return;
+    const match = Object.entries(NETWORK_TO_CHAIN_ID).find(([, id]) => id === chainId);
+    if (match && match[0] !== selectedNetwork) setSelectedNetwork(match[0]);
+  }, [chainId]);
 
   const handleLogoClick = () => {
     router.push('/');
