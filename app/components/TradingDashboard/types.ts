@@ -10,6 +10,7 @@ export interface TokenCardProps {
   symbol: string;
   tag: string;
   tagColor: string;
+  bannerUrl?: string;
   description: string;
   mcap: string;
   liquidity: string;

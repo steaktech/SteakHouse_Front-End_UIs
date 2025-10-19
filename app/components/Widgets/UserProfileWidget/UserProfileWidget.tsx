@@ -102,6 +102,7 @@ const demoUserData: UserProfileData = {
         tokenName: 'Ethereum',
         tokenSymbol: 'ETH',
         tokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        imageUrl: '/images/ethereum-logo.png',
         type: 'deposit' as const,
         amount: 2.5,
         priceUSD: 2645.00,
@@ -140,6 +141,7 @@ const demoUserData: UserProfileData = {
         tokenName: 'Ethereum',
         tokenSymbol: 'ETH',
         tokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        imageUrl: '/images/ethereum-logo.png',
         type: 'withdraw' as const,
         amount: 1.5,
         priceUSD: 2598.00,
@@ -178,6 +180,7 @@ const demoUserData: UserProfileData = {
         tokenName: 'Ethereum',
         tokenSymbol: 'ETH',
         tokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        imageUrl: '/images/ethereum-logo.png',
         type: 'deposit' as const,
         amount: 5.0,
         priceUSD: 2543.00,
@@ -743,8 +746,9 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
                         style={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover',
-                          borderRadius: 'inherit'
+                          objectFit: tx.tokenSymbol === 'ETH' ? 'contain' : 'cover',
+                          borderRadius: 'inherit',
+                          filter: tx.tokenSymbol === 'ETH' ? 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))' : 'none'
                         }}
                       />
                     ) : (
