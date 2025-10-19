@@ -180,7 +180,7 @@ export default function LockerPage() {
     return (
       <div className={widgetStyles.form}>
         <div className={widgetStyles.formGroup}>
-          <label className={widgetStyles.label}>Liquidity Pool Address</label>
+          <label className={widgetStyles.label}>Liquidity Pool / Token Address</label>
           <input
             type="text"
             className={widgetStyles.input}

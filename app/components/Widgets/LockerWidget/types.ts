@@ -37,4 +37,6 @@ export interface LockerWidgetProps {
   data?: TokenLock[];
   onLockCreate?: (formData: LockFormData) => Promise<void>;
   onUnlock?: (lockId: string) => Promise<void>;
+  onTransferOwnership?: (lockId: string, newOwnerAddress: string) => Promise<void>;
+  onExtendLock?: (lockId: string, additionalDays: number) => Promise<void>;
 }

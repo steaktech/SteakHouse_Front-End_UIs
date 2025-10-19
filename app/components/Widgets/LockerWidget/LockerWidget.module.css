@@ -519,6 +519,7 @@
 .lockActions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .unlockBtn {
@@ -566,6 +567,125 @@
 }
 
 .viewBtn:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.24),
+    rgba(255, 178, 32, 0.16)
+  );
+}
+
+/* Secondary action button (e.g., Transfer, Extend, View) */
+.secondaryBtn {
+  padding: 10px 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.14),
+    rgba(255, 178, 32, 0.06)
+  );
+  border: 1px solid #8b5a2b;
+  border-radius: 10px;
+  color: #ffc24b;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.secondaryBtn:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.24),
+    rgba(255, 178, 32, 0.16)
+  );
+}
+
+/* Modal overlay inside panel */
+.modalOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, #241208, #1c0f07);
+  border: 1px solid #8b5a2b;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  color: #fcefd8;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 215, 165, 0.25);
+}
+
+.modalTitle {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.modalBody {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 0 16px 16px 16px;
+}
+
+.confirmBtn {
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #ffc24b, #ffb020);
+  border: 1px solid #8b5a2b;
+  border-radius: 10px;
+  color: #1c0f07;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirmBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 178, 32, 0.3);
+}
+
+.cancelBtn {
+  padding: 10px 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 178, 32, 0.14),
+    rgba(255, 178, 32, 0.06)
+  );
+  border: 1px solid #8b5a2b;
+  border-radius: 10px;
+  color: #ffc24b;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn:hover {
   background: linear-gradient(
     180deg,
     rgba(255, 178, 32, 0.24),

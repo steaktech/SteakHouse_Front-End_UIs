@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Lock, Unlock, Clock, Search, Calendar, ExternalLink } from 'lucide-react';
+import { X, Lock, Unlock, Clock, Search, Calendar, ExternalLink, UserPlus, CalendarPlus } from 'lucide-react';
 import styles from './LockerWidget.module.css';
 import { 
   LockerWidgetProps, 
@@ -123,6 +123,8 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
   data,
   onLockCreate,
   onUnlock,
+  onTransferOwnership,
+  onExtendLock,
 }) => {
   const [state, setState] = useState<LockerWidgetState>({
     activeTab: 'create',
@@ -138,7 +140,15 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
 
   const [locks, setLocks] = useState<TokenLock[]>([]);
   const [filteredLocks, setFilteredLocks] = useState<TokenLock[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+
+  // Modal state for Transfer Ownership and Extend Lock
+  const [actionModal, setActionModal] = useState<{
+    type: 'transfer' | 'extend' | null;
+    lock?: TokenLock;
+  }>({ type: null });
+  const [transferAddress, setTransferAddress] = useState<string>('');
+  const [extendDays, setExtendDays] = useState<number>(30);
 
   // Initialize locks
   useEffect(() => {
@@ -205,7 +215,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Event handlers
+// Event handlers
   const handleTabChange = (tab: TabType) => {
     setState(prev => ({ ...prev, activeTab: tab }));
   };
@@ -273,7 +283,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
     }
   };
 
-  const handleUnlock = async (lockId: string) => {
+const handleUnlock = async (lockId: string) => {
     setIsLoading(true);
     try {
       if (onUnlock) {
@@ -295,6 +305,75 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
       setIsLoading(false);
     }
   };
+
+  // Transfer ownership flow
+  const openTransferModal = (lock: TokenLock) => {
+    setActionModal({ type: 'transfer', lock });
+    setTransferAddress('');
+  };
+
+  const confirmTransfer = async () => {
+    if (!actionModal.lock) return;
+    if (!transferAddress.trim()) {
+      alert('Please enter a valid wallet address');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      if (onTransferOwnership) {
+        await onTransferOwnership(actionModal.lock.id, transferAddress.trim());
+      } else {
+        // Demo: update local owner field
+        setLocks(prev => prev.map(l => l.id === actionModal.lock!.id ? { ...l, owner: transferAddress.trim() } : l));
+      }
+      setActionModal({ type: null });
+    } catch (error) {
+      console.error('Error transferring ownership:', error);
+      alert('Failed to transfer ownership');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Extend lock flow
+  const openExtendModal = (lock: TokenLock) => {
+    setActionModal({ type: 'extend', lock });
+    setExtendDays(30);
+  };
+
+  const confirmExtend = async () => {
+    if (!actionModal.lock) return;
+    if (!extendDays || extendDays <= 0) {
+      alert('Please enter a valid number of days (> 0)');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      if (onExtendLock) {
+        await onExtendLock(actionModal.lock.id, extendDays);
+      } else {
+        // Demo: extend unlock date locally
+        setLocks(prev => prev.map(l => {
+          if (l.id !== actionModal.lock!.id) return l;
+          const ms = extendDays * 24 * 60 * 60 * 1000;
+          return {
+            ...l,
+            unlockDate: new Date(l.unlockDate.getTime() + ms),
+            status: 'active',
+            withdrawable: false,
+          };
+        }));
+      }
+      setActionModal({ type: null });
+    } catch (error) {
+      console.error('Error extending lock:', error);
+      alert('Failed to extend lock');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const closeActionModal = () => setActionModal({ type: null });
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -533,7 +612,23 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
                 </div>
               )}
 
-              <div className={styles.lockActions}>
+<div className={styles.lockActions}>
+                <button
+                  className={styles.secondaryBtn}
+                  onClick={() => openExtendModal(lock)}
+                  disabled={lock.status === 'unlocked' || isLoading}
+                  title="Extend lock duration"
+                >
+                  <CalendarPlus size={14} /> Extend
+                </button>
+                <button
+                  className={styles.secondaryBtn}
+                  onClick={() => openTransferModal(lock)}
+                  disabled={isLoading}
+                  title="Transfer lock ownership"
+                >
+                  <UserPlus size={14} /> Transfer
+                </button>
                 <button
                   className={styles.unlockBtn}
                   onClick={() => handleUnlock(lock.id)}
@@ -603,6 +698,62 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
         <div className={styles.content}>
           {state.activeTab === 'create' ? renderCreateTab() : renderManageTab()}
         </div>
+
+        {/* Action Modals */}
+        {actionModal.type && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <div className={styles.modalHeader}>
+                <div className={styles.modalTitle}>
+                  {actionModal.type === 'transfer' ? 'Transfer Ownership' : 'Extend Lock'}
+                </div>
+                <button className={styles.closeBtn} onClick={closeActionModal} aria-label="Close action modal">
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className={styles.modalBody}>
+                {actionModal.type === 'transfer' ? (
+                  <>
+                    <label className={styles.label}>New Owner Address</label>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      placeholder="0x..."
+                      value={transferAddress}
+                      onChange={(e) => setTransferAddress(e.target.value)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <label className={styles.label}>Additional Days to Extend</label>
+                    <input
+                      type="number"
+                      min={1}
+                      className={styles.input}
+                      placeholder="e.g. 30"
+                      value={extendDays}
+                      onChange={(e) => setExtendDays(parseInt(e.target.value) || 0)}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className={styles.modalActions}>
+                <button className={styles.cancelBtn} onClick={closeActionModal} disabled={isLoading}>Cancel</button>
+                {actionModal.type === 'transfer' ? (
+                  <button className={styles.confirmBtn} onClick={confirmTransfer} disabled={isLoading}>
+                    {isLoading ? 'Transferring...' : 'Confirm Transfer'}
+                  </button>
+                ) : (
+                  <button className={styles.confirmBtn} onClick={confirmExtend} disabled={isLoading || extendDays <= 0}>
+                    {isLoading ? 'Extending...' : 'Confirm Extend'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
