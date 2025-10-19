@@ -199,6 +199,14 @@
   margin-right: 12px;
   flex-shrink: 0;
   border: 2px solid #4a3829;
+  overflow: hidden;
+}
+
+.tokenImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .tokenInfo {

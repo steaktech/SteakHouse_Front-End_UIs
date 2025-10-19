@@ -40,6 +40,18 @@ export function formatNumber(value: number | string, options: {
 }
 
 /**
+ * Basic fallback token image that always resolves.
+ * Uses an identicon generated from the token address so every token has a unique image.
+ */
+export function getFallbackTokenImageUrl(tokenAddress: string): string {
+  try {
+    return `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(tokenAddress)}`;
+  } catch {
+    return DEFAULT_TOKEN_IMAGE;
+  }
+}
+
+/**
  * Gets market cap from API response (already calculated)
  */
 export function getMarketCap(token: Token): number {

@@ -6,6 +6,7 @@ import styles from './SavedToken.module.css';
 import { SavedTokenData, SavedTokenWidgetProps, SavedTokenWidgetState } from './types';
 import { useWallet } from '@/app/hooks/useWallet';
 import { fetchSavedTokens, SavedTokenApiItem, removeSavedToken } from '@/app/lib/api/services/userService';
+import { DEFAULT_TOKEN_IMAGE } from '@/app/lib/config/constants';
 
 // Demo data for saved tokens
 const demoSavedTokens: SavedTokenData[] = [
@@ -259,7 +260,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
             <div className={styles.sub}>Your bookmarked tokens</div>
           </div>
           <div className={styles.spacer} />
-          <button className={styles.btn} title="Pin widget">Pin</button>
+          {/* <button className={styles.btn} title="Pin widget">Pin</button> */}
           <button className={styles.btn} onClick={onClose} title="Close">
             <X size={14} />
           </button>
@@ -302,7 +303,20 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
                 >
                   {/* Token Image/Placeholder */}
                   <div className={styles.tokenImage}>
-                    {getTokenInitials(token.symbol)}
+                    {token.imageUrl ? (
+                      <img
+                        src={token.imageUrl}
+                        alt={token.symbol}
+                        onError={(e) => {
+                          const img = e.currentTarget as HTMLImageElement;
+                          if (img.src !== DEFAULT_TOKEN_IMAGE) {
+                            img.src = DEFAULT_TOKEN_IMAGE;
+                          }
+                        }}
+                      />
+                    ) : (
+                      getTokenInitials(token.symbol)
+                    )}
                   </div>
 
                   {/* Token Info */}

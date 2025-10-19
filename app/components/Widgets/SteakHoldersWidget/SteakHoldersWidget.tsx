@@ -750,14 +750,6 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                 <label className={styles.toggle}>
                   <input 
                     type="checkbox" 
-                    checked={state.hide.exchange}
-                    onChange={() => handleToggle('exchange')}
-                  />
-                  Hide Exchanges
-                </label>
-                <label className={styles.toggle}>
-                  <input 
-                    type="checkbox" 
                     checked={state.hide.burn}
                     onChange={() => handleToggle('burn')}
                   />
@@ -769,7 +761,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                     checked={state.hide.team}
                     onChange={() => handleToggle('team')}
                   />
-                  Hide Team
+                  Hide Dev
                 </label>
               </div>
 
