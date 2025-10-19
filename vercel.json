@@ -1,0 +1,34 @@
+{
+    "rewrites": [
+      {
+        "source": "/:path*",
+        "has": [
+          {
+            "type": "host",
+            "value": "locker.steakhouse.finance"
+          }
+        ],
+        "destination": "/locker/:path*"
+      },
+      {
+        "source": "/:path*",
+        "has": [
+          {
+            "type": "host",
+            "value": "explore.steakhouse.finance"
+          }
+        ],
+        "destination": "/explore/:path*"
+      },
+      {
+        "source": "/:path*",
+        "has": [
+          {
+            "type": "host",
+            "value": "curve.steakhouse.finance"
+          }
+        ],
+        "destination": "/trading-chart/:path*"
+      }
+    ]
+  }

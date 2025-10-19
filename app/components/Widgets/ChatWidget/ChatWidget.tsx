@@ -611,22 +611,37 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   {savedState ? '★' : '☆'}
                 </button>
               )}
-              {/* <button 
+              <button 
                 className={styles.iconBtn} 
                 onClick={async () => {
-                  const text = `${tokenName || ''} ($${tokenSymbol || ''}) • Price ${tokenPrice != null ? usd2.format(tokenPrice) : '—'} • MC ${tokenMc != null ? usd2.format(tokenMc) : '—'} • 24h ${change24hPct != null ? formatPct(change24hPct) : '—'} • Holders ${holdersCount != null ? nf0.format(holdersCount) : '—'}`;
+                  const url = (typeof window !== 'undefined' && window.location) ? window.location.href : '';
+                  if (!url) return;
                   try {
-                    await navigator.share({ title: `${tokenName || ''} • ${tokenSymbol || ''}`, text });
+                    await navigator.clipboard.writeText(url);
+                    alert("Link copied to clipboard:\n" + url);
                   } catch {
-                    await navigator.clipboard.writeText(text);
-                    alert("Copied to clipboard:\n" + text);
+                    try {
+                      if ((navigator as any).share) {
+                        await (navigator as any).share({ url });
+                        return;
+                      }
+                    } catch {}
+                    try {
+                      const ta = document.createElement('textarea');
+                      ta.value = url;
+                      document.body.appendChild(ta);
+                      ta.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(ta);
+                      alert("Link copied to clipboard:\n" + url);
+                    } catch {}
                   }
                 }}
-                title="Share"
+                title="Copy link"
                 type="button"
               >
                 ⤴
-              </button> */}
+              </button>
               <button 
                 className={styles.iconBtn} 
                 onClick={onClose} 
