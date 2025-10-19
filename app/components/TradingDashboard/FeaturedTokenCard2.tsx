@@ -182,8 +182,8 @@ const FeaturedTokenCard2: React.FC = () => {
   }, []);
 
   const handleCardClick = () => {
-    // For demo purposes, this could navigate to a token page or show a modal
-    console.log('Featured token clicked:', tokenData.name);
+    // Navigate to trading chart
+    router.push(`/trading-chart?symbol=${encodeURIComponent(tokenData.symbol)}`);
   };
 
   const handleSocialClick = (e: React.MouseEvent, action: () => void) => {

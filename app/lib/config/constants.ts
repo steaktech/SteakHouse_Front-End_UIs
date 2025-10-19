@@ -9,6 +9,7 @@ export const EXTERNAL_APIS = {
     BASE_URL: 'https://api.coingecko.com/api/v3',
     ENDPOINTS: {
       SIMPLE_PRICE: '/simple/price',
+      MARKET_CHART: '/coins/ethereum/market_chart',
     },
   },
   ETHEREUM: {

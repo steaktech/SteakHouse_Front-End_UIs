@@ -108,6 +108,8 @@ export default function TradingChart() {
   const mobileStyleTokenData: TokenData = {
     name: tokenData.name,
     symbol: tokenData.symbol,
+    imageUrl: tokenData.imageUrl,
+    bannerUrl: tokenData.bannerUrl,
     currentTax: {
       buy: 3,
       sell: 3
@@ -122,16 +124,73 @@ export default function TradingChart() {
     tagColor: tokenData.tagColor
   };
 
+  // Token data mapping for different symbols
+  const getTokenDataBySymbol = (symbol: string): TokenCardProps => {
+    const tokenMap: Record<string, TokenCardProps> = {
+      'NUTBUT': {
+        isOneStop: false,
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmq6wLPreTp0RPdc75gSA85CvopA9sZtWhkA&s',
+        bannerUrl: 'https://assets.epicurious.com/photos/5a21975fafe8825b3fcadcb0/16:9/w_2000,h_1125,c_limit/homemade-nutter-butter-cookies-stella-parks-bravetart-recipe-120117.jpg',
+        name: 'NUTTERBUTTER',
+        symbol: 'NUTBUT',
+        tag: 'Meme',
+        tagColor: '#fade79',
+        description: 'The ultimate cookie-powered meme token! NUTTERBUTTER brings the sweet taste of success to DeFi. Stack your cookies, build your jar, and watch your portfolio spread. To the moon, one peanut butter sandwich at a time! 🥜🍪',
+        mcap: '$7.80M',
+        liquidity: '$780.00K',
+        volume: '$385.00K',
+        progress: 100
+      },
+      'BURN': {
+        isOneStop: false,
+        imageUrl: 'https://pbs.twimg.com/media/G3Fi03YXsAA66pj?format=jpg&name=medium',
+        bannerUrl: 'https://pbs.twimg.com/community_banner_img/1977468397412651008/n4gn1lq9?format=jpg&name=medium',
+        name: 'BURN',
+        symbol: 'BURN',
+        tag: 'Utility',
+        tagColor: '#ff7a6f',
+        description: 'Revolutionary deflationary utility token with automatic burn mechanism. Every transaction reduces supply, increasing scarcity and value. Join the burn party and watch your holdings appreciate as tokens are permanently removed from circulation. 🔥📈',
+        mcap: '$7.80M',
+        liquidity: '$780.00K',
+        volume: '$385.00K',
+        progress: 100
+      },
+      'GROYPER': {
+        isOneStop: false,
+        imageUrl: 'https://pbs.twimg.com/profile_images/1851836711245930496/Rd9y0Kmj_400x400.png',
+        bannerUrl: 'https://pbs.twimg.com/profile_banners/374652044/1730835978/1500x500',
+        name: 'GROYPER',
+        symbol: 'GROYPER',
+        tag: 'Meme',
+        tagColor: '#6ef0a1',
+        description: 'The comfiest meme token in crypto! GROYPER brings maximum cozy vibes to DeFi. Join the frens, embrace the culture, and ride the wave of internet history. No jeets allowed, only true believers. Comfy gains await! 🐸☕',
+        mcap: '$7.80M',
+        liquidity: '$780.00K',
+        volume: '$385.00K',
+        progress: 100
+      }
+    };
+
+    return tokenMap[symbol] || {
+      isOneStop: false,
+      imageUrl: '/images/info_icon.jpg',
+      name: 'SpaceMan',
+      symbol: 'SPACE',
+      tag: 'Meme',
+      tagColor: '#fade79',
+      description: 'Spaceman is a meme deflationary token with a finite supply and buyback and burn mechanism.',
+      mcap: '$21.5K',
+      liquidity: '$2.3K',
+      volume: '$6.2K',
+      progress: 82
+    };
+  };
+
   // Load token data based on URL parameter
   useEffect(() => {
     if (tokenSymbol) {
-      // TODO: Fetch token data from API based on symbol
-      // For now, we'll update the symbol in the existing data
-      setTokenData(prev => ({
-        ...prev,
-        symbol: tokenSymbol,
-        name: tokenSymbol // You can update this when you fetch from API
-      }));
+      const newTokenData = getTokenDataBySymbol(tokenSymbol);
+      setTokenData(newTokenData);
     }
   }, [tokenSymbol]);
 

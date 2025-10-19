@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, User, TrendingUp, TrendingDown, Activity, Clock, DollarSign, Award, Target, BarChart3, ArrowUpRight, ArrowDownRight, Copy, ExternalLink } from 'lucide-react';
 import styles from './UserProfileWidget.module.css';
+import { PriceService } from '@/app/lib/api/services/priceService';
 import {
   UserProfileWidgetProps,
   UserProfileWidgetState,
@@ -35,113 +36,157 @@ const demoUserData: UserProfileData = {
   },
   positions: [
     {
-      tokenAddress: '0xA3bC4D5E6f78901234567890aBCDeF1234567890',
-      tokenName: 'Amber Launch',
-      tokenSymbol: 'AMBR',
+      tokenAddress: '0x0000000000000000000000000000000000000000',
+      tokenName: 'NUTTERBUTTER',
+      tokenSymbol: 'NUTBUT',
+      imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmq6wLPreTp0RPdc75gSA85CvopA9sZtWhkA&s',
       amount: 50000,
       avgBuyPrice: 0.0567,
-      currentPrice: 0.0789,
-      valueUSD: 3945.00,
-      pnlUSD: 1110.00,
-      pnlPercent: 39.15,
+      currentPrice: 0.0782,
+      valueUSD: 3910.00,
+      pnlUSD: 1075.00,
+      pnlPercent: 37.92,
     },
     {
-      tokenAddress: '0x1234567890abcdef1234567890abcdef12345678',
-      tokenName: 'SteakCoin',
-      tokenSymbol: 'STEAK',
+      tokenAddress: '0x0000000000000000000000000000000000000001',
+      tokenName: 'BURN',
+      tokenSymbol: 'BURN',
+      imageUrl: 'https://pbs.twimg.com/media/G3Fi03YXsAA66pj?format=jpg&name=medium',
       amount: 125000,
-      avgBuyPrice: 0.0234,
-      currentPrice: 0.0189,
-      valueUSD: 2362.50,
-      pnlUSD: -562.50,
-      pnlPercent: -19.23,
+      avgBuyPrice: 0.0634,
+      currentPrice: 0.0567,
+      valueUSD: 7087.50,
+      pnlUSD: -837.50,
+      pnlPercent: -10.57,
     },
     {
-      tokenAddress: '0xabcdef1234567890abcdef1234567890abcdef12',
-      tokenName: 'MoonShot',
-      tokenSymbol: 'MOON',
+      tokenAddress: '0x0000000000000000000000000000000000000002',
+      tokenName: 'GROYPER',
+      tokenSymbol: 'GROYPER',
+      imageUrl: 'https://pbs.twimg.com/profile_images/1851836711245930496/Rd9y0Kmj_400x400.png',
       amount: 100000,
-      avgBuyPrice: 0.0089,
-      currentPrice: 0.0156,
-      valueUSD: 1560.00,
-      pnlUSD: 670.00,
-      pnlPercent: 75.28,
+      avgBuyPrice: 0.0689,
+      currentPrice: 0.0823,
+      valueUSD: 8230.00,
+      pnlUSD: 1340.00,
+      pnlPercent: 19.45,
     },
   ],
-  recentTransactions: [
-    {
-      id: '1',
-      tokenName: 'Amber Launch',
-      tokenSymbol: 'AMBR',
-      tokenAddress: '0xA3bC4D5E6f78901234567890aBCDeF1234567890',
-      type: 'buy',
-      amount: 25000,
-      priceUSD: 0.0567,
-      totalValueUSD: 1417.50,
-      timestamp: new Date('2025-10-05T14:30:00Z'),
-      txHash: '0xabc123...',
-    },
-    {
-      id: '2',
-      tokenName: 'Ethereum',
-      tokenSymbol: 'ETH',
-      tokenAddress: '0x0000000000000000000000000000000000000000',
-      type: 'deposit',
-      amount: 2.5,
-      priceUSD: 2300.00,
-      totalValueUSD: 5750.00,
-      timestamp: new Date('2025-10-04T16:20:00Z'),
-      txHash: '0xdep789...',
-    },
-    {
-      id: '3',
-      tokenName: 'SteakCoin',
-      tokenSymbol: 'STEAK',
-      tokenAddress: '0x1234567890abcdef1234567890abcdef12345678',
-      type: 'sell',
-      amount: 50000,
-      priceUSD: 0.0245,
-      totalValueUSD: 1225.00,
-      timestamp: new Date('2025-10-04T09:15:00Z'),
-      txHash: '0xdef456...',
-    },
-    {
-      id: '4',
-      tokenName: 'MoonShot',
-      tokenSymbol: 'MOON',
-      tokenAddress: '0xabcdef1234567890abcdef1234567890abcdef12',
-      type: 'buy',
-      amount: 100000,
-      priceUSD: 0.0089,
-      totalValueUSD: 890.00,
-      timestamp: new Date('2025-10-03T16:45:00Z'),
-      txHash: '0x789ghi...',
-    },
-    {
-      id: '5',
-      tokenName: 'USDC',
-      tokenSymbol: 'USDC',
-      tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      type: 'withdraw',
-      amount: 1500,
-      priceUSD: 1.00,
-      totalValueUSD: 1500.00,
-      timestamp: new Date('2025-10-02T13:30:00Z'),
-      txHash: '0xwit345...',
-    },
-    {
-      id: '6',
-      tokenName: 'Amber Launch',
-      tokenSymbol: 'AMBR',
-      tokenAddress: '0xA3bC4D5E6f78901234567890aBCDeF1234567890',
-      type: 'buy',
-      amount: 25000,
-      priceUSD: 0.0567,
-      totalValueUSD: 1417.50,
-      timestamp: new Date('2025-10-02T11:20:00Z'),
-      txHash: '0xjkl012...',
-    },
-  ],
+  recentTransactions: (() => {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
+    const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+    const fourDaysAgo = new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000);
+    const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+    const sixDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const eightDaysAgo = new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000);
+
+    return [
+      {
+        id: '1',
+        tokenName: 'GROYPER',
+        tokenSymbol: 'GROYPER',
+        tokenAddress: '0x0000000000000000000000000000000000000002',
+        imageUrl: 'https://pbs.twimg.com/profile_images/1851836711245930496/Rd9y0Kmj_400x400.png',
+        type: 'buy' as const,
+        amount: 50000,
+        priceUSD: 0.0823,
+        totalValueUSD: 4115.00,
+        timestamp: oneDayAgo,
+        txHash: '0xabc123...',
+      },
+      {
+        id: '2',
+        tokenName: 'Ethereum',
+        tokenSymbol: 'ETH',
+        tokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        type: 'deposit' as const,
+        amount: 2.5,
+        priceUSD: 2645.00,
+        totalValueUSD: 6612.50,
+        timestamp: twoDaysAgo,
+        txHash: '0xdep789...',
+      },
+      {
+        id: '3',
+        tokenName: 'BURN',
+        tokenSymbol: 'BURN',
+        tokenAddress: '0x0000000000000000000000000000000000000001',
+        imageUrl: 'https://pbs.twimg.com/media/G3Fi03YXsAA66pj?format=jpg&name=medium',
+        type: 'sell' as const,
+        amount: 25000,
+        priceUSD: 0.0589,
+        totalValueUSD: 1472.50,
+        timestamp: threeDaysAgo,
+        txHash: '0xdef456...',
+      },
+      {
+        id: '4',
+        tokenName: 'NUTTERBUTTER',
+        tokenSymbol: 'NUTBUT',
+        tokenAddress: '0x0000000000000000000000000000000000000000',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmq6wLPreTp0RPdc75gSA85CvopA9sZtWhkA&s',
+        type: 'buy' as const,
+        amount: 50000,
+        priceUSD: 0.0567,
+        totalValueUSD: 2835.00,
+        timestamp: fourDaysAgo,
+        txHash: '0x789ghi...',
+      },
+      {
+        id: '5',
+        tokenName: 'Ethereum',
+        tokenSymbol: 'ETH',
+        tokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        type: 'withdraw' as const,
+        amount: 1.5,
+        priceUSD: 2598.00,
+        totalValueUSD: 3897.00,
+        timestamp: fiveDaysAgo,
+        txHash: '0xwit345...',
+      },
+      {
+        id: '6',
+        tokenName: 'BURN',
+        tokenSymbol: 'BURN',
+        tokenAddress: '0x0000000000000000000000000000000000000001',
+        imageUrl: 'https://pbs.twimg.com/media/G3Fi03YXsAA66pj?format=jpg&name=medium',
+        type: 'buy' as const,
+        amount: 100000,
+        priceUSD: 0.0634,
+        totalValueUSD: 6340.00,
+        timestamp: sixDaysAgo,
+        txHash: '0xjkl012...',
+      },
+      {
+        id: '7',
+        tokenName: 'GROYPER',
+        tokenSymbol: 'GROYPER',
+        tokenAddress: '0x0000000000000000000000000000000000000002',
+        imageUrl: 'https://pbs.twimg.com/profile_images/1851836711245930496/Rd9y0Kmj_400x400.png',
+        type: 'buy' as const,
+        amount: 50000,
+        priceUSD: 0.0689,
+        totalValueUSD: 3445.00,
+        timestamp: sevenDaysAgo,
+        txHash: '0xmno345...',
+      },
+      {
+        id: '8',
+        tokenName: 'Ethereum',
+        tokenSymbol: 'ETH',
+        tokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+        type: 'deposit' as const,
+        amount: 5.0,
+        priceUSD: 2543.00,
+        totalValueUSD: 12715.00,
+        timestamp: eightDaysAgo,
+        txHash: '0xpqr678...',
+      },
+    ];
+  })(),
   joinedDate: new Date('2024-06-15T08:00:00Z'),
   username: 'CryptoTrader',
 };
@@ -227,6 +272,79 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
   const userData = data || demoUserData;
   const [filteredPositions, setFilteredPositions] = useState<TokenPosition[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<TokenTransaction[]>([]);
+  const [currentEthPrice, setCurrentEthPrice] = useState<number | null>(null);
+  const [transactionsWithHistoricalPrices, setTransactionsWithHistoricalPrices] = useState<TokenTransaction[]>([]);
+
+  // Fetch real-time ETH price
+  useEffect(() => {
+    const fetchEthPrice = async () => {
+      const result = await PriceService.fetchEthPrice();
+      if (result.ethPrice && !result.error) {
+        setCurrentEthPrice(result.ethPrice);
+      }
+    };
+
+    fetchEthPrice();
+    // Refresh ETH price every 30 seconds
+    const interval = setInterval(fetchEthPrice, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch historical ETH prices for ETH transactions
+  useEffect(() => {
+    const fetchHistoricalPrices = async () => {
+      console.log('[UserProfile] Fetching historical ETH prices...');
+      const transactionsClone = [...userData.recentTransactions];
+      const updatedTransactions = [...transactionsClone];
+      
+      // Fetch prices sequentially with delay to avoid rate limiting
+      for (let i = 0; i < updatedTransactions.length; i++) {
+        const tx = updatedTransactions[i];
+        
+        // Only fetch historical price for ETH transactions
+        if (tx.tokenSymbol === 'ETH') {
+          console.log(`[UserProfile] Fetching price for ${tx.timestamp.toISOString()}`);
+          
+          // Add delay between requests (1 second) to avoid rate limiting
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1200));
+          }
+          
+          const historicalPrice = await PriceService.fetchHistoricalEthPrice(tx.timestamp);
+          console.log(`[UserProfile] Historical price for ${tx.timestamp.toDateString()}: $${historicalPrice}`);
+          
+          if (historicalPrice) {
+            updatedTransactions[i] = {
+              ...tx,
+              priceUSD: historicalPrice,
+              totalValueUSD: tx.amount * historicalPrice,
+            };
+            // Update state after each successful fetch so user sees progressive updates
+            setTransactionsWithHistoricalPrices([...updatedTransactions]);
+          }
+        }
+      }
+      
+      console.log('[UserProfile] All historical prices fetched');
+    };
+
+    if (isOpen) {
+      fetchHistoricalPrices();
+    }
+  }, [isOpen, userData.recentTransactions]);
+
+  // Calculate total balance using real-time ETH price
+  const calculateTotalBalance = (): number => {
+    const ethPrice = currentEthPrice || userData.walletStats.ethBalanceUSD / userData.walletStats.ethBalance;
+    return userData.walletStats.ethBalance * ethPrice;
+  };
+
+  // Calculate ETH balance in USD using real-time price
+  const calculateEthBalanceUSD = (): number => {
+    const ethPrice = currentEthPrice || userData.walletStats.ethBalanceUSD / userData.walletStats.ethBalance;
+    return userData.walletStats.ethBalance * ethPrice;
+  };
 
   // Apply filters and sorting
   const applyFiltersAndSort = useCallback(() => {
@@ -268,8 +386,12 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
 
     setFilteredPositions(positions);
 
-    // Filter transactions
-    let transactions = [...userData.recentTransactions];
+    // Filter transactions - use historical prices if available
+    const transactionsToFilter = transactionsWithHistoricalPrices.length > 0 
+      ? transactionsWithHistoricalPrices 
+      : userData.recentTransactions;
+      
+    let transactions = [...transactionsToFilter];
     if (state.searchQuery.trim()) {
       const query = state.searchQuery.toLowerCase();
       transactions = transactions.filter(
@@ -284,7 +406,7 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
     transactions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
     setFilteredTransactions(transactions);
-  }, [userData, state.searchQuery, state.sortBy, state.sortOrder]);
+  }, [userData, state.searchQuery, state.sortBy, state.sortOrder, transactionsWithHistoricalPrices]);
 
   useEffect(() => {
     applyFiltersAndSort();
@@ -355,7 +477,7 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
           <div className={styles.balanceCard}>
             <div className={styles.balanceLabel}>Total Balance</div>
             <div className={styles.balanceValue}>
-              {formatCompactCurrency(stats.totalBalanceUSD)}
+              {formatCompactCurrency(calculateTotalBalance())}
             </div>
           </div>
           <div className={styles.balanceCard}>
@@ -364,7 +486,7 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
               {formatNumber(stats.ethBalance)} ETH
             </div>
             <div className={styles.balanceSubValue}>
-              {formatCompactCurrency(stats.ethBalanceUSD)}
+              {formatCompactCurrency(calculateEthBalanceUSD())}
             </div>
           </div>
         </div>
@@ -513,7 +635,20 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
               <div className={styles.positionHeader}>
                 <div className={styles.positionToken}>
                   <div className={styles.tokenAvatar}>
-                    {getTokenInitials(position.tokenSymbol)}
+                    {position.imageUrl ? (
+                      <img 
+                        src={position.imageUrl} 
+                        alt={position.tokenName}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 'inherit'
+                        }}
+                      />
+                    ) : (
+                      getTokenInitials(position.tokenSymbol)
+                    )}
                   </div>
                   <div className={styles.tokenInfo}>
                     <div className={styles.tokenName}>{position.tokenName}</div>
@@ -601,7 +736,20 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
               <div className={styles.transactionHeader}>
                 <div className={styles.transactionToken}>
                   <div className={styles.tokenAvatar}>
-                    {getTokenInitials(tx.tokenSymbol)}
+                    {tx.imageUrl ? (
+                      <img 
+                        src={tx.imageUrl} 
+                        alt={tx.tokenName}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 'inherit'
+                        }}
+                      />
+                    ) : (
+                      getTokenInitials(tx.tokenSymbol)
+                    )}
                   </div>
                   <div className={styles.tokenInfo}>
                     <div className={styles.tokenName}>{tx.tokenName}</div>
@@ -630,7 +778,7 @@ export const UserProfileWidget: React.FC<UserProfileWidgetProps> = ({
                 </div>
                 <div className={styles.transactionDetail}>
                   <div className={styles.detailLabel}>Price</div>
-                  <div className={styles.detailValue}>${tx.priceUSD.toFixed(4)}</div>
+                  <div className={styles.detailValue}>${tx.priceUSD.toFixed(tx.tokenSymbol === 'ETH' ? 2 : 4)}</div>
                 </div>
                 <div className={styles.transactionDetail}>
                   <div className={styles.detailLabel}>Total</div>

@@ -15,6 +15,8 @@ export interface TokenData {
   name: string;
   symbol: string;
   logo?: string;
+  imageUrl?: string;
+  bannerUrl?: string;
   currentTax: {
     buy: number;
     sell: number;
@@ -215,7 +217,25 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       <div className={styles.compactBanner} aria-hidden="true" style={{
         margin: isLimitMode ? '-8px -14px 3px -14px' : undefined
       }}>
-        <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
+        {tokenData.bannerUrl ? (
+          <div 
+            className={styles.bannerLayer}
+            style={{
+              backgroundImage: `url(${tokenData.bannerUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          ></div>
+        ) : (
+          <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
+        )}
+        <div 
+          className={styles.bannerLayer}
+          style={{
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%)'
+          }}
+        ></div>
         <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
       </div>
 
@@ -225,7 +245,15 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       }}>
         <div className={styles.identity}>
           <div className={styles.avatar}>
-            <div className={styles.avatarImage}>?</div>
+            {tokenData.imageUrl || tokenData.logo ? (
+              <img 
+                src={tokenData.imageUrl || tokenData.logo} 
+                alt={tokenData.name}
+                className={styles.avatarImage}
+              />
+            ) : (
+              <div className={styles.avatarImage}>?</div>
+            )}
           </div>
           <div className={styles.nameBlock}>
             <h1 className="name">{tokenData.name}</h1>

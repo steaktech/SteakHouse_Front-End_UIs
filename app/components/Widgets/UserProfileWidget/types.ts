@@ -3,6 +3,7 @@ export interface TokenTransaction {
   tokenName: string;
   tokenSymbol: string;
   tokenAddress: string;
+  imageUrl?: string;
   type: 'buy' | 'sell' | 'deposit' | 'withdraw';
   amount: number;
   priceUSD: number;
@@ -15,6 +16,7 @@ export interface TokenPosition {
   tokenAddress: string;
   tokenName: string;
   tokenSymbol: string;
+  imageUrl?: string;
   amount: number;
   avgBuyPrice: number;
   currentPrice: number;

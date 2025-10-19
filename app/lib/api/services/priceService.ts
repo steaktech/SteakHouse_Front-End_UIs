@@ -155,4 +155,49 @@ export class PriceService {
       maximumFractionDigits: 2 
     })}`;
   }
+
+  /**
+   * Fetches historical ETH price from a specific date
+   * @param date - Date to fetch price for
+   * @returns Promise with ETH price in USD at that date
+   */
+  static async fetchHistoricalEthPrice(date: Date): Promise<number | null> {
+    try {
+      // Format date as DD-MM-YYYY for CoinGecko API
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const dateStr = `${day}-${month}-${year}`;
+
+      const url = `${EXTERNAL_APIS.COINGECKO.BASE_URL}/coins/ethereum/history?date=${dateStr}`;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.market_data?.current_price?.usd) {
+        throw new Error('Invalid response format from CoinGecko API');
+      }
+
+      return data.market_data.current_price.usd;
+    } catch (error) {
+      console.error('Error fetching historical ETH price:', error);
+      return null;
+    }
+  }
 }

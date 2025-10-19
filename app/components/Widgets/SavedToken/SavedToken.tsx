@@ -9,48 +9,33 @@ import { SavedTokenData, SavedTokenWidgetProps, SavedTokenWidgetState } from './
 const demoSavedTokens: SavedTokenData[] = [
   {
     id: '1',
-    name: 'Amber Launch',
-    symbol: 'AMBR',
-    address: '0xA3bC4D5E6f78901234567890aBCDeF1234567890',
+    name: 'NUTTERBUTTER',
+    symbol: 'NUTBUT',
+    address: '0x0000000000000000000000000000000000000000',
     chain: 'EVM',
-    priceUSD: 0.0567,
+    priceUSD: 0.0782,
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmq6wLPreTp0RPdc75gSA85CvopA9sZtWhkA&s',
     savedAt: new Date('2024-01-15T10:30:00Z'),
   },
   {
     id: '2',
-    name: 'Bitcoin',
-    symbol: 'BTC',
-    address: '0x1234567890abcdef1234567890abcdef12345678',
-    chain: 'Bitcoin',
-    priceUSD: 45230.45,
+    name: 'BURN',
+    symbol: 'BURN',
+    address: '0x0000000000000000000000000000000000000001',
+    chain: 'EVM',
+    priceUSD: 0.0567,
+    imageUrl: 'https://pbs.twimg.com/media/G3Fi03YXsAA66pj?format=jpg&name=medium',
     savedAt: new Date('2024-01-14T15:20:00Z'),
   },
   {
     id: '3',
-    name: 'Ethereum',
-    symbol: 'ETH',
-    address: '0xabcdef1234567890abcdef1234567890abcdef12',
+    name: 'GROYPER',
+    symbol: 'GROYPER',
+    address: '0x0000000000000000000000000000000000000002',
     chain: 'EVM',
-    priceUSD: 2890.75,
+    priceUSD: 0.0823,
+    imageUrl: 'https://pbs.twimg.com/profile_images/1851836711245930496/Rd9y0Kmj_400x400.png',
     savedAt: new Date('2024-01-13T09:45:00Z'),
-  },
-  {
-    id: '4',
-    name: 'Solana Meme Token',
-    symbol: 'SMT',
-    address: '0xfedcba0987654321fedcba0987654321fedcba09',
-    chain: 'Solana',
-    priceUSD: 0.0123,
-    savedAt: new Date('2024-01-12T14:15:00Z'),
-  },
-  {
-    id: '5',
-    name: 'Dogecoin',
-    symbol: 'DOGE',
-    address: '0x5555555555555555555555555555555555555555',
-    chain: 'EVM',
-    priceUSD: 0.0825,
-    savedAt: new Date('2024-01-11T11:30:00Z'),
   },
 ];
 
@@ -233,7 +218,20 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
                 >
                   {/* Token Image/Placeholder */}
                   <div className={styles.tokenImage}>
-                    {getTokenInitials(token.symbol)}
+                    {token.imageUrl ? (
+                      <img 
+                        src={token.imageUrl} 
+                        alt={token.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: 'inherit'
+                        }}
+                      />
+                    ) : (
+                      getTokenInitials(token.symbol)
+                    )}
                   </div>
 
                   {/* Token Info */}
