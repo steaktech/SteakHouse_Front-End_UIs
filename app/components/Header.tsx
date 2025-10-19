@@ -92,7 +92,7 @@ export default function Header() {
             <div className="hidden sm:flex items-center space-x-2 lg:space-x-1.5 ml-4 lg:ml-3">
               {/* Discord Icon */}
               <a
-                href="#"
+                href="/coming-soon"
                 className="w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <Image
@@ -106,7 +106,7 @@ export default function Header() {
 
               {/* Telegram Icon */}
               <a
-                href="#"
+                href="https://t.me/steakhouse" target="_blank" rel="noopener noreferrer"
                 className="w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <Image
@@ -120,7 +120,7 @@ export default function Header() {
 
               {/* Twitter/X Icon */}
               <a
-                href="#"
+                href="https://x.com/steak_tech" target="_blank" rel="noopener noreferrer"
                 className="w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
               >
                 <Image
