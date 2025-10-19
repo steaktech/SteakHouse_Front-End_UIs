@@ -209,6 +209,7 @@ const Footer: React.FC = () => {
 
           {/* Bottom: only disclaimer and copyright */}
           <div className={styles.footerBottom} aria-label="Legal">
+            <p><a href="mailto:contact@steakhouse.finance">contact@steakhouse.finance</a></p>
             <div className={styles.certikBadge} aria-label="CertiK certificate">
               <img
                 className={styles.certikBadgeimg}
