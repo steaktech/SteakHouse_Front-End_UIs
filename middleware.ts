@@ -2,9 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Host-based routing: subdomains map to internal app routes
 export function middleware(request: NextRequest) {
-  // In production, let Vercel's rewrites handle host-based routing to minimize middleware overhead
-  if (process.env.NODE_ENV === 'production') return NextResponse.next();
-
   const url = request.nextUrl.clone();
   const hostHeader = request.headers.get('host') || '';
   const hostname = hostHeader.split(':')[0].toLowerCase();
@@ -38,6 +35,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all non-static paths; exclude next internals and all files with extensions
-  matcher: ['/((?!api|_next/|.*\.[^/]+$).*)'],
+  // Run on all pages except Next.js internals and API routes
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
