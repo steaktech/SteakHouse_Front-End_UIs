@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import SteakMatrixAnimation from "@/app/components/SteakMatrixAnimation";
+import ChartAnimation from "@/app/components/ChartAnimation";
 import { useTokenData } from "@/app/hooks/useTokenData";
 import { normalizeEthereumAddress } from "@/app/lib/utils/addressValidation";
 
@@ -68,6 +69,9 @@ export default function TradingChartSearchPage() {
         <SteakMatrixAnimation />
         
         <div className="w-full max-w-2xl relative" style={{ zIndex: 10 }}>
+          {/* Chart Animation */}
+          <ChartAnimation className="mb-8" />
+          
           <form onSubmit={onSubmit} aria-label="Token search">
             <div className="relative group">
               {/* Animated glow backdrop */}
