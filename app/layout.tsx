@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SteakHouse",
+  title: "The Devs Kitchen - Launch your token today for $3",
   description: "Advanced Trading Platform with Token Creation",
   icons: {
     icon: "/images/favicon.ico",
