@@ -7,6 +7,18 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0].toLowerCase();
   const pathname = url.pathname;
 
+  // Skip static assets and Next internals so images/CSS/etc. load on subdomains
+  const ASSET_PREFIXES = ['/images', '/css', '/docs'];
+  const ASSET_EXT = /\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|txt|map|pdf|woff2?|ttf|eot)$/i;
+  if (
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico' ||
+    ASSET_PREFIXES.some((p) => pathname.startsWith(p)) ||
+    ASSET_EXT.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
   const hostMap: Record<string, string> = {
     'locker.steakhouse.finance': '/locker',
     'explore.steakhouse.finance': '/explore',
