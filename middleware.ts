@@ -7,6 +7,13 @@ export function middleware(request: NextRequest) {
   const hostname = hostHeader.split(':')[0].toLowerCase();
   const pathname = url.pathname;
 
+  // Bypass middleware for Next internals and any public/static asset requests
+  // This keeps asset paths (e.g. /images/logo.png) unchanged on subdomains
+  const PUBLIC_FILE = /\.(?:png|jpe?g|gif|webp|svg|ico|css|js|map|txt|xml|json|pdf|mp4|webm|ogg|ogv|woff2?|ttf|eot)$/i;
+  if (pathname.startsWith('/_next/') || pathname === '/favicon.ico' || PUBLIC_FILE.test(pathname)) {
+    return NextResponse.next();
+  }
+
   const hostMap: Record<string, string> = {
     'locker.steakhouse.finance': '/locker',
     'explore.steakhouse.finance': '/explore',
@@ -35,6 +42,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all pages except Next.js internals and API routes
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // Run on all pages except Next.js internals, API routes, and any file with an extension (public assets)
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)'],
 };
