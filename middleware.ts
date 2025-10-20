@@ -2,22 +2,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Host-based routing: subdomains map to internal app routes
 export function middleware(request: NextRequest) {
+  // In production, let Vercel's rewrites handle host-based routing to minimize middleware overhead
+  if (process.env.NODE_ENV === 'production') return NextResponse.next();
+
   const url = request.nextUrl.clone();
   const hostHeader = request.headers.get('host') || '';
   const hostname = hostHeader.split(':')[0].toLowerCase();
   const pathname = url.pathname;
-
-  // Skip static assets and Next internals so images/CSS/etc. load on subdomains
-  const ASSET_PREFIXES = ['/images', '/css', '/docs'];
-  const ASSET_EXT = /\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|txt|map|pdf|woff2?|ttf|eot)$/i;
-  if (
-    pathname.startsWith('/_next') ||
-    pathname === '/favicon.ico' ||
-    ASSET_PREFIXES.some((p) => pathname.startsWith(p)) ||
-    ASSET_EXT.test(pathname)
-  ) {
-    return NextResponse.next();
-  }
 
   const hostMap: Record<string, string> = {
     'locker.steakhouse.finance': '/locker',
@@ -47,6 +38,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all pages except Next.js internals and API routes
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // Run on all non-static paths; exclude next internals and all files with extensions
+  matcher: ['/((?!api|_next/|.*\.[^/]+$).*)'],
 };
