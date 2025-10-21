@@ -279,7 +279,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
         background: 'rgba(60, 35, 20, 0.4)',
         color: '#fff1df',
         fontSize: compact ? '14px' : '16px',
-        fontWeight: 800,
+        fontWeight: 500,
         lineHeight: 1.5,
         textAlign: 'center'
       }}>
@@ -377,7 +377,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             }}>MCAP</div>
             <div style={{
               fontFamily: '"Sora", "Inter", sans-serif',
-              fontWeight: 800,
+              fontWeight: 500,
               fontSize: compact ? '12px' : '14px',
               lineHeight: 1.1,
               color: '#fff6e6',
@@ -401,7 +401,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             }}>VOLUME</div>
             <div style={{
               fontFamily: '"Sora", "Inter", sans-serif',
-              fontWeight: 800,
+              fontWeight: 500,
               fontSize: compact ? '12px' : '14px',
               lineHeight: 1.1,
               color: '#fff6e6',
@@ -425,7 +425,7 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
             }}>LP</div>
             <div style={{
               fontFamily: '"Sora", "Inter", sans-serif',
-              fontWeight: 800,
+              fontWeight: 500,
               fontSize: compact ? '12px' : '14px',
               lineHeight: 1.1,
               color: '#fff6e6',

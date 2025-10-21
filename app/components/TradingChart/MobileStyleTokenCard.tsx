@@ -439,7 +439,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         margin: isLimitMode ? '2px 0 4px' : undefined,
         fontSize: isLimitMode ? '14px' : '16px',
         lineHeight: 1.5,
-        fontWeight: 700
+        fontWeight: 500
       }}>
         {tokenData.description}
       </p>
