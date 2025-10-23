@@ -7,7 +7,6 @@ import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTokenData } from '@/app/hooks/useTokenData';
-import { useShare } from './useShare';
 import { useHoldersData } from '@/app/hooks/useHoldersData';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
 import {
@@ -55,9 +54,6 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   }
   const holdersCount = holdersData?.holders ? holdersData.holders.length : undefined;
   const logoChar = (tokenSymbol || tokenName)?.slice(0, 1).toUpperCase() || '📈';
-
-  // Share functionality
-  const { shareContent, isShareSupported } = useShare();
 
   // Chat state
   const [wsReady, setWsReady] = useState(false);
@@ -126,7 +122,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
     setComposerInput(next);
     requestAnimationFrame(() => {
       const pos = Math.min(start + snippet.length, next.length);
-      try { el.setSelectionRange(pos, pos); } catch { }
+      try { el.setSelectionRange(pos, pos); } catch {}
       el.focus();
     });
   };
@@ -153,11 +149,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const filterSortSearch = (messageList: Message[]) => {
     const q = searchQuery.toLowerCase().trim();
     let filtered = messageList.filter((m) => (q ? m.text.toLowerCase().includes(q) : true));
-
+    
     if (sortMode === "new") filtered.sort((a, b) => b.ts - a.ts);
     if (sortMode === "old") filtered.sort((a, b) => a.ts - b.ts);
     if (sortMode === "top") filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-
+    
     return filtered;
   };
 
@@ -181,29 +177,29 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
     return (
       <>
         {all && <span>{all} </span>}
-        <button
-          onClick={() => handleReaction(m.id, "👍")}
+        <button 
+          onClick={() => handleReaction(m.id, "👍")} 
           title="Like"
           className={styles.iconBtn}
         >
           👍
         </button>
-        <button
-          onClick={() => handleReaction(m.id, "🔥")}
+        <button 
+          onClick={() => handleReaction(m.id, "🔥")} 
           title="Fire"
           className={styles.iconBtn}
         >
           🔥
         </button>
-        <button
-          onClick={() => handleReaction(m.id, "🚀")}
+        <button 
+          onClick={() => handleReaction(m.id, "🚀")} 
           title="Rocket"
           className={styles.iconBtn}
         >
           🚀
         </button>
-        <button
-          onClick={() => handleReaction(m.id, "❤️")}
+        <button 
+          onClick={() => handleReaction(m.id, "❤️")} 
           title="Heart"
           className={styles.iconBtn}
         >
@@ -384,7 +380,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const closeSocket = useCallback(() => {
     try {
       wsRef.current?.close();
-    } catch { }
+    } catch {}
     wsRef.current = null;
     setWsReady(false);
     joinedChatRef.current = null;
@@ -604,8 +600,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
             <div className={styles.right}>
               {walletConnected && (
-                <button
-                  className={styles.iconBtn}
+                <button 
+                  className={styles.iconBtn} 
                   onClick={() => toggleSave()}
                   title={savedState ? 'Remove from saved' : 'Save token'}
                   type="button"
@@ -615,42 +611,40 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   {savedState ? '★' : '☆'}
                 </button>
               )}
-              <button
-                className={styles.iconBtn}
+              <button 
+                className={styles.iconBtn} 
                 onClick={async () => {
                   const url = (typeof window !== 'undefined' && window.location) ? window.location.href : '';
                   if (!url) return;
-                  
                   try {
-                    const shareData = {
-                      title: `${tokenName} ($${tokenSymbol})`,
-                      text: tokenPrice ? `Current price: ${usd2.format(tokenPrice)}` : undefined,
-                      url
-                    };
-                    
-                    const result = await shareContent(shareData);
-                    
-                    // Show appropriate success message based on method used
-                    if (result.method === 'webshare') {
-                      // No need for alert - native share UI provides feedback
-                      return;
-                    } else if (result.method === 'clipboard' || result.method === 'legacy') {
-                      const link = url.length > 50 ? url.slice(0, 47) + '...' : url;
-                      alert(`Link copied to clipboard:\n${link}`);
-                    }
-                  } catch (error) {
-                    console.error('Share failed:', error);
-                    alert('Unable to share or copy link');
+                    await navigator.clipboard.writeText(url);
+                    alert("Link copied to clipboard:\n" + url);
+                  } catch {
+                    try {
+                      if ((navigator as any).share) {
+                        await (navigator as any).share({ url });
+                        return;
+                      }
+                    } catch {}
+                    try {
+                      const ta = document.createElement('textarea');
+                      ta.value = url;
+                      document.body.appendChild(ta);
+                      ta.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(ta);
+                      alert("Link copied to clipboard:\n" + url);
+                    } catch {}
                   }
                 }}
-                title="Share"
+                title="Copy link"
                 type="button"
               >
                 ⤴
               </button>
-              <button
-                className={styles.iconBtn}
-                onClick={onClose}
+              <button 
+                className={styles.iconBtn} 
+                onClick={onClose} 
                 title="Close"
                 type="button"
               >
@@ -664,8 +658,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
             </nav>
             <div className={styles.toggles} title="Posting policy">
               <label>
-                <input
-                  type="checkbox"
+                <input 
+                  type="checkbox" 
                   checked={holdersOnly}
                   onChange={(e) => setHoldersOnly(e.target.checked)}
                 />
@@ -679,14 +673,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
         <div className={styles.filterbar} role="region" aria-label="Chat filters">
           <div className={styles.search}>
             🔎
-            <input
-              placeholder="Search chat..."
+            <input 
+              placeholder="Search chat..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <select
-            className={styles.sort}
+          <select 
+            className={styles.sort} 
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as SortMode)}
             aria-label="Sort"
@@ -750,9 +744,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
         <footer className={styles.composer} role="region" aria-label="Composer">
           {!walletConnected ? (
             <div className={styles.walletCta}>
-              <button
-                className={styles.primary}
-                onClick={() => connect().catch(() => { })}
+              <button 
+                className={styles.primary} 
+                onClick={() => connect().catch(() => {})}
                 type="button"
               >
                 Connect wallet to post
@@ -765,7 +759,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   <button
                     ref={emojiBtnRef}
                     className={`${styles.iconBtn} ${showEmojiPicker ? styles.emojiBtnActive : ''}`}
-                    onClick={() => { setHasEmojiPickerMounted(true); setShowEmojiPicker(v => !v); }}
+                  onClick={() => { setHasEmojiPickerMounted(true); setShowEmojiPicker(v => !v); }}
                     aria-expanded={showEmojiPicker}
                     aria-haspopup="dialog"
                     aria-controls="emoji-picker"
@@ -812,7 +806,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
                   onChange={(e) => setComposerInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                 />
-                <button
+                <button 
                   className={`${styles.primary} ${!canPost ? styles.disabled : ''}`}
                   onClick={handleSendMessage}
                   title="Enter"
