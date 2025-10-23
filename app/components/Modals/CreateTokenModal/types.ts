@@ -100,9 +100,12 @@ export interface MetaData {
   tg: string;
   tw: string;
   logo: string;
+  logoFile: File | null;
   banner: string;
-  logoFile?: File;
-  bannerFile?: File;
+  bannerFile: File | null;
+  autoBrand: boolean;
+  audio: string;
+  audioFile: File | null;
 }
 
 export interface Fees {

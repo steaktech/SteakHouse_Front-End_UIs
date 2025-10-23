@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { MetaData } from './types';
 import HelpTooltip from '../../UI/HelpTooltip';
 import styles from './CreateTokenModal.module.css';
 
 interface Step5MetadataSocialsProps {
   meta: MetaData;
-  onMetaChange: (field: string, value: string | File) => void;
+  onMetaChange: (field: string, value: string | File | boolean) => void;
   onBack: () => void;
   onContinue: () => void;
 }
@@ -18,8 +18,10 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
 }) => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const handleFileChange = (field: 'logoFile' | 'bannerFile', file: File | null) => {
+  const handleFileChange = (field: 'logoFile' | 'bannerFile' | 'audioFile', file: File | null) => {
     if (file) {
       onMetaChange(field, file);
       // Clear the URL field when a file is selected
@@ -189,6 +191,98 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
             Recommended: 1500x500px, PNG/JPG
           </div>
         </div>
+      </div>
+
+      {/* Advanced Section */}
+      <div className={styles.card} style={{ marginTop: '16px' }}>
+        <button
+          type="button"
+          className={`${styles.btn} ${styles.btnGhost}`}
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          style={{ 
+            width: '100%', 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '12px'
+          }}
+        >
+          <span>Additional Features</span>
+          <span style={{ transform: showAdvanced ? 'rotate(180deg)' : 'none' }}>▼</span>
+        </button>
+
+        {showAdvanced && (
+          <div style={{ marginTop: '16px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={meta.autoBrand || false}
+                  onChange={(e) => onMetaChange('autoBrand', e.target.checked)}
+                  className={styles.checkbox}
+                />
+                <span style={{ marginLeft: '8px' }}>Auto brand</span>
+                <HelpTooltip content="Enable special branding features for your token" />
+              </label>
+            </div>
+
+            <div className={styles.card}>
+              <div className={styles.label}>
+                Audio Branding 
+                <HelpTooltip content="Add a unique audio signature to your token (MP3 file, max 2MB)" />
+              </div>
+              
+              {/* Audio File Upload */}
+              <div style={{ marginBottom: '12px' }}>
+                <input
+                  ref={audioInputRef}
+                  type="file"
+                  id="audio-file"
+                  accept="audio/mpeg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && file.size > 10 * 1024 * 1024) {
+                      alert('Audio file must be less than 10MB');
+                      return;
+                    }
+                    handleFileChange('audioFile', file || null);
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.btnGhost}`}
+                  onClick={() => audioInputRef.current?.click()}
+                  style={{ width: '100%', marginBottom: '8px' }}
+                >
+                  {meta.audioFile ? `Selected: ${meta.audioFile.name}` : 'Upload Audio File'}
+                </button>
+                
+              </div>
+              
+              <div style={{ textAlign: 'center', margin: '8px 0', color: '#888' }}>OR</div>
+              
+              {/* URL Input Option */}
+              <input 
+                className={styles.input}
+                value={meta.audio || ''}
+                onChange={(e) => {
+                  onMetaChange('audio', e.target.value);
+                  // Clear the file when a URL is entered
+                  if (meta.audioFile) {
+                    handleFileChange('audioFile', null);
+                  }
+                }}
+                placeholder="https://yoursite.com/audio.mp3"
+                disabled={!!meta.audioFile}
+              />
+
+              <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
+                Supported: MP3 format, max 10MB
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className={styles.footerNav}>
