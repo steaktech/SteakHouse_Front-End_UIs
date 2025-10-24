@@ -55,3 +55,10 @@ export interface CreateLimitOrderResponse {
   order?: any;
   [key: string]: any;
 }
+
+export interface CancelLimitOrderResponse {
+  id?: string | number;
+  status?: string;
+  message?: string;
+  [key: string]: any;
+}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from './SteakHoldersWidget.module.css';
 import { useHoldersData } from '@/app/hooks/useHoldersData';
+import { useChainId, useChains } from 'wagmi';
 import { 
   SteakHoldersWidgetProps, 
   SteakHoldersWidgetState, 
@@ -207,6 +208,11 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
 
   const [filteredHolders, setFilteredHolders] = useState<ProcessedHolderData[]>([]);
   const [distributionSegments, setDistributionSegments] = useState<DistributionSegment[]>([]);
+
+  // Active chain from wagmi config
+  const chainId = useChainId();
+  const chains = useChains();
+  const activeChain = chains.find((c) => c.id === chainId);
 
   // Fetch real holders data when tokenAddress is provided
   const { 
@@ -607,7 +613,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
                       {token.name === "N/A" ? `Token ${short(token.address)}` : `${token.name} (${token.symbol})`}
                     </div>
                     <span className={styles.pill}>
-                      {token.chain === "N/A" ? "EVM Network" : token.chain}
+                      {activeChain?.name ?? (token.chain === "N/A" ? "EVM Network" : token.chain)}
                     </span>
                     <span className={styles.pill}>Holders: {EN.format(holders.length)}</span>
                   </div>

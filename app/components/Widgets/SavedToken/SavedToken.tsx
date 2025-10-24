@@ -7,6 +7,7 @@ import { SavedTokenData, SavedTokenWidgetProps, SavedTokenWidgetState } from './
 import { useWallet } from '@/app/hooks/useWallet';
 import { fetchSavedTokens, SavedTokenApiItem, removeSavedToken } from '@/app/lib/api/services/userService';
 import { DEFAULT_TOKEN_IMAGE } from '@/app/lib/config/constants';
+import { useChainId, useChains } from 'wagmi';
 
 // Demo data for saved tokens
 const demoSavedTokens: SavedTokenData[] = [
@@ -92,6 +93,11 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const { address, isConnected } = useWallet();
+
+  // Active chain from wagmi config
+  const chainId = useChainId();
+  const chains = useChains();
+  const activeChain = chains.find((c) => c.id === chainId);
 
   // Load from API when widget opens and wallet connected; fall back to provided data or demo
   useEffect(() => {
@@ -259,6 +265,9 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
             <div className={styles.title}>Saved Tokens</div>
             <div className={styles.sub}>Your bookmarked tokens</div>
           </div>
+          <span className={styles.tokenChain} title="Active network">
+            {activeChain?.name ?? 'EVM Network'}
+          </span>
           <div className={styles.spacer} />
           {/* <button className={styles.btn} title="Pin widget">Pin</button> */}
           <button className={styles.btn} onClick={onClose} title="Close">
@@ -324,7 +333,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
                     <div className={styles.tokenName}>{token.name}</div>
                     <div className={styles.tokenDetails}>
                       <span className={styles.tokenSymbol}>{token.symbol}</span>
-                      <span className={styles.tokenChain}>{token.chain}</span>
+                      {/* <span className={styles.tokenChain}>{token.chain}</span> */}
                     </div>
                   </div>
 

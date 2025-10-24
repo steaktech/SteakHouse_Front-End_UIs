@@ -55,6 +55,7 @@ interface CompactLimitOrderBookProps extends Omit<LimitOrderBookProps, 'orders'>
 
 import { useLimitOrders } from '@/app/hooks/useLimitOrders';
 import { useTrading } from '@/app/hooks/useTrading';
+import { cancelLimitOrder } from '@/app/lib/api/services/ordersService';
 
 export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
   orders = [],
@@ -72,6 +73,8 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
   const [editingOrder, setEditingOrder] = useState<string | null>(null);
   const [newPrice, setNewPrice] = useState('');
   const [newAmount, setNewAmount] = useState('');
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
 
   // Filter orders
   const getFilteredOrders = () => {
@@ -120,8 +123,22 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
   };
 
   const handleCancelOrder = async (orderId: string) => {
-    if (onCancelOrder) {
-      await onCancelOrder(orderId);
+    try {
+      setCancellingId(orderId);
+      const resp = await cancelLimitOrder(orderId, { walletAddress: tradingWallet });
+      // If API confirms canceled, hide immediately
+      const status = String(resp?.status || '').toLowerCase();
+      if (status === 'canceled' || status === 'cancelled') {
+        setHiddenIds(prev => new Set(prev).add(orderId));
+      }
+      await refetch();
+      if (onCancelOrder) {
+        await onCancelOrder(orderId);
+      }
+    } catch (e) {
+      console.error('Failed to cancel order', e);
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -139,10 +156,10 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
 // Fetch API orders using trading wallet when available; filter by token if provided
   const { tradingState } = useTrading();
   const tradingWallet = tradingState?.tradingWallet ?? undefined;
-  const { data: apiOrders, isLoading: apiLoading, error: apiError } = useLimitOrders({ wallet: tradingWallet, tokenAddress });
+  const { data: apiOrders, isLoading: apiLoading, error: apiError, refetch } = useLimitOrders({ wallet: tradingWallet, tokenAddress });
 
   // Only show API orders; no fallback to dummy/prop data
-  const mergedOrders = apiOrders ?? [];
+  const mergedOrders = (apiOrders ?? []).filter(o => !hiddenIds.has(o.id));
 
   // Recompute filters on merged orders
   const filteredOrders = (() => {
@@ -601,11 +618,12 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
                       </button>
                       <button
                         onClick={() => handleCancelOrder(order.id)}
+                        disabled={cancellingId === order.id}
                         style={{
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          opacity: 1,
+                          opacity: cancellingId === order.id ? 0.6 : 1,
                           transition: 'opacity 0.2s',
                           display: 'flex',
                           alignItems: 'center',

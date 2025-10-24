@@ -1,7 +1,7 @@
 // lib/api/services/ordersService.ts
 import { apiClient } from '../client';
 import { blockchainApiClient } from '../blockchainClient';
-import type { GetLimitOrdersRequest, GetLimitOrdersResponse, CreateLimitOrderRequest, CreateLimitOrderResponse } from '@/app/types/orders';
+import type { GetLimitOrdersRequest, GetLimitOrdersResponse, CreateLimitOrderRequest, CreateLimitOrderResponse, CancelLimitOrderResponse } from '@/app/types/orders';
 
 /**
  * Fetch user limit orders from backend using apiClient base URL
@@ -24,6 +24,20 @@ export async function getUserLimitOrders(payload: GetLimitOrdersRequest): Promis
   const res = await apiClient<GetLimitOrdersResponse>(`/getLimitOrders`, {
     method: 'POST',
     body: JSON.stringify(body)
+  });
+  return res;
+}
+
+/**
+ * Cancel an existing limit order
+ * Endpoint: POST /limitOrders/{id}/cancel (blockchain base)
+ */
+export async function cancelLimitOrder(id: string, body?: { walletAddress?: string }): Promise<CancelLimitOrderResponse> {
+  if (!id) throw new Error('order id is required');
+  const payload = body && Object.keys(body).length > 0 ? body : { id };
+  const res = await blockchainApiClient<CancelLimitOrderResponse>(`/limitOrders/${id}/cancel`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
   });
   return res;
 }
