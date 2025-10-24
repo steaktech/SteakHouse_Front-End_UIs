@@ -357,7 +357,7 @@
   opacity: 0.96;
   line-height: 1.44;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .socials {
@@ -512,7 +512,7 @@
 
 .scoreStats .statValue {
   font-family: "Sora", "Inter", sans-serif;
-  font-weight: 800;
+  font-weight: 500;
   font-size: 13px;
   line-height: 1.1;
   color: #fff6e6;

@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, Lock, Unlock, Clock, Search, Calendar, ExternalLink, UserPlus, CalendarPlus } from 'lucide-react';
 import styles from './LockerWidget.module.css';
-import { 
-  LockerWidgetProps, 
-  LockerWidgetState, 
+import {
+  LockerWidgetProps,
+  LockerWidgetState,
   TokenLock,
   TabType,
   DurationPreset,
@@ -84,18 +84,18 @@ const shortAddress = (address: string): string => {
 const getTimeRemaining = (unlockDate: Date): string => {
   const now = new Date();
   const diff = unlockDate.getTime() - now.getTime();
-  
+
   if (diff <= 0) return 'Expired';
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
+
   if (days > 0) return `${days}d ${hours}h`;
   if (hours > 0) {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours}h ${minutes}m`;
   }
-  
+
   const minutes = Math.floor(diff / (1000 * 60));
   return `${minutes}m`;
 };
@@ -106,10 +106,10 @@ const getLockProgress = (lock: TokenLock): number => {
   const end = lock.unlockDate.getTime();
   const total = end - start;
   const elapsed = now - start;
-  
+
   if (elapsed >= total) return 100;
   if (elapsed <= 0) return 0;
-  
+
   return (elapsed / total) * 100;
 };
 
@@ -140,7 +140,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
 
   const [locks, setLocks] = useState<TokenLock[]>([]);
   const [filteredLocks, setFilteredLocks] = useState<TokenLock[]>([]);
-const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Modal state for Transfer Ownership and Extend Lock
   const [actionModal, setActionModal] = useState<{
@@ -172,7 +172,7 @@ const [isLoading, setIsLoading] = useState(false);
     // Apply sorting
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (state.sortBy) {
         case 'amount':
           aValue = a.amount;
@@ -215,7 +215,7 @@ const [isLoading, setIsLoading] = useState(false);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-// Event handlers
+  // Event handlers
   const handleTabChange = (tab: TabType) => {
     setState(prev => ({ ...prev, activeTab: tab }));
   };
@@ -264,7 +264,7 @@ const [isLoading, setIsLoading] = useState(false);
         };
         setLocks(prev => [...prev, newLock]);
       }
-      
+
       // Reset form
       setState(prev => ({
         ...prev,
@@ -283,16 +283,16 @@ const [isLoading, setIsLoading] = useState(false);
     }
   };
 
-const handleUnlock = async (lockId: string) => {
+  const handleUnlock = async (lockId: string) => {
     setIsLoading(true);
     try {
       if (onUnlock) {
         await onUnlock(lockId);
       } else {
         // Demo mode: update local state
-        setLocks(prev => 
-          prev.map(lock => 
-            lock.id === lockId 
+        setLocks(prev =>
+          prev.map(lock =>
+            lock.id === lockId
               ? { ...lock, status: 'unlocked' as const, withdrawable: false }
               : lock
           )
@@ -384,7 +384,7 @@ const handleUnlock = async (lockId: string) => {
   // Render functions
   const renderCreateTab = () => {
     const durationPresets: DurationPreset[] = [7, 14, 30, 90, 180, 365];
-    
+
     const unlockDate = new Date(
       Date.now() + state.formData.lockDuration * 24 * 60 * 60 * 1000
     );
@@ -392,7 +392,7 @@ const handleUnlock = async (lockId: string) => {
     return (
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Liquidity Pool Address</label>
+          <label className={styles.label}>Liquidity Pool / Token Address</label>
           <input
             type="text"
             className={styles.input}
@@ -416,7 +416,7 @@ const handleUnlock = async (lockId: string) => {
                 // Magnetic snap near major percentages (within 3% range)
                 const snapRange = 3;
                 const majorValues = [0, 25, 50, 75, 100];
-                
+
                 let snappedValue = value;
                 for (const major of majorValues) {
                   if (Math.abs(value - major) <= snapRange) {
@@ -424,7 +424,7 @@ const handleUnlock = async (lockId: string) => {
                     break;
                   }
                 }
-                
+
                 handleFormChange('amount', snappedValue.toString());
               }}
               style={{
@@ -470,9 +470,9 @@ const handleUnlock = async (lockId: string) => {
               }
             `}</style>
             {/* Percentage markers */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
               marginTop: '8px',
               fontSize: '10px',
               color: 'rgba(254, 234, 136, 0.6)',
@@ -493,9 +493,8 @@ const handleUnlock = async (lockId: string) => {
             {durationPresets.map((days) => (
               <button
                 key={days}
-                className={`${styles.durationBtn} ${
-                  state.formData.lockDuration === days ? styles.selected : ''
-                }`}
+                className={`${styles.durationBtn} ${state.formData.lockDuration === days ? styles.selected : ''
+                  }`}
                 onClick={() => handleDurationSelect(days)}
               >
                 {days} Days
@@ -535,8 +534,8 @@ const handleUnlock = async (lockId: string) => {
           </div>
           <div className={styles.emptyTitle}>No Locks Found</div>
           <div className={styles.emptyMessage}>
-            {state.searchQuery 
-              ? 'No locks match your search criteria.' 
+            {state.searchQuery
+              ? 'No locks match your search criteria.'
               : 'Create your first token lock to get started.'}
           </div>
         </div>
@@ -560,7 +559,7 @@ const handleUnlock = async (lockId: string) => {
         {filteredLocks.map((lock) => {
           const progress = getLockProgress(lock);
           const timeRemaining = getTimeRemaining(lock.unlockDate);
-          
+
           return (
             <div key={lock.id} className={styles.lockCard}>
               <div className={styles.lockHeader}>
@@ -605,14 +604,14 @@ const handleUnlock = async (lockId: string) => {
 
               {lock.status !== 'unlocked' && (
                 <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill} 
+                  <div
+                    className={styles.progressFill}
                     style={{ width: `${progress}%` }}
                   />
                 </div>
               )}
 
-<div className={styles.lockActions}>
+              <div className={styles.lockActions}>
                 <button
                   className={styles.secondaryBtn}
                   onClick={() => openExtendModal(lock)}
@@ -656,7 +655,7 @@ const handleUnlock = async (lockId: string) => {
   return (
     <div className={`${styles.root} ${isOpen ? styles.open : ''}`}>
       <div className={styles.overlay} onClick={handleOverlayClick} />
-      
+
       <div className={styles.panel}>
         <header className={styles.header}>
           <div className={styles.headerTop}>
@@ -668,8 +667,8 @@ const handleUnlock = async (lockId: string) => {
               <div className={styles.sub}>Lock tokens securely for any duration</div>
             </div>
           </div>
-          
-          <button 
+
+          <button
             className={styles.closeBtn}
             onClick={onClose}
             aria-label="Close locker widget"

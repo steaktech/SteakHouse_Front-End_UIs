@@ -253,7 +253,8 @@ export default function TradingDashboard() {
                   onClick={handleSearchClick}
                   className={`${styles["btn-5"]} flex items-center gap-1 w-full justify-center text-xs py-1.5`}
                 >
-
+                  <span className={styles.leftSteak}>🥩</span>
+                  <span className={styles.rightSteak}>🥩</span>
                   <Search size={14} />
                   <span>Search...</span>
                 </button>
@@ -320,7 +321,8 @@ export default function TradingDashboard() {
                   onClick={handleSearchClick}
                   className={`${styles["btn-5"]} flex items-center gap-2 w-full justify-center`}
                 >
-
+                  <span className={styles.leftSteak}>🥩</span>
+                  <span className={styles.rightSteak}>🥩</span>
                   <Search size={16} />
                   <span>Search...</span>
                 </button>
@@ -400,7 +402,8 @@ export default function TradingDashboard() {
                   onClick={handleSearchClick}
                   className={`${styles["btn-5"]} flex items-center gap-2`}
                 >
-
+                  <span className={styles.leftSteak}>🥩</span>
+                  <span className={styles.rightSteak}>🥩</span>
                   <Search size={18} />
                   <span>Search...</span>
                 </button>

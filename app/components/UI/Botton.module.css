@@ -317,9 +317,8 @@
 	backdrop-filter: blur(2px);
 }
 
-/* Left steak emoji - moved to ::before to avoid conflicts */
-.btn-5::before {
-	content: "🥩";
+/* Left steak emoji */
+.btn-5 .leftSteak {
 	position: absolute;
 	top: 50%;
 	left: -30px;
@@ -329,6 +328,24 @@
 	transform: translateY(-50%);
 	pointer-events: none;
 	z-index: 2;
+}
+
+/* Centered text overlay using ::before */
+.btn-5::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	z-index: 10;
+	font-weight: 700;
+	font-size: inherit;
+	color: #fff5d6;
+	letter-spacing: inherit;
+	white-space: nowrap;
+	pointer-events: none;
+	transition: all 0.3s ease;
 }
 
 /* Subtle blink effect moved to ::after with different positioning */
@@ -349,6 +366,7 @@
 	z-index: 1;
 }
 
+
 /* Right steak emoji */
 .btn-5 .rightSteak {
 	position: absolute;
@@ -362,8 +380,13 @@
 	z-index: 2;
 }
 
-.btn-5:hover::before {
+.btn-5:hover .leftSteak {
 	left: 15px;
+	opacity: 1;
+}
+
+.btn-5:hover::before {
+	content: "Search";
 	opacity: 1;
 }
 
@@ -374,6 +397,20 @@
 .btn-5:hover .rightSteak {
 	right: 15px;
 	opacity: 1;
+}
+
+/* Hide original text content and search icon on hover */
+.btn-5:hover span:not(.rightSteak),
+.btn-5:hover svg {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+/* Ensure steaks and centered text stay visible on hover */
+.btn-5:hover::before,
+.btn-5:hover .leftSteak,
+.btn-5:hover .rightSteak {
+	opacity: 1 !important;
 }
 
 .btn-5:hover {
