@@ -90,6 +90,37 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     }) + '%';
   };
 
+  // Format display values to prevent layout issues
+  const formatDisplayValue = (value: string | number | null | undefined, maxLength: number = 12): string => {
+    if (!value && value !== 0) return 'N/A';
+    
+    const stringValue = String(value);
+    
+    // If it's a percentage, handle it specially
+    if (stringValue.includes('%')) {
+      const numericPart = stringValue.replace(/[^0-9.-]/g, '');
+      const numValue = parseFloat(numericPart);
+      
+      if (!isNaN(numValue)) {
+        // Cap percentage at reasonable values
+        if (numValue > 100) {
+          return '100%+';
+        } else if (numValue < 0) {
+          return '0%';
+        } else {
+          return `${numValue.toFixed(1)}%`;
+        }
+      }
+    }
+    
+    // If the value is too long, truncate it
+    if (stringValue.length > maxLength) {
+      return stringValue.substring(0, maxLength - 1) + '…';
+    }
+    
+    return stringValue;
+  };
+
   // Calculate progress percentage
   const calculateProgress = (): number => {
     // If progress is explicitly provided, use it
@@ -376,7 +407,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
         <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
         <div className={styles.taxChips}>
           <span className={styles.chip}>Current Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</span>
-          <span className={styles.chip}>MaxTX: {maxTxPercent ?? '2.1%'}</span>
+          <span className={styles.chip}>MaxTX: {formatDisplayValue(maxTxPercent ?? '2.1%', 8)}</span>
         </div>
       </section>
 
