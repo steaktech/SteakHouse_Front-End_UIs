@@ -90,6 +90,16 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     }) + '%';
   };
 
+  // Format MaxTX percentage string to exactly 2 decimals and clamp to 0-100
+  const formatMaxTxPercent = (raw?: string) => {
+    if (!raw) return '2.10%';
+    const normalized = raw.toString().replace(/,/g, '').replace(/%/g, '').trim();
+    const num = parseFloat(normalized);
+    if (!isFinite(num)) return '2.10%';
+    const clamped = Math.max(0, Math.min(100, num));
+    return `${clamped.toFixed(2)}%`;
+  };
+
   // Calculate progress percentage
   const calculateProgress = (): number => {
     // If progress is explicitly provided, use it
@@ -376,7 +386,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
         <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
         <div className={styles.taxChips}>
           <span className={styles.chip}>Current Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</span>
-          <span className={styles.chip}>MaxTX: {maxTxPercent ?? '2.1%'}</span>
+          <span className={styles.chip}>MaxTX: {formatMaxTxPercent(maxTxPercent)}</span>
         </div>
       </section>
 
