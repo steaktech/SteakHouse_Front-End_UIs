@@ -17,7 +17,7 @@ interface SteakDrop {
 
 export default function SteakMatrixAnimation() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
   const [drops, setDrops] = useState<SteakDrop[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 

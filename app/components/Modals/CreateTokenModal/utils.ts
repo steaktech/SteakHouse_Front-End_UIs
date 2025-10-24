@@ -92,7 +92,19 @@ export const initialState: TokenState = {
       ethAmount: '1.0'         // 1 ETH for stealth LP
     }
   },
-  meta: { desc: "", website: "", tg: "", tw: "", logo: "", banner: "" },
+  meta: { 
+    desc: "", 
+    website: "", 
+    tg: "", 
+    tw: "", 
+    logo: "", 
+    logoFile: null,
+    banner: "", 
+    bannerFile: null,
+    autoBrand: false,
+    audio: "",
+    audioFile: null
+  },
   txHash: null,
 };
 

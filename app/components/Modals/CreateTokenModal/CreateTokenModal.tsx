@@ -280,7 +280,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     }));
   }, []);
 
-  const handleMetaChange = useCallback((field: string, value: string | File) => {
+  const handleMetaChange = useCallback((field: string, value: string | boolean | File) => {
     setState(prev => ({
       ...prev,
       meta: { ...prev.meta, [field]: value as any }
