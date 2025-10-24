@@ -95,7 +95,7 @@ const mockOrders: LimitOrder[] = [
 ];
 
 export const LimitOrderBook: React.FC<LimitOrderBookProps> = ({
-  orders = mockOrders,
+  orders = [],
   onCancelOrder,
   onModifyOrder,
   loading = false,

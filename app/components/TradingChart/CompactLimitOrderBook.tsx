@@ -44,15 +44,21 @@ const SellArrow = ({ size = 12 }: { size?: number }) => (
   </svg>
 );
 
-interface CompactLimitOrderBookProps extends LimitOrderBookProps {
+interface CompactLimitOrderBookProps extends Omit<LimitOrderBookProps, 'orders'> {
+  orders?: LimitOrder[];
+  tokenAddress?: string;
   showToggle?: boolean;
   showLimitOrders?: boolean;
   onToggleChange?: (showLimitOrders: boolean) => void;
   isMobile?: boolean;
 }
 
+import { useLimitOrders } from '@/app/hooks/useLimitOrders';
+import { useTrading } from '@/app/hooks/useTrading';
+
 export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
   orders = [],
+  tokenAddress,
   onCancelOrder,
   onModifyOrder,
   loading = false,
@@ -84,6 +90,8 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
         return '#60a5fa';
       case 'cancelled':
         return '#f87171';
+      case 'failed':
+        return '#f97316';
       default:
         return '#feea88';
     }
@@ -97,6 +105,8 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
         return '⏳';
       case 'cancelled':
         return '✕';
+      case 'failed':
+        return '!';
       default:
         return '•';
     }
@@ -126,7 +136,22 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
     }
   };
 
-  const filteredOrders = getFilteredOrders();
+// Fetch API orders using trading wallet when available; filter by token if provided
+  const { tradingState } = useTrading();
+  const tradingWallet = tradingState?.tradingWallet ?? undefined;
+  const { data: apiOrders, isLoading: apiLoading, error: apiError } = useLimitOrders({ wallet: tradingWallet, tokenAddress });
+
+  // Only show API orders; no fallback to dummy/prop data
+  const mergedOrders = apiOrders ?? [];
+
+  // Recompute filters on merged orders
+  const filteredOrders = (() => {
+    let filtered = mergedOrders;
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(order => order.status === filterStatus);
+    }
+    return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  })();
 
   return (
     <div style={{
@@ -277,6 +302,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
             <option value="pending" style={{ background: '#2d1506', color: '#feea88' }}>Active</option>
             <option value="filled" style={{ background: '#2d1506', color: '#feea88' }}>Filled</option>
             <option value="cancelled" style={{ background: '#2d1506', color: '#feea88' }}>Cancelled</option>
+            <option value="failed" style={{ background: '#2d1506', color: '#feea88' }}>Failed</option>
           </select>
         </div>
         
@@ -364,7 +390,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
           padding: isMobile ? '0 3px' : '0 1px',
           paddingRight: isMobile ? '3px' : '4px' // Extra space for scrollbar on desktop
         }}>
-          {loading && (
+          {(loading || apiLoading) && (
             <div style={{
               textAlign: 'center',
               color: '#feea88',
@@ -375,7 +401,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
             </div>
           )}
 
-          {!loading && filteredOrders.length === 0 && (
+          {!(loading || apiLoading) && filteredOrders.length === 0 && (
             <div style={{
               textAlign: 'center',
               color: '#feea88',
@@ -386,11 +412,11 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
               {filterStatus === 'all' ? 'No limit orders found' : 
                filterStatus === 'pending' ? 'No active orders' :
                filterStatus === 'filled' ? 'No filled orders' : 
-               'No cancelled orders'}
+               filterStatus === 'cancelled' ? 'No cancelled orders' : 'No failed orders'}
             </div>
           )}
 
-          {!loading && filteredOrders.map((order) => (
+          {!(loading || apiLoading) && filteredOrders.map((order) => (
             <div
               key={order.id}
               style={{

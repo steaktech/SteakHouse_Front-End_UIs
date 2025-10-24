@@ -36,7 +36,7 @@ export type TradeHistoryProps = {
 // Limit Order Types
 export type OrderType = 'market' | 'limit' | 'stop-limit';
 export type OrderSide = 'buy' | 'sell';
-export type OrderStatus = 'pending' | 'filled' | 'cancelled';
+export type OrderStatus = 'pending' | 'filled' | 'cancelled' | 'failed';
 export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'DAY';
 
 export type LimitOrder = {

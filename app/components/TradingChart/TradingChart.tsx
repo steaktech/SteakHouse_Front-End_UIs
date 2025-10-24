@@ -619,6 +619,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   {showLimitOrders ? (
                     <CompactLimitOrderBook 
                       orders={orderManagement.orders}
+                      tokenAddress={tokenAddress ?? undefined}
                       onCancelOrder={handleOrderCancel}
                       onModifyOrder={handleOrderModify}
                       loading={orderManagement.loading}

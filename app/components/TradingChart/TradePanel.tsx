@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
 import { getMaxTxInfo, extractEthToCurve, getMaxWalletInfo, extractMaxWalletEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { createLimitOrder } from '@/app/lib/api/services/ordersService';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 import { useBalance } from 'wagmi';
@@ -46,6 +47,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
   const [limitSide, setLimitSide] = useState<'buy' | 'sell'>('buy');
+  const [isPlacingLimit, setIsPlacingLimit] = useState(false);
 
   // Wallet + trading integration
   const { isConnected, isConnecting } = useWallet();
@@ -897,14 +899,38 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
 
             {/* Place Limit Order Button */}
             <button
-              onClick={() => {
-                if (limitPrice) {
-                  // This would typically call an onOrderSubmit prop
-                  console.log(`${limitSide.toUpperCase()} Limit Order placed at $${limitPrice}`);
+              onClick={async () => {
+                // Validate inputs
+                const price = parseFloat(limitPrice || '0');
+                const amt = parseFloat(amount || '0');
+                if (!tokenAddress) { showError('No token selected for trading', 'Limit Order'); return; }
+                if (!isConnected) { setIsWalletModalOpen(true); return; }
+                if (!price || price <= 0) { showError('Enter a valid limit price', 'Limit Order'); return; }
+                if (!amt || amt <= 0) { showError('Enter a valid amount', 'Limit Order'); return; }
+                if (!tradingWalletAddress) { showError('Trading wallet not set up', 'Limit Order'); return; }
+                try {
+                  setIsPlacingLimit(true);
+
+                  const resp = await createLimitOrder({
+                    tokenAddress: tokenAddress,
+                    walletAddress: tradingWalletAddress,
+                    side: limitSide,
+                    limitPriceUsd: price,
+                    amountTokens: amt, // API: tokens for sell, ETH for buy
+                  });
+
+                  const msg = resp?.message || 'Limit order placed';
+                  showSuccess(msg, 'Limit Order');
+                  // Optionally clear fields
                   setLimitPrice('');
+                } catch (e: any) {
+                  const errMsg = e?.message || 'Failed to place limit order';
+                  showError(errMsg, 'Limit Order');
+                } finally {
+                  setIsPlacingLimit(false);
                 }
               }}
-              disabled={!limitPrice}
+              disabled={!limitPrice || isPlacingLimit}
               style={{
                 width: '100%',
                 background: limitPrice
@@ -925,7 +951,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 flexShrink: 0,
                 letterSpacing: '0.5px',
                 minHeight: 'clamp(40px, 6vh, 46px)',
-                opacity: limitPrice ? 1 : 0.6
+                opacity: (!limitPrice || isPlacingLimit) ? 0.6 : 1
               }}
               onMouseEnter={(e) => {
                 if (limitPrice) {
@@ -941,8 +967,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
                 }
               }}
-            >
-              PLACE {limitSide.toUpperCase()} LIMIT ORDER
+> 
+              {isPlacingLimit ? `PLACING ${limitSide.toUpperCase()}...` : `PLACE ${limitSide.toUpperCase()} LIMIT ORDER`}
             </button>
           </>
         )}
