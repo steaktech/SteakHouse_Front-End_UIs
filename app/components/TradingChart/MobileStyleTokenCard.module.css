@@ -48,11 +48,10 @@
 .gradient {
   background: radial-gradient(
       90% 100% at 50% 0%,
-      rgba(255, 218, 150, 0.35),
-      rgba(255, 194, 110, 0.2) 45%,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.05) 45%,
       transparent 75%
-    ),
-    linear-gradient(180deg, #9a5a2c 0%, #6a3a1c 58%, #52270f 100%);
+    );
 }
 
 .innerBevel {

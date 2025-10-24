@@ -349,7 +349,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             zIndex: 1,
             ...(tokenData.bannerUrl
               ? {
-                  background: `radial-gradient(90% 100% at 50% 0%, rgba(255, 218, 150, 0.35), rgba(255, 194, 110, 0.2) 45%, transparent 75%), linear-gradient(180deg, rgba(154, 90, 44, 0.55) 0%, rgba(106, 58, 28, 0.55) 58%, rgba(82, 39, 15, 0.55) 100%)`,
+                  background: `radial-gradient(90% 100% at 50% 0%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05) 45%, transparent 75%)`,
                 }
               : {}),
           }}

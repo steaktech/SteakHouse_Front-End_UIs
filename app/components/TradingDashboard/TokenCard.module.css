@@ -147,27 +147,25 @@
 .bannerLayer.gradient {
   background: radial-gradient(
       90% 100% at 50% 0%,
-      rgba(255, 218, 150, 0.35),
-      rgba(255, 194, 110, 0.2) 45%,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.05) 45%,
       transparent 75%
-    ),
-    /* Make the gradient translucent so the banner image is visible */
-    linear-gradient(180deg, rgba(154, 90, 44, 0.72) 0%, rgba(106, 58, 28, 0.72) 58%, rgba(82, 39, 15, 0.72) 100%);
+    );
 }
 
 .bannerLayer.texture {
   background: radial-gradient(
       140px 60px at 70% 10%,
-      rgba(255, 232, 194, 0.3),
+      rgba(255, 255, 255, 0.1),
       transparent 70%
     ),
     radial-gradient(
       120px 50px at 30% 8%,
-      rgba(255, 248, 220, 0.18),
+      rgba(255, 255, 255, 0.05),
       transparent 70%
     );
-  mix-blend-mode: overlay;
-  opacity: 0.9;
+  mix-blend-mode: soft-light;
+  opacity: 0.3;
 }
 
 .bannerLayer.innerBevel {
