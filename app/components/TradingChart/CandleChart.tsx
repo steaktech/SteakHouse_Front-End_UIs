@@ -11,6 +11,7 @@ import {
   type UTCTimestamp,
 } from "lightweight-charts";
 
+
 export type ChartType = "candles" | "line";
 export type CrosshairSetting = "normal" | "magnet" | "hidden";
 export type PriceScaleSetting = "normal" | "log";
