@@ -97,7 +97,7 @@ export const FullscreenChart: React.FC<FullscreenChartProps> = ({
           
           {/* Chart Container */}
           <div className="flex-1 bg-[#0a0508]">
-            <TradingView candles={candles} title={title} symbol={symbol} timeframe={timeframe} onChangeTimeframe={onChangeTimeframe} />
+            <TradingView address={tokenAddress} title={title} symbol={symbol} timeframe={timeframe} onChangeTimeframe={onChangeTimeframe} />
           </div>
           
           {/* Mobile Bottom Controls */}

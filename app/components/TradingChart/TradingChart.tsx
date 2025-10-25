@@ -553,12 +553,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             {/* Trading Chart */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <TradingView 
-                candles={candlesForDisplay}
                 title={apiTokenData?.tokenInfo?.name}
                 symbol={apiTokenData?.tokenInfo?.symbol}
+                address={tokenAddress ?? undefined}
                 timeframe={timeframe}
                 onChangeTimeframe={(tf) => setTimeframe(tf)}
-                livePrice={livePrice}
               />
             </div>
 
