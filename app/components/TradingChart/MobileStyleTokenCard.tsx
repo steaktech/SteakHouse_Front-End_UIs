@@ -396,17 +396,6 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             </div>
             <div className="tickerRow">
               <div className="ticker">${tokenData.symbol}</div>
-              <nav className={styles.socialsTop} aria-label="Social links" style={{ position: 'relative', top: '-8px', left: '6px' }}>
-                <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
-                  <Send size={12} />
-                </button>
-                <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X">
-                  <TwitterIcon />
-                </button>
-                <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website">
-                  <Globe size={12} />
-                </button>
-              </nav>
             </div>
           </div>
         </div>
@@ -443,6 +432,24 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       }}>
         {tokenData.description}
       </p>
+
+      {/* Social buttons section */}
+      <nav className={styles.socialsBottom} aria-label="Social links" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '8px',
+        margin: isLimitMode ? '6px 0' : '12px 0'
+      }}>
+        <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
+          <Send size={12} />
+        </button>
+        <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X">
+          <TwitterIcon />
+        </button>
+        <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website">
+          <Globe size={12} />
+        </button>
+      </nav>
 
       {/* Bottom panel: stats row + searing progress bar */}
       <section className={styles.score} style={{
