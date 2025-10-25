@@ -274,6 +274,7 @@
   margin-top: 4px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
@@ -336,6 +337,7 @@
   min-width: 0;
   overflow: hidden;
   flex-shrink: 1;
+  align-items: center;
 }
 
 .taxChips .chip {
@@ -368,6 +370,9 @@
 .socials {
   display: flex;
   gap: 4px;
+  margin-left: auto;
+  align-items: center;
+  margin-right: 0;
 }
 
 .socialBtn {
