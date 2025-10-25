@@ -80,19 +80,19 @@ const Footer: React.FC = () => {
                 <h3>Solutions</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">Stealth Launchpad</a>
+                    <a href="https://docs.steakhouse.finance/getting-started/what-is-steakhouse">Launchpad Overview</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Bonding Curve For Tax / Limit Tokens</a>
+                    <a href="https://docs.steakhouse.finance/getting-started/what-is-steakhouse/problem-solution">Problem / Solution</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Virtual AMM Trades</a>
+                    <a href="https://docs.steakhouse.finance/getting-started/what-is-steakhouse/ecosystem-overview">Ecosystem Overview</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Liquidity Lock & Vesting</a>
+                    <a href="https://docs.steakhouse.finance/getting-started/what-is-steakhouse/launchpad-benefits">Launchpad Benefits</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">$3 ERC-20 Deploys</a>
+                    <a href="https://docs.steakhouse.finance/user-basics/technical-architecture">Technical Architecture</a>
                   </li>
                 </ul>
 
@@ -103,10 +103,10 @@ const Footer: React.FC = () => {
                 <h3>FAQ'S</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">Developer</a>
+                    <a href="https://docs.steakhouse.finance/extras/faqs/developer">Developer</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Investor</a>
+                    <a href="https://docs.steakhouse.finance/extras/faqs/investor">Investor</a>
                   </li>
                 </ul>
                 
@@ -122,19 +122,19 @@ const Footer: React.FC = () => {
                 <h3>Developers</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">Kitchen Docs</a>
+                    <a href="https://docs.steakhouse.finance/user-basics/developer-documentation">Kitchen Docs</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">SDK / API</a>
+                    <a href="https://docs.steakhouse.finance/api-reference">SDK / API</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Marketing Menu</a>
+                    <a href="https://docs.steakhouse.finance/extras/marketing-menu">Marketing Menu</a>
                   </li>
                   <li>
                     <a href="/coming-soon">Direct Launch</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Creation Fees</a>
+                    <a href="https://docs.steakhouse.finance/user-basics/fees">Creation Fees</a>
                   </li>
                   <li>
                     <a href="https://form.typeform.com/to/cCMVLuxI" target="_blank" rel="noopener noreferrer">Support</a>
@@ -146,19 +146,25 @@ const Footer: React.FC = () => {
                 <h3>Investors</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">Fair Distribution Policy</a>
+                    <a href="https://docs.steakhouse.finance/getting-started/quickstart/login">Login / Setup</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Anti‑Bot & Anti‑Snipe Standard</a>
+                    <a href="https://docs.steakhouse.finance/user-basics/investor-handbook">Investor Handbook</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Fee Structure</a>
+                    <a href="https://t.me/SteakDeploys" target="_blank" rel="noopener noreferrer">New Deploys</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Security & Responsible Disclosure</a>
+                    <a href="https://t.me/SteakTrending" target="_blank" rel="noopener noreferrer">Trending Tokens</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Login / Setup</a>
+                    <a href="/explore">Explorer</a>
+                  </li>
+                  <li>
+                    <a href="https://docs.steakhouse.finance/user-basics/fees">Fee Structure</a>
+                  </li>
+                  <li>
+                    <a href="https://docs.steakhouse.finance/extras/security">Security</a>
                   </li>
                 </ul>
               </div>
@@ -167,7 +173,7 @@ const Footer: React.FC = () => {
                 <h3>Company</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">About SteakHouse</a>
+                    <a href="https://docs.steakhouse.finance/getting-started/what-is-steakhouse">About SteakHouse</a>
                   </li>
                   <li>
                     <a href="/media-kit">Media Kit</a>
@@ -191,16 +197,16 @@ const Footer: React.FC = () => {
                 <h3>Legal</h3>
                 <ul>
                   <li>
-                    <a href="/coming-soon">Terms of Service</a>
+                    <a href="https://docs.steakhouse.finance/extras/legal/terms-of-service">Terms of Service</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Privacy Policy</a>
+                    <a href="https://docs.steakhouse.finance/extras/legal/privacy-policy">Privacy Policy</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Cookie Policy</a>
+                    <a href="https://docs.steakhouse.finance/extras/legal/cookie-policy">Cookie Policy</a>
                   </li>
                   <li>
-                    <a href="/coming-soon">Risk Disclosure</a>
+                    <a href="https://docs.steakhouse.finance/extras/legal/risk-disclosure">Risk Disclosure</a>
                   </li>
                 </ul>
               </div>

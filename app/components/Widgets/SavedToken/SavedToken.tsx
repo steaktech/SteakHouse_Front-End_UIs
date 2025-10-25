@@ -114,7 +114,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
             name: item.name || item.token_address,
             symbol: item.symbol || 'TKN',
             address: item.token_address,
-            chain: 'EVM',
+            chain: 'Ethereum',
             priceUSD: item.price_per_token ? Number(item.price_per_token) : 0,
             imageUrl: item.image_url ?? undefined,
             savedAt: item.saved_at ? new Date(item.saved_at) : new Date(),
@@ -333,7 +333,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
                     <div className={styles.tokenName}>{token.name}</div>
                     <div className={styles.tokenDetails}>
                       <span className={styles.tokenSymbol}>{token.symbol}</span>
-                      {/* <span className={styles.tokenChain}>{token.chain}</span> */}
+                      <span className={styles.tokenChain}>{token.chain}</span>
                     </div>
                   </div>
 
