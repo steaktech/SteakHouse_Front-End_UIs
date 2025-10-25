@@ -305,7 +305,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     >
       {/* Token banner */}
       <div 
-        className={styles.tokenBanner} 
+        className={`${styles.tokenBanner} ${bannerUrl ? styles.tokenBannerHasImage : ''}`} 
         aria-hidden="true"
         style={bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : undefined}
       >

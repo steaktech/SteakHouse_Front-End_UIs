@@ -11,8 +11,8 @@ import {
   DurationPreset,
   LockFormData
 } from './types';
-import { blockchainApiClient } from '@/app/lib/api/blockchainClient';
 import { signAndSubmitTransaction } from '@/app/lib/web3/services/transactionService';
+import { fetchLocks as apiFetchLocks, buildWithdrawLock, buildExtendLock, buildTransferLock } from '@/app/lib/api/services/lockerService';
 import { useAccount } from 'wagmi';
 
 
@@ -119,20 +119,26 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
   const refreshLocks = useCallback(async () => {
     if (!walletAddress) return;
     try {
-      const result = await blockchainApiClient<any>(`/getLocks/${walletAddress}`);
+const result = await apiFetchLocks(walletAddress);
       const mapped: TokenLock[] = Array.isArray(result)
-        ? result.map((r: any, idx: number) => ({
-            id: String(r.id ?? idx),
-            tokenAddress: r.token ?? r.tokenAddress ?? '',
-            tokenName: r.tokenName ?? r.name ?? 'Token',
-            tokenSymbol: r.tokenSymbol ?? r.symbol ?? 'TKN',
-            amount: Number(r.amount ?? r.lockedAmount ?? 0),
-            lockedAt: new Date(r.lockedAt ?? r.createdAt ?? Date.now()),
-            unlockDate: new Date(r.unlockDate ?? r.unlockAt ?? Date.now()),
-            status: (r.status as any) ?? 'active',
-            owner: r.owner ?? walletAddress,
-            withdrawable: Boolean(r.withdrawable ?? r.canWithdraw ?? false),
-          }))
+        ? result.map((r: any, idx: number) => {
+const unlockDate = r.rawUnlockTime ? new Date(Number(r.rawUnlockTime) * 1000) : new Date(r.unlockDate ?? r.unlockAt ?? r.unlockTime ?? Date.now());
+            const withdrawable = Boolean(
+              r.withdrawable ?? r.canWithdraw ?? (Date.now() >= unlockDate.getTime())
+            );
+            return {
+              id: String(r.id ?? idx),
+              tokenAddress: r.token ?? r.tokenAddress ?? '',
+              tokenName: r.tokenName ?? r.name ?? 'Token',
+              tokenSymbol: r.tokenSymbol ?? r.symbol ?? 'TKN',
+              amount: Number(r.amount ?? r.lockedAmount ?? 0),
+              lockedAt: new Date(r.lockedAt ?? r.createdAt ?? Date.now()),
+              unlockDate,
+              status: (r.status as any) ?? 'active',
+              owner: r.owner ?? walletAddress,
+              withdrawable,
+            };
+          })
         : [];
       setLocks(mapped);
     } catch (err) {
@@ -152,22 +158,28 @@ useEffect(() => {
       if (!walletAddress || data) return;
       try {
         // GET /getLocks/:wallet (owner is main wallet address)
-        const result = await blockchainApiClient<any>(`/getLocks/${walletAddress}`);
+const result = await apiFetchLocks(walletAddress);
         // Try to map API response to TokenLock[] if possible; otherwise keep existing locks
         // Expected fields are not strictly defined; attempt a best-effort mapping
         const mapped: TokenLock[] = Array.isArray(result)
-          ? result.map((r: any, idx: number) => ({
-              id: String(r.id ?? idx),
-              tokenAddress: r.token ?? r.tokenAddress ?? '',
-              tokenName: r.tokenName ?? r.name ?? 'Token',
-              tokenSymbol: r.tokenSymbol ?? r.symbol ?? 'TKN',
-              amount: Number(r.amount ?? r.lockedAmount ?? 0),
-              lockedAt: new Date(r.lockedAt ?? r.createdAt ?? Date.now()),
-              unlockDate: new Date(r.unlockDate ?? r.unlockAt ?? Date.now()),
-              status: (r.status as any) ?? 'active',
-              owner: r.owner ?? walletAddress,
-              withdrawable: Boolean(r.withdrawable ?? r.canWithdraw ?? false),
-            }))
+          ? result.map((r: any, idx: number) => {
+const unlockDate = r.rawUnlockTime ? new Date(Number(r.rawUnlockTime) * 1000) : new Date(r.unlockDate ?? r.unlockAt ?? r.unlockTime ?? Date.now());
+              const withdrawable = Boolean(
+                r.withdrawable ?? r.canWithdraw ?? (Date.now() >= unlockDate.getTime())
+              );
+              return {
+                id: String(r.id ?? idx),
+                tokenAddress: r.token ?? r.tokenAddress ?? '',
+                tokenName: r.tokenName ?? r.name ?? 'Token',
+                tokenSymbol: r.tokenSymbol ?? r.symbol ?? 'TKN',
+                amount: Number(r.amount ?? r.lockedAmount ?? 0),
+                lockedAt: new Date(r.lockedAt ?? r.createdAt ?? Date.now()),
+                unlockDate,
+                status: (r.status as any) ?? 'active',
+                owner: r.owner ?? walletAddress,
+                withdrawable,
+              };
+            })
           : locks;
         if (mapped.length) setLocks(mapped);
       } catch (err) {
@@ -267,6 +279,14 @@ const handleCreateLock = async () => {
     alert('Please fill in all required fields');
     return;
   }
+  if (!walletAddress) {
+    try {
+      await (window as any)?.ethereum?.request?.({ method: 'eth_requestAccounts' });
+    } catch (e) {
+      alert('Please connect your wallet');
+      return;
+    }
+  }
 
   setIsLoading(true);
   let created = false;
@@ -275,7 +295,7 @@ const handleCreateLock = async () => {
       await onLockCreate(state.formData);
       created = true;
     } else {
-      // No onLockCreate provided; creation not supported via API
+      alert('Create lock API is not available yet. Please use Extend/Withdraw/Transfer while create is being added.');
       return;
     }
   } catch (error) {
@@ -308,14 +328,8 @@ const handleCreateLock = async () => {
         if (!walletAddress && (!lock.owner || lock.owner.length < 10)) {
           throw new Error('Owner wallet address is required to withdraw');
         }
-        // POST /withdrawLock { token, owner }
-        const body = { token: lock.tokenAddress, owner: walletAddress || lock.owner } as const;
-        const res = await blockchainApiClient<any>('/withdrawLock', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
-        if (res?.error) throw new Error(res.error);
-        const unsigned = res?.unsignedTx || res;
+// POST /withdrawLock { token, owner }
+        const unsigned = await buildWithdrawLock(lock.tokenAddress, walletAddress || lock.owner);
         // Normalize gas field to hex string as 'gas'
         const gasDec = unsigned.gas ?? unsigned.gasLimit;
         const gasHex = gasDec ? ('0x' + Number(gasDec).toString(16)) : undefined;
@@ -369,14 +383,8 @@ const handleCreateLock = async () => {
         const lock = actionModal.lock;
         const oldOwner = walletAddress || lock.owner;
         if (!oldOwner) throw new Error('Old owner wallet address is required');
-        // POST /transferLock { token, newOwner, oldOwner }
-        const body = { token: lock.tokenAddress, newOwner: transferAddress.trim(), oldOwner } as const;
-        const res = await blockchainApiClient<any>('/transferLock', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
-        if (res?.error) throw new Error(res.error);
-        const unsigned = res?.unsignedTx || res;
+// POST /transferLock { token, newOwner, oldOwner }
+        const unsigned = await buildTransferLock(lock.tokenAddress, transferAddress.trim(), oldOwner);
         const gasDec = unsigned.gas ?? unsigned.gasLimit;
         const gasHex = gasDec ? ('0x' + Number(gasDec).toString(16)) : undefined;
         const toSend = {
@@ -427,15 +435,9 @@ const handleCreateLock = async () => {
         if (!walletAddress && (!lock.owner || lock.owner.length < 10)) {
           throw new Error('Owner wallet address is required to extend lock');
         }
-        // POST /extendLock { token, extraTimeSec, owner }
+// POST /extendLock { token, extraTimeSec, owner }
         const extraTimeSec = extendDays * 24 * 60 * 60;
-        const body = { token: lock.tokenAddress, extraTimeSec, owner: walletAddress || lock.owner } as const;
-        const res = await blockchainApiClient<any>('/extendLock', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
-        if (res?.error) throw new Error(res.error);
-        const unsigned = res?.unsignedTx || res;
+        const unsigned = await buildExtendLock(lock.tokenAddress, extraTimeSec, walletAddress || lock.owner);
         const gasDec = unsigned.gas ?? unsigned.gasLimit;
         const gasHex = gasDec ? ('0x' + Number(gasDec).toString(16)) : undefined;
         const toSend = {
@@ -617,8 +619,8 @@ const handleCreateLock = async () => {
 
         <button
           className={styles.actionBtn}
-          onClick={() => onLockCreate && handleCreateLock()}
-          disabled={isLoading || !state.formData.tokenAddress || !state.formData.amount || !onLockCreate}
+          onClick={handleCreateLock}
+          disabled={isLoading || !state.formData.tokenAddress?.trim() || !state.formData.amount}
         >
           {isLoading ? 'Creating Lock...' : 'Create Lock'}
         </button>
@@ -639,6 +641,13 @@ const handleCreateLock = async () => {
               ? 'No locks match your search criteria.'
               : 'No locks found for your wallet.'}
           </div>
+          <button
+            className={styles.actionBtn}
+            onClick={() => setState(prev => ({ ...prev, activeTab: 'create' }))}
+            disabled={isLoading}
+          >
+            Create a Lock
+          </button>
         </div>
       );
     }
@@ -780,14 +789,12 @@ const handleCreateLock = async () => {
 
         <div className={styles.tabsContainer}>
           <div className={styles.tabs}>
-            {onLockCreate && (
-              <button
-                className={`${styles.tab} ${state.activeTab === 'create' ? styles.active : ''}`}
-                onClick={() => handleTabChange('create')}
-              >
-                <Lock size={16} /> Create Lock
-              </button>
-            )}
+            <button
+              className={`${styles.tab} ${state.activeTab === 'create' ? styles.active : ''}`}
+              onClick={() => handleTabChange('create')}
+            >
+              <Lock size={16} /> Create Lock
+            </button>
             <button
               className={`${styles.tab} ${state.activeTab === 'manage' ? styles.active : ''}`}
               onClick={() => handleTabChange('manage')}
