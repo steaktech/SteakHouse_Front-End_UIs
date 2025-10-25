@@ -323,7 +323,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
                   <div className={styles.tokenInfo}>
                     <div className={styles.tokenName}>{token.name}</div>
                     <div className={styles.tokenDetails}>
-                      <span className={styles.tokenSymbol}>{token.symbol}</span>
+                      <span className={styles.tokenSymbol}>${token.symbol}</span>
                       <span className={styles.tokenChain}>{token.chain}</span>
                     </div>
                   </div>

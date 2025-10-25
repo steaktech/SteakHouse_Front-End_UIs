@@ -63,7 +63,10 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
     currentTax: tokenData?.tokenInfo?.curve_starting_tax ?? 3,
     finalTax: tokenData?.tokenInfo?.final_tax_rate ?? 3,
     maxTxPct: tokenData?.tokenInfo?.curve_max_tx && tokenData?.tokenInfo?.total_supply
-      ? `${((Number(tokenData.tokenInfo.curve_max_tx) / Number(tokenData.tokenInfo.total_supply)) * 100).toFixed(1)}%`
+      ? (() => {
+          const pct = (Number(tokenData.tokenInfo.curve_max_tx) / Number(tokenData.tokenInfo.total_supply)) * 100;
+          return pct >= 100 ? '100%+' : `${pct.toFixed(1)}%`;
+        })()
       : '2.1%',
     calculatedProgress: tokenData?.tokenInfo
       ? (() => {
@@ -204,12 +207,8 @@ export const TradingTokenCard: React.FC<TradingTokenCardProps> = ({
               fontSize: '10px',
               letterSpacing: '1px',
               color: '#ffeed8',
-              background: 'linear-gradient(180deg, rgba(255, 231, 190, 0.35), rgba(255, 196, 120, 0.22))',
-              border: '1px solid rgba(255, 210, 160, 0.65)',
-              padding: '3px 8px',
-              borderRadius: '999px',
               maxWidth: 'fit-content'
-            }}>{displayData.symbol}</div>
+            }}>${displayData.symbol}</div>
           </div>
         </div>
         <div style={{

@@ -348,7 +348,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           </div>
           <div className={styles.nameBlock}>
             <div className={styles.nameRow}>
-            <h1 className={styles.name}>{name}</h1>
+            <h1 className={styles.name} style={{ position: 'relative', top: '8px' }}>{name}</h1>
               <div className={styles.rightSection}>
                 <div className={styles.badge}>{category || "N/A"}</div>
                 <button 
@@ -368,7 +368,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
               </div>
             </div>
             <div className={styles.symbolRow}>
-              <div className={styles.ticker}>{symbol}</div>
+              <div className={styles.ticker} style={{ position: 'relative', top: '-8px' }}>${symbol}</div>
               <nav className={styles.socials} aria-label="Social links">
                 <button 
                   className={`${styles.socialBtn} ${styles.tg}`} 

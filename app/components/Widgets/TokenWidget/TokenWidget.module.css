@@ -238,14 +238,6 @@
   font-size: 12px;
   letter-spacing: 1.2px;
   color: #ffeed8;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 231, 190, 0.35),
-    rgba(255, 196, 120, 0.22)
-  );
-  border: 1px solid rgba(255, 210, 160, 0.65);
-  padding: 5px 10px;
-  border-radius: 999px;
   max-width: fit-content;
 }
 

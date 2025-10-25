@@ -376,8 +376,8 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             )}
           </div>
           <div className={styles.nameBlock}>
-            <div className={styles.nameRow}>
-              <h1 className="name">{tokenData.name}</h1>
+            <div className={styles.nameRow} style={{ marginBottom: '2px' }}>
+              <h1 className="name" style={{ position: 'relative', top: '6px' }}>{tokenData.name}</h1>
               {isConnected && (
                 <button
                   className={`${styles.saveTokenBtn} ${saveClicked ? styles.copied : ''}`}
@@ -395,8 +395,8 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
               )}
             </div>
             <div className="tickerRow">
-              <div className="ticker">{tokenData.symbol}</div>
-              <nav className={styles.socialsTop} aria-label="Social links">
+              <div className="ticker">${tokenData.symbol}</div>
+              <nav className={styles.socialsTop} aria-label="Social links" style={{ position: 'relative', top: '-8px', left: '6px' }}>
                 <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
                   <Send size={12} />
                 </button>
@@ -431,7 +431,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         <div className={styles.taxStrong}>Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</div>
         <div className={styles.taxChips}>
           <span className="chip">Current Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</span>
-          <span className="chip">MaxTX: {tokenData.maxTransaction}%</span>
+          <span className="chip">MaxTX: {tokenData.maxTransaction >= 100 ? '100%+' : `${tokenData.maxTransaction}%`}</span>
         </div>
       </section>
 

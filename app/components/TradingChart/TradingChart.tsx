@@ -244,7 +244,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       buy: taxValue,
       sell: taxValue,
     },
-    maxTransaction: Number(maxTxPctNum.toFixed(1)),
+    maxTransaction: maxTxPctNum >= 100 ? 100 : Number(maxTxPctNum.toFixed(1)),
     description: apiInfo?.bio ?? tokenData.description,
     marketCap: formatShort((lastWsTradeRef.current?.marketCap ?? apiTokenData?.marketCap) as number) ?? tokenData.mcap,
     volume: volumeUsd,

@@ -130,7 +130,10 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
 
     const taxValue = Number(apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? tokenData.currentTax?.buy ?? 3);
     const maxTxPctNum = apiInfo?.curve_max_tx && apiInfo?.total_supply
-      ? (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100
+      ? (() => {
+          const pct = (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100;
+          return pct >= 100 ? 100 : pct;
+        })()
       : tokenData.maxTransaction;
     const bondingPct = apiInfo
       ? (() => {
@@ -391,7 +394,7 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
                 <div className={styles.nameBlock}>
                   <h1 className={styles.name}>{resolved.name}</h1>
                   <div className={styles.tickerRow}>
-                    <div className={styles.ticker}>{resolved.symbol}</div>
+                    <div className={styles.ticker}>${resolved.symbol}</div>
                     <nav className={styles.socialsTop} aria-label="Social links">
                       <button className={`${styles.socialBtn} ${styles.tg}`} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
                         <Send size={16} />
@@ -424,7 +427,7 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
               <div className={styles.taxStrong}>Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</div>
               <div className={styles.taxChips}>
                 <span className={styles.chip}>Current Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</span>
-                <span className={styles.chip}>MaxTX: {resolved.maxTransaction}%</span>
+                <span className={styles.chip}>MaxTX: {resolved.maxTransaction >= 100 ? '100%+' : `${resolved.maxTransaction}%`}</span>
               </div>
             </section>
 
