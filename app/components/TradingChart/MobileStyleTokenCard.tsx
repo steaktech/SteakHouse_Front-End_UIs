@@ -8,7 +8,7 @@ import { useWallet } from '@/app/hooks/useWallet';
 
 // Twitter icon component
 const TwitterIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 1200 1227" fill="currentColor">
+  <svg width="8" height="8" viewBox="0 0 1200 1227" fill="currentColor">
     <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6902H306.615L611.412 515.685L658.88 583.579L1055.08 1150.31H892.476L569.165 687.854V687.828Z"/>
   </svg>
 );
@@ -424,32 +424,50 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         </div>
       </section>
 
-      <p className={styles.desc} style={{
-        margin: isLimitMode ? '2px 0 4px' : undefined,
-        fontSize: isLimitMode ? '14px' : '16px',
-        lineHeight: 1.5,
-        fontWeight: 500
-      }}>
-        {tokenData.description}
-      </p>
-
-      {/* Social buttons section */}
-      <nav className={styles.socialsBottom} aria-label="Social links" style={{
+      {/* Description with social buttons on the right */}
+      <div style={{
         display: 'flex',
-        justifyContent: 'center',
-        gap: '8px',
-        margin: isLimitMode ? '6px 0' : '12px 0'
+        alignItems: 'center',
+        gap: '12px',
+        margin: isLimitMode ? '2px 0 4px' : undefined
       }}>
-        <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
-          <Send size={12} />
-        </button>
-        <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X">
-          <TwitterIcon />
-        </button>
-        <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website">
-          <Globe size={12} />
-        </button>
-      </nav>
+        <p className={styles.desc} style={{
+          margin: 0,
+          fontSize: isLimitMode ? '14px' : '16px',
+          lineHeight: 1.5,
+          fontWeight: 500,
+          flex: 1
+        }}>
+          {tokenData.description}
+        </p>
+        
+        {/* Social buttons stacked vertically on the right */}
+        <nav aria-label="Social links" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          flexShrink: 0
+        }}>
+          <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram" style={{
+            width: '20px',
+            height: '20px'
+          }}>
+            <Send size={8} />
+          </button>
+          <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X" style={{
+            width: '20px',
+            height: '20px'
+          }}>
+            <TwitterIcon />
+          </button>
+          <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website" style={{
+            width: '20px',
+            height: '20px'
+          }}>
+            <Globe size={8} />
+          </button>
+        </nav>
+      </div>
 
       {/* Bottom panel: stats row + searing progress bar */}
       <section className={styles.score} style={{
