@@ -15,6 +15,12 @@ import {
     ValidationResult,
     StepperKeyEvent
 } from './types';
+import { useRouter } from 'next/navigation';
+import { Hash, Type, X as XIcon } from 'lucide-react';
+import { useNameSearch } from '@/app/hooks/useNameSearch';
+import { normalizeEthereumAddress } from '@/app/lib/utils/addressValidation';
+import { getFullTokenData } from '@/app/lib/api/services/tokenService';
+import type { FullTokenDataResponse } from '@/app/types/token';
 
 // Data for rendering the filter input fields dynamically
 const filterFields: FilterField[] = [
@@ -383,7 +389,120 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
         handleSearchChange
     } = useModalState(onClose, onClearAll);
 
-    const filteredFields = useFilteredFields(searchTerm);
+    // Always show all filter fields; decouple from header search to avoid hiding inputs
+    const filteredFields = filterFields;
+
+    // --- Text search (API-integrated) like ExplorerWidget ---
+    const router = useRouter();
+    const [searchMode, setSearchMode] = useState<'token' | 'name'>('name');
+
+    const nameSearch = useNameSearch(searchTerm, {
+        enabled: searchMode === 'name' && searchTerm.trim().length >= 2,
+        pageSize: 10,
+        debounceMs: 300,
+    });
+
+    const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
+    const [searchLoading, setSearchLoading] = useState<boolean>(false);
+    const [searchError, setSearchError] = useState<string | null>(null);
+    const [searchResult, setSearchResult] = useState<FullTokenDataResponse | null>(null);
+
+    // Positioning for suggestions popover (portal)
+    const headerInputRef = useRef<HTMLInputElement>(null);
+    const [suggestPos, setSuggestPos] = useState<{ top: number; left: number; width: number } | null>(null);
+    const updateSuggestPos = useCallback(() => {
+        const el = headerInputRef.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        setSuggestPos({ top: r.bottom + 6, left: r.left, width: r.width });
+    }, []);
+    useEffect(() => {
+        if (!showSearchResults) return;
+        updateSuggestPos();
+        const handler = () => updateSuggestPos();
+        window.addEventListener('resize', handler);
+        window.addEventListener('scroll', handler, true);
+        return () => {
+            window.removeEventListener('resize', handler);
+            window.removeEventListener('scroll', handler, true);
+        };
+    }, [showSearchResults, updateSuggestPos]);
+
+    const handleModeChange = useCallback((mode: 'token' | 'name') => {
+        setSearchMode(mode);
+        if (mode === 'name') {
+            const q = searchTerm.trim();
+            setShowSearchResults(q.length >= 2);
+        } else {
+            setShowSearchResults(false);
+        }
+    }, [searchTerm]);
+
+    const onHeaderSearchChange = useCallback((value: string) => {
+        handleSearchChange(value);
+        if (searchMode === 'name') {
+            setShowSearchResults(value.trim().length >= 2);
+        } else {
+            setShowSearchResults(false);
+        }
+    }, [handleSearchChange, searchMode]);
+
+    const submitTokenSearch = useCallback(async () => {
+        const raw = searchTerm.trim();
+        if (!raw) return;
+
+        const normalized = normalizeEthereumAddress(raw);
+        setShowSearchResults(true);
+        setSearchError(null);
+        setSearchResult(null);
+
+        if (!normalized) {
+            setSearchError('Please enter a valid token address (0x followed by 40 hex characters).');
+            return;
+        }
+
+        try {
+            setSearchLoading(true);
+            const res = await getFullTokenData(normalized);
+            if ((res as any)?.error) {
+                setSearchError((res as any).error || 'Token not found');
+                setSearchResult(null);
+            } else {
+                setSearchResult(res);
+            }
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Failed to fetch token';
+            setSearchError(msg);
+            setSearchResult(null);
+        } finally {
+            setSearchLoading(false);
+        }
+    }, [searchTerm]);
+
+    const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            void submitTokenSearch();
+        }
+    }, [submitTokenSearch]);
+
+    const clearSearchResults = useCallback(() => {
+        setShowSearchResults(false);
+        setSearchLoading(false);
+        setSearchError(null);
+        setSearchResult(null);
+    }, []);
+
+    const shortAddr = useCallback((address: string) => (
+        !address ? 'unknown' : address.slice(0, 6) + '...' + address.slice(-4)
+    ), []);
+
+    const handleNavigateToToken = useCallback((address: string) => {
+        if (!address) return;
+        const target = `/trading-chart/${encodeURIComponent(address)}`;
+        router.push(target);
+        onClose();
+    }, [router, onClose]);
 
     const onApplyWithCallback = useCallback(() => {
         const payload = handleApply();
@@ -407,6 +526,40 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                         <span className={styles.dot}></span>
                         Customize Filters
                             </div>
+                    <div role="tablist" aria-label="Search mode" style={{ display: 'flex', gap: 6, marginRight: 8 }}>
+                        <button
+                            onClick={() => handleModeChange('token')}
+                            aria-pressed={searchMode === 'token'}
+                            title="Search by token address"
+                            style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: 10,
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                background: searchMode === 'token' ? 'linear-gradient(180deg, #382718, #2a1d13)' : 'linear-gradient(180deg, #332418, #261a11)',
+                                color: '#ffdd9a',
+                                display: 'grid', placeItems: 'center', cursor: 'pointer'
+                            }}
+                        >
+                            <Hash size={14} />
+                        </button>
+                        <button
+                            onClick={() => handleModeChange('name')}
+                            aria-pressed={searchMode === 'name'}
+                            title="Search by token name"
+                            style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: 10,
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                background: searchMode === 'name' ? 'linear-gradient(180deg, #382718, #2a1d13)' : 'linear-gradient(180deg, #332418, #261a11)',
+                                color: '#ffdd9a',
+                                display: 'grid', placeItems: 'center', cursor: 'pointer'
+                            }}
+                        >
+                            <Type size={14} />
+                        </button>
+                    </div>
                     <div className={styles.search} role="search">
                         <svg
                             viewBox="0 0 24 24"
@@ -418,14 +571,17 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                             <circle cx="11" cy="11" r="7"></circle>
                             <path d="M21 21l-4.35-4.35"></path>
                         </svg>
-                            <input
-                            aria-label="Search"
+                        <input
+                            aria-label="Search tokens"
                             type="search"
-                                placeholder="Search..."
+                            placeholder={searchMode === 'name' ? 'Search by name…' : 'Search by address…'}
                             value={searchTerm}
-                            onChange={(e) => handleSearchChange(e.target.value)}
-                            />
-                        </div>
+                            onChange={(e) => onHeaderSearchChange(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
+                            ref={headerInputRef}
+                        />
+
+                    </div>
                     <button
                         className={styles.iconBtn}
                         type="button"
@@ -502,7 +658,66 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
         </div>
     );
 
-    return createPortal(modalContent, document.body);
+    const suggestionsPortal = showSearchResults && suggestPos ? createPortal(
+        <div
+            className={styles.suggestions}
+            style={{ position: 'fixed', top: suggestPos.top, left: suggestPos.left, width: suggestPos.width, zIndex: 10050 }}
+            onMouseDown={(e) => e.preventDefault()}
+        >
+            <div className={styles.suggestionsHeader}>
+                <div className={styles.suggestionsTitle}>Search Results</div>
+                <button className={styles.iconBtn} type="button" aria-label="Close results" title="Close results" onClick={clearSearchResults}>
+                    <XIcon size={14} />
+                </button>
+            </div>
+            <div className={styles.suggestionsBody}>
+                {searchMode === 'token' ? (
+                    searchLoading ? (
+                        <div className={styles.suggestionEmpty}>Searching...</div>
+                    ) : searchError ? (
+                        <div className={styles.errorBox} role="alert">{searchError}</div>
+                    ) : searchResult ? (
+                        <div className={styles.suggestionItem} role="button" onClick={() => handleNavigateToToken(searchResult.tokenInfo.token_address)}>
+                            <div className={styles.suggestionTitle}>
+                                {searchResult.tokenInfo.name}
+                                <span className={styles.suggestionSymbol}>({searchResult.tokenInfo.symbol})</span>
+                            </div>
+                            <div className={styles.suggestionSub}>{shortAddr(searchResult.tokenInfo.token_address)}</div>
+                        </div>
+                    ) : (
+                        <div className={styles.suggestionEmpty}>No results. Try another token address.</div>
+                    )
+                ) : (
+                    nameSearch.isLoading ? (
+                        <div className={styles.suggestionEmpty}>Searching...</div>
+                    ) : nameSearch.error ? (
+                        <div className={styles.errorBox} role="alert">{nameSearch.error.message}</div>
+                    ) : (nameSearch.data || []).length > 0 ? (
+                        <div className={styles.suggestionsList}>
+                            {(nameSearch.data || []).map((t) => (
+                                <div key={t.token_address} className={styles.suggestionItem} role="button" onClick={() => handleNavigateToToken(t.token_address)}>
+                                    <div className={styles.suggestionTitle}>
+                                        {t.name} <span className={styles.suggestionSymbol}>({t.symbol})</span>
+                                    </div>
+                                    <div className={styles.suggestionSub}>{shortAddr(t.token_address)}</div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={styles.suggestionEmpty}>No results. Try another name.</div>
+                    )
+                )}
+            </div>
+        </div>,
+        document.body
+    ) : null;
+
+    return (
+        <>
+            {createPortal(modalContent, document.body)}
+            {suggestionsPortal}
+        </>
+    );
 };
 
 export default TrendingSearchModal;

@@ -10,6 +10,7 @@
   --line: #3a2a1e;
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
   --focus: 0 0 0 2px rgba(241, 163, 60, 0.35), 0 0 0 1px rgba(241, 163, 60, 0.9);
+  --shadow-pop: 0 12px 24px rgba(0,0,0,0.5);
 
   position: fixed;
   inset: 0;
@@ -155,6 +156,8 @@
   color: var(--text);
   outline: none;
   font-size: 13px;
+  position: relative;
+  z-index: 2;
 }
 
 @media (min-width: 768px) {
@@ -169,6 +172,91 @@
     height: 38px;
     font-size: 15px;
   }
+}
+
+/* Suggestions dropdown anchored to search input */
+.suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)), #1b140f; /* match panel */
+  border-radius: 10px;
+  box-shadow: var(--shadow-pop);
+  z-index: 3;
+  overflow: hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+  color: #f7efe6; /* ensure light text */
+}
+
+.suggestions * {
+  color: inherit;
+}
+
+.suggestionsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 6px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.suggestionsTitle {
+  font-weight: 800;
+  color: #f7efe6; /* match modal text */
+}
+
+.suggestionsBody {
+  max-height: 280px;
+  overflow: auto;
+}
+
+.suggestionsList {
+  display: grid;
+}
+
+.suggestionItem {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  background: linear-gradient(180deg, #3a2a1e, #2c1f15);
+}
+
+.suggestionItem:hover {
+  background: linear-gradient(180deg, #3e2d1f, #2f2217);
+}
+
+.suggestionTitle {
+  font-weight: 700;
+  color: #f7efe6; /* match modal text */
+}
+
+.suggestionSymbol {
+  opacity: 0.85;
+  margin-left: 4px;
+  color: #e9caa1; /* muted accent */
+}
+
+.suggestionSub {
+  opacity: 0.85;
+  font-size: 12px;
+  color: #ffdd9a; /* accent text */
+}
+
+.suggestionEmpty {
+  padding: 12px;
+  opacity: 0.9;
+  color: #f7efe6;
+}
+
+.errorBox {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,0,0,0.08);
+  border: 1px solid rgba(255,0,0,0.25);
+  margin: 8px;
+  color: #f7efe6;
 }
 
 .search svg {

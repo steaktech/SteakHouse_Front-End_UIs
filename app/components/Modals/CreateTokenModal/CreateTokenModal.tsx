@@ -19,10 +19,47 @@ import Step5MetadataSocials from './Step5MetadataSocials';
 import Step6ReviewConfirm from './Step6ReviewConfirm';
 import styles from './CreateTokenModal.module.css';
 
+// Ensure Sepolia network
+const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7';
+async function ensureSepoliaNetwork(): Promise<boolean> {
+  if (typeof window === 'undefined' || !(window as any).ethereum?.request) return false;
+  try {
+    const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+    if (typeof chainId === 'string' && chainId.toLowerCase() === SEPOLIA_CHAIN_ID_HEX) return true;
+    await (window as any).ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: SEPOLIA_CHAIN_ID_HEX }]
+    });
+    return true;
+  } catch (switchError: any) {
+    if (switchError?.code === 4902 || switchError?.data?.originalError?.code === 4902) {
+      try {
+        await (window as any).ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: SEPOLIA_CHAIN_ID_HEX,
+            chainName: 'Sepolia',
+            nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
+            rpcUrls: ['https://rpc.sepolia.org'],
+            blockExplorerUrls: ['https://sepolia.etherscan.io']
+          }]
+        });
+        return true;
+      } catch (addError) {
+        console.warn('[CreateTokenModal] Failed to add Sepolia network:', addError);
+      }
+    } else {
+      console.warn('[CreateTokenModal] Failed to switch to Sepolia:', switchError);
+    }
+    return false;
+  }
+}
+
 // Derive token address from receipt topics in the simplest way requested
 async function getTokenAddressFromReceiptTopics(txHash: string): Promise<string | undefined> {
   if (typeof window === 'undefined' || !(window as any).ethereum) return undefined;
   try {
+    await ensureSepoliaNetwork();
     const web3 = new Web3((window as any).ethereum);
     const receipt = await web3.eth.getTransactionReceipt(txHash);
     if (!receipt) return undefined;
@@ -103,6 +140,12 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       document.body.style.overflow = '';
       document.body.style.touchAction = 'auto';
     }
+  }, [isOpen]);
+
+  // Ensure wallet is on Sepolia when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    ensureSepoliaNetwork();
   }, [isOpen]);
 
   const updateState = useCallback((updates: Partial<TokenState>) => {
@@ -293,6 +336,17 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const handleConfirm = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, txHash: 'pending' }));
+      const onSepolia = await ensureSepoliaNetwork();
+      if (!onSepolia) {
+        showToast({
+          type: 'error',
+          title: 'Wrong Network',
+          message: 'Please switch your wallet to Sepolia and try again.',
+          duration: 5000
+        });
+        setState(prev => ({ ...prev, txHash: null }));
+        return;
+      }
 
       // Prepare files for API (after on-chain success)
       const files: { logo?: File; banner?: File } = {};

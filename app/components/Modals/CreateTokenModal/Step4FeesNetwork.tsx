@@ -64,11 +64,11 @@ const Step4FeesNetwork: React.FC<Step4FeesNetworkProps> = ({
         <div className={styles.card}>
           <div className={styles.label}>
             Network Info
-            <HelpTooltip content="Your token will be deployed on the Ethereum blockchain." />
+            <HelpTooltip content="Your token will be deployed on the Ethereum Sepolia testnet." />
           </div>
           <div className={styles.row}>
-            <span className={styles.pill}>⟠ Ethereum Mainnet</span>
-            <span className={styles.pill}>Gas: ~0.002 ETH</span>
+            <span className={styles.pill}>⟠ Sepolia Testnet</span>
+            <span className={styles.pill}>Gas: Test ETH</span>
           </div>
         </div>
       </div>
