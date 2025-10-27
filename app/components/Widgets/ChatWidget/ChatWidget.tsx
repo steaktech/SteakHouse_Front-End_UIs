@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ChatWidgetProps, Message, SortMode } from './types';
+import { SharePopup } from './SharePopup';
 import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
@@ -58,6 +59,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
   // Share functionality
   const { shareContent, isShareSupported } = useShare();
+  const [showSharePopup, setShowSharePopup] = useState(false);
 
   // Chat state
   const [wsReady, setWsReady] = useState(false);
@@ -100,6 +102,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
   // Helpers
   const nextId = () => ++idCounterRef.current;
+
+  // Share URL construction
+  const getShareData = useCallback(() => ({
+    title: `${tokenName} (${tokenSymbol})`,
+    text: `Check out ${tokenName} (${tokenSymbol}) on SteakHouse Trading`,
+    url: `${window.location.origin}/trading-chart/${tokenAddress}`,
+  }), [tokenName, tokenSymbol, tokenAddress]);
 
   const MAX_LEN = 400;
 
@@ -565,6 +574,16 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
 
   return (
     <>
+      <SharePopup
+        isOpen={showSharePopup}
+        onClose={() => setShowSharePopup(false)}
+        onShare={(platform: string) => {
+          // Analytics tracking could be added here
+          console.log(`Shared via ${platform}`);
+        }}
+        shareData={getShareData()}
+      />
+
       {/* Overlay */}
       <div
         className={`${styles.overlay} ${isOpen ? styles.show : ''}`}
@@ -618,29 +637,24 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
               <button
                 className={styles.iconBtn}
                 onClick={async () => {
-                  const url = (typeof window !== 'undefined' && window.location) ? window.location.href : '';
-                  if (!url) return;
+                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                   
-                  try {
-                    const shareData = {
-                      title: `${tokenName} ($${tokenSymbol})`,
-                      text: tokenPrice ? `Current price: ${usd2.format(tokenPrice)}` : undefined,
-                      url
-                    };
-                    
-                    const result = await shareContent(shareData);
-                    
-                    // Show appropriate success message based on method used
-                    if (result.method === 'webshare') {
-                      // No need for alert - native share UI provides feedback
-                      return;
-                    } else if (result.method === 'clipboard' || result.method === 'legacy') {
-                      const link = url.length > 50 ? url.slice(0, 47) + '...' : url;
-                      alert(`Link copied to clipboard:\n${link}`);
+                  if (isMobile && 'share' in navigator) {
+                    // On mobile, use native share
+                    try {
+                      await navigator.share({
+                        title: `${tokenName} (${tokenSymbol})`,
+                        text: `Check out ${tokenName} (${tokenSymbol}) on SteakHouse Trading`,
+                        url: window.location.href
+                      });
+                    } catch (error) {
+                      console.error('Share failed:', error);
+                      // If share fails, fallback to popup
+                      setShowSharePopup(true);
                     }
-                  } catch (error) {
-                    console.error('Share failed:', error);
-                    alert('Unable to share or copy link');
+                  } else {
+                    // On desktop, show our custom popup
+                    setShowSharePopup(true);
                   }
                 }}
                 title="Share"
