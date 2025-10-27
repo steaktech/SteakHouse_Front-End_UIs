@@ -742,10 +742,11 @@ const handleCreateLock = async () => {
                   className={styles.unlockBtn}
                   onClick={() => handleUnlock(lock.id)}
                   disabled={!lock.withdrawable || isLoading}
+                  title="Withdraw tokens"
                 >
                   {lock.withdrawable ? (
                     <>
-                      <Unlock size={14} /> Unlock
+                      <Unlock size={14} /> Withdraw
                     </>
                   ) : (
                     'Locked'

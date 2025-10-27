@@ -112,14 +112,37 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
           'scalesProperties.textColor': '#94a3b8',
           'scalesProperties.lineColor': '#374151',
 
-          'mainSeriesProperties.candleStyle.upColor': '#29f266',
-          'mainSeriesProperties.candleStyle.downColor': '#ff3b3b',
-          'mainSeriesProperties.candleStyle.borderUpColor': '#29f266',
-          'mainSeriesProperties.candleStyle.borderDownColor': '#ff3b3b',
-          'mainSeriesProperties.candleStyle.wickUpColor': '#29f266',
-          'mainSeriesProperties.candleStyle.wickDownColor': '#ff3b3b',
+          // Candles - match TradePanel BUY/SELL palette
+          'mainSeriesProperties.candleStyle.upColor': '#4ade80',
+          'mainSeriesProperties.candleStyle.downColor': '#f87171',
+          'mainSeriesProperties.candleStyle.borderUpColor': '#22c55e',
+          'mainSeriesProperties.candleStyle.borderDownColor': '#ef4444',
+          'mainSeriesProperties.candleStyle.wickUpColor': '#22c55e',
+          'mainSeriesProperties.candleStyle.wickDownColor': '#ef4444',
           'mainSeriesProperties.candleStyle.drawWick': true,
           'mainSeriesProperties.candleStyle.drawBorder': false,
+
+          // Bars/hollow/Heikin-Ashi styles (if switched)
+          'mainSeriesProperties.barStyle.upColor': '#4ade80',
+          'mainSeriesProperties.barStyle.downColor': '#f87171',
+          'mainSeriesProperties.hollowCandleStyle.upColor': '#4ade80',
+          'mainSeriesProperties.hollowCandleStyle.downColor': '#f87171',
+          'mainSeriesProperties.hollowCandleStyle.borderUpColor': '#22c55e',
+          'mainSeriesProperties.hollowCandleStyle.borderDownColor': '#ef4444',
+          'mainSeriesProperties.hollowCandleStyle.wickUpColor': '#22c55e',
+          'mainSeriesProperties.hollowCandleStyle.wickDownColor': '#ef4444',
+          'mainSeriesProperties.haStyle.upColor': '#4ade80',
+          'mainSeriesProperties.haStyle.downColor': '#f87171',
+          'mainSeriesProperties.haStyle.borderUpColor': '#22c55e',
+          'mainSeriesProperties.haStyle.borderDownColor': '#ef4444',
+          'mainSeriesProperties.haStyle.wickUpColor': '#22c55e',
+          'mainSeriesProperties.haStyle.wickDownColor': '#ef4444',
+        },
+        studies_overrides: {
+'volume.volume.color.0': '#f87171',
+          'volume.volume.color.1': '#4ade80',
+          'volume.volume.transparency': 30,
+          'volume.show ma': false,
         },
       });
 

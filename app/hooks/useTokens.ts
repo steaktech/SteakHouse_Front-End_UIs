@@ -1,12 +1,12 @@
 // hooks/useTokens.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { getFilteredTokens, getTokensByVolume, getTokensByMarketCap, getTokensByCategory, type CategoryType } from '@/app/lib/api/services/tokenService';
+import { getFilteredTokens, getTokensByVolume, getTokensByMarketCap, getTokensByCategory, getTokensByAge, getTokensByTax, type CategoryType } from '@/app/lib/api/services/tokenService';
 import { transformTokensToCardProps } from '@/app/lib/utils/tokenUtils';
 import type { Token, PaginatedTokenResponse } from '@/app/types/token';
 import type { TokenCardProps } from '@/app/components/TradingDashboard/types';
 
 export interface TokenFilters {
-  sortBy?: 'volume' | 'mcap' | 'age' | 'name';
+  sortBy?: 'volume' | 'mcap' | 'age' | 'tax' | 'name';
   sortOrder?: 'asc' | 'desc';
   tokenType?: string;
   category?: CategoryType;
@@ -132,8 +132,14 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       // Build URLSearchParams from filters
       const params = new URLSearchParams();
       
-      // Only add sortBy and sortOrder for non-search operations and non-mcap/non-volume operations
-      if (!isSearchFilter && filtersToUse.sortBy !== 'mcap' && filtersToUse.sortBy !== 'volume') {
+      // Only add sortBy and sortOrder for non-search operations and when not using preset endpoints
+      if (
+        !isSearchFilter &&
+        filtersToUse.sortBy !== 'mcap' &&
+        filtersToUse.sortBy !== 'volume' &&
+        filtersToUse.sortBy !== 'age' &&
+        filtersToUse.sortBy !== 'tax'
+      ) {
         if (filtersToUse.sortBy) params.append('sortBy', filtersToUse.sortBy);
         if (filtersToUse.sortOrder) params.append('sortOrder', filtersToUse.sortOrder);
       }
@@ -202,6 +208,12 @@ export function useTokens(initialFilters: TokenFilters = {}) {
       } else if (filtersToUse.sortBy === 'mcap') {
         //console.log('Fetching tokens by market cap from API with params:', params.toString());
         response = await getTokensByMarketCap(params);
+      } else if (filtersToUse.sortBy === 'age') {
+        // Newest tokens first
+        response = await getTokensByAge(params);
+      } else if (filtersToUse.sortBy === 'tax') {
+        // Lowest tax first
+        response = await getTokensByTax(params);
       } else {
         //console.log('Fetching filtered tokens from API with params:', params.toString());
         response = await getFilteredTokens(params);
@@ -256,7 +268,11 @@ export function useTokens(initialFilters: TokenFilters = {}) {
   }, [updateFilters]);
 
   const sortByAge = useCallback(() => {
-    updateFilters({ sortBy: 'age', sortOrder: 'asc', page: 1 });
+    updateFilters({ sortBy: 'age', sortOrder: 'desc', page: 1 });
+  }, [updateFilters]);
+
+  const sortByTax = useCallback(() => {
+    updateFilters({ sortBy: 'tax', sortOrder: 'asc', page: 1 });
   }, [updateFilters]);
 
   const filterByType = useCallback((tokenType: string) => {
@@ -331,6 +347,7 @@ export function useTokens(initialFilters: TokenFilters = {}) {
     sortByVolume,
     sortByMarketCap,
     sortByAge,
+    sortByTax,
     filterByType,
     filterByCategory,
     showOnlyGraduated,

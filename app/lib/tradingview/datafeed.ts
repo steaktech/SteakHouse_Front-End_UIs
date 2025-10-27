@@ -135,7 +135,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
     const candidates = [
       `${baseWithoutApi}/api/token/${encodeURIComponent(address)}/chart?timeframe=1m&limit=500`,
       `${baseNoTrailing}/token/${encodeURIComponent(address)}/chart?timeframe=1m&limit=500`,
-      `${baseNoTrailing}/api/token/${encodeURIComponent(address)}/chart?timeframe=1m&limit=500`,
+      `${baseNoTrailing}/token/${encodeURIComponent(address)}/chart?timeframe=1m&limit=500`,
     ];
 
     let lastErr: any = null;

@@ -9,6 +9,8 @@ import {
   Smile,
   RefreshCw,
   AlertCircle,
+  Clock,
+  Percent,
 } from "lucide-react";
 import DashboardStatCard from "./DashboardStatCard";
 import { FilterButton } from "./FilterButton";
@@ -30,6 +32,7 @@ export default function TradingDashboard() {
     sortByVolume,
     sortByMarketCap,
     sortByAge,
+    sortByTax,
     filterByType,
     filterByCategory,
     showAll,
@@ -283,11 +286,25 @@ export default function TradingDashboard() {
                 </div>
                 <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
+                    icon={<Clock size={12} />} 
+                    label="Age" 
+                    active={filters.sortBy === 'age'}
+                    onClick={sortByAge}
+                  />
+                  <FilterButton 
+                    icon={<Percent size={12} />} 
+                    label="Low Tax" 
+                    active={filters.sortBy === 'tax'}
+                    onClick={sortByTax}
+                  />
+                  <FilterButton 
                     icon={<Star size={12} />} 
                     label="Meme" 
                     active={filters.category === 'meme'}
                     onClick={() => filterByCategory('meme')}
                   />
+                </div>
+                <div className="flex items-center gap-1 justify-between">
                   <FilterButton 
                     icon={<Wrench size={12} />} 
                     label="Utility" 
@@ -300,8 +317,6 @@ export default function TradingDashboard() {
                     active={filters.category === 'ai'}
                     onClick={() => filterByCategory('ai')}
                   />
-                </div>
-                <div className="flex items-center justify-center">
                   <FilterButton 
                     icon={<Smile size={12} />} 
                     label="X-post" 
@@ -346,6 +361,18 @@ export default function TradingDashboard() {
                   icon={<Flame size={14} />} 
                   label="Trending" 
                   onClick={showAll}
+                />
+                <FilterButton 
+                  icon={<Clock size={14} />} 
+                  label="Age" 
+                  active={filters.sortBy === 'age'}
+                  onClick={sortByAge}
+                />
+                <FilterButton 
+                  icon={<Percent size={14} />} 
+                  label="Low Tax" 
+                  active={filters.sortBy === 'tax'}
+                  onClick={sortByTax}
                 />
                 <FilterButton 
                   icon={<Star size={14} />} 
@@ -393,6 +420,18 @@ export default function TradingDashboard() {
                   icon={<Flame size={16} />} 
                   label="Trending" 
                   onClick={showAll}
+                />
+                <FilterButton 
+                  icon={<Clock size={16} />} 
+                  label="Age" 
+                  active={filters.sortBy === 'age'}
+                  onClick={sortByAge}
+                />
+                <FilterButton 
+                  icon={<Percent size={16} />} 
+                  label="Low Tax" 
+                  active={filters.sortBy === 'tax'}
+                  onClick={sortByTax}
                 />
               </div>
 

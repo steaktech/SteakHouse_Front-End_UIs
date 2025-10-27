@@ -14,6 +14,24 @@ export async function getFilteredTokens(params: URLSearchParams): Promise<Pagina
 }
 
 /**
+ * Preset: tokens sorted by newest age (created_at_timestamp desc).
+ * GET /filtered/age?page=&page_size=
+ */
+export async function getTokensByAge(params?: URLSearchParams): Promise<PaginatedTokenResponse> {
+  const queryString = params ? `?${params.toString()}` : '';
+  return apiClient<PaginatedTokenResponse>(`/filtered/age${queryString}`);
+}
+
+/**
+ * Preset: tokens sorted by lowest tax rate (asc).
+ * GET /filtered/tax?page=&page_size=
+ */
+export async function getTokensByTax(params?: URLSearchParams): Promise<PaginatedTokenResponse> {
+  const queryString = params ? `?${params.toString()}` : '';
+  return apiClient<PaginatedTokenResponse>(`/filtered/tax${queryString}`);
+}
+
+/**
  * Fetches all tokens (base fields only).
  * [cite_start]GET /all-tokens [cite: 247-249]
  */
