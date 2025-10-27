@@ -1,0 +1,151 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 70;
+  backdrop-filter: blur(4px);
+}
+
+.popup {
+  --bg-950: #1c0f07;
+  --bg-900: #241208;
+  --surface-800: #3a1e0e;
+  --surface-700: #4a2610;
+  --primary-600: #e89909;
+  --primary-500: #ffb020;
+  --primary-400: #ffc24b;
+  --text-100: #fcefd8;
+  --text-300: #e4cba6;
+  --muted-400: #b88957;
+  --border-500: #8b5a2b;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(180deg, var(--bg-900), var(--bg-950));
+  border: 1px solid var(--border-500);
+  border-radius: var(--radius, 18px);
+  padding: 20px;
+  z-index: 71;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: var(--shadow, 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04));
+  color: var(--text-100);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji",
+    "Segoe UI Emoji";
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius, 18px);
+  background: var(--surface-800);
+  color: var(--text-100);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  font-family: inherit;
+}
+
+.shareButton:hover {
+  background: var(--surface-700);
+  transform: translateY(-1px);
+}
+
+.shareButton:active {
+  transform: translateY(0);
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 12px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Platform-specific colors */
+.shareButton[data-platform="discord"] {
+  color: #5865F2;
+  background: rgba(88, 101, 242, 0.15);
+}
+
+.shareButton[data-platform="telegram"] {
+  color: #0088cc;
+  background: rgba(0, 136, 204, 0.15);
+}
+
+.shareButton[data-platform="facebook"] {
+  color: #1877F2;
+  background: rgba(24, 119, 242, 0.15);
+}
+
+.shareButton[data-platform="whatsapp"] {
+  color: #25D366;
+  background: rgba(37, 211, 102, 0.15);
+}
+
+.shareButton[data-platform="twitter"] {
+  color: #1DA1F2;
+  background: rgba(29, 161, 242, 0.15);
+}
+
+.shareButton[data-platform="copy"] {
+  color: var(--primary-400);
+  background: var(--surface-800);
+}
+
+.shareButton.copied {
+  color: var(--success-500) !important;
+  background: rgba(33, 200, 122, 0.15) !important;
+  cursor: default;
+}
+
+.shareButton[data-platform="more"] {
+  color: var(--text-300);
+  background: var(--surface-800);
+}
+
+/* Hover states */
+.shareButton[data-platform]:hover {
+  background: var(--surface-700);
+}
+
+/* Platform hover effects */
+.shareButton[data-platform="discord"]:hover {
+  background: rgba(88, 101, 242, 0.2);
+}
+
+.shareButton[data-platform="telegram"]:hover {
+  background: rgba(0, 136, 204, 0.2);
+}
+
+.shareButton[data-platform="facebook"]:hover {
+  background: rgba(24, 119, 242, 0.2);
+}
+
+.shareButton[data-platform="whatsapp"]:hover {
+  background: rgba(37, 211, 102, 0.2);
+}
+
+.shareButton[data-platform="twitter"]:hover {
+  background: rgba(29, 161, 242, 0.2);
+}
+
+.shareButton[data-platform="copy"]:hover,
+.shareButton[data-platform="more"]:hover {
+  background: var(--surface-700);
+}
