@@ -678,8 +678,6 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               flex: 1,
               minHeight: '280px',
               maxHeight: 'calc(100% - 5px)',
-              overflowY: 'auto',
-              overflowX: 'hidden',
               display: 'flex',
               flexDirection: 'column',
               scrollBehavior: 'smooth',

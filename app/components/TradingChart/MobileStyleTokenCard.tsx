@@ -402,14 +402,17 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
 
         <div className={styles.badgeRow}>
           <div className={styles.badge}>{tokenData.tag}</div>
-          <button
-            className={`${styles.copyTokenBtn} ${copied ? styles.copied : ''}`}
-            onClick={handleCopyToken}
-            aria-label={copied ? 'Copied token address' : 'Copy token address'}
-            title={copied ? 'Copied!' : 'Copy token address to clipboard'}
-          >
-            {copied ? <Check size={12} /> : <Copy size={12} />}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', position: 'relative', top: '-6px' }}>
+            <span style={{ fontSize: '8px', fontWeight: 700, color: '#fff1dc' }}>CA 📃</span>
+            <button
+              className={`${styles.copyTokenBtn} ${copied ? styles.copied : ''}`}
+              onClick={handleCopyToken}
+              aria-label={copied ? 'Copied token address' : 'Copy token address'}
+              title={copied ? 'Copied!' : 'Copy token address to clipboard'}
+            >
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          </div>
         </div>
       </header>
 

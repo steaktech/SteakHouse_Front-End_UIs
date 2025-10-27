@@ -247,24 +247,30 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           white-space: nowrap !important;
         }
       `}</style>
-      <div className="custom-scrollbar" style={{
+      <div style={{
         width: '100%',
         height: activeTab === 'limit' ? 'fit-content' : '100%',
-        maxHeight: activeTab === 'limit' ? 'none' : 'none',
-        minHeight: activeTab === 'limit' ? 'auto' : '100%',
         position: 'relative',
         borderRadius: 'clamp(14px, 2vw, 20px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-        padding: isMobile ? '10px' : (activeTab === 'limit' ? 'clamp(9px, 1.8vh, 13px)' : 'clamp(12px, 2.5vh, 16px)'),
         border: '1px solid rgba(255, 215, 165, 0.4)',
-        overflowY: 'auto',
-        overflowX: 'hidden',
+        overflow: 'hidden',
         color: '#fff7ea',
-        display: 'flex',
-        flexDirection: 'column',
         boxSizing: 'border-box',
       }}>
+        <div className="custom-scrollbar" style={{
+          width: '100%',
+          height: '100%',
+          maxHeight: activeTab === 'limit' ? 'none' : 'none',
+          minHeight: activeTab === 'limit' ? 'auto' : '100%',
+          padding: isMobile ? '10px' : (activeTab === 'limit' ? 'clamp(9px, 1.8vh, 13px)' : 'clamp(12px, 2.5vh, 16px)'),
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
+        }}>
         {/* Buy/Sell/Limit Tabs - Premium Style */}
         <div style={{
           position: 'relative',
@@ -946,6 +952,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             </button>
           </>
         )}
+        </div>
+      </div>
       {/* Wallet & Top-Up Modals (do not change visible UI unless opened) */}
       <WalletModal
         isOpen={isWalletModalOpen}
@@ -959,7 +967,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         defaultAmountEth={topUpAmount || tradingState?.topUpSuggestionEth || ''}
         onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
       />
-      </div>
     </>
   );
 };
