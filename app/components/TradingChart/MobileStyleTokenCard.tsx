@@ -408,6 +408,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             aria-label={copied ? 'Copied token address' : 'Copy token address'}
             title={copied ? 'Copied!' : 'Copy token address to clipboard'}
           >
+            <span className={styles.copyLabel}>CA</span>
             {copied ? <Check size={12} /> : <Copy size={12} />}
           </button>
         </div>

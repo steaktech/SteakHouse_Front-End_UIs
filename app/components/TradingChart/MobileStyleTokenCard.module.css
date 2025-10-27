@@ -242,6 +242,23 @@
   height: 12px;
 }
 
+/* Allow label + icon inside copy button */
+.copyTokenBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: auto;
+  padding: 0 6px;
+}
+
+.copyLabel {
+  font-weight: 800;
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  line-height: 1;
+}
+
 /* Compact tax line */
 .taxLine {
   margin-top: 4px;
