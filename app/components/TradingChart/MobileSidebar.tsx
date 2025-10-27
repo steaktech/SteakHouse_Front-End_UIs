@@ -62,7 +62,7 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
   );
 };
 
-export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress }) => {
+export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress, tokenLogoUrl }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -225,6 +225,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded,
           isOpen={isHoldersWidgetOpen}
           onClose={() => setIsHoldersWidgetOpen(false)}
           tokenAddress={tokenAddress}
+          tokenLogoUrl={tokenLogoUrl}
         />
       )}
 

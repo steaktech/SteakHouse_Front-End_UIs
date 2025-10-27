@@ -23,6 +23,8 @@ export type SidebarProps = {
   expanded: boolean;
   setExpanded: (expanded: boolean) => void;
   tokenAddress?: string;
+  /** Forwarded logo URL so child widgets can reuse it without extra API calls */
+  tokenLogoUrl?: string;
 };
 
 export type CandlestickChartProps = {

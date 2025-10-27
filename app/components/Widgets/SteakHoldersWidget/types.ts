@@ -5,6 +5,8 @@ export interface TokenData {
   address: string;
   priceUSD: number;
   totalSupply: number;
+  /** Optional token logo URL (same as used by MobileStyleTokenCard) */
+  logo?: string;
 }
 
 export interface HolderData {
@@ -57,6 +59,8 @@ export interface SteakHoldersWidgetProps {
   isOpen: boolean;
   onClose: () => void;
   tokenAddress?: string;
+  /** Optional logo URL forwarded from parent to avoid extra API requests */
+  tokenLogoUrl?: string;
   data?: {
     token: TokenData;
     holders: HolderData[];

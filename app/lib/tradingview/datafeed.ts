@@ -189,15 +189,21 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
           const address = String(symbol || '').trim().toLowerCase();
           if (!HEX40.test(address)) throw new Error('Symbol must be a 0x-address (40 hex chars).');
           const meta = await resolveMeta(address);
-          const display = meta.symbol || `${address.slice(0, 6)}…${address.slice(-4)}`;
+          const short = `${address.slice(0, 6)}…${address.slice(-4)}`;
+          const displayName = (meta?.name || meta?.symbol || short);
+          const displaySymbol = (meta?.symbol || meta?.name || short);
           onResolve({
-            name: display,
-            symbol, display,
+            name: displayName,
+            full_name: displayName,
+            short_name: displayName,
+            symbol: displaySymbol,
             ticker: address,
-            description: display,
+            description: displayName,
             type: 'crypto',
             session,
             timezone,
+            exchange: 'On-Chain',
+            listed_exchange: 'On-Chain',
             minmov: 1,
             pricescale: priceScale,
             has_intraday: true,

@@ -78,7 +78,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
   );
 };
 
-export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress }) => {
+export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress, tokenLogoUrl }) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -470,6 +470,7 @@ const handleUserProfileClose = () => {
           isOpen={isHoldersWidgetOpen}
           onClose={handleHoldersClose}
           tokenAddress={tokenAddress}
+          tokenLogoUrl={tokenLogoUrl}
         />
       )}
 

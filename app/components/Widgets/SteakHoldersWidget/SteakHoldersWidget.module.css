@@ -187,6 +187,39 @@
   box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.35);
 }
 
+/* Token avatar styled similar to MobileStyleTokenCard */
+.tokenAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, #915428, #4a2815);
+  border: 1px solid rgba(255, 215, 165, 0.65);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tokenAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.tokenAvatarFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 22px;
+  color: #feea88;
+}
+
 .tokenTitle {
   font-weight: 900;
   font-size: 16px;

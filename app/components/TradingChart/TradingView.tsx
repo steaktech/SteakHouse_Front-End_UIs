@@ -28,6 +28,7 @@ function tfToResolution(tf: string): string {
 export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address, timeframe = '1m', onChangeTimeframe }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<any>(null);
+  const prevDatafeedRef = useRef<any>(null);
 
   const TV_LIBRARY_PATH = useMemo(() => {
     const base = (typeof window !== 'undefined' && (window.__TV_BASE__ || '')) || '';
@@ -40,12 +41,11 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
     const restBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
     const socketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_BASE_URL || '';
     const displayMeta = async (addr: string) => {
-      // Prefer provided display props
-      const display = symbol || title;
-      if (display) return { symbol: display, name: display };
-      // Fallback to short address
+      // Prefer token symbol for symbol field, token name for name field
       const short = `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-      return { symbol: short, name: short };
+      const metaSymbol = (symbol ?? title) ?? short; // e.g. "SPACE"
+      const metaName = (title ?? symbol) ?? short;   // e.g. "Spaceman"
+      return { symbol: metaSymbol, name: metaName };
     };
     return makeTVDatafeed({
       restBaseUrl,
@@ -58,10 +58,19 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
     });
   }, [symbol, title]);
 
-  // Load script and create widget once
+  // Load script and create widget; recreate if datafeed (meta) changes so name updates
   useEffect(() => {
     let cancelled = false;
     if (!address) return;
+
+    // If widget exists but datafeed reference changed (e.g. token name/symbol loaded), rebuild
+    if (widgetRef.current && prevDatafeedRef.current && prevDatafeedRef.current !== datafeed) {
+      try { widgetRef.current.remove?.(); } catch {}
+      widgetRef.current = null;
+      try { if (containerRef.current) containerRef.current.innerHTML = ''; } catch {}
+    }
+    prevDatafeedRef.current = datafeed;
+
     if (widgetRef.current || !containerRef.current) return;
 
     const loadTV = async (src: string) => {
@@ -110,9 +119,20 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
           'paneProperties.vertGridProperties.color': '#1f2937',
           'paneProperties.horzGridProperties.color': '#1f2937',
           'scalesProperties.textColor': '#94a3b8',
-          'scalesProperties.lineColor': '#374151',
+'scalesProperties.lineColor': '#374151',
 
-          // Candles - match TradePanel BUY/SELL palette
+          // Improve readability and margins
+          'paneProperties.topMargin': 15,
+          'paneProperties.bottomMargin': 10,
+          'paneProperties.crossHairProperties.color': '#9ca3af',
+          'paneProperties.legendProperties.showLegend': true,
+          'paneProperties.legendProperties.showSeriesTitle': true,
+          'paneProperties.legendProperties.showSeriesOHLC': true,
+
+          // Scales & last value marker
+          'scalesProperties.showSeriesLastValue': true,
+
+          // Candles - match TradePanel BUY/SELL palette and standard wick/border visibility
           'mainSeriesProperties.candleStyle.upColor': '#4ade80',
           'mainSeriesProperties.candleStyle.downColor': '#f87171',
           'mainSeriesProperties.candleStyle.borderUpColor': '#22c55e',
@@ -120,7 +140,13 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
           'mainSeriesProperties.candleStyle.wickUpColor': '#22c55e',
           'mainSeriesProperties.candleStyle.wickDownColor': '#ef4444',
           'mainSeriesProperties.candleStyle.drawWick': true,
-          'mainSeriesProperties.candleStyle.drawBorder': false,
+          'mainSeriesProperties.candleStyle.drawBorder': true,
+          'mainSeriesProperties.candleStyle.barColorsOnPrevClose': false,
+
+          // Price line marker
+          'mainSeriesProperties.priceLineVisible': true,
+          'mainSeriesProperties.priceLineColor': '#feea88',
+          'mainSeriesProperties.priceLineWidth': 1,
 
           // Bars/hollow/Heikin-Ashi styles (if switched)
           'mainSeriesProperties.barStyle.upColor': '#4ade80',
@@ -149,11 +175,25 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
       window.tvWidget = widgetRef.current;
       widgetRef.current.onChartReady(() => {
         if (cancelled) return;
+        try {
+          const chart = widgetRef.current.activeChart();
+          // Ensure a Volume study exists (separate pane)
+          const studies = (chart.getAllStudies?.() ?? []) as any[];
+          const hasVolume = Array.isArray(studies) && studies.some((s: any) => {
+            const n = (s?.name || s?.title || s?.shortTitle || '').toString();
+            return /(^|@)Volume(\b|@)/i.test(n);
+          });
+          if (!hasVolume) {
+            try { chart.createStudy?.('Volume@tv-basicstudies', false, false); }
+            catch { try { chart.createStudy?.('Volume', false, false); } catch {}
+            }
+          }
+        } catch {}
       });
     })();
 
     return () => { cancelled = true; };
-  }, [TV_SCRIPT_SRC, TV_LIBRARY_PATH, datafeed, address, timeframe]);
+  }, [TV_SCRIPT_SRC, TV_LIBRARY_PATH, datafeed, address]);
 
   // Respond to timeframe changes
   useEffect(() => {

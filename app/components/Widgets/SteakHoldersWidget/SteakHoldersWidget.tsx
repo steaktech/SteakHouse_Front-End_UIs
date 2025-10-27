@@ -196,6 +196,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
   isOpen, 
   onClose, 
   tokenAddress,
+  tokenLogoUrl,
   data 
 }) => {
   const [state, setState] = useState<SteakHoldersWidgetState>({
@@ -226,6 +227,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     autoFetch: false,
   });
 
+
   // Load dataset
   const loadDataset = useCallback((dataset: { token: TokenData; holders: HolderData[] }) => {
     const total = dataset.token.totalSupply;
@@ -236,12 +238,12 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
     }));
     
     const newDataset: DatasetType = { 
-      token: { ...dataset.token }, 
+      token: { ...dataset.token, logo: dataset.token.logo ?? tokenLogoUrl }, 
       holders: holders as ProcessedHolderData[]
     };
     
     setState(prev => ({ ...prev, dataset: newDataset }));
-  }, []);
+  }, [tokenLogoUrl]);
 
   // Load API data when available
   const loadApiDataset = useCallback((apiData: NonNullable<typeof holdersData>) => {
@@ -262,13 +264,15 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
         chain: apiData.token.chain,
         address: apiData.token.address,
         priceUSD: apiData.token.priceUSD,
-        totalSupply: apiData.token.totalSupply
+        totalSupply: apiData.token.totalSupply,
+        // Prefer forwarded logo to avoid extra API calls
+        logo: tokenLogoUrl ?? (apiData as any)?.token?.logo
       }, 
       holders 
     };
     
     setState(prev => ({ ...prev, dataset: newDataset }));
-  }, []);
+  }, [tokenLogoUrl]);
 
   // Initialize with API data; if explicit data prop provided, use it; do not fall back to demo data
   useEffect(() => {
@@ -284,6 +288,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
       setState(prev => ({ ...prev, dataset: null }));
     }
   }, [holdersData, data, loadApiDataset, loadDataset]);
+
 
   // Fetch when widget opens (manual trigger) with guard to prevent duplicate calls in StrictMode
   const lastOpenKeyRef = React.useRef<string | null>(null);
@@ -595,7 +600,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
             <div className={styles.sub}>Token distribution • whales • filters</div>
           </div>
           <div className={styles.spacer} />
-          <button className={styles.btn} title="Pin widget">Pin</button>
+          {/* <button className={styles.btn} title="Pin widget">Pin</button> */}
           <button className={styles.btn} onClick={onClose} title="Close">Close</button>
         </header>
 
@@ -604,8 +609,18 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
             {/* LEFT: Token Overview */}
             <section className={styles.card}>
               <div className={styles.row} style={{ gap: '14px', marginBottom: '10px' }}>
-                <div className={styles.tokenLogo}>
-                  {token.symbol === "N/A" ? "??" : token.symbol.slice(0, 2).toUpperCase()}
+                <div className={styles.tokenAvatar}>
+                  {(token.logo || tokenLogoUrl) ? (
+                    <img
+                      src={(token.logo || tokenLogoUrl) as string}
+                      alt={`${token.name} logo`}
+                      className={styles.tokenAvatarImage}
+                    />
+                  ) : (
+                    <div className={styles.tokenAvatarFallback} aria-hidden="true">
+                      {(token.symbol && token.symbol !== "N/A") ? token.symbol.charAt(0).toUpperCase() : "?"}
+                    </div>
+                  )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className={styles.row} style={{ gap: '8px', alignItems: 'center' }}>
