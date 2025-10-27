@@ -178,13 +178,14 @@
 .tokenLogo {
   width: 52px;
   height: 52px;
-  border-radius: 16px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
   font-weight: 900;
   color: #3a210b;
   background: conic-gradient(from 220deg, var(--hw-accent-2), var(--hw-accent), #cf7f1f, var(--hw-accent-2));
   box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.35);
+  overflow: hidden;
 }
 
 .tokenTitle {

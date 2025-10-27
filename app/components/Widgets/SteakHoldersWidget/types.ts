@@ -5,6 +5,7 @@ export interface TokenData {
   address: string;
   priceUSD: number;
   totalSupply: number;
+  logo?: string;
 }
 
 export interface HolderData {
@@ -57,6 +58,7 @@ export interface SteakHoldersWidgetProps {
   isOpen: boolean;
   onClose: () => void;
   tokenAddress?: string;
+  tokenLogo?: string;
   data?: {
     token: TokenData;
     holders: HolderData[];

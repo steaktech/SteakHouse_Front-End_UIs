@@ -23,6 +23,7 @@ export type SidebarProps = {
   expanded: boolean;
   setExpanded: (expanded: boolean) => void;
   tokenAddress?: string;
+  tokenLogo?: string;
 };
 
 export type CandlestickChartProps = {

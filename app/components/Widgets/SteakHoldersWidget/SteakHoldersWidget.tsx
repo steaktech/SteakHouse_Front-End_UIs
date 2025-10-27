@@ -195,6 +195,7 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
   isOpen, 
   onClose, 
   tokenAddress,
+  tokenLogo,
   data 
 }) => {
   const [state, setState] = useState<SteakHoldersWidgetState>({
@@ -589,7 +590,6 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
             <div className={styles.sub}>Token distribution • whales • filters</div>
           </div>
           <div className={styles.spacer} />
-          <button className={styles.btn} title="Pin widget">Pin</button>
           <button className={styles.btn} onClick={onClose} title="Close">Close</button>
         </header>
 
@@ -599,7 +599,15 @@ export const SteakHoldersWidget: React.FC<SteakHoldersWidgetProps> = ({
             <section className={styles.card}>
               <div className={styles.row} style={{ gap: '14px', marginBottom: '10px' }}>
                 <div className={styles.tokenLogo}>
-                  {token.symbol === "N/A" ? "??" : token.symbol.slice(0, 2).toUpperCase()}
+                  {(tokenLogo || token.logo) ? (
+                    <img 
+                      src={tokenLogo || token.logo} 
+                      alt={token.symbol} 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <span>{token.symbol === "N/A" ? "??" : token.symbol.slice(0, 2).toUpperCase()}</span>
+                  )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className={styles.row} style={{ gap: '8px', alignItems: 'center' }}>

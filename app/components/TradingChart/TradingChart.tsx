@@ -536,7 +536,12 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <div className="flex flex-1 text-white font-sans overflow-hidden">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} tokenAddress={tokenAddress} />
+          <DesktopSidebar 
+            expanded={sidebarExpanded} 
+            setExpanded={setSidebarExpanded} 
+            tokenAddress={tokenAddress}
+            tokenLogo={apiTokenData?.tokenInfo?.image_url}
+          />
         </div>
         
           <main 
@@ -841,6 +846,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         expanded={mobileSidebarExpanded} 
         setExpanded={setMobileSidebarExpanded} 
         tokenAddress={tokenAddress}
+        tokenLogo={apiTokenData?.tokenInfo?.image_url}
       />
 
       {/* Order Notifications */}
