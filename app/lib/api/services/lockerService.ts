@@ -20,7 +20,20 @@ function unwrapUnsignedTx(res: any): UnsignedTx {
 export async function fetchLocks(ownerAddress: string): Promise<any[]> {
   if (!ownerAddress) throw new Error('ownerAddress is required');
   const result = await blockchainApiClient<any>(`/getLocks/${ownerAddress}`);
-  return Array.isArray(result) ? result : [];
+
+  // Normalize various possible response shapes
+  if (Array.isArray(result)) return result;
+  if (Array.isArray(result?.allLocks)) return result.allLocks;
+  if (Array.isArray(result?.locks)) return result.locks;
+  if (Array.isArray(result?.data)) return result.data;
+  if (Array.isArray(result?.items)) return result.items;
+
+  // Fallback: find the first array property in the response object
+  if (result && typeof result === 'object') {
+    const firstArray = Object.values(result).find(Array.isArray) as any[] | undefined;
+    if (Array.isArray(firstArray)) return firstArray;
+  }
+  return [];
 }
 
 export async function buildWithdrawLock(token: string, owner: string): Promise<UnsignedTx> {

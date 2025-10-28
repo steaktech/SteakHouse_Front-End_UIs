@@ -155,7 +155,7 @@ useEffect(() => {
   // Optionally fetch locks from blockchain API when wallet is connected and no external data provided
   useEffect(() => {
     const fetchLocks = async () => {
-      if (!walletAddress || data) return;
+      if (!walletAddress || (Array.isArray(data) && data.length > 0)) return;
       try {
         // GET /getLocks/:wallet (owner is main wallet address)
 const result = await apiFetchLocks(walletAddress);
@@ -254,6 +254,11 @@ const unlockDate = r.rawUnlockTime ? new Date(Number(r.rawUnlockTime) * 1000) : 
   // Event handlers
   const handleTabChange = (tab: TabType) => {
     setState(prev => ({ ...prev, activeTab: tab }));
+    // If switching to Manage tab, trigger a refresh from API when possible
+    if (tab === 'manage' && walletAddress && !(Array.isArray(data) && data.length > 0)) {
+      // fire and forget; internal errors handled in refreshLocks
+      refreshLocks();
+    }
   };
 
   const handleFormChange = (field: keyof LockFormData, value: string | number) => {

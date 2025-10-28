@@ -425,49 +425,36 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         </div>
       </section>
 
-      {/* Description with social buttons on the right */}
+      {/* Description only (social icons moved to top chart toolbar) */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
         margin: isLimitMode ? '2px 0 4px' : undefined
       }}>
         <p className={styles.desc} style={{
-          margin: 0,
           fontSize: isLimitMode ? '14px' : '16px',
           lineHeight: 1.5,
-          fontWeight: 500,
-          flex: 1
+          fontWeight: 500
         }}>
           {tokenData.description}
         </p>
-        
-        {/* Social buttons stacked vertically on the right */}
-        <nav aria-label="Social links" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-          flexShrink: 0
-        }}>
-          <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram" style={{
-            width: '20px',
-            height: '20px'
-          }}>
-            <Send size={8} />
-          </button>
-          <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X" style={{
-            width: '20px',
-            height: '20px'
-          }}>
-            <TwitterIcon />
-          </button>
-          <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website" style={{
-            width: '20px',
-            height: '20px'
-          }}>
-            <Globe size={8} />
-          </button>
-        </nav>
+        {/**
+         * Social buttons stacked vertically on the right (commented out)
+         * <nav aria-label="Social links" style={{
+         *   display: 'flex',
+         *   flexDirection: 'column',
+         *   gap: '4px',
+         *   flexShrink: 0
+         * }}>
+         *   <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram" style={{ width: '20px', height: '20px' }}>
+         *     <Send size={8} />
+         *   </button>
+         *   <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X" style={{ width: '20px', height: '20px' }}>
+         *     <TwitterIcon />
+         *   </button>
+         *   <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website" style={{ width: '20px', height: '20px' }}>
+         *     <Globe size={8} />
+         *   </button>
+         * </nav>
+         */}
       </div>
 
       {/* Bottom panel: stats row + searing progress bar */}

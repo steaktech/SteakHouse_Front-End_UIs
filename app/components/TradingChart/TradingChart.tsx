@@ -552,6 +552,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 address={tokenAddress ?? undefined}
                 timeframe={timeframe}
                 onChangeTimeframe={(tf) => setTimeframe(tf)}
+                tokenIconUrl={mobileStyleTokenData.logo}
+                telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
+                twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
+                websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
               />
             </div>
 

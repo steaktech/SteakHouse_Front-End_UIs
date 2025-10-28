@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { makeTVDatafeed } from '@/app/lib/tradingview/datafeed';
+import { SharePopup } from '@/app/components/Widgets/ChatWidget/SharePopup';
+import { useSaveToken } from '@/app/hooks/useSaveToken';
 
 
 interface TradingViewProps {
@@ -10,6 +12,11 @@ interface TradingViewProps {
   address?: string; // token address for datafeed (0x...)
   timeframe?: string; // '1m' | '5m' | '15m' | '1h' | '4h' | '1d'
   onChangeTimeframe?: (tf: string) => void;
+  tokenIconUrl?: string;
+  // Socials
+  telegramUrl?: string;
+  twitterUrl?: string;
+  websiteUrl?: string;
 }
 
 const TF_OPTIONS: { label: string; value: string; resolution: string }[] = [
@@ -25,7 +32,7 @@ function tfToResolution(tf: string): string {
   return TF_OPTIONS.find(t => t.value === tf)?.resolution ?? '1';
 }
 
-export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address, timeframe = '1m', onChangeTimeframe }) => {
+export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address, timeframe = '1m', onChangeTimeframe, tokenIconUrl, telegramUrl, twitterUrl, websiteUrl }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<any>(null);
   const prevDatafeedRef = useRef<any>(null);
@@ -36,7 +43,39 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
   }, []);
   const TV_SCRIPT_SRC = useMemo(() => `${TV_LIBRARY_PATH}charting_library.standalone.js`, [TV_LIBRARY_PATH]);
 
+  const [showSharePopup, setShowSharePopup] = useState(false);
+
+  const shareData = useMemo(() => ({
+    title: `${(title || symbol || 'Token')}${symbol ? ` (${symbol})` : ''}`,
+    text: `Check out ${(title || symbol || 'this token')}${symbol ? ` (${symbol})` : ''} on SteakHouse Trading`,
+    url: typeof window !== 'undefined' && address ? `${window.location.origin}/trading-chart/${address}` : (typeof window !== 'undefined' ? window.location.href : '')
+  }), [title, symbol, address]);
+
+  const sanitizeUrl = useCallback((u?: string | null) => {
+    if (!u) return undefined;
+    const s = String(u).trim();
+    if (!s) return undefined;
+    if (/^https?:\/\//i.test(s)) return s;
+    return `https://${s.replace(/^\/+/, '')}`;
+  }, []);
+
+  const handleShareClick = useCallback(async () => {
+    try {
+      const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+      if (isMobile && typeof navigator !== 'undefined' && 'share' in navigator) {
+        await (navigator as any).share(shareData);
+      } else {
+        setShowSharePopup(true);
+      }
+    } catch (err) {
+      setShowSharePopup(true);
+    }
+  }, [shareData]);
+
   // Build TradingView datafeed from our API/WS
+  const { isSaved, isLoading: isSaveLoading, toggleSave } = useSaveToken(address || '', false);
+
   const datafeed = useMemo(() => {
     const restBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
     const socketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_BASE_URL || '';
@@ -215,36 +254,153 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
   }, [address, timeframe]);
 
   return (
-    <div className="w-full h-full overflow-hidden">
-      <div className="flex-grow flex flex-col h-full">
-        {/* Top Toolbar */}
-        <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07040b] border-b border-[#1f1a24]">
-          <div className="flex items-center gap-2 sm:gap-3 pr-2 border-r border-[#1f1a24]">
-            <div className="text-[#e5e7eb] font-semibold text-xs sm:text-sm">{title ?? 'Token'}</div>
-            {symbol ? <div className="text-[#9ca3af] text-[10px] sm:text-xs">{symbol}</div> : null}
-          </div>
-          <div className="flex items-center gap-1 pr-2 border-r border-[#1f1a24]">
-            {TF_OPTIONS.map((tf) => (
-              <button
-                key={tf.value}
-                onClick={() => onChangeTimeframe?.(tf.value)}
-                className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-colors ${timeframe === tf.value ? 'bg-[#111215] text-[#feea88] border border-[#2b2b2b]' : 'text-[#c0c0c0] hover:bg-black/30'}`}
-              >
-                {tf.label}
-              </button>
-            ))}
-          </div>
-        </div>
+    <>
+      <div className="w-full h-full overflow-hidden">
+        <div className="flex-grow flex flex-col h-full">
+          {/* Top Toolbar */}
+          <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07040b] border-b border-[#1f1a24]">
+            <div className="flex items-center gap-2 sm:gap-3 pr-2 border-r border-[#1f1a24]">
+              {tokenIconUrl ? <img src={tokenIconUrl} alt="" className="w-5 h-5 rounded-full" /> : null}
+              <div className="text-[#e5e7eb] font-semibold text-xs sm:text-sm">{title ?? 'Token'}</div>
+              {symbol ? <div className="text-[#9ca3af] text-[10px] sm:text-xs">{symbol}</div> : null}
+            </div>
+            <div className="flex items-center gap-2 pl-2">
+              {/* Primary actions: Save + Share */}
+              <div className="flex items-center gap-2 pr-2 border-r border-[#1f1a24]">
+                {/* Save token */}
+                <button
+                  type="button"
+                  title={isSaved ? 'Remove from saved' : 'Save token'}
+                  onClick={() => { if (!isSaveLoading) toggleSave(); }}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: isSaved ? '#ffdd00' : '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                  disabled={isSaveLoading}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21 12 17.77 5.82 21 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                </button>
+                {/* Share */}
+                <button
+                  type="button"
+                  title="Share"
+                  onClick={handleShareClick}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 512 512" fill="none" stroke="currentColor" strokeWidth="40" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <path d="M496 272l-144 144c-15 15-41 4.5-41-17v-80C150 321 40 401 40 464c0-159.1 141.6-264.8 271-271.7v-80c0-21.5 26-32.1 41-17l144 144c9.4 9.4 9.4 24.6 0 34z" />
+                  </svg>
+                </button>
+              </div>
 
-        {/* Chart container */}
-        <div className="relative min-h-0 h-full">
-          <div
-            ref={containerRef}
-            className="absolute left-0 right-0 top-0"
-            style={{ bottom: 'calc(var(--mobile-bottom-inset, 0px) + var(--mobile-recent-inset, 0px) + var(--chart-bottom-offset, 0px))', background: '#07040b', borderRadius: 8 }}
-          />
+              {/* Socials */}
+              <div className="flex items-center gap-2 pl-2">
+                <button
+                  type="button"
+                  title={telegramUrl ? 'Telegram' : 'Telegram (not provided)'}
+                  onClick={() => {
+                    const url = sanitizeUrl(telegramUrl);
+                    if (url) window.open(url, '_blank'); else setShowSharePopup(true);
+                  }}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
+                    <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42l10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001l-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15l4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  title={twitterUrl ? 'X (Twitter)' : 'X (not provided)'}
+                  onClick={() => {
+                    const url = sanitizeUrl(twitterUrl);
+                    if (url) window.open(url, '_blank'); else setShowSharePopup(true);
+                  }}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  title={websiteUrl ? 'Website' : 'Website (not provided)'}
+                  onClick={() => {
+                    const url = sanitizeUrl(websiteUrl);
+                    if (url) window.open(url, '_blank'); else setShowSharePopup(true);
+                  }}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M2 12h20" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Chart container */}
+          <div className="relative min-h-0 h-full">
+            <div
+              ref={containerRef}
+              className="absolute left-0 right-0 top-0"
+              style={{ bottom: 'calc(var(--mobile-bottom-inset, 0px) + var(--mobile-recent-inset, 0px) + var(--chart-bottom-offset, 0px))', background: '#07040b', borderRadius: 8 }}
+            />
+          </div>
         </div>
       </div>
-    </div>
+
+      <SharePopup
+        isOpen={showSharePopup}
+        onClose={() => setShowSharePopup(false)}
+        onShare={() => {}}
+        shareData={shareData}
+      />
+    </>
   );
 };
