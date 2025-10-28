@@ -41,6 +41,14 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
+  // Slippage tolerance (%)
+  const [slippagePct, setSlippagePct] = useState<string>(() => {
+    if (typeof window === 'undefined') return '1';
+    try {
+      const saved = window.localStorage.getItem('trade.slippagePct');
+      return saved ? saved : '1';
+    } catch { return '1'; }
+  });
 
   // Wallet + trading integration (same as desktop TradePanel)
   const { isConnected, isConnecting } = useWallet();
@@ -54,6 +62,11 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
   const [isToppingUp, setIsToppingUp] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
+
+  // Persist slippage to localStorage
+  React.useEffect(() => {
+    try { if (typeof window !== 'undefined') window.localStorage.setItem('trade.slippagePct', slippagePct || ''); } catch {}
+  }, [slippagePct]);
 
   // Show top-up suggestion when trading wallet has insufficient funds
   React.useEffect(() => {
@@ -132,10 +145,12 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
     const action = orderType === 'buy' ? 'Buy' : 'Sell';
     try {
       let hash: string | null = null;
+      const pct = parseFloat(slippagePct || '0');
+      const slippageBps = isNaN(pct) ? undefined : Math.max(0, Math.min(5000, Math.round(pct * 100)));
       if (orderType === 'buy') {
-        hash = await buyToken(tokenAddress, amount);
+        hash = await buyToken(tokenAddress, amount, { slippageBps });
       } else {
-        hash = await sellToken(tokenAddress, amount);
+        hash = await sellToken(tokenAddress, amount, { slippageBps });
       }
       if (hash) {
         const short = `${hash.slice(0, 10)}...${hash.slice(-6)}`;
@@ -420,6 +435,47 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
               {orderType === 'buy' ? <EthereumIcon /> : <QuestionMarkIcon />}
             </button>
           </div>
+        </div>
+
+        {/* Slippage Tolerance */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          marginBottom: '8px',
+        }}>
+          <span style={{ fontSize: '10px', color: '#feea88', fontWeight: 700 }}>Slippage</span>
+          <input
+            type="text"
+            value={slippagePct}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === '' || /^\d*(?:\.\d{0,2})?$/.test(v)) setSlippagePct(v);
+            }}
+            placeholder="1"
+            style={{
+              width: '60px',
+              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+              border: '1px solid rgba(255, 215, 165, 0.4)',
+              borderRadius: '8px',
+              color: '#feea88',
+              padding: '4px 6px',
+              fontWeight: 700,
+              fontSize: '10px'
+            }}
+          />
+          {['0.1','0.5','1','2'].map(p => (
+            <button key={p} onClick={() => setSlippagePct(p)} style={{
+              background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+              border: '1px solid rgba(255, 210, 160, 0.4)',
+              borderRadius: '8px',
+              padding: '6px 6px',
+              color: '#feea88',
+              fontSize: '9px',
+              fontWeight: 800,
+              cursor: 'pointer',
+            }}>{p}%</button>
+          ))}
         </div>
 
         {/* Preset Amounts */}

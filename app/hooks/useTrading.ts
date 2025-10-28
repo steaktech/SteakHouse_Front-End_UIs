@@ -24,8 +24,8 @@ export interface UseTrading {
   tradingState: TradingState;
   
   // Actions
-  buyToken: (tokenAddress: string, ethAmount: string) => Promise<string | null>;
-  sellToken: (tokenAddress: string, ethAmount: string) => Promise<string | null>;
+  buyToken: (tokenAddress: string, ethAmount: string, opts?: { slippageBps?: number }) => Promise<string | null>;
+  sellToken: (tokenAddress: string, ethAmount: string, opts?: { slippageBps?: number }) => Promise<string | null>;
   clearStatus: () => void;
   topUpTradingWallet: (amountEth: string) => Promise<string | null>;
   refreshTradingWallet: () => Promise<void>;
@@ -120,12 +120,16 @@ export const useTrading = (): UseTrading => {
     kind: 'buy' | 'sell',
     tokenAddress: string,
     amount: string,
-    walletAddress: string
+    walletAddress: string,
+    opts?: { slippageBps?: number }
   ): Promise<string> => {
     const url = `${API_BASE}/${kind === 'buy' ? 'buyToken' : 'sellToken'}`;
-    const body = kind === 'buy'
+    const body: any = kind === 'buy'
       ? { tokenAddress, buyAmount: amount, walletAddress }
       : { tokenAddress, sellAmount: amount, walletAddress };
+    if (opts?.slippageBps !== undefined) {
+      body.slippageBps = opts.slippageBps;
+    }
 
     const res = await fetch(url, {
       method: 'POST',
@@ -241,7 +245,7 @@ export const useTrading = (): UseTrading => {
     }));
   }, []);
 
-  const buyToken = useCallback(async (tokenAddress: string, ethAmount: string): Promise<string | null> => {
+  const buyToken = useCallback(async (tokenAddress: string, ethAmount: string, opts?: { slippageBps?: number }): Promise<string | null> => {
     if (!isConnected || !address) {
       const msg = 'Wallet not connected';
       setTradingState(prev => ({ ...prev, error: msg, lastTradeType: 'buy' }));
@@ -257,7 +261,7 @@ export const useTrading = (): UseTrading => {
     startTradeState('buy');
 
     try {
-      const txHash = await postTrade('buy', tokenAddress, ethAmount, address);
+      const txHash = await postTrade('buy', tokenAddress, ethAmount, address, opts);
       setTradingState(prev => ({ ...prev, txHash }));
       updateStatus('Order broadcasted. Waiting for confirmation...');
 
@@ -290,7 +294,7 @@ export const useTrading = (): UseTrading => {
     }
   }, [isConnected, address, postTrade, startTradeState, updateStatus, waitForConfirmation, finishTradeSuccess, finishTradeError]);
 
-  const sellToken = useCallback(async (tokenAddress: string, ethAmount: string): Promise<string | null> => {
+  const sellToken = useCallback(async (tokenAddress: string, ethAmount: string, opts?: { slippageBps?: number }): Promise<string | null> => {
     if (!isConnected || !address) {
       const msg = 'Wallet not connected';
       setTradingState(prev => ({ ...prev, error: msg, lastTradeType: 'sell' }));
@@ -306,7 +310,7 @@ export const useTrading = (): UseTrading => {
     startTradeState('sell');
 
     try {
-      const txHash = await postTrade('sell', tokenAddress, ethAmount, address);
+      const txHash = await postTrade('sell', tokenAddress, ethAmount, address, opts);
       setTradingState(prev => ({ ...prev, txHash }));
       updateStatus('Order broadcasted. Waiting for confirmation...');
 

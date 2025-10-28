@@ -6,11 +6,7 @@ import { useTrendingWebSocket } from '@/app/hooks/useTrendingWebSocket';
 import { useTrendingApi } from '@/app/hooks/useTrendingApi';
 import type { TrendingToken } from '@/app/types/token';
 
-interface TrendingBarProps {
-  compact?: boolean;
-}
-
-export default function TrendingBar({ compact = false }: TrendingBarProps) {
+export default function TrendingBar() {
   // API hook for initial trending data
   const {
     data: apiTrendingTokens,
@@ -84,57 +80,58 @@ export default function TrendingBar({ compact = false }: TrendingBarProps) {
     console.log('[TrendingBar] 📊 Data source:', dataSource, '| Tokens:', trendingTokens.length);
   }, [isConnected, wsTrendingTokens, apiTrendingTokens, trendingTokens]);
 
-  const desktopHeight = compact ? 'h-12' : 'h-16';
-  const mobileTitleHeight = compact ? 'h-12' : 'h-16';
-  const mobileMarqueeHeight = compact ? 'h-12' : 'h-16';
-  const scaleClass = compact ? 'scale-[0.75] origin-top' : '';
-
   return (
     <div>
       {/* --- Desktop Layout (Hidden on Mobile) --- */}
-      <div className={`hidden md:flex ${desktopHeight} relative`}>
-        <div className={`w-full ${scaleClass}`}>
-          {/* "TRENDING" title section (simplified, no image) */}
-          <div className="flex-none px-3 flex items-center justify-start">
-            <h2 className="text-[#F7F0D4] font-bold text-sm md:text-base">TRENDING</h2>
-          </div>
+      <div className="hidden md:flex h-16 relative">
+        {/* "TRENDING" title section */}
+        <div className="flex-none w-50 h-17 -mt-1 flex items-center z-15 justify-start pl-4 relative" style={{backgroundImage: 'url(/images/bull-bar.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+          <h2 className="text-[#F7F0D4] font-bold text-lg">
+            TRENDING
+          </h2>
+        </div>
 
-          {/* Main bar with scrolling profiles */}
-          <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-full z-10 h-full flex items-center">
-            {/* This container will take up the rest of the available space. */}
-            <div className="flex-1 relative flex items-center overflow-hidden h-full">
-              {isLoading ? (
-                /* Loading state */
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-gray-500 text-xs md:text-sm font-medium">
-                      Loading trending data...
-                    </span>
-                  </div>
-                </div>
-              ) : hasData ? (
-                <>
-                  {/* Left fade overlay */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
-                  
-                  {/* Show trending data */}
-                  <div className={scaleClass}>
-                    <TrendingProfileMarquee tokens={trendingTokens} />
-                  </div>
-                  
-                  {/* Right fade overlay */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
-                </>
-              ) : (
-                /* Empty state - no tokens to display */
-                <div className="flex-1 flex items-center justify-center">
-                  <span className="text-gray-500 text-xs md:text-sm font-medium">
-                    {apiError ? 'Failed to load trending data' : 'No trending data available'}
+        {/* Main bar with bull image and scrolling profiles */}
+        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center">
+          {/* <Image
+            src="/images/bull.png"
+            alt="Bull"
+            width={120}
+            height={110}
+            className="-ml-6 -mt-3 h-full w-auto object-contain flex-shrink-0"
+          /> */}
+
+          {/* This container will take up the rest of the available space. */}
+          <div className="flex-1 relative flex items-center overflow-hidden w-2 h-full">
+            {isLoading ? (
+              /* Loading state */
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-gray-500 text-sm font-medium">
+                    Loading trending data...
                   </span>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : hasData ? (
+              <>
+                {/* Left fade overlay */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
+                
+                {/* Show trending data */}
+                <TrendingProfileMarquee tokens={trendingTokens} />
+                
+                {/* Right fade overlay */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
+              </>
+            ) : (
+              /* Empty state - no tokens to display */
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-gray-500 text-sm font-medium">
+                  {apiError ? 'Failed to load trending data' : 'No trending data available'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -142,20 +139,20 @@ export default function TrendingBar({ compact = false }: TrendingBarProps) {
       {/* --- Mobile Layout (Visible ONLY on Mobile) --- */}
       <div className="md:hidden">
         {/* "TRENDING" title section (full width) */}
-        <div className={`${mobileTitleHeight} bg-[#3d1e01] flex items-center justify-center`}>
-          <h2 className="text-[#F7F0D4] font-bold text-sm">
+        <div className="h-16 bg-[#3d1e01] flex items-center justify-center">
+          <h2 className="text-[#F7F0D4] font-bold text-lg">
             TRENDING
           </h2>
         </div>
 
         {/* Marquee section (full width, below title) */}
-        <div className={`${mobileMarqueeHeight} bg-black/20 backdrop-blur-lg relative flex items-center overflow-hidden`}>
+        <div className="h-16 bg-black/20 backdrop-blur-lg relative flex items-center overflow-hidden">
           {isLoading ? (
             /* Loading state */
             <div className="flex-1 flex items-center justify-center">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-                <span className="text-gray-500 text-xs font-medium">
+                <span className="text-gray-500 text-sm font-medium">
                   Loading trending data...
                 </span>
               </div>
@@ -166,9 +163,7 @@ export default function TrendingBar({ compact = false }: TrendingBarProps) {
               <div className="absolute left-0 top-0 z-10 w-24 h-full bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
 
               {/* Show trending data */}
-              <div className={scaleClass}>
-                <TrendingProfileMarquee tokens={trendingTokens} />
-              </div>
+              <TrendingProfileMarquee tokens={trendingTokens} />
 
               {/* Right fade overlay (full height) */}
               <div className="absolute right-0 top-0 z-10 w-24 h-full bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
@@ -176,7 +171,7 @@ export default function TrendingBar({ compact = false }: TrendingBarProps) {
           ) : (
             /* Empty state - no tokens to display */
             <div className="flex-1 flex items-center justify-center">
-              <span className="text-gray-500 text-xs font-medium">
+              <span className="text-gray-500 text-sm font-medium">
                 {apiError ? 'Failed to load trending data' : 'No trending data available'}
               </span>
             </div>

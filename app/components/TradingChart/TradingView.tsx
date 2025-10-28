@@ -4,7 +4,8 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { makeTVDatafeed } from '@/app/lib/tradingview/datafeed';
 import { SharePopup } from '@/app/components/Widgets/ChatWidget/SharePopup';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
-
+import { useWallet } from '@/app/hooks/useWallet';
+import { useToastHelpers } from '@/app/hooks/useToast';
 
 interface TradingViewProps {
   title?: string;
@@ -36,6 +37,11 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<any>(null);
   const prevDatafeedRef = useRef<any>(null);
+
+  // Wallet + toast
+  const { isConnected } = useWallet();
+  const { showError, showSuccess } = useToastHelpers();
+  const [saveClicked, setSaveClicked] = useState(false);
 
   const TV_LIBRARY_PATH = useMemo(() => {
     const base = (typeof window !== 'undefined' && (window.__TV_BASE__ || '')) || '';
@@ -73,8 +79,8 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
     }
   }, [shareData]);
 
-  // Build TradingView datafeed from our API/WS
-  const { isSaved, isLoading: isSaveLoading, toggleSave } = useSaveToken(address || '', false);
+// Build TradingView datafeed from our API/WS
+  const { isSaved, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken((address || '').toLowerCase(), false);
 
   const datafeed = useMemo(() => {
     const restBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
@@ -253,6 +259,25 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
     });
   }, [address, timeframe]);
 
+  // Surface save errors via toast
+  useEffect(() => {
+    if (saveError) {
+      showError(saveError, 'Save token');
+      clearError();
+      setSaveClicked(false);
+    }
+  }, [saveError, showError, clearError]);
+
+  // Success toast after state changes due to our click
+  const prevSavedRef = useRef(isSaved);
+  useEffect(() => {
+    if (saveClicked && prevSavedRef.current !== isSaved) {
+      showSuccess(isSaved ? 'Saved token' : 'Removed from saved');
+      setSaveClicked(false);
+    }
+    prevSavedRef.current = isSaved;
+  }, [isSaved, saveClicked, showSuccess]);
+
   return (
     <>
       <div className="w-full h-full overflow-hidden">
@@ -271,7 +296,15 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
                 <button
                   type="button"
                   title={isSaved ? 'Remove from saved' : 'Save token'}
-                  onClick={() => { if (!isSaveLoading) toggleSave(); }}
+                  onClick={async () => {
+                    if (isSaveLoading) return;
+                    if (!isConnected) {
+                      showError('Please connect your wallet to save tokens', 'Save token');
+                      return;
+                    }
+                    setSaveClicked(true);
+                    await toggleSave();
+                  }}
                   style={{
                     background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
                     border: '1px solid #8b5a2b',

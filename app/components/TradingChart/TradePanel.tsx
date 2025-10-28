@@ -48,6 +48,14 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   const [limitPrice, setLimitPrice] = useState('');
   const [limitSide, setLimitSide] = useState<'buy' | 'sell'>('buy');
   const [isPlacingLimit, setIsPlacingLimit] = useState(false);
+  // Slippage tolerance (%) as string for input; default 1%
+  const [slippagePct, setSlippagePct] = useState<string>(() => {
+    if (typeof window === 'undefined') return '1';
+    try {
+      const saved = window.localStorage.getItem('trade.slippagePct');
+      return saved ? saved : '1';
+    } catch { return '1'; }
+  });
 
   // Wallet + trading integration
   const { isConnected, isConnecting } = useWallet();
@@ -85,6 +93,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
     setActiveTab(tab);
     onTabChange?.(tab);
   };
+
+  // Persist slippage to localStorage
+  React.useEffect(() => {
+    try { if (typeof window !== 'undefined') window.localStorage.setItem('trade.slippagePct', slippagePct || ''); } catch {}
+  }, [slippagePct]);
 
   // Show top-up suggestion when trading wallet has insufficient funds
   React.useEffect(() => {
@@ -163,10 +176,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
     const action = activeTab === 'buy' ? 'Buy' : 'Sell';
     try {
       let hash: string | null = null;
+      const pct = parseFloat(slippagePct || '0');
+      const slippageBps = isNaN(pct) ? undefined : Math.max(0, Math.min(5000, Math.round(pct * 100)));
       if (activeTab === 'buy') {
-        hash = await buyToken(tokenAddress, amount);
+        hash = await buyToken(tokenAddress, amount, { slippageBps });
       } else {
-        hash = await sellToken(tokenAddress, amount);
+        hash = await sellToken(tokenAddress, amount, { slippageBps });
       }
       if (hash) {
         const short = `${hash.slice(0, 10)}...${hash.slice(-6)}`;
@@ -547,6 +562,65 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         {/* Market Order Interface */}
         {activeTab !== 'limit' && (
           <>
+            {/* Slippage Tolerance */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              marginTop: 'clamp(6px, 1vh, 10px)',
+              marginBottom: 'clamp(6px, 1vh, 10px)'
+            }}>
+              <div style={{ flex: 1 }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: 'clamp(10px, 1.6vw, 12px)',
+                  fontWeight: 700,
+                  color: '#feea88',
+                  marginBottom: '4px',
+                }}>Slippage Tolerance (%)</label>
+                <div style={{
+                  display: 'flex',
+                  gap: '6px',
+                  alignItems: 'center',
+                }}>
+                  <input
+                    type="text"
+                    value={slippagePct}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '' || /^\d*(?:\.\d{0,2})?$/.test(v)) {
+                        setSlippagePct(v);
+                      }
+                    }}
+                    placeholder="1"
+                    style={{
+                      width: '80px',
+                      background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                      border: '1px solid rgba(255, 215, 165, 0.4)',
+                      borderRadius: '10px',
+                      color: '#feea88',
+                      padding: '6px 8px',
+                      fontWeight: 700,
+                    }}
+                  />
+                  {/* Quick presets */}
+                  {['0.1','1','3','5'].map(p => (
+                    <button key={p} onClick={() => setSlippagePct(p)} style={{
+                      background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                      border: '1px solid rgba(255, 210, 160, 0.4)',
+                      borderRadius: '8px',
+                      padding: '6px 8px',
+                      color: '#feea88',
+                      fontSize: 'clamp(8px, 1.4vw, 11px)',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}>{p}%</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Account Stats (live from /api/user/position) */}
             <div style={{
               display: 'flex',
