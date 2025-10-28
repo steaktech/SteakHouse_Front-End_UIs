@@ -400,13 +400,25 @@
   white-space: nowrap;
 }
 
-.desc {
+ .desc {
   margin: 10px 0 14px;
   color: #fff1df;
   opacity: 0.96;
   line-height: 1.44;
   font-size: 12px;
   font-weight: 500;
+  /* Clamp to 3 lines and prevent width expansion from long words */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  /* Reserve fixed vertical space so all cards align regardless of description length */
+  max-height: calc(1em * 1.44 * 3);
+  min-height: calc(1em * 1.44 * 3);
 }
 
 .socials {
