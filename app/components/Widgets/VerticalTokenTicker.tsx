@@ -66,7 +66,7 @@ const VerticalTokenTicker: React.FC<VerticalTokenTickerProps> = ({
   const hasData = duplicated.length > 0;
 
   return (
-    <div className={`relative h-full overflow-hidden pointer-events-none ${className ?? ""}`}>
+    <div className={`relative h-full overflow-hidden pointer-events-none inline-flex ${className ?? ""}`}>
       {/* Gradient fade masks */}
       <div className="pointer-events-none absolute top-0 left-0 right-0 h-8 z-10" style={{
         background: "linear-gradient(to bottom, rgba(7,4,11,1), rgba(7,4,11,0))",
@@ -75,9 +75,9 @@ const VerticalTokenTicker: React.FC<VerticalTokenTickerProps> = ({
         background: "linear-gradient(to top, rgba(7,4,11,1), rgba(7,4,11,0))",
       }} />
 
-      {/* Scroller */}
-      <div className={`absolute inset-0 vticker-paused ${animateClass}`} style={scrollerStyle}>
-        <div className="flex flex-col gap-2 py-2 pr-1">
+      {/* Scroller (not absolute so container sizes to content width) */}
+      <div className={`relative h-full w-fit vticker-paused ${animateClass}`} style={scrollerStyle}>
+        <div className="flex flex-col gap-2 py-2 pr-0">
           {hasData ? (
             duplicated.map((t, idx) => (
               <VerticalTokenItem key={`${t.token_address}-${idx}`} token={t} />

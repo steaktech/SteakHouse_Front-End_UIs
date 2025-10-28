@@ -57,7 +57,7 @@ export const TopTrendingTicker: React.FC<TopTrendingTickerProps> = ({ maxItems =
   return (
     <div className="relative w-full" style={{ height: 44 }}>
       {/* Track container */}
-      <div className="h-full bg-black/20 backdrop-blur-lg rounded-full border border-[#daa20b]/20 overflow-hidden">
+      <div className="h-full bg-black/20 backdrop-blur-lg rounded-full overflow-hidden">
         <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#07040b] to-transparent pointer-events-none z-10" />
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#07040b] to-transparent pointer-events-none z-10" />
 

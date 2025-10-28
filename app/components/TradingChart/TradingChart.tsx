@@ -541,24 +541,23 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             height: isMobile ? 'calc(100vh - 56px)' : '100%'
           }}
         >
-          {/* Top trending bar (desktop only) spanning above chart and side tickers */}
-          <div className="hidden md:block">
-            <TopTrendingTicker />
-          </div>
-
           {/* Content row: Left chart area + Right token card panel */}
           <div className="flex flex-1 gap-[8px] overflow-hidden">
             {/* Left Column - Chart and Recent Transactions */}
             <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
+              {/* Top trending bar (desktop only) within left column only */}
+              <div className="hidden md:block">
+                <TopTrendingTicker />
+              </div>
               {/* Trading Chart flanked by vertical trending tickers */}
               <div className="flex-1 min-h-0 overflow-hidden">
-                <div className="h-full w-full flex items-stretch gap-2">
+                <div className="h-full w-full flex items-stretch gap-0">
                   {/* Left vertical ticker (scrolls up) - desktop only */}
-                  <div className="hidden lg:block w-36">
-                    <VerticalTokenTicker direction="up" />
+                  <div className="hidden lg:flex flex-none">
+                    <VerticalTokenTicker direction="up" className="w-fit" />
                   </div>
 
-                  {/* Chart */}
+                  {/* Chart fills remaining space with no gap */}
                   <div className="flex-1 min-h-0 relative">
                     <TradingView 
                       title={apiTokenData?.tokenInfo?.name}
@@ -574,8 +573,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   </div>
 
                   {/* Right vertical ticker (scrolls down) - desktop only */}
-                  <div className="hidden lg:block w-36">
-                    <VerticalTokenTicker direction="down" />
+                  <div className="hidden lg:flex flex-none">
+                    <VerticalTokenTicker direction="down" className="w-fit" />
                   </div>
                 </div>
               </div>

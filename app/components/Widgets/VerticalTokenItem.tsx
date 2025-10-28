@@ -29,7 +29,7 @@ const VerticalTokenItem: React.FC<VerticalTokenItemProps> = memo(({ token, compa
 
   return (
     <div
-      className="pointer-events-auto w-full"
+      className="pointer-events-auto w-fit"
       role="button"
       tabIndex={0}
       onClick={handleClick}
@@ -49,12 +49,7 @@ const VerticalTokenItem: React.FC<VerticalTokenItemProps> = memo(({ token, compa
           className="w-7 h-7 rounded-full object-cover border border-slate-700"
           loading="lazy"
         />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <span className="truncate text-[11px] font-bold text-[#F7F0D4] tracking-wide">{token.symbol.toUpperCase()}</span>
-            <span className={`text-[11px] font-extrabold ${priceChangeColor}`}>{percentage}%</span>
-          </div>
-        </div>
+        <span className={`text-[11px] font-extrabold ${priceChangeColor}`}>{percentage}%</span>
       </div>
     </div>
   );
