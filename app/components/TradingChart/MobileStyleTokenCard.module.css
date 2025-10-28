@@ -286,13 +286,14 @@
 .taxChips :global(.chip) {
   display: inline-flex;
   align-items: center;
-  padding: 4px 6px;
+  padding: 6px 10px;
   background: #7e4007;
   border: 1px solid rgba(255, 215, 165, 0.7);
   color: #fff0de;
   font-weight: 900;
-  font-size: 8px;
-  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 10px;
 }
 
 /* Compact description */

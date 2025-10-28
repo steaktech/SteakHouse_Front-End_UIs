@@ -362,42 +362,22 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         marginBottom: isLimitMode ? '2px' : undefined
       }}>
         <div className={styles.identity}>
-          <div className={styles.avatar}>
-            {tokenData.logo ? (
-              <img
-                src={tokenData.logo}
-                alt={`${tokenData.name} logo`}
-                className={styles.avatarImage}
-              />
-            ) : (
-              <div className={styles.avatarFallback} aria-hidden="true">
-                {tokenData.symbol?.[0] ?? '?'}
-              </div>
-            )}
-          </div>
-          <div className={styles.nameBlock}>
-            <div className={styles.nameRow} style={{ marginBottom: '2px' }}>
-              <h1 className="name" style={{ position: 'relative', top: '6px' }}>{tokenData.name}</h1>
-              {isConnected && (
-                <button
-                  className={`${styles.saveTokenBtn} ${saveClicked ? styles.copied : ''}`}
-                  onClick={handleSaveClick}
-                  aria-label={savedState ? 'Remove from saved' : 'Save token'}
-                  title={savedState ? 'Remove from saved' : 'Save token'}
-                  disabled={isSaveLoading || !tokenAddress}
-                  style={{
-                    opacity: isSaveLoading ? 0.6 : 1,
-                    color: savedState ? '#ffdd00' : '#fff1dc'
-                  }}
-                >
-                  <Bookmark size={12} fill={savedState ? 'currentColor' : 'none'} />
-                </button>
-              )}
-            </div>
-            <div className="tickerRow">
-              <div className="ticker">${tokenData.symbol}</div>
-            </div>
-          </div>
+          <div className={styles.taxStrong}>Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</div>
+          {/* {isConnected && (
+            <button
+              className={`${styles.saveTokenBtn} ${saveClicked ? styles.copied : ''}`}
+              onClick={handleSaveClick}
+              aria-label={savedState ? 'Remove from saved' : 'Save token'}
+              title={savedState ? 'Remove from saved' : 'Save token'}
+              disabled={isSaveLoading || !tokenAddress}
+              style={{
+                opacity: isSaveLoading ? 0.6 : 1,
+                color: savedState ? '#ffdd00' : '#fff1dc'
+              }}
+            >
+              <Bookmark size={12} fill={savedState ? 'currentColor' : 'none'} />
+            </button>
+          )} */}
         </div>
 
         <div className={styles.badgeRow}>
@@ -418,9 +398,10 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         marginTop: isLimitMode ? '2px' : undefined,
         marginBottom: isLimitMode ? '2px' : undefined
       }}>
-        <div className={styles.taxStrong}>Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</div>
         <div className={styles.taxChips}>
           <span className="chip">Current Tax: {tokenData.currentTax.buy}/{tokenData.currentTax.sell}</span>
+        </div>
+        <div className={styles.taxChips}>
           <span className="chip">MaxTX: {tokenData.maxTransaction >= 100 ? '100%+' : `${tokenData.maxTransaction}%`}</span>
         </div>
       </section>
@@ -430,7 +411,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         margin: isLimitMode ? '2px 0 4px' : undefined
       }}>
         <p className={styles.desc} style={{
-          fontSize: isLimitMode ? '14px' : '16px',
+          fontSize: isLimitMode ? '13px' : '15px',
           lineHeight: 1.5,
           fontWeight: 500
         }}>
