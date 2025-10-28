@@ -8,6 +8,7 @@ import SteakMatrixAnimation from "@/app/components/SteakMatrixAnimation";
 import ChartAnimation from "@/app/components/ChartAnimation";
 import { useTokenData } from "@/app/hooks/useTokenData";
 import { normalizeEthereumAddress } from "@/app/lib/utils/addressValidation";
+import { TokenCarousel } from "@/app/components/TokenCarousel/TokenCarousel";
 
 export default function TradingChartSearchPage() {
   const router = useRouter();
@@ -64,13 +65,25 @@ export default function TradingChartSearchPage() {
     <div className="min-h-screen flex flex-col bg-[#0d0b09] text-[#fff1d6]">
       <Header />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-10 relative">
+      <main className="flex-1 flex items-center justify-center px-4 py-10 relative min-h-[90vh]">
         {/* Steak Matrix Animation Background */}
         <SteakMatrixAnimation />
         
         <div className="w-full max-w-2xl relative" style={{ zIndex: 10 }}>
+          {/* Left-side carousel (scrolling up) */}
+          <TokenCarousel 
+            direction="up" 
+            className="left-[-280px]" 
+          />
+
           {/* Chart Animation */}
           <ChartAnimation className="mb-8" />
+
+          {/* Right-side carousel (scrolling down) */}
+          <TokenCarousel 
+            direction="down" 
+            className="right-[-280px]" 
+          />
           
           <form onSubmit={onSubmit} aria-label="Token search">
             <div className="relative group">
