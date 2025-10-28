@@ -552,10 +552,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               {/* Trading Chart flanked by vertical trending tickers */}
               <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="h-full w-full flex items-stretch gap-0">
-                  {/* Left vertical ticker (scrolls up) - desktop only */}
+                  {/* Left vertical ticker (temporarily disabled)
                   <div className="hidden lg:flex flex-none">
                     <VerticalTokenTicker direction="up" className="w-fit" />
                   </div>
+                  */}
 
                   {/* Chart fills remaining space with no gap */}
                   <div className="flex-1 min-h-0 relative">
@@ -572,10 +573,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                     />
                   </div>
 
-                  {/* Right vertical ticker (scrolls down) - desktop only */}
+                  {/* Right vertical ticker (temporarily disabled)
                   <div className="hidden lg:flex flex-none">
                     <VerticalTokenTicker direction="down" className="w-fit" />
                   </div>
+                  */}
                 </div>
               </div>
 
