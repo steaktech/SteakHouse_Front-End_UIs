@@ -1,0 +1,25 @@
+@keyframes v-ticker-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes v-ticker-down {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(50%); }
+}
+
+.animate-vticker-up {
+  animation: v-ticker-up var(--vticker-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.animate-vticker-down {
+  animation: v-ticker-down var(--vticker-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+/* Optional subtle scroll pause on hover */
+.vticker-paused:hover .animate-vticker-up,
+.vticker-paused:hover .animate-vticker-down {
+  animation-play-state: paused;
+}

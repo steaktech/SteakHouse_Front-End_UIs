@@ -21,6 +21,8 @@ import { useTokenData } from '@/app/hooks/useTokenData';
 import { useTokenWebSocket } from '@/app/hooks/useTokenWebSocket';
 import type { Candle, Trade, WebSocketTrade, ChartUpdateEvent } from '@/app/types/token';
 import { aggregateCandles } from '@/app/lib/utils/candles';
+import VerticalTokenTicker from '@/app/components/Widgets/VerticalTokenTicker';
+import TopTrendingTicker from '@/app/components/Widgets/TopTrendingTicker';
 
 interface TradingChartProps {
   tokenAddress?: string;
@@ -507,7 +509,6 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       {/* Header */}
       <Header />
 
-
       {/* Progress Bar - Mobile Only */}
       <div className="lg:hidden bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
         <div className="flex items-center justify-between mb-2">
@@ -527,37 +528,57 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         </div>
       </div>
 
-      <div className="flex flex-1 text-white font-sans overflow-hidden">
+      <div className="flex flex-1 text-white font-sans overflow-hidden relative">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} tokenAddress={tokenAddress} tokenLogoUrl={apiInfo?.image_url ?? undefined} />
         </div>
         
           <main 
-          className="flex-1 p-[8px] overflow-hidden"
+          className="flex-1 p-[8px] overflow-hidden flex flex-col gap-[8px]"
           style={{
             paddingBottom: '8px',
-            height: isMobile ? 'calc(100vh - 56px)' : '100%',
-            display: 'flex',
-            gap: '8px'
+            height: isMobile ? 'calc(100vh - 56px)' : '100%'
           }}
         >
-          {/* Left Column - Chart and Recent Transactions */}
-          <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
-            {/* Trading Chart */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <TradingView 
-                title={apiTokenData?.tokenInfo?.name}
-                symbol={apiTokenData?.tokenInfo?.symbol}
-                address={tokenAddress ?? undefined}
-                timeframe={timeframe}
-                onChangeTimeframe={(tf) => setTimeframe(tf)}
-                tokenIconUrl={mobileStyleTokenData.logo}
-                telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
-                twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
-                websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
-              />
-            </div>
+          {/* Top trending bar (desktop only) spanning above chart and side tickers */}
+          <div className="hidden md:block">
+            <TopTrendingTicker />
+          </div>
+
+          {/* Content row: Left chart area + Right token card panel */}
+          <div className="flex flex-1 gap-[8px] overflow-hidden">
+            {/* Left Column - Chart and Recent Transactions */}
+            <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
+              {/* Trading Chart flanked by vertical trending tickers */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <div className="h-full w-full flex items-stretch gap-2">
+                  {/* Left vertical ticker (scrolls up) - desktop only */}
+                  <div className="hidden lg:block w-36">
+                    <VerticalTokenTicker direction="up" />
+                  </div>
+
+                  {/* Chart */}
+                  <div className="flex-1 min-h-0 relative">
+                    <TradingView 
+                      title={apiTokenData?.tokenInfo?.name}
+                      symbol={apiTokenData?.tokenInfo?.symbol}
+                      address={tokenAddress ?? undefined}
+                      timeframe={timeframe}
+                      onChangeTimeframe={(tf) => setTimeframe(tf)}
+                      tokenIconUrl={mobileStyleTokenData.logo}
+                      telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
+                      twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
+                      websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+                    />
+                  </div>
+
+                  {/* Right vertical ticker (scrolls down) - desktop only */}
+                  <div className="hidden lg:block w-36">
+                    <VerticalTokenTicker direction="down" />
+                  </div>
+                </div>
+              </div>
 
             {/* Recent Transactions Panel (desktop only) */}
             <div 
@@ -684,6 +705,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               />
             </div>
           </div>
+
+        </div>
 
         </main>
       </div>
