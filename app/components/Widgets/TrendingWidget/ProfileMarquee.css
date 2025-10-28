@@ -18,5 +18,6 @@
   
   .animate-marquee {
     /* Apply the animation */
-    animation: marquee 40s linear infinite;
+    animation: marquee var(--marquee-duration, 35s) linear infinite;
+    will-change: transform;
   }

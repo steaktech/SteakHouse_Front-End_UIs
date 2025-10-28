@@ -31,7 +31,7 @@ const Chip: React.FC<{ token: TrendingToken }> = ({ token }) => {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }}
-      className="flex items-center gap-2 px-2 py-1 rounded-lg bg-black/20 border border-[#daa20b]/30 hover:bg-black/30 transition-colors cursor-pointer"
+      className="flex items-center gap-2 px-2 py-1 rounded-lg bg-black/20 border border-[#daa20b]/30 hover:bg-black/30 transition-colors cursor-pointer whitespace-nowrap"
       style={{ height: 32 }}
     >
       <SmartVideo webmSrc={arrowWebmSrc} mp4Src={arrowMp4Src} className="w-4 h-4" aria-hidden lazyLoad />
@@ -52,7 +52,12 @@ export const TopTrendingTicker: React.FC<TopTrendingTickerProps> = ({ maxItems =
   }, [isConnected, wsTrendingTokens, apiTrendingTokens]);
 
   const show = useMemo(() => tokens.slice(0, maxItems), [tokens, maxItems]);
-  const dup = useMemo(() => [...show, ...show], [show]);
+  const dup = useMemo(() => {
+    const copies = 4; // extra copies for seamless continuous scroll
+    const out: TrendingToken[] = [] as any;
+    for (let i = 0; i < copies; i++) out.push(...show);
+    return out;
+  }, [show]);
 
   return (
     <div className="relative w-full" style={{ height: 44 }}>
@@ -67,9 +72,11 @@ export const TopTrendingTicker: React.FC<TopTrendingTickerProps> = ({ maxItems =
           </div>
         ) : dup.length ? (
           <div className="h-full flex items-center">
-            <div className="flex items-center gap-3 animate-marquee" style={{ animationDuration: `${speedSec}s` }}>
+            <div className="inline-flex items-center gap-3 animate-marquee whitespace-nowrap w-max" style={{ ['--marquee-duration' as any]: `${speedSec}s` }}>
               {dup.map((t, i) => (
-                <Chip key={`${t.token_address}-${i}`} token={t} />
+                <div key={`${t.token_address}-${i}`} className="flex-shrink-0">
+                  <Chip token={t} />
+                </div>
               ))}
             </div>
           </div>

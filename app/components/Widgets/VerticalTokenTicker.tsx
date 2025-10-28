@@ -11,8 +11,8 @@ import "./VerticalTicker.css";
 export interface VerticalTokenTickerProps {
   direction?: "up" | "down";
   className?: string;
-  /** Seconds per item for scroll duration */
-  speedPerItemSec?: number;
+  /** Total animation duration in seconds (matches horizontal marquee) */
+  speedSec?: number;
   /** Max tokens to show (before duplication for seamless scroll) */
   maxItems?: number;
 }
@@ -35,7 +35,7 @@ const EmptyState = ({ heightClass = "h-full" }: { heightClass?: string }) => (
 const VerticalTokenTicker: React.FC<VerticalTokenTickerProps> = ({
   direction = "up",
   className,
-  speedPerItemSec = 1.4,
+  speedSec = 35,
   maxItems = 10,
 }) => {
   const { data: apiTrendingTokens, isInitialLoading } = useTrendingApi({ fetchOnMount: true });
@@ -53,13 +53,16 @@ const VerticalTokenTicker: React.FC<VerticalTokenTickerProps> = ({
 
   const visible = useMemo(() => randomized.slice(0, Math.max(1, Math.min(maxItems, randomized.length))), [randomized, maxItems]);
 
-  const duplicated = useMemo(() => [...visible, ...visible], [visible]);
-
-  const durationSec = Math.max(visible.length, 1) * speedPerItemSec;
+  const duplicated = useMemo(() => {
+    const copies = 4; // increase copies for seamless coverage
+    const out: TrendingToken[] = [] as any;
+    for (let i = 0; i < copies; i++) out.push(...visible);
+    return out;
+  }, [visible]);
 
   const scrollerStyle: CSSProperties = useMemo(() => ({
-    ['--vticker-duration' as any]: `${durationSec}s`,
-  }), [durationSec]);
+    ['--vticker-duration' as any]: `${speedSec}s`,
+  }), [speedSec]);
 
   const animateClass = direction === "up" ? "animate-vticker-up" : "animate-vticker-down";
 
@@ -76,7 +79,7 @@ const VerticalTokenTicker: React.FC<VerticalTokenTickerProps> = ({
       }} />
 
       {/* Scroller (not absolute so container sizes to content width) */}
-      <div className={`relative h-full w-fit vticker-paused ${animateClass}`} style={scrollerStyle}>
+      <div className={`relative w-max vticker-paused ${animateClass}`} style={scrollerStyle}>
         <div className="flex flex-col gap-2 py-2 pr-0">
           {hasData ? (
             duplicated.map((t, idx) => (
