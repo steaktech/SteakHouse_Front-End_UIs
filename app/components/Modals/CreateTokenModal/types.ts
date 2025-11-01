@@ -17,6 +17,10 @@ export interface TokenBasics {
    * Optional error from grad-cap simulation; if present, block confirmation.
    */
   gradCapError?: string | null;
+  /**
+   * Cache key (e.g. `${totalSupply}-${gradCapUsd}`) to avoid duplicate API calls for same inputs.
+   */
+  gradCapComputedKey?: string | null;
   tokenCategory: 'Meme' | 'Utility' | 'AI' | 'X-post' | 'Charity' | 'Animal' | 'Governance' | 'Privacy' | null;
   startMode: 'NOW' | 'SCHEDULE';
   startTime: number;

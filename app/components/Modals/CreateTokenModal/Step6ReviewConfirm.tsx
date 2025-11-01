@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { TokenState } from './types';
 import { fmt } from './utils';
 import styles from './CreateTokenModal.module.css';
@@ -38,6 +38,16 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     }
   };
 
+  const inFlightKeyRef = useRef<string | null>(null);
+  const lastComputedKeyRef = useRef<string | null>(null);
+  const isMountedRef = useRef<boolean>(true);
+
+  // Track mounted state to avoid updating after unmount/remount (Strict Mode)
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
+
   useEffect(() => {
     // Trigger simulation when arriving here or when inputs change
     const basics = state.basics;
@@ -46,35 +56,56 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     const targetUsd = basics.gradCap.trim();
     if (!/^\d+$/.test(totalSupply) || Number(targetUsd) <= 0) return;
 
+    const key = `${totalSupply}-${targetUsd}`;
+
+    // Skip if we've already computed for this key in this session
+    if (lastComputedKeyRef.current === key && (state.basics.gradCapWei || gradError)) {
+      return;
+    }
+    // Skip if request already in-flight for same key
+    if (inFlightKeyRef.current === key) {
+      return;
+    }
+
     const totalSupplyWei = (BigInt(totalSupply) * BigInt('1000000000000000000')).toString();
-    let cancelled = false;
+    inFlightKeyRef.current = key;
     (async () => {
       try {
-        setGradLoading(true);
-        setGradError(null);
+        if (isMountedRef.current) {
+          setGradLoading(true);
+          setGradError(null);
+        }
         const resp = await simulateGradCap({ totalSupplyWei, targetMcapUsd: targetUsd });
-        if (cancelled) return;
         const supplyToCirculate = resp?.results?.supplyToCirculate;
-        setGradResult({
-          supplyToCirculate,
-          ethRaisedWei: resp?.results?.ethRaisedWei,
-          priceWei: resp?.results?.priceWei ?? resp?.results?.priceWeiPer1e18,
-          priceWeiPer1e18: resp?.results?.priceWeiPer1e18,
-        });
+        if (isMountedRef.current) {
+          setGradResult({
+            supplyToCirculate,
+            ethRaisedWei: resp?.results?.ethRaisedWei,
+            priceWei: resp?.results?.priceWei ?? resp?.results?.priceWeiPer1e18,
+            priceWeiPer1e18: resp?.results?.priceWeiPer1e18,
+          });
+        }
         onBasicsChange('gradCapWei', supplyToCirculate || null);
         onBasicsChange('gradCapError', null);
+        lastComputedKeyRef.current = key;
       } catch (e: any) {
-        if (cancelled) return;
         const reason = e?.message || 'Graduation cap not allowed';
-        setGradError(reason);
+        if (isMountedRef.current) {
+          setGradError(reason);
+        }
         onBasicsChange('gradCapError', reason);
         onBasicsChange('gradCapWei', null);
+        lastComputedKeyRef.current = key;
       } finally {
-        if (!cancelled) setGradLoading(false);
+        // Always clear loading
+        if (isMountedRef.current) {
+          setGradLoading(false);
+        }
+        if (inFlightKeyRef.current === key) inFlightKeyRef.current = null;
       }
     })();
-    return () => { cancelled = true; };
-  }, [state.basics.totalSupply, state.basics.gradCap, onBasicsChange]);
+    return () => {};
+  }, [state.basics.totalSupply, state.basics.gradCap, gradError, onBasicsChange]);
 
   const getProfileDisplayName = (profile: string | null) => {
     if (!profile) return '—';
@@ -351,7 +382,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
             disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
             onClick={onConfirm}
           >
-            {isLoading ? 'Creating...' : 'Confirm & Create'}
+            {gradLoading ? 'Calculating…' : (isLoading ? 'Creating...' : 'Confirm & Create')}
           </button>
         </div>
       </div>

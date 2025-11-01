@@ -18,6 +18,9 @@ import Step4FeesNetwork from './Step4FeesNetwork';
 import Step5MetadataSocials from './Step5MetadataSocials';
 import Step6ReviewConfirm from './Step6ReviewConfirm';
 import styles from './CreateTokenModal.module.css';
+import { useWallet } from '@/app/hooks/useWallet';
+import { getNewStealthToken } from '@/app/lib/api/services/stealthService';
+import { useRouter } from 'next/navigation';
 
 // Ensure Sepolia network
 const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7';
@@ -79,6 +82,10 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<TokenState>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Connected wallet (main wallet)
+  const { address: walletAddress } = useWallet();
+  const router = useRouter();
   
   // Use stable price data hook - only fetch when modal is open
   const { formattedGasPrice, formattedEthPrice, loading: priceLoading } = useStablePriceData(isOpen);
@@ -370,9 +377,24 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
           console.warn('[CreateTokenModal] Topic-based token address resolution failed:', e);
         }
 
+        // If stealth mode, fetch fresh token address from blockchain API (main wallet)
+        if (state.basics.stealth && walletAddress) {
+          try {
+            const resp = await getNewStealthToken(walletAddress);
+            if (resp?.token) {
+              resolvedTokenAddress = resp.token;
+            }
+          } catch (stealthErr) {
+            console.warn('[CreateTokenModal] getNewStealthToken failed, falling back to resolved address:', stealthErr);
+          }
+        }
+
         // Always call API after on-chain confirmation. Use the resolved address.
         try {
           await createTokenApi(state, files, resolvedTokenAddress);
+          if (resolvedTokenAddress) {
+            router.push(`/trading-chart/${resolvedTokenAddress}`);
+          }
         } catch (apiErr) {
           console.warn('[CreateTokenModal] API submission failed (non-blocking):', apiErr);
         }

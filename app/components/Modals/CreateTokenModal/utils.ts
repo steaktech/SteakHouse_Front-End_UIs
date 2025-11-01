@@ -22,6 +22,7 @@ export const initialState: TokenState = {
     gradCap: "",
     gradCapWei: null,
     gradCapError: null,
+    gradCapComputedKey: null,
     tokenCategory: null,
     startMode: "NOW",
     startTime: 0,
