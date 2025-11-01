@@ -1,21 +1,80 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TokenState } from './types';
 import { fmt } from './utils';
 import styles from './CreateTokenModal.module.css';
+import { simulateGradCap } from '@/app/lib/api/services/gradCapService';
 
 interface Step6ReviewConfirmProps {
   state: TokenState;
   onConfirm: () => void;
   isLoading?: boolean;
+  onBasicsChange: (field: string, value: any) => void;
 }
 
 const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   state,
   onConfirm,
-  isLoading = false
+  isLoading = false,
+  onBasicsChange,
 }) => {
   const [understandFees, setUnderstandFees] = useState(false);
+  const [gradLoading, setGradLoading] = useState(false);
+  const [gradError, setGradError] = useState<string | null>(null);
+  const [gradResult, setGradResult] = useState<{ supplyToCirculate?: string; ethRaisedWei?: string; priceWei?: string; priceWeiPer1e18?: string }>({});
 
+  // Format big integer wei to human tokens (18 decimals)
+  const formatUnits = (wei?: string, decimals: number = 18) => {
+    if (!wei) return '—';
+    try {
+      const raw = BigInt(wei);
+      const base = BigInt(10) ** BigInt(decimals);
+      const integer = raw / base;
+      const fraction = raw % base;
+      if (fraction === BigInt(0)) return integer.toString();
+      const fracStr = fraction.toString().padStart(decimals, '0').replace(/0+$/, '');
+      return `${integer.toString()}.${fracStr.slice(0, 6)}`; // show up to 6 decimals
+    } catch {
+      return '—';
+    }
+  };
+
+  useEffect(() => {
+    // Trigger simulation when arriving here or when inputs change
+    const basics = state.basics;
+    if (!basics.totalSupply || !basics.gradCap) return;
+    const totalSupply = basics.totalSupply.trim();
+    const targetUsd = basics.gradCap.trim();
+    if (!/^\d+$/.test(totalSupply) || Number(targetUsd) <= 0) return;
+
+    const totalSupplyWei = (BigInt(totalSupply) * BigInt('1000000000000000000')).toString();
+    let cancelled = false;
+    (async () => {
+      try {
+        setGradLoading(true);
+        setGradError(null);
+        const resp = await simulateGradCap({ totalSupplyWei, targetMcapUsd: targetUsd });
+        if (cancelled) return;
+        const supplyToCirculate = resp?.results?.supplyToCirculate;
+        setGradResult({
+          supplyToCirculate,
+          ethRaisedWei: resp?.results?.ethRaisedWei,
+          priceWei: resp?.results?.priceWei ?? resp?.results?.priceWeiPer1e18,
+          priceWeiPer1e18: resp?.results?.priceWeiPer1e18,
+        });
+        onBasicsChange('gradCapWei', supplyToCirculate || null);
+        onBasicsChange('gradCapError', null);
+      } catch (e: any) {
+        if (cancelled) return;
+        const reason = e?.message || 'Graduation cap not allowed';
+        setGradError(reason);
+        onBasicsChange('gradCapError', reason);
+        onBasicsChange('gradCapWei', null);
+      } finally {
+        if (!cancelled) setGradLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [state.basics.totalSupply, state.basics.gradCap, onBasicsChange]);
 
   const getProfileDisplayName = (profile: string | null) => {
     if (!profile) return '—';
@@ -105,7 +164,8 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     entries.push(['Total supply', `${b.totalSupply} (raw) × 1e18`]);
     
     if (state.deploymentMode === 'VIRTUAL_CURVE') {
-      entries.push(['Graduation cap', b.gradCap ? `$${Number(b.gradCap).toLocaleString()}` : '—']);
+      entries.push(['Graduation cap (USD target)', b.gradCap ? `$${Number(b.gradCap).toLocaleString()}` : '—']);
+      entries.push(['Supply to circulate (tokens)', b.gradCapWei ? `${formatUnits(b.gradCapWei)} tokens` : gradLoading ? 'Calculating…' : (gradError || '—')]);
       entries.push(['Start time', b.startMode === 'NOW' ? 'Now (0)' : `At ${b.startTime} (epoch seconds)`]);
       entries.push(['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn']);
       entries.push(['Stealth', b.stealth ? 'Yes' : 'No']);
@@ -288,13 +348,22 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           <button 
             className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-            disabled={!understandFees || isLoading}
+            disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
             onClick={onConfirm}
           >
             {isLoading ? 'Creating...' : 'Confirm & Create'}
           </button>
         </div>
       </div>
+
+      {gradError && (
+        <div className={styles.card} style={{ marginTop: '12px', borderColor: 'var(--danger-400)' }}>
+          <div className={styles.row}>
+            <div className={styles.pill}>Graduation cap error</div>
+            <div style={{ color: 'var(--danger-400)' }}>{gradError}</div>
+          </div>
+        </div>
+      )}
 
       {state.txHash && (
         <div className={styles.card} style={{marginTop: '12px'}}>

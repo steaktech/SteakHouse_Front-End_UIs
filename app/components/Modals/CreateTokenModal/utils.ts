@@ -20,6 +20,8 @@ export const initialState: TokenState = {
     symbol: "",
     totalSupply: "100000000",
     gradCap: "",
+    gradCapWei: null,
+    gradCapError: null,
     tokenCategory: null,
     startMode: "NOW",
     startTime: 0,
@@ -155,7 +157,10 @@ export function validateBasics(basics: any): { isValid: boolean; errors: Record<
     errors.totalSupply = "Enter a valid positive integer.";
   }
 
-  if (basics.gradCap?.trim()) {
+  // Graduation cap is required and must be a positive dollar amount
+  if (!basics.gradCap?.trim()) {
+    errors.gradCap = "Graduation cap is required.";
+  } else {
     const capValue = Number(basics.gradCap.trim());
     const capOK = !isNaN(capValue) && capValue > 0;
     if (!capOK) {

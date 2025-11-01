@@ -296,7 +296,7 @@ export class KitchenService {
   private toBaseUnitsFromRawTokens(rawTokens: string): bigint {
     try {
       const supply = BigInt(rawTokens || "0");
-      return supply * BigInt(1e18);
+      return supply * BigInt('1000000000000000000');
     } catch {
       return BigInt(0);
     }
@@ -394,8 +394,14 @@ export class KitchenService {
     const tokenType = this.getFinalTokenTypeCode(curves.finalType[profile as keyof typeof curves.finalType]);
 
     const totalSupplyWei = this.toBaseUnitsFromRawTokens(b.totalSupply || '0');
-    // Force graduation cap to 75,000,000 * 1e18 for now (client request)
-    const graduationCap = BigInt("75000000000000000000000000");
+    // Graduation cap: prefer API-computed wei amount if available; fallback to legacy 75,000,000 * 1e18
+    const graduationCap = (() => {
+      try {
+        const v = (b as any)?.gradCapWei as string | null | undefined;
+        if (v && v !== '0') return BigInt(v);
+      } catch {}
+      return BigInt("75000000000000000000000000");
+    })();
     const removeHeader = !!b.removeHeader;
     const isStealth = !!b.stealth;
 
@@ -815,8 +821,14 @@ export class KitchenService {
       const tokenType = this.getFinalTokenTypeCode(curves.finalType[profile as keyof typeof curves.finalType]);
 
       const totalSupplyWei = this.toBaseUnitsFromRawTokens(b.totalSupply || '0');
-      // Force graduation cap to 75,000,000 * 1e18 for now (client request)
-      const graduationCap = BigInt("75000000000000000000000000");
+      // Graduation cap: prefer API-computed wei amount if available; fallback to legacy 75,000,000 * 1e18
+      const graduationCap = (() => {
+        try {
+          const v = (b as any)?.gradCapWei as string | null | undefined;
+          if (v && v !== '0') return BigInt(v);
+        } catch {}
+        return BigInt("75000000000000000000000000");
+      })();
       const removeHeader = !!b.removeHeader;
       const isStealth = !!b.stealth;
       let startTime = 0;

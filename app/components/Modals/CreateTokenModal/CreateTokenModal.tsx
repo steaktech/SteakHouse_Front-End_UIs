@@ -662,6 +662,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                 state={state}
                 onConfirm={handleConfirm}
                 isLoading={isCreatingToken}
+                onBasicsChange={handleBasicsChange}
               />
             )}
           </main>

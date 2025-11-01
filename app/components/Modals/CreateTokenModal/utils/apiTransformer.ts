@@ -30,8 +30,10 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
     // Virtual curve specific fields
     request.token_type = 0; // Virtual curve type
     
-    // Graduation cap in human-readable format
-    if (state.basics.gradCap) {
+    // Graduation cap: prefer API-computed wei token amount; fallback to USD input if missing
+    if (state.basics.gradCapWei && /^\d+$/.test(state.basics.gradCapWei)) {
+      request.graduation_cap = state.basics.gradCapWei;
+    } else if (state.basics.gradCap) {
       request.graduation_cap = state.basics.gradCap;
     }
     

@@ -6,8 +6,17 @@ export interface CreateTokenModalProps {
 export interface TokenBasics {
   name: string;
   symbol: string;
-  totalSupply: string;
-  gradCap: string;
+  totalSupply: string; // human units (e.g., 100000000)
+  gradCap: string;     // user-entered USD target (e.g., "50000")
+  /**
+   * Computed graduation cap token amount in base units (wei), returned by /gradcap API (results.supplyToCirculate).
+   * This is what we pass to the Kitchen contract and the backend.
+   */
+  gradCapWei?: string | null;
+  /**
+   * Optional error from grad-cap simulation; if present, block confirmation.
+   */
+  gradCapError?: string | null;
   tokenCategory: 'Meme' | 'Utility' | 'AI' | 'X-post' | 'Charity' | 'Animal' | 'Governance' | 'Privacy' | null;
   startMode: 'NOW' | 'SCHEDULE';
   startTime: number;

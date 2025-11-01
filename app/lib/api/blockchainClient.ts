@@ -40,9 +40,30 @@ export async function blockchainApiClient<T>(endpoint: string, options?: Request
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Blockchain API Error Details:', errorText);
-    throw new Error(`Blockchain API call to ${endpoint} failed: ${response.statusText} - ${errorText}`);
+    // Try to parse structured error JSON and surface only the human-readable message
+    try {
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await response.json();
+        const msg = (typeof data?.error === 'string' && data.error)
+          || (typeof data?.message === 'string' && data.message)
+          || (typeof data?.detail === 'string' && data.detail)
+          || null;
+        if (msg) {
+          console.error('Blockchain API Error:', msg);
+          throw new Error(msg);
+        }
+        // Fallback to stringifying JSON if no known field
+        throw new Error(JSON.stringify(data));
+      } else {
+        const errorText = await response.text();
+        console.error('Blockchain API Error Details:', errorText);
+        throw new Error(errorText || response.statusText);
+      }
+    } catch (e) {
+      // Parsing failed; throw generic status text
+      throw new Error(response.statusText || 'Request failed');
+    }
   }
 
   const result = await response.json();
