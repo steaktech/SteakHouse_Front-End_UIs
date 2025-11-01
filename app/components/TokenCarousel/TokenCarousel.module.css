@@ -980,14 +980,14 @@
 }
 
 /* Show on medium screens and up */
-@media (min-width: 768px) {
+@media (min-width: 1025px) {
   .carouselContainer {
     display: block;
   }
 }
 
 .viewport {
-  height: 80vh;
+  height: 85vh;
   overflow: hidden;
   border-radius: 16px;
   mask-image: linear-gradient(to bottom,
