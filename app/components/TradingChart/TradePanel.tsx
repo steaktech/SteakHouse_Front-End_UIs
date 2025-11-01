@@ -266,14 +266,14 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       `}</style>
       <div className="custom-scrollbar" style={{
         width: '100%',
-        height: activeTab === 'limit' ? 'fit-content' : '100%',
-        maxHeight: activeTab === 'limit' ? 'none' : 'none',
-        minHeight: activeTab === 'limit' ? 'auto' : '100%',
+        height: '100%',
+        maxHeight: 'none',
+        minHeight: '100%',
         position: 'relative',
         borderRadius: 'clamp(14px, 2vw, 20px)',
         background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-        padding: isMobile ? '10px' : (activeTab === 'limit' ? 'clamp(9px, 1.8vh, 13px)' : 'clamp(12px, 2.5vh, 16px)'),
+        padding: isMobile ? '10px' : 'clamp(12px, 2.5vh, 16px)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
         overflowY: 'auto',
         overflowX: 'hidden',
@@ -281,6 +281,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         display: 'flex',
         flexDirection: 'column',
         boxSizing: 'border-box',
+        transition: 'none',
       }}>
         {/* Buy/Sell/Limit Tabs - Premium Style */}
         <div style={{
@@ -292,7 +293,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           background: 'linear-gradient(180deg, #7f4108, #6f3906)',
           border: '1px solid rgba(255, 215, 165, 0.4)',
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          marginBottom: activeTab === 'limit' ? '9px' : '12px',
+          marginBottom: '12px',
           padding: '4px',
           flexShrink: 0
         }}>
@@ -392,10 +393,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: activeTab === 'limit' ? 'clamp(4px, 0.8vh, 6px)' : 'clamp(6px, 1vh, 8px)',
+          marginBottom: 'clamp(6px, 1vh, 8px)',
           gap: 'clamp(4px, 1vw, 8px)',
           flexWrap: 'wrap',
-          flexShrink: 0
+          flexShrink: 0,
+          transition: 'none'
         }}>
           <button 
             onClick={handleBuyMaxTx}
