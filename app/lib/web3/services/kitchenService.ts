@@ -291,7 +291,7 @@ export class KitchenService {
     const [intPartRaw, fracPartRaw = ''] = s.split('.');
     const intPart = intPartRaw.replace(/^(-?)0+(?=\d)/, '$1'); // keep sign if any, strip leading zeros
     const fracPart = (fracPartRaw + '000000000000000000').slice(0, 18); // pad/right-trim to 18 digits
-    const intWei = (intPart === '' || intPart === '-' || intPart === '+') ? 0n : BigInt(intPart) * ONE_ETHER_WEI;
+    const intWei = (intPart === '' || intPart === '-' || intPart === '+') ? BigInt(0) : BigInt(intPart) * ONE_ETHER_WEI;
     const fracWei = BigInt(fracPart);
     return intWei + fracWei;
   }
