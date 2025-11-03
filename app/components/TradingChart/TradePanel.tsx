@@ -263,6 +263,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
           overflow: visible !important;
           white-space: nowrap !important;
         }
+        /* Slippage input visual tweaks to look like a textbox */
+        .slippage-input::placeholder {
+          color: rgba(254, 234, 136, 0.6);
+          opacity: 1; /* Firefox */
+        }
       `}</style>
       <div className="custom-scrollbar" style={{
         width: '100%',
@@ -582,12 +587,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   marginBottom: '4px',
                 }}>Slippage Tolerance (%)</label>
                 <div style={{
-                  display: 'flex',
-                  gap: '6px',
-                  alignItems: 'center',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(5, 1fr)',
+                  gap: 'clamp(4px, 0.8vw, 6px)',
+                  alignItems: 'stretch',
+                  width: '100%',
                 }}>
                   <input
                     type="text"
+                    className="slippage-input no-spinner"
                     value={slippagePct}
                     onChange={(e) => {
                       const v = e.target.value;
@@ -597,22 +605,45 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                     }}
                     placeholder="1"
                     style={{
-                      width: '80px',
-                      background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-                      border: '1px solid rgba(255, 215, 165, 0.4)',
+                      width: '100%',
+                      height: 'clamp(32px, 6vh, 36px)',
+                      background: 'linear-gradient(180deg, rgba(255, 249, 219, 0.6), rgba(255, 223, 168, 0.38))',
+                      border: '2px solid rgba(255, 210, 160, 0.8)',
                       borderRadius: '10px',
-                      color: '#feea88',
-                      padding: '6px 8px',
-                      fontWeight: 700,
+                      color: '#3a2a12',
+                      padding: '0 8px',
+                      fontSize: 'clamp(9px, 1.5vw, 12px)',
+                      fontWeight: 800,
+                      textAlign: 'center',
+                      lineHeight: 'clamp(32px, 6vh, 36px)',
+                      boxSizing: 'border-box',
+                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(255,210,160,0.2)',
+                      caretColor: '#7d4f12',
+                      cursor: 'text',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.border = '2px solid #ffd493';
+                      e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,212,147,0.35)';
+                      e.target.style.background = 'linear-gradient(180deg, rgba(255, 251, 229, 0.75), rgba(255, 231, 178, 0.5))';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.border = '2px solid rgba(255, 210, 160, 0.8)';
+                      e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(255,210,160,0.2)';
+                      e.target.style.background = 'linear-gradient(180deg, rgba(255, 249, 219, 0.6), rgba(255, 223, 168, 0.38))';
                     }}
                   />
                   {/* Quick presets */}
                   {['0.1','1','3','5'].map(p => (
                     <button key={p} onClick={() => setSlippagePct(p)} style={{
+                      width: '100%',
                       background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                       border: '1px solid rgba(255, 210, 160, 0.4)',
-                      borderRadius: '8px',
-                      padding: '6px 8px',
+                      borderRadius: 'clamp(8px, 1.6vw, 12px)',
+                      padding: '0 8px',
+                      minHeight: 'clamp(32px, 6vh, 36px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       color: '#feea88',
                       fontSize: 'clamp(8px, 1.4vw, 11px)',
                       fontWeight: 800,
