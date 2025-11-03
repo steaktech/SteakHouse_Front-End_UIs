@@ -283,14 +283,26 @@ export class KitchenService {
 
   // =================== CREATE TOKEN HELPERS & BUILDERS ===================
 
+  private toWeiBigIntFromEthNumber(amountEth: number): bigint {
+    // Avoid float drift by rounding to 18 decimal places, then converting to wei using BigInt math
+    // Example: 0.003 -> "0.003000000000000000" -> wei = 3_000_000_000_000_000n
+    const ONE_ETHER_WEI = BigInt('1000000000000000000');
+    const s = amountEth.toFixed(18); // rounded string with exactly 18 decimals
+    const [intPartRaw, fracPartRaw = ''] = s.split('.');
+    const intPart = intPartRaw.replace(/^(-?)0+(?=\d)/, '$1'); // keep sign if any, strip leading zeros
+    const fracPart = (fracPartRaw + '000000000000000000').slice(0, 18); // pad/right-trim to 18 digits
+    const intWei = (intPart === '' || intPart === '-' || intPart === '+') ? 0n : BigInt(intPart) * ONE_ETHER_WEI;
+    const fracWei = BigInt(fracPart);
+    return intWei + fracWei;
+  }
+
   private toHexWeiFromEth(amountEth: number): string {
-    const valueWei = BigInt(Math.floor(amountEth * 1e6)) * BigInt(1e12); // avoid float overflow
-    return "0x" + valueWei.toString(16);
+    const wei = this.toWeiBigIntFromEthNumber(amountEth);
+    return "0x" + wei.toString(16);
   }
 
   private toWeiDecimalStringFromEth(amountEth: number): string {
-    const valueWei = BigInt(Math.floor(amountEth * 1e6)) * BigInt(1e12);
-    return valueWei.toString(10);
+    return this.toWeiBigIntFromEthNumber(amountEth).toString(10);
   }
 
   private toBaseUnitsFromRawTokens(rawTokens: string): bigint {
@@ -363,14 +375,13 @@ export class KitchenService {
   }
 
   private getMinimumCreationFeeEth(profile: string): number {
-    // Client-specified minimums
-    // Simple (ZERO, SUPER) -> 0.001
-    // BASIC -> 0.01
-    // ADVANCED -> 0.03
+    // Client-specified minimums (align with UI base fees)
+    // ZERO -> 0.0005, SUPER -> 0.001, BASIC -> 0.01, ADVANCED -> 0.01
+    if (profile === 'ZERO') return 0.0005;
+    if (profile === 'SUPER') return 0.001;
     if (profile === 'BASIC') return 0.01;
     if (profile === 'ADVANCED') return 0.01; // per latest client guidance
-    // ZERO or SUPER treated as "Simple"
-    return 0.001;
+    return 0;
   }
 
   /**

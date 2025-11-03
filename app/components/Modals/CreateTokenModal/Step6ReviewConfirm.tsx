@@ -206,7 +206,15 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     
     // Fee info
     if (state.deploymentMode === 'VIRTUAL_CURVE') {
-      entries.push(['Creation fee', state.fees.creation !== null ? `${fmt.format(state.fees.creation)} ETH` : '—']);
+      // Show the effective creation fee that will actually be sent (apply profile minimums)
+      const configured = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
+      const minByProfile = state.profile === 'ZERO' ? 0.0005
+        : state.profile === 'SUPER' ? 0.001
+        : state.profile === 'BASIC' ? 0.01
+        : state.profile === 'ADVANCED' ? 0.01
+        : 0;
+      const effectiveCreation = Math.max(configured, minByProfile);
+      entries.push(['Creation fee', `${fmt.format(effectiveCreation)} ETH`]);
       entries.push(['Platform fee', `${fmt.format(state.fees.platformPct)}%`]);
       entries.push(['Graduation fee', `${fmt.format(state.fees.graduation)} ETH`]);
       entries.push(['Locker fee', b.lpMode === 'LOCK' ? `${fmt.format(state.fees.locker)} ETH` : '—']);
