@@ -444,7 +444,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             opacity: isLoadingMaxWallet ? 0.5 : 1
-          }}>{isLoadingMaxWallet ? 'Loading...' : 'Set max wallet'}</button>
+          }}>{isLoadingMaxWallet ? 'Loading...' : 'Buy max wallet'}</button>
         </div>
 
         {/* Amount Input */}
