@@ -15,7 +15,7 @@ export default function Home() {
         {/* Body area: sidebar on the left between TrendingBar and Footer */}
         <section className="relative flex items-stretch gap-0 w-full">
           <PageSidebar />
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 -mt-5 md:-mt-8 lg:-mt-10">
             <TradingDashboard />
           </div>
         </section>

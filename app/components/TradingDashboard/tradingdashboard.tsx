@@ -211,7 +211,7 @@ export default function TradingDashboard() {
       `}</style>
       <div className="bg-transparent min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
       <div className="max-w-full xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="relative flex flex-col md:flex-row items-center mb-5 mt-[5px] md:mt-20 mb-8">
+        <header className="relative flex flex-col md:flex-row items-center mb-6 mt-0 md:mt-4 lg:mt-6">
           <div className="md:w-2/3 text-center md:text-left z-10">
             <h1
               style={headingStyle}

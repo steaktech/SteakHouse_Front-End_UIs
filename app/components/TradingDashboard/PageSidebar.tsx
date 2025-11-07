@@ -64,7 +64,7 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
 };
 
 export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   // Widget open states (only Saved, Explorer, User)
   const [savedOpen, setSavedOpen] = useState(false);
