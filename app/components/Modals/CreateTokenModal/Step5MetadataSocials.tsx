@@ -5,7 +5,7 @@ import styles from './CreateTokenModal.module.css';
 
 interface Step5MetadataSocialsProps {
   meta: MetaData;
-  onMetaChange: (field: string, value: string | File | boolean) => void;
+  onMetaChange: (field: string, value: string | File | boolean | null) => void;
   onBack: () => void;
   onContinue: () => void;
 }
@@ -20,22 +20,35 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleFileChange = (field: 'logoFile' | 'bannerFile' | 'audioFile', file: File | null) => {
     if (file) {
       onMetaChange(field, file);
-      // Clear the URL field when a file is selected
-      const urlField = field === 'logoFile' ? 'logo' : 'banner';
+      // Clear the corresponding URL field when a file is selected
+      const urlField = field === 'logoFile' 
+      ? 'logo' 
+      : field === 'bannerFile' 
+        ? 'banner'
+        : 'audio';
+    
+    if (meta[urlField]) {
       onMetaChange(urlField, '');
+    }
     }
   };
 
-  const handleUrlChange = (field: 'logo' | 'banner', value: string) => {
+  const handleUrlChange = (field: 'logo' | 'banner' | 'audio', value: string) => {
     onMetaChange(field, value);
-    // Clear the file when a URL is entered
-    const fileField = field === 'logo' ? 'logoFile' : 'bannerFile';
+    // Clear the corresponding file field when a URL is entered
+    const fileField = field === 'logo' 
+      ? 'logoFile' 
+      : field === 'banner' 
+        ? 'bannerFile'
+        : 'audioFile';
+    
     if (meta[fileField]) {
-      onMetaChange(fileField, '');
+      onMetaChange(fileField, null);
     }
   };
   return (
@@ -229,7 +242,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
             <div className={styles.card}>
               <div className={styles.label}>
                 Audio Branding 
-                <HelpTooltip content="Add a unique audio signature to your token (MP3 file, max 2MB)" />
+                <HelpTooltip content="Add a unique audio signature to your token (MP3 file, max 10MB)" />
               </div>
               
               {/* Audio File Upload */}
@@ -266,13 +279,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               <input 
                 className={styles.input}
                 value={meta.audio || ''}
-                onChange={(e) => {
-                  onMetaChange('audio', e.target.value);
-                  // Clear the file when a URL is entered
-                  if (meta.audioFile) {
-                    handleFileChange('audioFile', null);
-                  }
-                }}
+                onChange={(e) => handleUrlChange('audio', e.target.value)}
                 placeholder="https://yoursite.com/audio.mp3"
                 disabled={!!meta.audioFile}
               />
@@ -287,16 +294,46 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
 
       <div className={styles.footerNav}>
         <button 
+          type="button" 
           className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
           onClick={onBack}
         >
           Back
         </button>
-        <button 
+        
+        <button
+          type="button"
           className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-          onClick={onContinue}
+          onClick={async () => {
+            setIsAnalyzing(true);
+            try {
+              await onContinue();
+            } finally {
+              setIsAnalyzing(false);
+            }
+          }}
+          disabled={isAnalyzing}
         >
-          Continue
+          {isAnalyzing ? (
+            <span className="flex items-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle 
+                  className="opacity-25" 
+                  cx="12" 
+                  cy="12" 
+                  r="10" 
+                  stroke="currentColor" 
+                  strokeWidth="4"
+                />
+                <path 
+                  className="opacity-75" 
+                  fill="currentColor" 
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Finalizing..
+            </span>
+          ) : 'Continue'}
         </button>
       </div>
     </div>

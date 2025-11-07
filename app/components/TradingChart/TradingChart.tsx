@@ -114,6 +114,50 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Always fetch 1m base candles and token info; aggregate to other timeframes locally for live updates
   const { data: apiTokenData, isLoading, error } = useTokenData(tokenAddress, { interval: '1m', limit: 200 });
 
+  // Set brand colors to match token palette if available
+  useEffect(() => {
+    const autoBrand = apiTokenData?.tokenInfo?.auto_brand ?? false;
+    const palette = apiTokenData?.tokenInfo?.palette || '';
+    if (palette && palette !== '' && autoBrand) {
+      const colors = JSON.parse(palette);
+      const r = document.documentElement;
+      r.style.setProperty('--ab-bg-200', colors?.recommended?.background);
+      r.style.setProperty('--ab-bg-300', colors?.recommended?.background);
+      r.style.setProperty('--ab-bg-400', colors?.recommended?.background);
+      r.style.setProperty('--ab-bg-500', colors?.recommended?.background);
+      r.style.setProperty('--ab-desc', colors?.recommended?.text);
+      r.style.setProperty('--ab-text-200', colors?.recommended?.text);
+      r.style.setProperty('--ab-text-400', colors?.recommended?.text);
+    }
+  }, [apiTokenData?.tokenInfo?.palette]);
+  
+  // Create audio player ref and handle audio URL updates
+  const audioPlayerRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Audio playback control function
+  const playAudio = () => {
+    if (audioPlayerRef.current) {
+      if (isPlaying) {
+        audioPlayerRef.current.pause();
+      } else {
+        audioPlayerRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+  
+  // Update audio source when token info changes
+  useEffect(() => {
+    const audioUrl = apiTokenData?.tokenInfo?.audio_url || 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/theme_01.mp3';
+    if (audioPlayerRef.current && audioUrl) {
+      audioPlayerRef.current.src = audioUrl;
+      audioPlayerRef.current.load(); // Load the new audio source
+      audioPlayerRef.current.volume = 0.5; // Set volume to 50%
+      setTimeout(() => { playAudio();},5000) // Play the new audio
+    }
+  }, [apiTokenData?.tokenInfo?.audio_url]);
+
   // Local live state driven by WebSocket events
   const [candles1m, setCandles1m] = useState<Candle[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -570,6 +614,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                       telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
                       twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
                       websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+                      isAudioPlaying={isPlaying}
+                      onToggleAudio={playAudio}
                     />
                   </div>
 
@@ -622,7 +668,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 height: '100%',
                 position: 'relative',
                 borderRadius: 'clamp(14px, 2vw, 20px)',
-                background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
                 boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
                 padding: 'clamp(12px, 2.5vh, 16px)',
                 paddingTop: '20px',
@@ -718,7 +764,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         style={{ 
           bottom: '68px', // Position above buy/sell bar on mobile
           height: `${transactionsHeight}px`,
-          background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+          background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
           borderTop: '1px solid rgba(255, 215, 165, 0.4)',
           boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.2)'
         }}
@@ -877,6 +923,19 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           </div>
         ))}
       </div>
+
+      {/* Hidden audio player for token audio */}
+      <audio 
+        ref={audioPlayerRef}
+        style={{ display: 'none' }}
+        controls={false}
+        preload="auto"
+        autoPlay={true}
+        loop={true}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+      />
     </div>
   );
 }

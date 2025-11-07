@@ -21,6 +21,7 @@ import styles from './CreateTokenModal.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
 import { getNewStealthToken } from '@/app/lib/api/services/stealthService';
 import { useRouter } from 'next/navigation';
+import { analyzeImageWithGPT } from '@/app/lib/api/services/aiService';
 
 // Ensure Sepolia network
 const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7';
@@ -82,17 +83,17 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<TokenState>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // Connected wallet (main wallet)
   const { address: walletAddress } = useWallet();
   const router = useRouter();
-  
+
   // Use stable price data hook - only fetch when modal is open
   const { formattedGasPrice, formattedEthPrice, loading: priceLoading } = useStablePriceData(isOpen);
-  
+
   // Toast notifications
   const { showToast } = useToast();
-  
+
   // On-chain token creation hook (Kitchen contract)
   const { createTokenOnChain, isLoading: isCreatingToken } = useKitchenCreateToken({
     onSuccess: (txHash) => {
@@ -137,7 +138,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       const originalStyle = window.getComputedStyle(document.body).overflow;
       document.body.style.overflow = 'hidden';
       document.body.style.touchAction = 'none';
-      
+
       return () => {
         document.body.style.overflow = originalStyle;
         document.body.style.touchAction = 'auto';
@@ -169,7 +170,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     const newState = { ...state, taxMode, profile: null };
     const fee = updateCreationFee(null, taxMode);
     const platformPct = getPlatformFee(null);
-    
+
     setState({
       ...newState,
       fees: { ...newState.fees, creation: fee, platformPct }
@@ -181,19 +182,19 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     const taxMode = (profile === 'ZERO' || profile === 'SUPER') ? 'NO_TAX' : 'BASIC';
     const baseFee = updateCreationFee(profile, taxMode) || 0;
     const platformPct = getPlatformFee(profile);
-    
+
     setState(prev => {
       // Calculate total creation fee including any existing addons
       let totalCreationFee = baseFee;
-      
+
       if (prev.basics.removeHeader) {
         totalCreationFee += prev.fees.headerless;
       }
-      
+
       if (prev.basics.stealth) {
         totalCreationFee += prev.fees.stealth;
       }
-      
+
       return {
         ...prev,
         profile,
@@ -206,33 +207,33 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const handleBasicsChange = useCallback((field: string, value: any) => {
     setState(prev => {
       const newBasics = { ...prev.basics, [field]: value };
-      
+
       // Recalculate total creation fee when addons are toggled
       if (field === 'removeHeader' || field === 'stealth') {
         // Start with base fee
         const baseFee = updateCreationFee(prev.profile, prev.taxMode) || 0;
         let totalCreationFee = baseFee;
-        
+
         // Determine final state of both addons after this change
         const finalRemoveHeader = field === 'removeHeader' ? value : newBasics.removeHeader;
         const finalStealth = field === 'stealth' ? value : newBasics.stealth;
-        
+
         // Add addon fees based on final state
         if (finalRemoveHeader) {
           totalCreationFee += prev.fees.headerless;
         }
-        
+
         if (finalStealth) {
           totalCreationFee += prev.fees.stealth;
         }
-        
+
         return {
           ...prev,
           basics: newBasics,
           fees: { ...prev.fees, creation: totalCreationFee }
         };
       }
-      
+
       return {
         ...prev,
         basics: newBasics
@@ -330,7 +331,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     }));
   }, []);
 
-  const handleMetaChange = useCallback((field: string, value: string | boolean | File) => {
+  const handleMetaChange = useCallback((field: string, value: string | boolean | File | null) => {
     setState(prev => ({
       ...prev,
       meta: { ...prev.meta, [field]: value as any }
@@ -416,7 +417,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
 
   const getStepTitle = (step: number) => {
     if (step === 0) return 'Choose deployment mode';
-    
+
     if (state.deploymentMode === 'V2_LAUNCH') {
       // V2 Launch: 0,1,2,3,4 (internal: 0,1,2,5,6)
       if (step === 1) return '1) V2 Launch settings';
@@ -432,7 +433,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       if (step === 5) return '5) Metadata & socials';
       if (step === 6) return '6) Review & confirm';
     }
-    
+
     return 'Unknown step';
   };
 
@@ -462,14 +463,23 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
     }
   }, [onClose]);
 
+  const analyzeAndUpdatePalette = async (imageSource: File | string) => {
+    const result = await analyzeImageWithGPT(imageSource);
+    handleMetaChange('palette', JSON.stringify({
+      colors: result.palette,
+      recommended: result.recommended
+    }));
+    console.log('Image analyzed successfully:', result);
+  };
+
   if (!isOpen || !mounted) return null;
 
   const modalContent = (
-    <div 
+    <div
       className={styles.modalOverlay}
       onClick={handleOverlayClick}
     >
-      <div 
+      <div
         className={styles.modalContainer}
         onClick={e => e.stopPropagation()}
       >
@@ -496,7 +506,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                   </span>
                   <span className={styles.priceItem}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="inline mr-1">
-                      <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z"/>
+                      <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z" />
                     </svg>
                     ETH: {formattedEthPrice}
                   </span>
@@ -509,7 +519,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
         <div className={styles.wizard}>
           <aside className={styles.sidebar}>
             {/* Step 0: Deployment Mode Selection */}
-            <div 
+            <div
               className={`${styles.step} ${state.step === 0 ? styles.active : ''} ${state.step > 0 ? styles.done : ''}`}
               onClick={() => {
                 if (0 <= state.step) goToStep(0);
@@ -527,7 +537,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
               [1, 2, 5, 6].map((internalStep, index) => {
                 const displayStep = index + 1; // Show as steps 1,2,3,4
                 return (
-                  <div 
+                  <div
                     key={internalStep}
                     className={`${styles.step} ${state.step === internalStep ? styles.active : ''} ${state.step > internalStep ? styles.done : ''}`}
                     onClick={() => {
@@ -554,7 +564,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             ) : (
               // Virtual Curve: Steps 0,1,2,3,4,5,6 (normal flow)
               [1, 2, 3, 4, 5, 6].map(step => (
-                <div 
+                <div
                   key={step}
                   className={`${styles.step} ${state.step === step ? styles.active : ''} ${state.step > step ? styles.done : ''}`}
                   onClick={() => {
@@ -675,7 +685,32 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                     goToStep(4);
                   }
                 }}
-                onContinue={() => goToStep(6)}
+                onContinue={async () => {
+                  try {
+                    const { bannerFile, banner, logoFile, logo, autoBrand } = state.meta;
+                    const imageSource = logoFile || logo || bannerFile || banner;
+
+                    // Skip analysis if no image or autoBrand is false
+                    if (!imageSource) {
+                      goToStep(6);
+                      return;
+                    }
+
+                    // If autoBrand is false, start analysis in background and continue
+                    if (!autoBrand) {
+                      goToStep(6);
+                      analyzeAndUpdatePalette(imageSource).catch(console.error);
+                      return;
+                    }
+
+                    // Otherwise wait for analysis before continuing
+                    await analyzeAndUpdatePalette(imageSource);
+                    goToStep(6);
+                  } catch (error) {
+                    console.error('Failed to analyze image:', error);
+                    goToStep(6);
+                  }
+                }}
               />
             )}
 

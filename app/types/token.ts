@@ -103,14 +103,17 @@ export interface TokenInfo {
   symbol: string;
   burn_lp: boolean;
   creator: string;
+  palette: string | null;
   twitter: string | null;
   website: string | null;
   catagory: string | null;
   eth_pool: number;
   telegram: string | null;
   graduated: boolean;
+  audio_url: string | null;
   image_url: string | null;
   banner_url: string | null;
+  auto_brand: boolean
   is_stealth: boolean;
   start_time: number;
   tax_wallet: string | null;

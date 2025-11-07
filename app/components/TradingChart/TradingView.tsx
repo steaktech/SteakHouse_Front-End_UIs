@@ -18,6 +18,9 @@ interface TradingViewProps {
   telegramUrl?: string;
   twitterUrl?: string;
   websiteUrl?: string;
+  // Audio controls
+  isAudioPlaying?: boolean;
+  onToggleAudio?: () => void;
 }
 
 const TF_OPTIONS: { label: string; value: string; resolution: string }[] = [
@@ -33,7 +36,19 @@ function tfToResolution(tf: string): string {
   return TF_OPTIONS.find(t => t.value === tf)?.resolution ?? '1';
 }
 
-export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address, timeframe = '1m', onChangeTimeframe, tokenIconUrl, telegramUrl, twitterUrl, websiteUrl }) => {
+export const TradingView: React.FC<TradingViewProps> = ({ 
+  title, 
+  symbol, 
+  address, 
+  timeframe = '1m', 
+  onChangeTimeframe, 
+  tokenIconUrl, 
+  telegramUrl, 
+  twitterUrl, 
+  websiteUrl,
+  isAudioPlaying,
+  onToggleAudio
+}) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<any>(null);
   const prevDatafeedRef = useRef<any>(null);
@@ -292,6 +307,38 @@ export const TradingView: React.FC<TradingViewProps> = ({ title, symbol, address
             <div className="flex items-center gap-2 pl-2">
               {/* Primary actions: Save + Share */}
               <div className="flex items-center gap-2 pr-2 border-r border-[#1f1a24]">
+                {/* Audio control */}
+                <button
+                  type="button"
+                  title={isAudioPlaying ? "Mute Audio" : "Unmute Audio"}
+                  onClick={onToggleAudio}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: isAudioPlaying ? '#ffdd00' : '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    {isAudioPlaying ? (
+                      <>
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                      </>
+                    ) : (
+                      <>
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                        <line x1="23" y1="9" x2="17" y2="15" />
+                        <line x1="17" y1="9" x2="23" y2="15" />
+                      </>
+                    )}
+                  </svg>
+                </button>
                 {/* Save token */}
                 <button
                   type="button"
