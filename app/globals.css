@@ -1,5 +1,35 @@
 @import "tailwindcss";
 
+/* Global color variables for auto brand */
+/* Default colors 
+:root {
+  --ab-primary: #d9853a;
+  --ab-secondary: #f3cc76;
+  --ab-accent: #f6e7b5;
+  --ab-bg-200: #7f4108;
+  --ab-bg-300: #6f3906;
+  --ab-bg-400: #7d3802;
+  --ab-bg-500: #572501;
+  --ab-desc: #fff1df;
+  --ab-text-200: #feea88bf;
+  --ab-text-400: #feea88;
+}
+*/
+:root {
+  --ab-primary: #d9853a;
+  --ab-secondary: #f3cc76;
+  --ab-accent: #f6e7b5;
+  --ab-bg-200: #7f4108;
+  --ab-bg-300: #6f3906;
+  --ab-bg-400: #7d3802;
+  --ab-bg-500: #572501;
+  --ab-desc: #fff1df;
+  --ab-text-200: #feea88bf;
+  --ab-text-400: #feea88;
+  --ab-modal-title: #f5e6d3;
+  --ab-modal-bg: #1a0f08;
+  --ab-modal-header: #20140d;
+}
 
 /* Global color variables for button styles */
 :root {
@@ -13,6 +43,7 @@
   --brown-700: #4d2814;
   --brown-800: #3b1e10;
   --brown-900: #1e0e07;
+  --danger-400: #ff3b3b;
 }
 
 /* Global background fix to prevent seams and repeating */

@@ -106,7 +106,8 @@ export const initialState: TokenState = {
     bannerFile: null,
     autoBrand: false,
     audio: "",
-    audioFile: null
+    audioFile: null,
+    palette: "",
   },
   txHash: null,
 };

@@ -276,7 +276,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
         minHeight: '100%',
         position: 'relative',
         borderRadius: 'clamp(14px, 2vw, 20px)',
-        background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+        background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
         padding: isMobile ? '10px' : 'clamp(12px, 2.5vh, 16px)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
@@ -444,7 +444,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             opacity: isLoadingMaxWallet ? 0.5 : 1
-          }}>{isLoadingMaxWallet ? 'Loading...' : 'Set max wallet'}</button>
+          }}>{isLoadingMaxWallet ? 'Loading...' : 'Buy max wallet'}</button>
         </div>
 
         {/* Amount Input */}
@@ -549,7 +549,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 borderRadius: 'clamp(8px, 1.6vw, 12px)',
                 padding: 'clamp(8px, 1.8vh, 12px) clamp(3px, 0.6vw, 4px)',
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                color: '#feea88',
+                color: 'var(--ab-text-400)',
                 fontSize: 'clamp(8px, 1.3vw, 10px)',
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -583,7 +583,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                   display: 'block',
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
-                  color: '#feea88',
+                  color: 'var(--ab-text-400)',
                   marginBottom: '4px',
                 }}>Slippage Tolerance (%)</label>
                 <div style={{
@@ -644,7 +644,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#feea88',
+                      color: 'var(--ab-text-400)',
                       fontSize: 'clamp(8px, 1.4vw, 11px)',
                       fontWeight: 800,
                       cursor: 'pointer',
@@ -676,12 +676,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 <span style={{
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
-                  color: 'rgba(254, 234, 136, 0.75)'
+                  color: 'var(--ab-text-200)'
                 }}>Token Balance</span>
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
-                  color: '#feea88',
+                  color: 'var(--ab-text-400)',
                   letterSpacing: '0.2px'
                 }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 }).format(position.qtyTokens) : (positionError ? '—' : '0'))}</span>
               </div>
@@ -700,12 +700,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 <span style={{
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
-                  color: 'rgba(254, 234, 136, 0.75)'
+                  color: 'var(--ab-text-200)'
                 }}>Token Worth</span>
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
-                  color: '#feea88',
+                  color: 'var(--ab-text-400)',
                   letterSpacing: '0.2px'
                 }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(position.marketValueUsd || 0) : (positionError ? '—' : '$0.00'))}</span>
               </div>
@@ -724,12 +724,12 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 <span style={{
                   fontSize: 'clamp(10px, 1.6vw, 12px)',
                   fontWeight: 700,
-                  color: 'rgba(254, 234, 136, 0.75)'
+                  color: 'var(--ab-text-200)'
                 }}>ETH Balance</span>
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
-                  color: '#feea88',
+                  color: 'var(--ab-text-400)',
                   letterSpacing: '0.2px'
                 }}>{tradingWalletAddress ? ((tradingEthBalance?.formatted ? `${Number(tradingEthBalance.formatted).toFixed(4)} ETH` : 'Loading…')) : '—'}</span>
               </div>

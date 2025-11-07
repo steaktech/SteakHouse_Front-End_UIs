@@ -104,7 +104,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         if (inFlightKeyRef.current === key) inFlightKeyRef.current = null;
       }
     })();
-    return () => {};
+    return () => { };
   }, [state.basics.totalSupply, state.basics.gradCap, gradError, onBasicsChange]);
 
   const getProfileDisplayName = (profile: string | null) => {
@@ -156,7 +156,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       entries.push(['Initial liquidity', `${state.v2Settings.initialLiquidityETH} ETH`]);
       entries.push(['Buy tax', `${state.v2Settings.taxSettings.buyTax}%`]);
       entries.push(['Sell tax', `${state.v2Settings.taxSettings.sellTax}%`]);
-      
+
       // Advanced tax configuration
       if (state.v2Settings.advancedTaxConfig.enabled) {
         entries.push(['Advanced Tax Config', 'Enabled']);
@@ -165,13 +165,13 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         entries.push(['Tax Drop Interval', `${state.v2Settings.advancedTaxConfig.taxDropInterval}s`]);
         entries.push(['Tax Drop Step', `${state.v2Settings.advancedTaxConfig.taxDropStep}%`]);
       }
-      
+
       // Regular limits
       if (state.v2Settings.limits.enableLimits) {
         entries.push(['Max wallet', `${state.v2Settings.limits.maxWallet}%`]);
         entries.push(['Max transaction', `${state.v2Settings.limits.maxTx}%`]);
       }
-      
+
       // Advanced limits configuration
       if (state.v2Settings.advancedLimitsConfig.enabled) {
         entries.push(['Dynamic Limits', 'Enabled']);
@@ -181,19 +181,19 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         entries.push(['Max Wallet Step', `+${state.v2Settings.advancedLimitsConfig.maxWalletStep}% per interval`]);
         entries.push(['Limits Interval', `${state.v2Settings.advancedLimitsConfig.limitsInterval}s`]);
       }
-      
+
       // Stealth configuration
       if (state.v2Settings.stealthConfig.enabled) {
         entries.push(['Stealth Launch', 'Enabled']);
         entries.push(['Stealth ETH Amount', `${state.v2Settings.stealthConfig.ethAmount} ETH`]);
       }
     }
-    
+
     // Common token info
     entries.push(['Name', b.name]);
     entries.push(['Symbol', b.symbol]);
     entries.push(['Total supply', `${b.totalSupply} (raw) × 1e18`]);
-    
+
     if (state.deploymentMode === 'VIRTUAL_CURVE') {
       entries.push(['Graduation cap (USD target)', b.gradCap ? `$${Number(b.gradCap).toLocaleString()}` : '—']);
       entries.push(['Supply to circulate (tokens)', b.gradCapWei ? `${formatUnits(b.gradCapWei)} tokens` : gradLoading ? 'Calculating…' : (gradError || '—')]);
@@ -201,18 +201,18 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       entries.push(['LP handling', b.lpMode === 'LOCK' ? `Lock ${b.lockDays} days` : 'Burn']);
       entries.push(['Stealth', b.stealth ? 'Yes' : 'No']);
     }
-    
+
     entries.push(['Remove header', b.removeHeader ? 'Yes' : 'No']);
-    
+
     // Fee info
     if (state.deploymentMode === 'VIRTUAL_CURVE') {
       // Show the effective creation fee that will actually be sent (apply profile minimums)
       const configured = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
       const minByProfile = state.profile === 'ZERO' ? 0.0005
         : state.profile === 'SUPER' ? 0.001
-        : state.profile === 'BASIC' ? 0.01
-        : state.profile === 'ADVANCED' ? 0.01
-        : 0;
+          : state.profile === 'BASIC' ? 0.01
+            : state.profile === 'ADVANCED' ? 0.01
+              : 0;
       const effectiveCreation = Math.max(configured, minByProfile);
       entries.push(['Creation fee', `${fmt.format(effectiveCreation)} ETH`]);
       entries.push(['Platform fee', `${fmt.format(state.fees.platformPct)}%`]);
@@ -223,6 +223,32 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     return entries;
   };
 
+  const autoBrandingPreview = () => {
+    const a = state.meta.autoBrand
+    const palette = state.meta.palette;
+    const r = document.body;
+    if (a && palette) {
+      try {
+        const parsedPalette = JSON.parse(palette);
+        if (r) {
+          r.style.setProperty('--ab-modal-title', parsedPalette.recommended.text);
+          r.style.setProperty('--ab-modal-bg', parsedPalette.recommended.background);
+          r.style.setProperty('--ab-modal-header', parsedPalette.recommended.background);
+        }
+        return palette;
+      } catch (error) {
+        console.error('Failed to parse palette:', error);
+        return '';
+      }
+    }
+    else{
+      r.style.removeProperty('--ab-modal-title');
+      r.style.removeProperty('--ab-modal-bg');
+      r.style.removeProperty('--ab-modal-header');
+    }
+    return '';
+  }
+
   const generateAbiPreview = () => {
     const b = state.basics;
     const p = state.profile;
@@ -232,22 +258,22 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     if (state.deploymentMode === 'V2_LAUNCH') {
       const v2 = state.v2Settings;
       const b = state.basics;
-      
+
       // Generate the manual deploy JSON structure
       const deployConfig: any = {
         name_: b.name,
         symbol_: b.symbol,
-        supply_: `${BigInt(b.totalSupply) * BigInt(10**18)}`, // Convert to wei
+        supply_: `${BigInt(b.totalSupply) * BigInt(10 ** 18)}`, // Convert to wei
         _taxWallet: v2.taxSettings.taxReceiver || '0x0000000000000000000000000000000000000000',
         _treasury: '0x0000000000000000000000000000000000000000' // Default treasury
       };
-      
+
       // Add advanced tax configuration if enabled
       if (v2.advancedTaxConfig.enabled) {
         const startTaxBps = Math.floor(Number(v2.advancedTaxConfig.startTax) * 100); // Convert % to basis points
         const finalTaxBps = Math.floor(Number(v2.advancedTaxConfig.finalTax) * 100);
         const decayStep = Math.floor(Number(v2.advancedTaxConfig.taxDropStep) * 100);
-        
+
         deployConfig.decayCfg = {
           startTax: startTaxBps,
           finalTax: finalTaxBps,
@@ -255,22 +281,22 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           decayInterval: Number(v2.advancedTaxConfig.taxDropInterval)
         };
       }
-      
+
       // Add advanced limits configuration if enabled
       if (v2.advancedLimitsConfig.enabled) {
-        const totalSupply = BigInt(b.totalSupply) * BigInt(10**18);
-        
+        const totalSupply = BigInt(b.totalSupply) * BigInt(10 ** 18);
+
         // Convert percentages to token amounts in wei
         const startMaxTxPercent = Number(v2.advancedLimitsConfig.startMaxTx) / 100;
         const maxTxStepPercent = Number(v2.advancedLimitsConfig.maxTxStep) / 100;
         const startMaxWalletPercent = Number(v2.advancedLimitsConfig.startMaxWallet) / 100;
         const maxWalletStepPercent = Number(v2.advancedLimitsConfig.maxWalletStep) / 100;
-        
+
         const startMaxTxWei = `${BigInt(Math.floor(Number(totalSupply) * startMaxTxPercent))}`;
         const maxTxStepWei = `${BigInt(Math.floor(Number(totalSupply) * maxTxStepPercent))}`;
         const startMaxWalletWei = `${BigInt(Math.floor(Number(totalSupply) * startMaxWalletPercent))}`;
         const maxWalletStepWei = `${BigInt(Math.floor(Number(totalSupply) * maxWalletStepPercent))}`;
-        
+
         deployConfig.limitsCfg = {
           startMaxTx: startMaxTxWei,
           maxTxStep: maxTxStepWei,
@@ -278,12 +304,12 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           maxWalletStep: maxWalletStepWei
         };
       }
-      
+
       // Add stealth ETH amount if enabled
       if (v2.stealthConfig.enabled) {
         deployConfig.eth = v2.stealthConfig.ethAmount;
       }
-      
+
       return JSON.stringify(deployConfig, null, 2);
     }
 
@@ -348,6 +374,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
 
   const overviewEntries = generateOverview();
   const abiPreview = generateAbiPreview();
+  const palette = autoBrandingPreview();
 
   return (
     <div className={styles.panel}>
@@ -371,8 +398,8 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
 
       <div className={`${styles.card} ${styles.cardAlt}`}>
         <label className={styles.switch}>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             className={styles.switchInput}
             checked={understandFees}
             onChange={(e) => setUnderstandFees(e.target.checked)}
@@ -385,7 +412,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
 
       <div className={styles.footerNav}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
-          <button 
+          <button
             className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
             disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
             onClick={onConfirm}
@@ -405,7 +432,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       )}
 
       {state.txHash && (
-        <div className={styles.card} style={{marginTop: '12px'}}>
+        <div className={styles.card} style={{ marginTop: '12px' }}>
           <div className={styles.row}>
             <div className={styles.pill}>
               {state.txHash === 'pending' ? 'Pending' : isLoading ? 'Creating' : 'Sent'}
@@ -416,12 +443,12 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           </div>
           {state.txHash !== 'pending' && (
             <div className={styles.hint}>
-              Explorer: 
-              <a 
+              Explorer:
+              <a
                 href={`https://etherscan.io/tx/${state.txHash}`}
-                target="_blank" 
+                target="_blank"
                 rel="noreferrer"
-                style={{marginLeft: '8px', color: 'var(--primary-400)'}}
+                style={{ marginLeft: '8px', color: 'var(--primary-400)' }}
               >
                 {state.txHash.slice(0, 10)}…{state.txHash.slice(-8)}
               </a>

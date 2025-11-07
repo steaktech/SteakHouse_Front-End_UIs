@@ -312,7 +312,7 @@ const handleUserProfileClose = () => {
           ${expanded ? '' : 'lg:w-[70px]'}
         `}
         style={{
-          background: 'linear-gradient(180deg, #572501 0%, #572501 65%, #7d3802 100%)',
+          background: 'linear-gradient(180deg, #572501 0%, var(--ab-bg-500) 65%, var(--ab-bg-400) 100%)',
           boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
           width: expanded ? `${sidebarWidth}px` : undefined,
           transition: isResizing ? 'none' : 'all 300ms ease-in-out'

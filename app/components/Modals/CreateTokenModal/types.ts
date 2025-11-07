@@ -119,6 +119,7 @@ export interface MetaData {
   autoBrand: boolean;
   audio: string;
   audioFile: File | null;
+  palette: string;
 }
 
 export interface Fees {

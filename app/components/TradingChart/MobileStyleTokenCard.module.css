@@ -8,8 +8,8 @@
       180deg,
       #572501,
       #572501 10%,
-      #572501 58%,
-      #7d3802 100%
+      var(--ab-bg-500) 58%,
+      var(--ab-bg-400) 100%
     ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
@@ -299,7 +299,7 @@
 /* Compact description */
 .desc {
   margin: 2px 0 8px;
-  color: #fff1df;
+  color: var(--ab-desc);
   opacity: 0.96;
   line-height: 1.45;
   font-size: 12px;
@@ -312,7 +312,7 @@
 /* Compact score section */
 .score {
   margin-top: 6px;
-  background: linear-gradient(180deg, #7f4108, #6f3906);
+  background: linear-gradient(180deg, var(--ab-bg-200), var(--ab-bg-300));
   border: 1px solid rgba(255, 215, 165, 0.4);
   border-radius: 14px;
   padding: 7px;

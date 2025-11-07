@@ -45,7 +45,7 @@
       transparent 60%
     ) no-repeat,
     var(--bg);
-  color: var(--text);
+  color: var(--ab-modal-title);
   border-radius: 24px;
   max-width: 1200px;
   width: 100%;
@@ -189,7 +189,7 @@
 }
 
 .content {
-  background: var(--bg-elev);
+  background: var(--ab-modal-bg);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
@@ -723,7 +723,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
-  background: #1a0f08;
+  background: var(--ab-modal-bg);
 }
 
 .collapsedSummary {
@@ -731,7 +731,7 @@
   cursor: pointer;
   padding: 14px;
   font-weight: 700;
-  background: #20140d;
+  background: var(--ab-modal-header);
   user-select: none;
 }
 
