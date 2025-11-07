@@ -7,6 +7,8 @@ import {
   User as UserIcon,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Plus,
 } from "lucide-react";
 import { SavedTokenWidget } from "../Widgets/SavedToken";
@@ -98,15 +100,16 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
   return (
     <>
+      {/* Mobile scrim */}
+      {expanded && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setExpanded(false)}
+        />
+      )}
+
       <aside
-        className={`absolute left-0 top-0 bottom-0 z-40 flex flex-col overflow-hidden select-none rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${
-          expanded ? 'pointer-events-auto' : 'pointer-events-none'
-        } ${className || ""}`}
-        style={{
-          width: 160,
-          transform: expanded ? 'translateX(0)' : 'translateX(-110%)',
-          transition: 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)'
-        }}
+        className={`fixed inset-x-0 bottom-0 md:absolute md:top-0 md:bottom-0 md:left-0 z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-full w-full md:w-[160px] rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-[10px] pt-[12px] pb-[14px] relative">
@@ -124,7 +127,9 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               onClick={() => setExpanded(false)}
               className="absolute right-2 top-2 p-1.5 rounded-full border border-white/20 bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl shadow-sm transition-colors"
             >
-              <ChevronLeft size={16} className="text-amber-200" />
+              {/* Mobile: down arrow, Desktop: left arrow */}
+              <ChevronDown size={16} className="text-amber-200 md:hidden" />
+              <ChevronLeft size={16} className="text-amber-2 00 hidden md:block" />
             </button>
           )}
         </div>
@@ -157,16 +162,28 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
         <ChartUserProfileWidget isOpen={userOpen} onClose={() => setUserOpen(false)} />
       )}
 
-      {/* Floating middle-left expand toggle (visible only when collapsed) */}
+      {/* Floating expand toggle (visible only when collapsed) */}
       {!expanded && (
-        <button
-          onClick={() => setExpanded(true)}
-          type="button"
-          aria-label="Expand sidebar"
-          className="fixed left-2 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full transition-all shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl border border-white/20"
-        >
-          <ChevronRight size={18} className="text-amber-200" />
-        </button>
+        <>
+          {/* Mobile: bottom-center */}
+          <button
+            onClick={() => setExpanded(true)}
+            type="button"
+            aria-label="Expand sidebar"
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 p-3 rounded-full transition-all shadow-lg bg-[#1b0a03]/60 hover:bg-[#1b0a03]/70 backdrop-blur-xl border border-white/20 md:hidden"
+          >
+            <ChevronUp size={20} className="text-amber-200" />
+          </button>
+          {/* Desktop: middle-left */}
+          <button
+            onClick={() => setExpanded(true)}
+            type="button"
+            aria-label="Expand sidebar"
+            className="hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full transition-all shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl border border-white/20"
+          >
+            <ChevronRight size={18} className="text-amber-200" />
+          </button>
+        </>
       )}
     </>
   );
