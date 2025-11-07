@@ -3,7 +3,7 @@ import Header from "@/app/components/Header";
 import TrendingBar from "@/app/components/TrendingBar";
 import { TradingDashboard } from "@/app/components/TradingDashboard";
 import Footer from "@/app/components/Footer";
-import PageSidebar from "@/app/components/PageSidebar";
+import PageSidebar from "@/app/components/TradingDashboard/PageSidebar";
 
 export default function Home() {
   return (
