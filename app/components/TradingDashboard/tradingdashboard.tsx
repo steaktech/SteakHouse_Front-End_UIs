@@ -254,12 +254,13 @@ export default function TradingDashboard() {
                 <button
                   type="button"
                   onClick={handleSearchClick}
-                  className={`${styles["btn-5"]} flex items-center gap-1 w-full justify-center text-xs py-1.5`}
+                  aria-label="Open search"
+                  className={`${styles["btn-5"]} ${styles.searchLike} relative w-full flex items-center gap-2 rounded-full border border-white/20 bg-transparent hover:bg-white/5 text-white/90 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c87414]/40 transition`}
                 >
                   <span className={styles.leftSteak}>🥩</span>
                   <span className={styles.rightSteak}>🥩</span>
-                  <Search size={14} />
-                  <span>Search...</span>
+                  <Search size={14} className="text-white/70" />
+                  <span className="text-white/70">Search tokens...</span>
                 </button>
               </div>
 
@@ -334,12 +335,13 @@ export default function TradingDashboard() {
                 <button
                   type="button"
                   onClick={handleSearchClick}
-                  className={`${styles["btn-5"]} flex items-center gap-2 w-full justify-center`}
+                  aria-label="Open search"
+                  className={`${styles["btn-5"]} ${styles.searchLike} relative w-full flex items-center gap-2 rounded-full border border-white/20 bg-transparent hover:bg-white/5 text-white/90 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#c87414]/40 transition`}
                 >
                   <span className={styles.leftSteak}>🥩</span>
                   <span className={styles.rightSteak}>🥩</span>
-                  <Search size={16} />
-                  <span>Search...</span>
+                  <Search size={16} className="text-white/70" />
+                  <span className="text-white/70">Search tokens...</span>
                 </button>
               </div>
 
@@ -402,87 +404,83 @@ export default function TradingDashboard() {
             </div>
 
             {/* Desktop Layout (1200px+) */}
-            <div className="hidden xl:flex flex-wrap items-center gap-2 justify-between">
-              <div className="flex items-center gap-2 flex-wrap">
-                <FilterButton 
-                  icon={<BarChart size={16} />} 
-                  label="Volume" 
-                  active={filters.sortBy === 'volume'}
-                  onClick={sortByVolume}
-                />
-                <FilterButton 
-                  icon={<DollarSign size={16} />} 
-                  label="MCAP" 
-                  active={filters.sortBy === 'mcap'}
-                  onClick={sortByMarketCap}
-                />
-                <FilterButton 
-                  icon={<Flame size={16} />} 
-                  label="Trending" 
-                  onClick={showAll}
-                />
-                <FilterButton 
-                  icon={<Clock size={16} />} 
-                  label="Age" 
-                  active={filters.sortBy === 'age'}
-                  onClick={sortByAge}
-                />
-                <FilterButton 
-                  icon={<Percent size={16} />} 
-                  label="Low Tax" 
-                  active={filters.sortBy === 'tax'}
-                  onClick={sortByTax}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
+            <div className="hidden xl:block">
+              {/* Row 1: Search (full width) */}
+              <div className="mb-3">
                 <button
                   type="button"
                   onClick={handleSearchClick}
-                  className={`${styles["btn-5"]} flex items-center gap-2`}
+                  aria-label="Open search"
+                  className={`${styles["btn-5"]} ${styles.searchLike} relative w-full flex items-center gap-3 rounded-full border border-white/20 bg-transparent hover:bg-white/5 text-white/90 px-5 py-3 focus:outline-none focus:ring-2 focus:ring-[#c87414]/40 transition`}
                 >
                   <span className={styles.leftSteak}>🥩</span>
                   <span className={styles.rightSteak}>🥩</span>
-                  <Search size={18} />
-                  <span>Search...</span>
+                  <Search size={18} className="text-white/70" />
+                  <span className="text-white/70">Search tokens...</span>
                 </button>
-                {/* <button
-                  type="button"
-                  onClick={handleRefresh}
-                  disabled={isLoading}
-                  className={`${styles["btn-5"]} flex items-center gap-2 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title="Refresh tokens"
-                >
-                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                  <span>Refresh</span>
-                </button> */}
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <FilterButton 
-                  icon={<Star size={16} />} 
-                  label="Meme" 
-                  active={filters.category === 'meme'}
-                  onClick={() => filterByCategory('meme')}
-                />
-                <FilterButton 
-                  icon={<Wrench size={16} />} 
-                  label="Utility" 
-                  active={filters.category === 'utility'}
-                  onClick={() => filterByCategory('utility')}
-                />
-                <FilterButton 
-                  icon={<Smile size={16} />} 
-                  label="AI" 
-                  active={filters.category === 'ai'}
-                  onClick={() => filterByCategory('ai')}
-                />
-                <FilterButton 
-                  icon={<Smile size={16} />} 
-                  label="X-post" 
-                  active={filters.category === 'x-post'}
-                  onClick={() => filterByCategory('x-post')}
-                />
+              {/* Row 2: Filter buttons (wrap as needed) */}
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                {/* Left group */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <FilterButton 
+                    icon={<BarChart size={16} />} 
+                    label="Volume" 
+                    active={filters.sortBy === 'volume'}
+                    onClick={sortByVolume}
+                  />
+                  <FilterButton 
+                    icon={<DollarSign size={16} />} 
+                    label="MCAP" 
+                    active={filters.sortBy === 'mcap'}
+                    onClick={sortByMarketCap}
+                  />
+                  <FilterButton 
+                    icon={<Flame size={16} />} 
+                    label="Trending" 
+                    onClick={showAll}
+                  />
+                  <FilterButton 
+                    icon={<Clock size={16} />} 
+                    label="Age" 
+                    active={filters.sortBy === 'age'}
+                    onClick={sortByAge}
+                  />
+                  <FilterButton 
+                    icon={<Percent size={16} />} 
+                    label="Low Tax" 
+                    active={filters.sortBy === 'tax'}
+                    onClick={sortByTax}
+                  />
+                </div>
+                {/* Right group */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <FilterButton 
+                    icon={<Star size={16} />} 
+                    label="Meme" 
+                    active={filters.category === 'meme'}
+                    onClick={() => filterByCategory('meme')}
+                  />
+                  <FilterButton 
+                    icon={<Wrench size={16} />} 
+                    label="Utility" 
+                    active={filters.category === 'utility'}
+                    onClick={() => filterByCategory('utility')}
+                  />
+                  <FilterButton 
+                    icon={<Smile size={16} />} 
+                    label="AI" 
+                    active={filters.category === 'ai'}
+                    onClick={() => filterByCategory('ai')}
+                  />
+                  <FilterButton 
+                    icon={<Smile size={16} />} 
+                    label="X-post" 
+                    active={filters.category === 'x-post'}
+                    onClick={() => filterByCategory('x-post')}
+                  />
+                </div>
               </div>
             </div>
           </div>

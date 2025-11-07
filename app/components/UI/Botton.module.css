@@ -380,6 +380,17 @@
 	z-index: 2;
 }
 
+/* Minimal/ghost variant to reuse btn-5 animations without heavy background */
+.btn-5.searchLike {
+	background: transparent;
+	box-shadow: none;
+	border-color: rgba(255, 255, 255, 0.2);
+	backdrop-filter: none;
+}
+.btn-5.searchLike:hover {
+	background: rgba(255, 255, 255, 0.05);
+}
+
 .btn-5:hover .leftSteak {
 	left: 15px;
 	opacity: 1;
