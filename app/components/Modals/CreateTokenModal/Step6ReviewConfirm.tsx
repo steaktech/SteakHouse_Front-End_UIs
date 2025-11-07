@@ -3,6 +3,9 @@ import { TokenState } from './types';
 import { fmt } from './utils';
 import styles from './CreateTokenModal.module.css';
 import { simulateGradCap } from '@/app/lib/api/services/gradCapService';
+import { useWallet } from '@/app/hooks/useWallet';
+import { useTrading } from '@/app/hooks/useTrading';
+import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 
 interface Step6ReviewConfirmProps {
   state: TokenState;
@@ -21,6 +24,11 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const [gradLoading, setGradLoading] = useState(false);
   const [gradError, setGradError] = useState<string | null>(null);
   const [gradResult, setGradResult] = useState<{ supplyToCirculate?: string; ethRaisedWei?: string; priceWei?: string; priceWeiPer1e18?: string }>({});
+  
+  // Wallet / Top up modal state
+  const { isConnected, connect } = useWallet();
+  const { tradingState, topUpTradingWallet } = useTrading();
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
 
   // Format big integer wei to human tokens (18 decimals)
   const formatUnits = (wei?: string, decimals: number = 18) => {
@@ -412,13 +420,30 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
 
       <div className={styles.footerNav}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
-          <button
-            className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-            disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
-            onClick={onConfirm}
-          >
-            {gradLoading ? 'Calculating…' : (isLoading ? 'Creating...' : 'Confirm & Create')}
-          </button>
+          {!isConnected ? (
+            <button
+              className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
+              onClick={() => { void connect().catch(() => {}); }}
+            >
+              Connect Wallet
+            </button>
+          ) : (
+            <>
+              <button
+                className={`${styles.btn} ${styles.navButton}`}
+                onClick={() => setIsTopUpOpen(true)}
+              >
+                Top Up
+              </button>
+              <button
+                className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
+                disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
+                onClick={onConfirm}
+              >
+                {gradLoading ? 'Calculating…' : (isLoading ? 'Creating...' : 'Confirm & Create')}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -456,6 +481,14 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           )}
         </div>
       )}
+      {/* Top Up Modal */}
+      <WalletTopUpModal
+        isOpen={isTopUpOpen}
+        onClose={() => setIsTopUpOpen(false)}
+        tradingWallet={tradingState?.tradingWallet}
+        defaultAmountEth={tradingState?.topUpSuggestionEth || ''}
+        onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
+      />
     </div>
   );
 };
