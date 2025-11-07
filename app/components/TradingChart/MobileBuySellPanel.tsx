@@ -364,7 +364,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
-          }}>Set max wallet</button>
+          }}>Buy max wallet</button>
         </div>
 
         {/* Amount Input */}
