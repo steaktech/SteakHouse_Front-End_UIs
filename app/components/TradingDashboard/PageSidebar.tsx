@@ -129,7 +129,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             >
               {/* Mobile: down arrow, Desktop: left arrow */}
               <ChevronDown size={16} className="text-amber-200 md:hidden" />
-              <ChevronLeft size={16} className="text-amber-2 00 hidden md:block" />
+              <ChevronLeft size={16} className="text-amber-200 hidden md:block" />
             </button>
           )}
         </div>
