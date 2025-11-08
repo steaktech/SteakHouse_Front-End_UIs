@@ -82,12 +82,21 @@ export function useTokenWebSocket({
         setIsConnected(false);
       });
 
-      // Trade event handler
-      socket.on('trade', (trade: WebSocketTrade) => {
-        console.log('New trade received:', trade);
-        setLastTrade(trade);
-        onTrade?.(trade);
-      });
+      // Trade event handlers (support multiple aliases defensively)
+      const emitTrade = (trade: any) => {
+        try {
+          console.log('New trade received:', trade);
+          setLastTrade(trade as WebSocketTrade);
+          onTrade?.(trade as WebSocketTrade);
+        } catch (e) {
+          console.error('Trade handler error:', e);
+        }
+      };
+      socket.on('trade', emitTrade);
+      socket.on('tradeUpdate', emitTrade as any);
+      socket.on('transaction', emitTrade as any);
+      socket.on('tx', emitTrade as any);
+      socket.on('newTrade', emitTrade as any);
 
       // Chart update event handler
       socket.on('chartUpdate', (update: ChartUpdateEvent) => {

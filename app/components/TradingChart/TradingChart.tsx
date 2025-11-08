@@ -46,6 +46,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         result.message, 
         result.orderId
       );
+      // Fallback: ensure recent trades refresh soon after an order is placed in case WS 'trade' is delayed/missed
+      try { setTimeout(() => { refetch?.(); }, 1200); } catch {}
     } else {
       notifications.notifyError(
         'Order Failed', 
@@ -112,7 +114,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // API: timeframe + token data
   const [timeframe, setTimeframe] = useState<string>('1m');
   // Always fetch 1m base candles and token info; aggregate to other timeframes locally for live updates
-  const { data: apiTokenData, isLoading, error } = useTokenData(tokenAddress, { interval: '1m', limit: 200 });
+  const { data: apiTokenData, isLoading, error, refetch } = useTokenData(tokenAddress, { interval: '1m', limit: 200 });
 
   // Set brand colors to match token palette if available
   useEffect(() => {
@@ -188,6 +190,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   })();
 
   // WebSocket: subscribe to token, update trades and candles
+  // Normalize seconds/milliseconds to ms
+  const toMs = (t: number) => (t > 1e12 ? Math.floor(t) : Math.floor(t * 1000));
+
   const handleWsTrade = (trade: WebSocketTrade) => {
     // Debug: log incoming trade from WebSocket
     console.log('[WS] Trade received', trade);
@@ -199,33 +204,35 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       symbol: trade.symbol,
       total_supply: trade.total_supply,
       trader: trade.trader,
-      amountEth: trade.amountEth,
-      amountTokens: trade.amountTokens,
-      price: trade.price,
-      usdValue: trade.usdValue,
-      marketCap: trade.marketCap,
+      amountEth: Number(trade.amountEth),
+      amountTokens: Number(trade.amountTokens),
+      price: Number(trade.price),
+      usdValue: Number(trade.usdValue),
+      marketCap: Number(trade.marketCap),
       txHash: trade.txHash,
-      virtualEth: trade.virtualEth,
-      circulatingSupply: trade.circulatingSupply,
-      timestamp: trade.timestamp,
+      virtualEth: typeof trade.virtualEth === 'number' ? trade.virtualEth : undefined,
+      circulatingSupply: typeof trade.circulatingSupply === 'number' ? trade.circulatingSupply : undefined,
+      timestamp: toMs(Number(trade.timestamp)),
     };
     lastWsTradeRef.current = trade;
-    setTrades(prev => [normalized, ...prev].slice(0, 200));
+    // Prepend and keep bounded; sorting in UI assumes ms timestamps
+    setTrades(prev => [normalized, ...(prev || [])].slice(0, 200));
   };
 
   const handleWsChartUpdate = ({ timeframe: tf, candle }: ChartUpdateEvent) => {
     // Debug: log incoming chart update from WebSocket
     console.log('[WS] Chart update', { timeframe: tf, candle });
-    // Only base 1m updates are expected; parse strings to numbers
+    // Only base 1m updates are expected; parse strings to numbers and normalize timestamp to ms
     const newCandle: Candle = {
-      timestamp: candle.timestamp,
+      timestamp: toMs(Number(candle.timestamp)),
       open: typeof candle.open === 'string' ? parseFloat(candle.open) : (candle.open as unknown as number),
-      high: candle.high,
-      low: candle.low,
+      high: Number(candle.high),
+      low: Number(candle.low),
       close: typeof candle.close === 'string' ? parseFloat(candle.close) : (candle.close as unknown as number),
-      volume: candle.volume,
+      volume: Number(candle.volume),
     };
 
+    // Update local 1m buffer used for aggregations and widgets
     setCandles1m(prev => {
       if (!prev.length) return [newCandle];
       const last = prev[prev.length - 1];
@@ -239,6 +246,35 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       if (merged.length > 200) merged.shift();
       return merged;
     });
+
+    // Bridge the update into the TradingView datafeed (if present), so the visible chart updates immediately
+    try {
+      if (typeof window !== 'undefined') {
+        const diag = (window as any).tvDiag;
+        const addr = (tokenAddress ?? '').toLowerCase();
+        const eventResolution = String((tf as any) ?? '1');
+        if (diag?.subs && diag.subs.size) {
+          diag.subs.forEach((sub: any) => {
+            if (sub.address === addr && String(sub.resolution) === eventResolution) {
+              const bar = {
+                time: newCandle.timestamp,
+                open: newCandle.open,
+                high: newCandle.high,
+                low: newCandle.low,
+                close: newCandle.close,
+                volume: newCandle.volume,
+              };
+              if (!Number.isFinite(bar.time) || !Number.isFinite(bar.close)) return;
+              sub.lastTs = bar.time;
+              sub.lastBar = bar;
+              try { sub.onRealtimeCallback(bar); } catch (e) { console.error('[TV bridge] onRealtimeCallback failed', e); }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('[TV bridge] failed to propagate realtime bar', e);
+    }
   };
 
   const { isConnected: wsConnected, connectionError: wsError } = useTokenWebSocket({
