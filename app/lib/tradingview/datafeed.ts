@@ -93,7 +93,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
     ws.on('connect', () => {
       L.log('WS connected', (ws as any).id);
       for (const [, sub] of diag.subs) {
-        try { (ws as any).emit('subscribe', { tokenAddress: sub.address, resolution: String(sub.resolution) }); } catch {}
+        try { (ws as any).emit('subscribe', sub.address); } catch {}
       }
     });
     ws.on('disconnect', (reason: any) => L.warn('WS disconnect', reason));
@@ -297,7 +297,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         ensureSocket();
         diag.subs.set(subscriberUID, { address: addr, resolution, onRealtimeCallback, lastTs: undefined });
         if (diag.socket?.connected) {
-          try { diag.socket.emit('subscribe', { tokenAddress: addr, resolution: String(resolution) }); } catch {}
+          try { diag.socket.emit('subscribe', addr); } catch {}
           S.log('WS subscribe sent', { addr, resolution: String(resolution) });
         } else {
           S.warn('WS not connected yet; will subscribe on connect');
@@ -315,7 +315,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
       try {
         const sub = diag.subs.get(subscriberUID);
         if (sub && diag.socket?.connected) {
-          try { diag.socket.emit('unsubscribe', { tokenAddress: sub.address, resolution: String(sub.resolution) }); } catch {}
+          try { diag.socket.emit('unsubscribe', sub.address); } catch {}
           U.log('WS unsubscribe sent', { address: sub.address, resolution: String(sub.resolution) });
         }
         diag.subs.delete(subscriberUID);

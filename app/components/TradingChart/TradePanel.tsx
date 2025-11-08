@@ -191,7 +191,16 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       }
     } catch (error) {
       const e = error as any;
-      const reason = e?.raw?.error?.reason || e?.raw?.error?.shortMessage || e?.raw?.error?.info?.error?.message || e?.message || 'Trade failed';
+      // Prefer the nested info.error.message from backend, then other fallbacks
+      const reason =
+        e?.raw?.error?.info?.error?.message ||
+        e?.info?.error?.message ||
+        e?.info?.message ||
+        e?.raw?.error?.shortMessage ||
+        e?.raw?.error?.revert?.args?.[0] ||
+        e?.raw?.error?.reason ||
+        e?.message ||
+        'Trade failed';
       showError(reason, `${action} failed`, 12000);
     }
   };
