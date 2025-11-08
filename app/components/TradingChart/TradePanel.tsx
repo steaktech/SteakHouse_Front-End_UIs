@@ -10,6 +10,7 @@ import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 import { useBalance } from 'wagmi';
 import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
+import { useTokenData } from '@/app/hooks/useTokenData';
 
 const WalletModal = dynamic(
   () => import('../Modals/WalletModal/WalletModal'),
@@ -82,6 +83,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
 
   // Load token position using shared api client and structured hook
   const { data: position, isLoading: loadingPosition, error: positionError } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
+  // Also load token data (for current price) independent of wallet
+  const { data: tokenData } = useTokenData(tokenAddress || null);
+  const currentPriceUsd = position?.lastPriceUsd ?? tokenData?.price ?? null;
 
   // Update activeTab when initialTab prop changes
   React.useEffect(() => {
@@ -233,20 +237,51 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
     }
   };
 
-  // Dynamic quick amounts - buy shows ETH amounts, sell shows percentages
-  const quickAmounts = activeTab === 'buy' ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'] : ['25%', '50%', '75%', '100%'];
+  // Dynamic quick amounts
+  // - Market BUY and Limit BUY: ETH presets
+  // - Market SELL: percentage of position (interpreted as % input)
+  // - Limit SELL: percentage of token balance (we will convert to token amount)
+  const quickAmounts = (activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy'))
+    ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
+    : ['25%', '50%', '75%', '100%'];
 
   const handleQuickAmount = (value: string) => {
+    const isBuyLike = activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy');
+
     if (value === 'Max') {
-      handleBuyMaxTx(); // Use the API to get actual max amount
-    } else if (activeTab === 'buy') {
+      // Uses backend limits to determine maximum ETH spend
+      handleBuyMaxTx();
+      return;
+    }
+
+    if (isBuyLike) {
+      // BUY (market) and BUY LIMIT use ETH amounts like "0.5 ETH"
       setAmount(value.split(' ')[0]);
-    } else {
-      // For sell mode, handle percentage values (placeholder logic)
-      if (value === '25%') setAmount('25');
-      else if (value === '50%') setAmount('50');
-      else if (value === '75%') setAmount('75');
-      else if (value === '100%') setAmount('100');
+      return;
+    }
+
+    // SELL paths use percentage presets
+    const pct = parseFloat(value.replace('%', ''));
+    if (isNaN(pct) || pct <= 0) return;
+
+    if (activeTab === 'sell') {
+      // Market SELL expects percentage directly in the input
+      setAmount(String(pct));
+      return;
+    }
+
+    if (activeTab === 'limit' && limitSide === 'sell') {
+      // Limit SELL expects token amount: convert % of token balance to tokens
+      const balance = position?.qtyTokens ?? 0;
+      if (!balance || balance <= 0) {
+        showError('Token balance unavailable for this wallet', 'Preset amount');
+        return;
+      }
+      const tokens = (balance * pct) / 100;
+      // Format with sensible precision and trim trailing zeros
+      const formatted = Number(tokens.toFixed(6)).toString();
+      setAmount(formatted);
+      return;
     }
   };
 
@@ -473,7 +508,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             marginBottom: '6px',
             textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
           }}>
-            Amount {(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '(ETH)' : activeTab === 'sell' ? '(%)' : ''}
+            Amount {
+              (activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy'))
+                ? '(ETH)'
+                : activeTab === 'sell'
+                  ? '(%)'
+                  : (activeTab === 'limit' && limitSide === 'sell')
+                    ? '(Tokens)'
+                    : ''
+            }
           </label>
           <div style={{
             position: 'relative',
@@ -990,9 +1033,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 <button
                   key={preset}
                   onClick={() => {
-                    const currentPrice = 21.50; // Mock current price
+                    const base = typeof currentPriceUsd === 'number' ? currentPriceUsd : Number(currentPriceUsd);
+                    if (!base || isNaN(base)) {
+                      showError('Current price unavailable', 'Quick price');
+                      return;
+                    }
                     const multiplier = 1 + parseFloat(preset.replace('%', '')) / 100;
-                    setLimitPrice((currentPrice * multiplier).toFixed(2));
+                    const next = base * multiplier;
+                    const decimals = base < 1 ? 6 : 2;
+                    setLimitPrice(next.toFixed(decimals));
                   }}
                   style={{
                     background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
