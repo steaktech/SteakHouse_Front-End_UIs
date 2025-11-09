@@ -25,7 +25,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(400px, 90vw);
+  /* Let the panel size to its content and still cap at viewport */
+  width: auto;
+  max-width: 90vw;
   max-height: 90vh;
   border-radius: 26px;
   overflow: hidden;
@@ -34,6 +36,10 @@
   padding: 0;
   box-sizing: border-box;
   z-index: 1000;
+  /* Center the card inside even if panel gets wider in media queries */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Close button */

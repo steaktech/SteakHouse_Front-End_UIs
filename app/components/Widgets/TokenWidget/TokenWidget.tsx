@@ -1,17 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X, Send, Globe, Copy, Check } from 'lucide-react';
+import { X, Copy, Check } from 'lucide-react';
 import styles from './TokenWidget.module.css';
+import cardStyles from '@/app/components/TradingChart/MobileStyleTokenCard.module.css';
 import { TokenWidgetProps, TokenData } from './types';
 import { useTokenData } from '@/app/hooks/useTokenData';
-
-// Twitter icon component
-const TwitterIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 1200 1227" fill="currentColor">
-    <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6902H306.615L611.412 515.685L658.88 583.579L1055.08 1150.31H892.476L569.165 687.854V687.828Z"/>
-  </svg>
-);
 
 // Demo token data matching the screenshot
 const defaultTokenData: TokenData = {
@@ -67,21 +61,9 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     }
   };
 
-  // Social button handlers
-  const handleTelegramClick = () => {
-    window.open('https://t.me/spaceman', '_blank');
-  };
 
-  const handleTwitterClick = () => {
-    window.open('https://twitter.com/spaceman', '_blank');
-  };
-
-  const handleWebsiteClick = () => {
-    window.open('https://spaceman.com', '_blank');
-  };
-
-  // Fetch live token data when tokenAddress is provided
-  const { data: apiTokenData } = useTokenData(tokenAddress ?? null, { interval: '1m', limit: 200 });
+// Fetch live token data when tokenAddress is provided
+  const { data: apiTokenData, isLoading } = useTokenData(tokenAddress ?? null, { interval: '1m', limit: 200 });
 
   // Copy token address handler with small animation
   const [copied, setCopied] = useState(false);
@@ -187,16 +169,17 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     }) + '%';
   };
 
-  const seedFlames = () => {
+const seedFlames = () => {
     if (!flamesRef.current || !fillRef.current) return;
     
     const w = fillRef.current.clientWidth || 1;
-    const FLAME_COUNT = 16;
+    const FLAME_COUNT = 14;
+    const FLAME_WIDTH = 18;
     
-    const existingFlames = flamesRef.current.querySelectorAll(`.${styles.flame}`);
+    const existingFlames = flamesRef.current.querySelectorAll(`.${cardStyles.flame}`);
     if (existingFlames.length === FLAME_COUNT && w > 0) {
       existingFlames.forEach((flame, i) => {
-        const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - 26);
+        const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - FLAME_WIDTH);
         (flame as HTMLElement).style.left = `${left}px`;
       });
       return;
@@ -206,8 +189,8 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     
     for (let i = 0; i < FLAME_COUNT; i++) {
       const flame = document.createElement('span');
-      flame.className = styles.flame;
-      const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - 26);
+      flame.className = cardStyles.flame;
+      const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - FLAME_WIDTH);
       flame.style.left = `${left}px`;
       flame.style.animationDuration = `${900 + Math.random() * 700}ms`;
       flame.style.animationDelay = `${-Math.random() * 900}ms`;
@@ -216,14 +199,14 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     }
   };
 
-  const startSparks = () => {
+const startSparks = () => {
     stopSparks();
     sparkTimer.current = setInterval(() => {
       if (!fillRef.current) return;
-      if (document.querySelectorAll(`.${styles.spark}`).length > 40) return;
+      if (document.querySelectorAll(`.${cardStyles.spark}`).length > 40) return;
       
       const spark = document.createElement('span');
-      spark.className = styles.spark;
+      spark.className = cardStyles.spark;
       const w = fillRef.current.clientWidth;
       const maxLeft = Math.max(0, w - 8);
 
@@ -296,9 +279,19 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     animationFrameRef.current = requestAnimationFrame(frame);
   };
 
-  // Initialize progress bar animation on mount and when progress changes
+// Initialize progress bar animation on mount and when progress changes
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // While loading, stop animations and skip progress update
+    if (isLoading) {
+      stopSparks();
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      return;
+    }
     
     setProgress(0);
     seedFlames();
@@ -319,7 +312,7 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
         animationFrameRef.current = null;
       }
     };
-  }, [resolved.bondingProgress]);
+  }, [resolved.bondingProgress, isLoading]);
 
   return (
     <div 
@@ -357,115 +350,164 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
             zIndex: 10000
           }}
         >
-          {/* Close button */}
-          <button 
-            className={styles.closeBtn}
-            onClick={onClose}
-            aria-label="Close token widget"
-          >
-            <X size={16} />
-          </button>
-
-          {/* Token card structure - now with API-backed data mapping */}
-          <article className={styles.tokenCard} role="article" aria-label={`${resolved.name} token card`}>
-            {/* Token banner */}
-            <div 
-              className={styles.tokenBanner} 
-              aria-hidden="true"
-              style={bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : undefined}
+{/* Token card structure with loading skeleton */}
+          {tokenAddress && isLoading ? (
+<article
+              className={cardStyles.compactCard}
+              role="article"
+              aria-busy="true"
+              aria-label="Loading token data"
+              style={{ width: 'min(92vw, 352px)', maxWidth: 352, minHeight: 'min(80vh, 360px)' }}
             >
-              <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
-              <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
-            </div>
+              {/* Close button anchored to the card */}
+              <button 
+                className={styles.closeBtn}
+                onClick={onClose}
+                aria-label="Close token widget"
+              >
+                <X size={16} />
+              </button>
 
-            {/* Identity row */}
-            <header className={styles.header}>
-              <div className={styles.identity}>
-                <div className={styles.avatar}>
-                  {resolved.logo ? (
-                    <img src={resolved.logo} alt={`${resolved.name} logo`} className={styles.avatarImage} />
-                  ) : (
-                    <div className={styles.avatarFallback} aria-hidden="true">{resolved.symbol?.[0] ?? '?'}</div>
-                  )}
-                </div>
-                <div className={styles.nameBlock}>
-                  <h1 className={styles.name}>{resolved.name}</h1>
-                  <div className={styles.tickerRow}>
-                    <div className={styles.ticker}>{resolved.symbol}</div>
-                    <nav className={styles.socialsTop} aria-label="Social links">
-                      <button className={`${styles.socialBtn} ${styles.tg}`} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram">
-                        <Send size={16} />
-                      </button>
-                      <button className={`${styles.socialBtn} ${styles.x}`} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X">
-                        <TwitterIcon />
-                      </button>
-                      <button className={`${styles.socialBtn} ${styles.web}`} onClick={handleWebsiteClick} aria-label="Website" title="Website">
-                        <Globe size={16} />
-                      </button>
-                    </nav>
+              {/* Skeleton Banner */}
+              <div
+                className={`${cardStyles.compactBanner} ${cardStyles.skeleton}`}
+                aria-hidden="true"
+                style={{ position: 'relative' }}
+              />
+
+              {/* Skeleton Header */}
+              <header className={cardStyles.compactHeader}>
+                <div className={cardStyles.identity}>
+                  <div className={`${cardStyles.avatar} ${cardStyles.skeleton}`}></div>
+                  <div className={cardStyles.nameBlock}>
+                    <div className={cardStyles.skeletonText} style={{ width: '60%', height: '14px' }}></div>
+                    <div className="tickerRow" style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div className={`${cardStyles.skeletonChip}`} style={{ width: 60 }}></div>
+                      <div className={`${cardStyles.skeletonChip}`} style={{ width: 28 }}></div>
+                      <div className={`${cardStyles.skeletonChip}`} style={{ width: 28 }}></div>
+                    </div>
                   </div>
                 </div>
-              </div>
+                <div className={cardStyles.skeletonBadge}></div>
+              </header>
 
-              <div className={styles.badgeRow}>
-                <div className={styles.badge}>{resolved.tag}</div>
-                <button
-                  className={`${styles.copyTokenBtn} ${copied ? styles.copied : ''}`}
-                  onClick={handleCopyToken}
-                  aria-label={copied ? 'Copied token address' : 'Copy token address'}
-                  title={copied ? 'Copied!' : 'Copy token address to clipboard'}
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                </button>
-              </div>
-            </header>
-
-            <section className={styles.taxLine}>
-              <div className={styles.taxStrong}>Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</div>
-              <div className={styles.taxChips}>
-                <span className={styles.chip}>Current Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</span>
-                <span className={styles.chip}>MaxTX: {resolved.maxTransaction}%</span>
-              </div>
-            </section>
-
-            <p className={styles.desc}>
-              {resolved.description}
-            </p>
-
-            {/* Bottom panel: stats row + searing progress bar */}
-            <section className={styles.score}>
-              <div className={styles.scoreStats} aria-label="Token stats">
-                <div className={styles.stat}>
-                  <div className={styles.statLabel}>MCAP</div>
-                  <div className={styles.statValue}>{resolved.marketCap}</div>
+              {/* Skeleton Tax Line */}
+              <section className={cardStyles.taxLine}>
+                <div className={cardStyles.skeletonText} style={{ width: '40%', height: '12px' }}></div>
+                <div className={cardStyles.taxChips}>
+                  <span className={cardStyles.skeletonChip} style={{ width: 100 }}></span>
+                  <span className={cardStyles.skeletonChip} style={{ width: 80 }}></span>
                 </div>
-                <div className={styles.stat}>
-                  <div className={styles.statLabel}>VOLUME</div>
-                  <div className={styles.statValue}>{resolved.volume}</div>
-                </div>
-                <div className={styles.stat}>
-                  <div className={styles.statLabel}>LP</div>
-                  <div className={styles.statValue}>{resolved.liquidityPool}</div>
-                </div>
-              </div>
+              </section>
 
-              {/* Searing progress bar */}
-              <div
-                ref={trackRef}
-                className={styles.track}
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={0}
+              {/* Skeleton Description */}
+              <div className={cardStyles.skeletonText} style={{ width: '100%', height: '14px', margin: '4px 0 6px' }}></div>
+
+              {/* Skeleton Stats + Progress Bar */}
+              <section className={cardStyles.score}>
+                <div className={cardStyles.scoreStats} style={{ gap: '5px', marginBottom: '5px' }}>
+                  <div className={cardStyles.skeletonStat}></div>
+                  <div className={cardStyles.skeletonStat}></div>
+                  <div className={cardStyles.skeletonStat}></div>
+                </div>
+                <div className={cardStyles.track} aria-hidden="true">
+                  <div className={`${cardStyles.skeletonBar}`}></div>
+                </div>
+              </section>
+            </article>
+          ) : (
+<article className={cardStyles.compactCard} role="article" aria-label={`${resolved.name} token card`} style={{ width: 'min(92vw, 352px)', maxWidth: 352, minHeight: 'min(80vh, 360px)' }}>
+              {/* Close button anchored to the card */}
+              <button 
+                className={styles.closeBtn}
+                onClick={onClose}
+                aria-label="Close token widget"
               >
-                <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
-                  <div ref={labelRef} className={styles.label}>0%</div>
-                  <div ref={flamesRef} className={styles.flames}></div>
-                  <div className={styles.heat} aria-hidden="true"></div>
-                </div>
+                <X size={16} />
+              </button>
+              {/* Token banner */}
+              <div
+                className={cardStyles.compactBanner}
+                aria-hidden="true"
+                style={{
+                  position: 'relative',
+                  ...(bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : {})
+                }}
+              >
+                <div className={`${cardStyles.bannerLayer} ${cardStyles.gradient}`} style={{ pointerEvents: 'none', zIndex: 1 }}></div>
+                <div className={`${cardStyles.bannerLayer} ${cardStyles.innerBevel}`} style={{ pointerEvents: 'none', zIndex: 2 }}></div>
               </div>
-            </section>
-          </article>
+
+              {/* Header: tax + tag + copy */}
+              <header className={cardStyles.compactHeader}>
+                <div className={cardStyles.identity}>
+                  <div className={cardStyles.taxStrong}>Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</div>
+                </div>
+
+                <div className={cardStyles.badgeRow}>
+                  <div className={cardStyles.badge}>{resolved.tag}</div>
+                  <button
+                    className={`${cardStyles.copyTokenBtn} ${copied ? cardStyles.copied : ''}`}
+                    onClick={handleCopyToken}
+                    aria-label={copied ? 'Copied token address' : 'Copy token address'}
+                    title={copied ? 'Copied!' : 'Copy token address to clipboard'}
+                  >
+                    <span className={cardStyles.copyLabel}>CA</span>
+                    {copied ? <Check size={12} /> : <Copy size={12} />}
+                  </button>
+                </div>
+              </header>
+
+              {/* Tax chips line */}
+              <section className={cardStyles.taxLine}>
+                <div className={cardStyles.taxChips}>
+                  <span className="chip">Current Tax: {resolved.currentTax.buy}/{resolved.currentTax.sell}</span>
+                </div>
+                <div className={cardStyles.taxChips}>
+                  <span className="chip">MaxTX: {resolved.maxTransaction >= 100 ? '100%+' : `${resolved.maxTransaction}%`}</span>
+                </div>
+              </section>
+
+              {/* Description */}
+              <div>
+                <p className={cardStyles.desc}>{resolved.description}</p>
+              </div>
+
+              {/* Bottom panel: stats row + searing progress bar */}
+              <section className={cardStyles.score}>
+                <div className={cardStyles.scoreStats} aria-label="Token stats">
+                  <div className="stat">
+                    <div className="statLabel">MCAP</div>
+                    <div className="statValue">{resolved.marketCap}</div>
+                  </div>
+                  <div className="stat">
+                    <div className="statLabel">VOLUME</div>
+                    <div className="statValue">{resolved.volume}</div>
+                  </div>
+                  <div className="stat">
+                    <div className="statLabel">LP</div>
+                    <div className="statValue">{resolved.liquidityPool}</div>
+                  </div>
+                </div>
+
+                {/* Searing progress bar */}
+                <div
+                  ref={trackRef}
+                  className={cardStyles.track}
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={0}
+                >
+                  <div ref={fillRef} className={cardStyles.fill} style={{ width: '0%' }}>
+                    <div ref={labelRef} className={cardStyles.label}>0%</div>
+                    <div ref={flamesRef} className={cardStyles.flames}></div>
+                    <div className={cardStyles.heat} aria-hidden="true"></div>
+                  </div>
+                </div>
+              </section>
+            </article>
+          )}
         </div>
       </div>
     </div>
