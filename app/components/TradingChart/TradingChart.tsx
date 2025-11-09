@@ -116,6 +116,14 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Always fetch 1m base candles and token info; aggregate to other timeframes locally for live updates
   const { data: apiTokenData, isLoading, error, refetch } = useTokenData(tokenAddress, { interval: '1m', limit: 200 });
 
+  // Force refetch when token address changes to ensure fresh trade data
+  useEffect(() => {
+    if (tokenAddress && refetch) {
+      console.log('[TradingChart] Token address changed, forcing refetch:', tokenAddress);
+      refetch();
+    }
+  }, [tokenAddress]); // Don't include refetch in deps to avoid infinite loop
+
   // Set brand colors to match token palette if available
   useEffect(() => {
     const autoBrand = apiTokenData?.tokenInfo?.auto_brand ?? false;
@@ -168,11 +176,27 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Seed local state from API on load/change
   useEffect(() => {
     if (!apiTokenData) return;
+    
+    console.log('[TradingChart] API data received:', {
+      hasCandles: Array.isArray(apiTokenData.candles),
+      candlesCount: apiTokenData.candles?.length,
+      hasRecentTrades: Array.isArray(apiTokenData.recentTrades),
+      recentTradesCount: apiTokenData.recentTrades?.length,
+      hasTrades: Array.isArray((apiTokenData as any).trades),
+      tradesCount: (apiTokenData as any).trades?.length,
+      tokenInfo: apiTokenData.tokenInfo?.symbol
+    });
+    
     if (Array.isArray(apiTokenData.candles)) {
       setCandles1m(apiTokenData.candles);
     }
-    if (Array.isArray(apiTokenData.recentTrades)) {
-      setTrades(apiTokenData.recentTrades);
+    // Handle both 'recentTrades' and 'trades' for backward compatibility
+    const tradesArray = (apiTokenData as any).recentTrades || (apiTokenData as any).trades;
+    if (Array.isArray(tradesArray)) {
+      console.log('[TradingChart] Setting trades:', tradesArray.length, 'trades');
+      setTrades(tradesArray);
+    } else {
+      console.warn('[TradingChart] No trades found in API response');
     }
   }, [apiTokenData]);
 

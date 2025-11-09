@@ -158,9 +158,12 @@ export interface FullTokenDataResponse {
   price: number;
   marketCap: number;
   lastTrade: Trade;
-  recentTrades: Trade[];
+  recentTrades: Trade[];  // Primary field name
+  trades?: Trade[];        // Alternative field name for backward compatibility
   candles: Candle[];
   interval: string;
+  timeframe?: string;      // Alternative field name for interval
+  lastPrice?: number;      // Alternative field name for price
 }
 
 // WebSocket Event Types
