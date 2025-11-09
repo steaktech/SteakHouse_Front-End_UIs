@@ -4,7 +4,10 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
-import { getMaxTxInfo, extractEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { getMaxTxInfo, extractEthToCurve, getMaxWalletInfo, extractMaxWalletEthToCurve } from '@/app/lib/api/services/blockchainService';
+import { createLimitOrder } from '@/app/lib/api/services/ordersService';
+import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
+import { useTokenData } from '@/app/hooks/useTokenData';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 
@@ -41,6 +44,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
+  const [isPlacingLimit, setIsPlacingLimit] = useState(false);
   // Slippage tolerance (%)
   const [slippagePct, setSlippagePct] = useState<string>(() => {
     if (typeof window === 'undefined') return '1';
@@ -60,6 +64,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
+  const [isLoadingMaxWallet, setIsLoadingMaxWallet] = useState(false);
   const [isToppingUp, setIsToppingUp] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
 
@@ -67,6 +72,12 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   React.useEffect(() => {
     try { if (typeof window !== 'undefined') window.localStorage.setItem('trade.slippagePct', slippagePct || ''); } catch {}
   }, [slippagePct]);
+
+  // Resolve trading wallet and token state for helpers
+  const tradingWalletAddress = tradingState?.tradingWallet || null;
+  const { data: position } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
+  const { data: tokenData } = useTokenData(tokenAddress || null);
+  const currentPriceUsd = position?.lastPriceUsd ?? tokenData?.price ?? null;
 
   // Show top-up suggestion when trading wallet has insufficient funds
   React.useEffect(() => {
@@ -115,18 +126,26 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
       } else {
         setAmount(value.split(' ')[0]);
       }
-    } else {
-      // For sell mode, handle percentage values
-      if (value === '25%') {
-        setAmount('25');
-      } else if (value === '50%') {
-        setAmount('50');
-      } else if (value === '75%') {
-        setAmount('75');
-      } else if (value === '100%') {
-        setAmount('100');
-      }
+      return;
     }
+    // SELL paths
+    if (tradeType === 'market') {
+      // Market SELL expects percentage directly
+      const pct = value.replace('%', '');
+      setAmount(pct);
+      return;
+    }
+    // Limit SELL expects token amount: convert % of token balance
+    const pctNum = parseFloat(value.replace('%', ''));
+    if (isNaN(pctNum) || pctNum <= 0) return;
+    const balance = position?.qtyTokens ?? 0;
+    if (!balance || balance <= 0) {
+      showError('Token balance unavailable for this wallet', 'Preset amount');
+      return;
+    }
+    const tokens = (balance * pctNum) / 100;
+    const formatted = Number(tokens.toFixed(6)).toString();
+    setAmount(formatted);
   };
 
   const handleConfirmTrade = async () => {
@@ -160,7 +179,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
       }
     } catch (error) {
       const e = error as any;
-      const reason = e?.raw?.error?.reason || e?.raw?.error?.shortMessage || e?.raw?.error?.info?.error?.message || e?.message || 'Trade failed';
+      const reason =
+        e?.raw?.error?.info?.error?.message ||
+        e?.info?.error?.message ||
+        e?.info?.message ||
+        e?.raw?.error?.shortMessage ||
+        e?.raw?.error?.revert?.args?.[0] ||
+        e?.raw?.error?.reason ||
+        e?.message ||
+        'Trade failed';
       showError(reason, `${action} failed`, 12000);
     }
   };
@@ -192,15 +219,61 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
     }
   };
 
-  const handleSubmit = () => {
+  // Set max wallet handler (ETH spend for buy)
+  const handleSetMaxWallet = async () => {
+    if (!tokenAddress) {
+      showError('No token selected for trading', 'Set Max Wallet');
+      return;
+    }
+    setIsLoadingMaxWallet(true);
+    try {
+      const maxWalletData = await getMaxWalletInfo(tokenAddress);
+      const ethToCurve = extractMaxWalletEthToCurve(maxWalletData);
+      if (ethToCurve) {
+        setAmount(ethToCurve);
+        showSuccess(`Max wallet amount set: ${ethToCurve} ETH`, 'Set Max Wallet');
+      } else {
+        showError('Max wallet data not available for this token', 'Set Max Wallet Failed');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch max wallet data';
+      showError(errorMessage, 'Set Max Wallet Failed');
+    } finally {
+      setIsLoadingMaxWallet(false);
+    }
+  };
+
+  const handleSubmit = async () => {
     if (tradeType === 'market') {
       // Use the same trade execution as desktop
-      void handleConfirmTrade();
-    } else {
-      // Placeholder for limit orders
-      if (limitPrice) {
-        console.log(`${orderType.toUpperCase()} Limit Order: ${amount} tokens at $${limitPrice}`);
-      }
+      await handleConfirmTrade();
+      return;
+    }
+    // Limit orders
+    const price = parseFloat(limitPrice || '0');
+    const amt = parseFloat(amount || '0');
+    if (!tokenAddress) { showError('No token selected for trading', 'Limit Order'); return; }
+    if (!isConnected) { setIsWalletModalOpen(true); return; }
+    if (!price || price <= 0) { showError('Enter a valid limit price', 'Limit Order'); return; }
+    if (!amt || amt <= 0) { showError('Enter a valid amount', 'Limit Order'); return; }
+    if (!tradingWalletAddress) { showError('Trading wallet not set up', 'Limit Order'); return; }
+    try {
+      setIsPlacingLimit(true);
+      const resp = await createLimitOrder({
+        tokenAddress: tokenAddress,
+        walletAddress: tradingWalletAddress,
+        side: orderType,
+        limitPriceUsd: price,
+        amountTokens: amt, // API expects tokens for sell, ETH for buy
+      });
+      const msg = resp?.message || 'Limit order placed';
+      showSuccess(msg, 'Limit Order');
+      setLimitPrice('');
+    } catch (e: any) {
+      const errMsg = e?.message || 'Failed to place limit order';
+      showError(errMsg, 'Limit Order');
+    } finally {
+      setIsPlacingLimit(false);
     }
   };
 
@@ -349,7 +422,10 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             opacity: isLoadingMaxTx ? 0.5 : 1
           }}>{isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}</button>
 
-          <button style={{
+          <button 
+            onClick={handleSetMaxWallet}
+            disabled={isLoadingMaxWallet}
+            style={{
             background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
             border: '1px solid rgba(255, 210, 160, 0.4)',
             borderRadius: '8px',
@@ -358,13 +434,14 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             color: '#feea88',
             fontSize: '8px',
             fontWeight: 800,
-            cursor: 'pointer',
+            cursor: isLoadingMaxWallet ? 'not-allowed' : 'pointer',
             transition: 'all 200ms ease',
             flex: 1,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>Buy max wallet</button>
+            textOverflow: 'ellipsis',
+            opacity: isLoadingMaxWallet ? 0.5 : 1
+          }}>{isLoadingMaxWallet ? 'Loading...' : 'Buy max wallet'}</button>
         </div>
 
         {/* Amount Input */}
@@ -586,9 +663,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
                 <button
                   key={preset}
                   onClick={() => {
-                    const currentPrice = 21.50; // Mock current price
+                    const base = typeof currentPriceUsd === 'number' ? currentPriceUsd : Number(currentPriceUsd);
+                    if (!base || isNaN(base)) {
+                      showError('Current price unavailable', 'Quick price');
+                      return;
+                    }
                     const multiplier = 1 + parseFloat(preset.replace('%', '')) / 100;
-                    setLimitPrice((currentPrice * multiplier).toFixed(2));
+                    const next = base * multiplier;
+                    const decimals = base < 1 ? 6 : 2;
+                    setLimitPrice(next.toFixed(decimals));
                   }}
                   style={{
                     background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -617,7 +700,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
           disabled={
             tradeType === 'market'
               ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady))
-              : !limitPrice
+              : (isPlacingLimit || !limitPrice)
           }
           style={{
             width: '100%',
@@ -641,7 +724,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             cursor: (
               tradeType === 'market'
                 ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 'not-allowed' : 'pointer'
-                : (limitPrice ? 'pointer' : 'not-allowed')
+                : ((isPlacingLimit || !limitPrice) ? 'not-allowed' : 'pointer')
             ),
             transition: 'all 200ms ease',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -653,7 +736,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             opacity: (
               tradeType === 'market'
                 ? ((isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1)
-                : (limitPrice ? 1 : 0.6)
+                : ((isPlacingLimit || !limitPrice) ? 0.6 : 1)
             )
           }}
           onMouseEnter={(e) => {
@@ -671,12 +754,12 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
             target.style.transform = 'translateY(0)';
             target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
           }}
-        >
+          >
           {tradeType === 'market'
             ? (!isConnected 
                 ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
                 : (tradingState?.isTrading ? `${orderType.toUpperCase()}ING...` : `CONFIRM ${orderType.toUpperCase()} TRADE`))
-            : `PLACE ${orderType.toUpperCase()} LIMIT ORDER`}
+            : (isPlacingLimit ? `PLACING ${orderType.toUpperCase()}...` : `PLACE ${orderType.toUpperCase()} LIMIT ORDER`)}
         </button>
         {/* Wallet & Top-Up Modals */}
         <WalletModal
