@@ -252,7 +252,27 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       if (typeof window !== 'undefined') {
         const diag = (window as any).tvDiag;
         const addr = (tokenAddress ?? '').toLowerCase();
-        const eventResolution = String((tf as any) ?? '1');
+        const eventResolution = (() => {
+          const s = String((tf as any) ?? '1');
+          switch (s.toLowerCase()) {
+            case '1':
+            case '5':
+            case '15':
+            case '60':
+            case '240':
+            case '1440':
+              return s;
+            case '1m': return '1';
+            case '5m': return '5';
+            case '15m': return '15';
+            case '1h': return '60';
+            case '4h': return '240';
+            case '1d':
+            case '1day':
+            case '24h': return '1440';
+            default: return s;
+          }
+        })();
         if (diag?.subs && diag.subs.size) {
           diag.subs.forEach((sub: any) => {
             if (sub.address === addr && String(sub.resolution) === eventResolution) {

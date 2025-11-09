@@ -115,7 +115,28 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
       };
       if (!Number.isFinite(bar.time) || !Number.isFinite(bar.close)) return;
 
-      const eventResolution = String(msg?.resolution ?? msg?.timeframe ?? '1');
+      const eventResolution = (() => {
+        const val = msg?.resolution ?? msg?.timeframe ?? '1';
+        const s = String(val);
+        switch (s.toLowerCase()) {
+          case '1':
+          case '5':
+          case '15':
+          case '60':
+          case '240':
+          case '1440':
+            return s;
+          case '1m': return '1';
+          case '5m': return '5';
+          case '15m': return '15';
+          case '1h': return '60';
+          case '4h': return '240';
+          case '1d':
+          case '1day':
+          case '24h': return '1440';
+          default: return s;
+        }
+      })();
 
       for (const [uid, sub] of diag.subs) {
         if (sub.address !== addr) continue;
