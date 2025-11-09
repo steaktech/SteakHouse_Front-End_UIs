@@ -6,6 +6,7 @@ import { simulateGradCap } from '@/app/lib/api/services/gradCapService';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+import { useToastHelpers } from '@/app/hooks/useToast';
 
 interface Step6ReviewConfirmProps {
   state: TokenState;
@@ -28,7 +29,11 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   // Wallet / Top up modal state
   const { isConnected, connect, balanceFormatted } = useWallet();
   const { tradingState, topUpTradingWallet } = useTrading();
+  const { showError, showSuccess, showInfo } = useToastHelpers();
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
+  const [topUpDefaultAmount, setTopUpDefaultAmount] = useState<string>('');
+  const [isQuickTopUpPending, setIsQuickTopUpPending] = useState(false);
+  const [pendingTopUpHash, setPendingTopUpHash] = useState<string | null>(null);
 
   // Format big integer wei to human tokens (18 decimals)
   const formatUnits = (wei?: string, decimals: number = 18) => {
@@ -384,6 +389,69 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const abiPreview = generateAbiPreview();
   const palette = autoBrandingPreview();
 
+  // Handle quick preset top-ups (trigger wallet popup, then wait for confirmation)
+  const handleQuickPresetTopUp = async (amt: string) => {
+    if (!isConnected) {
+      try { await connect(); } catch {}
+      return;
+    }
+    if (!tradingState?.tradingWallet) {
+      showError('Trading wallet is not available.', 'Top up');
+      return;
+    }
+    try {
+      setIsQuickTopUpPending(true);
+      const hash = await topUpTradingWallet(amt);
+      if (!hash) {
+        const msg = tradingState?.error || 'Transaction rejected or failed to submit.';
+        showError(msg, 'Top up');
+        setIsQuickTopUpPending(false);
+        return;
+      }
+      setPendingTopUpHash(hash);
+      showInfo(`Top up submitted. Waiting for confirmation...`, 'Top up', 8000);
+    } catch (e: any) {
+      const msg = e?.message || 'Failed to top up';
+      showError(msg, 'Top up failed', 12000);
+      setIsQuickTopUpPending(false);
+    }
+  };
+
+  // Poll for confirmation when we have a pending tx hash
+  useEffect(() => {
+    if (!pendingTopUpHash) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const provider: any = (typeof window !== 'undefined') ? (window as any).ethereum : null;
+        if (!provider) {
+          // If no provider, stop and mark as not pending
+          setIsQuickTopUpPending(false);
+          return;
+        }
+        const receipt = await provider.request({ method: 'eth_getTransactionReceipt', params: [pendingTopUpHash] });
+        if (receipt) {
+          const status = receipt?.status;
+          const ok = status === '0x1' || status === 1 || status === true;
+          const short = `${pendingTopUpHash.slice(0, 10)}...${pendingTopUpHash.slice(-6)}`;
+          if (ok) {
+            showSuccess(`Top up confirmed. Tx: ${short}`, 'Top up', 10000);
+          } else {
+            showError('Top up failed on-chain.', 'Top up failed', 12000);
+          }
+          setPendingTopUpHash(null);
+          setIsQuickTopUpPending(false);
+          return;
+        }
+      } catch (e) {
+        // Ignore intermittent RPC errors and keep polling
+      }
+      if (!cancelled) setTimeout(poll, 3000);
+    };
+    poll();
+    return () => { cancelled = true; };
+  }, [pendingTopUpHash, showSuccess, showError]);
+
   // Compute minimal required ETH (creation fee + small gas buffer)
   const configuredCreation = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
   const minByProfile = state.profile === 'ZERO' ? 0.0005
@@ -443,6 +511,38 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
       )}
 
       <div className={styles.footerNav}>
+        {/* Buy supply quick bar (replaces generic Top Up) */}
+        {isConnected && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div className={styles.labelWithTooltip} style={{ margin: 0 }}>
+              Buy some supply <span title="Send a small amount of ETH to your trading wallet to buy initial supply.">ⓘ</span>
+            </div>
+            <div className={styles.segmented} role="group" aria-label="Buy supply presets" style={isQuickTopUpPending ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
+              {['0.05','0.1','0.25','0.5'].map((amt) => (
+                <div
+                  key={amt}
+                  className={styles.segment}
+                  onClick={() => { void handleQuickPresetTopUp(amt); }}
+                >
+                  {amt} ETH
+                </div>
+              ))}
+              <div
+                className={styles.segment}
+                onClick={() => { setTopUpDefaultAmount(''); setIsTopUpOpen(true); }}
+              >
+                Custom Amt
+              </div>
+            </div>
+            {isQuickTopUpPending && (
+              <div className={styles.pill} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span className={styles.loadingSpinner} />
+                Waiting for confirmation…
+              </div>
+            )}
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           {!isConnected ? (
             <button
@@ -453,12 +553,6 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
             </button>
           ) : (
             <>
-              <button
-                className={`${styles.btn} ${styles.navButton}`}
-                onClick={() => setIsTopUpOpen(true)}
-              >
-                Top Up
-              </button>
               <button
                 className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
                 disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei || !hasEnoughForCreation}
@@ -510,7 +604,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         isOpen={isTopUpOpen}
         onClose={() => setIsTopUpOpen(false)}
         tradingWallet={tradingState?.tradingWallet}
-        defaultAmountEth={tradingState?.topUpSuggestionEth || ''}
+        defaultAmountEth={topUpDefaultAmount || tradingState?.topUpSuggestionEth || ''}
         onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
       />
     </div>

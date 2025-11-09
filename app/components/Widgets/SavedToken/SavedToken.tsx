@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bookmark, Search, X, Trash2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Bookmark, X, Trash2 } from 'lucide-react';
 import styles from './SavedToken.module.css';
 import { SavedTokenData, SavedTokenWidgetProps, SavedTokenWidgetState } from './types';
 import { useWallet } from '@/app/hooks/useWallet';
@@ -9,54 +10,7 @@ import { fetchSavedTokens, SavedTokenApiItem, removeSavedToken } from '@/app/lib
 import { DEFAULT_TOKEN_IMAGE } from '@/app/lib/config/constants';
 import { useChainId, useChains } from 'wagmi';
 
-// Demo data for saved tokens
-const demoSavedTokens: SavedTokenData[] = [
-  {
-    id: '1',
-    name: 'Amber Launch',
-    symbol: 'AMBR',
-    address: '0xA3bC4D5E6f78901234567890aBCDeF1234567890',
-    chain: 'EVM',
-    priceUSD: 0.0567,
-    savedAt: new Date('2024-01-15T10:30:00Z'),
-  },
-  {
-    id: '2',
-    name: 'Bitcoin',
-    symbol: 'BTC',
-    address: '0x1234567890abcdef1234567890abcdef12345678',
-    chain: 'Bitcoin',
-    priceUSD: 45230.45,
-    savedAt: new Date('2024-01-14T15:20:00Z'),
-  },
-  {
-    id: '3',
-    name: 'Ethereum',
-    symbol: 'ETH',
-    address: '0xabcdef1234567890abcdef1234567890abcdef12',
-    chain: 'EVM',
-    priceUSD: 2890.75,
-    savedAt: new Date('2024-01-13T09:45:00Z'),
-  },
-  {
-    id: '4',
-    name: 'Solana Meme Token',
-    symbol: 'SMT',
-    address: '0xfedcba0987654321fedcba0987654321fedcba09',
-    chain: 'Solana',
-    priceUSD: 0.0123,
-    savedAt: new Date('2024-01-12T14:15:00Z'),
-  },
-  {
-    id: '5',
-    name: 'Dogecoin',
-    symbol: 'DOGE',
-    address: '0x5555555555555555555555555555555555555555',
-    chain: 'EVM',
-    priceUSD: 0.0825,
-    savedAt: new Date('2024-01-11T11:30:00Z'),
-  },
-];
+const WalletModal = dynamic(() => import('../../Modals/WalletModal/WalletModal'), { ssr: false });
 
 // Utility functions
 const USD = new Intl.NumberFormat("en-US", {
@@ -78,8 +32,7 @@ const getTokenInitials = (symbol: string): string => {
 
 export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({ 
   isOpen, 
-  onClose, 
-  data 
+  onClose 
 }) => {
   const [state, setState] = useState<SavedTokenWidgetState>({
     searchQuery: "",
@@ -92,6 +45,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const { address, isConnected } = useWallet();
 
   // Active chain from wagmi config
@@ -99,7 +53,7 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
   const chains = useChains();
   const activeChain = chains.find((c) => c.id === chainId);
 
-  // Load from API when widget opens and wallet connected; fall back to provided data or demo
+  // Load from API when widget opens and wallet is connected
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -121,19 +75,19 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
           }));
           setSavedTokens(mapped);
         } else {
-          setSavedTokens(data || demoSavedTokens);
+          setSavedTokens([]);
         }
       } catch (e: any) {
         console.error('Failed to load saved tokens:', e);
         setError(e?.message || 'Failed to load saved tokens');
-        setSavedTokens(data || demoSavedTokens);
+        setSavedTokens([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     load();
     return () => { cancelled = true; };
-  }, [isOpen, isConnected, address, data]);
+  }, [isOpen, isConnected, address]);
 
   // Apply filters and sorting
   const applyFiltersAndSort = useCallback(() => {
@@ -276,96 +230,124 @@ export const SavedTokenWidget: React.FC<SavedTokenWidgetProps> = ({
         </header>
 
         <div className={styles.body}>
-          {/* Search Controls */}
-          <div className={styles.controls}>
-            <div className={styles.searchField}>
-              <label htmlFor="saved-search">Search tokens</label>
-              <input
-                id="saved-search"
-                type="text"
-                placeholder="Search by name, symbol, or address..."
-                value={state.searchQuery}
-                onChange={handleSearch}
-              />
-            </div>
-          </div>
-
-          {/* Token List */}
-          {loading ? (
+          {!isConnected ? (
             <div className={styles.emptyState}>
-              <div className={styles.emptyTitle}>Loading…</div>
-            </div>
-          ) : error ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyTitle}>Failed to load saved tokens</div>
-              <div className={styles.emptyMessage}>{error}</div>
-            </div>
-          ) : filteredTokens.length === 0 ? (
-            renderEmptyState()
-          ) : (
-            <div className={styles.tokenList}>
-              {filteredTokens.map((token) => (
-                <div
-                  key={token.id}
-                  className={styles.tokenItem}
-                  onClick={() => handleTokenClick(token)}
+              <div className={styles.emptyIcon}>
+                <Bookmark size={24} />
+              </div>
+              <div className={styles.emptyTitle}>Connect your wallet</div>
+              <div className={styles.emptyMessage}>
+                Connect to view and manage your saved tokens.
+              </div>
+              <div className={styles.walletCta}>
+                <button
+                  className={styles.primary}
+                  onClick={() => setIsWalletModalOpen(true)}
+                  type="button"
                 >
-                  {/* Token Image/Placeholder */}
-                  <div className={styles.tokenImage}>
-                    {token.imageUrl ? (
-                      <img
-                        src={token.imageUrl}
-                        alt={token.symbol}
-                        onError={(e) => {
-                          const img = e.currentTarget as HTMLImageElement;
-                          if (img.src !== DEFAULT_TOKEN_IMAGE) {
-                            img.src = DEFAULT_TOKEN_IMAGE;
-                          }
-                        }}
-                      />
-                    ) : (
-                      getTokenInitials(token.symbol)
-                    )}
-                  </div>
-
-                  {/* Token Info */}
-                  <div className={styles.tokenInfo}>
-                    <div className={styles.tokenName}>{token.name}</div>
-                    <div className={styles.tokenDetails}>
-                      <span className={styles.tokenSymbol}>{token.symbol}</span>
-                      <span className={styles.tokenChain}>{token.chain}</span>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className={styles.tokenPrice}>
-                    {formatCompactCurrency(token.priceUSD)}
-                  </div>
-
-                  {/* Remove Button */}
-                  <button
-                    className={styles.removeBtn}
-                    onClick={(e) => handleRemoveToken(token, e)}
-                    disabled={removingIds.has(token.id)}
-                    aria-busy={removingIds.has(token.id)}
-                    title="Remove from saved"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  Connect wallet
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Search Controls */}
+              <div className={styles.controls}>
+                <div className={styles.searchField}>
+                  <label htmlFor="saved-search">Search tokens</label>
+                  <input
+                    id="saved-search"
+                    type="text"
+                    placeholder="Search by name, symbol, or address..."
+                    value={state.searchQuery}
+                    onChange={handleSearch}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
 
-          {/* Footer */}
-          <div className={styles.footer}>
-            <div className={styles.footerContent}>
-              <span>{filteredTokens.length} of {savedTokens.length} tokens</span>
-              <span>Press <strong>/</strong> to search</span>
-            </div>
-          </div>
+              {/* Token List */}
+              {loading ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyTitle}>Loading…</div>
+                </div>
+              ) : error ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyTitle}>Failed to load saved tokens</div>
+                  <div className={styles.emptyMessage}>{error}</div>
+                </div>
+              ) : filteredTokens.length === 0 ? (
+                renderEmptyState()
+              ) : (
+                <div className={styles.tokenList}>
+                  {filteredTokens.map((token) => (
+                    <div
+                      key={token.id}
+                      className={styles.tokenItem}
+                      onClick={() => handleTokenClick(token)}
+                    >
+                      {/* Token Image/Placeholder */}
+                      <div className={styles.tokenImage}>
+                        {token.imageUrl ? (
+                          <img
+                            src={token.imageUrl}
+                            alt={token.symbol}
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              if (img.src !== DEFAULT_TOKEN_IMAGE) {
+                                img.src = DEFAULT_TOKEN_IMAGE;
+                              }
+                            }}
+                          />
+                        ) : (
+                          getTokenInitials(token.symbol)
+                        )}
+                      </div>
+
+                      {/* Token Info */}
+                      <div className={styles.tokenInfo}>
+                        <div className={styles.tokenName}>{token.name}</div>
+                        <div className={styles.tokenDetails}>
+                          <span className={styles.tokenSymbol}>{token.symbol}</span>
+                          <span className={styles.tokenChain}>{token.chain}</span>
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className={styles.tokenPrice}>
+                        {formatCompactCurrency(token.priceUSD)}
+                      </div>
+
+                      {/* Remove Button */}
+                      <button
+                        className={styles.removeBtn}
+                        onClick={(e) => handleRemoveToken(token, e)}
+                        disabled={removingIds.has(token.id)}
+                        aria-busy={removingIds.has(token.id)}
+                        title="Remove from saved"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className={styles.footer}>
+                <div className={styles.footerContent}>
+                  <span>{filteredTokens.length} of {savedTokens.length} tokens</span>
+                  <span>Press <strong>/</strong> to search</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </aside>
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={isConnected}
+      />
     </div>
   );
 };

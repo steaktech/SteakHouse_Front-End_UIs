@@ -20,10 +20,11 @@ import {
 } from '@/app/lib/api/chatClient';
 
 const EmojiPicker = dynamic<any>(() => import('emoji-picker-react'), { ssr: false });
+const WalletModal = dynamic(() => import('../../Modals/WalletModal/WalletModal'), { ssr: false });
 
 export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAddress }) => {
   // Wallet state
-  const { isConnected: walletConnected, address, connect } = useWallet();
+  const { isConnected: walletConnected, address } = useWallet();
 
   // Live token data (for header)
   const { data: apiTokenData } = useTokenData(tokenAddress || null, { interval: '1h', limit: 30 });
@@ -73,6 +74,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const [composerInput, setComposerInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [hasEmojiPickerMounted, setHasEmojiPickerMounted] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   // Refs
   const feedRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -766,7 +768,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
             <div className={styles.walletCta}>
               <button
                 className={styles.primary}
-                onClick={() => connect().catch(() => { })}
+                onClick={() => setIsWalletModalOpen(true)}
                 type="button"
               >
                 Connect wallet to post
@@ -846,6 +848,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
           )}
         </footer>
       </aside>
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={walletConnected}
+      />
     </>
   );
 };
