@@ -7,7 +7,7 @@ import { useTrading } from '@/app/hooks/useTrading';
 import { getMaxTxInfo, extractEthToCurve, getMaxWalletInfo, extractMaxWalletEthToCurve } from '@/app/lib/api/services/blockchainService';
 import { createLimitOrder } from '@/app/lib/api/services/ordersService';
 import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
-import { useTokenData } from '@/app/hooks/useTokenData';
+import type { FullTokenDataResponse } from '@/app/types/token';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 
@@ -38,9 +38,14 @@ const WalletModal = dynamic(
 interface MobileBuySellPanelProps {
   orderType: 'buy' | 'sell';
   tokenAddress?: string;
+  apiTokenData?: FullTokenDataResponse | null; // Receive API data from parent to avoid duplicate calls
 }
 
-export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderType, tokenAddress }) => {
+export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ 
+  orderType, 
+  tokenAddress,
+  apiTokenData = null
+}) => {
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
@@ -76,8 +81,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ orderTyp
   // Resolve trading wallet and token state for helpers
   const tradingWalletAddress = tradingState?.tradingWallet || null;
   const { data: position } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
-  const { data: tokenData } = useTokenData(tokenAddress || null);
-  const currentPriceUsd = position?.lastPriceUsd ?? tokenData?.price ?? null;
+  // Use token data from parent (already loaded via single API call)
+  const currentPriceUsd = position?.lastPriceUsd ?? apiTokenData?.price ?? null;
 
   // Show top-up suggestion when trading wallet has insufficient funds
   React.useEffect(() => {

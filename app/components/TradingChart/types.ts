@@ -25,6 +25,9 @@ export type SidebarProps = {
   tokenAddress?: string;
   /** Forwarded logo URL so child widgets can reuse it without extra API calls */
   tokenLogoUrl?: string;
+  /** Forwarded API token data to avoid duplicate API calls */
+  apiTokenData?: any | null;
+  isLoading?: boolean;
 };
 
 export type CandlestickChartProps = {

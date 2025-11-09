@@ -655,7 +655,14 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <div className="flex flex-1 text-white font-sans overflow-hidden relative">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DesktopSidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} tokenAddress={tokenAddress} tokenLogoUrl={apiInfo?.image_url ?? undefined} />
+          <DesktopSidebar 
+            expanded={sidebarExpanded} 
+            setExpanded={setSidebarExpanded} 
+            tokenAddress={tokenAddress} 
+            tokenLogoUrl={apiInfo?.image_url ?? undefined}
+            apiTokenData={apiTokenData}
+            isLoading={isLoading}
+          />
         </div>
         
           <main 
@@ -829,6 +836,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               <TradePanel 
                 onTabChange={(tab) => setDesktopTradeTab(tab)}
                 tokenAddress={tokenAddress}
+                apiTokenData={apiTokenData}
               />
             </div>
           </div>
@@ -977,7 +985,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 </button>
               </div>
               <div className="p-2 overflow-y-auto">
-                <MobileBuySellPanel orderType={selectedTradeTab} tokenAddress={tokenAddress} />
+                <MobileBuySellPanel orderType={selectedTradeTab} tokenAddress={tokenAddress} apiTokenData={apiTokenData} />
               </div>
             </div>
           </div>
@@ -990,6 +998,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         setExpanded={setMobileSidebarExpanded} 
         tokenAddress={tokenAddress}
         tokenLogoUrl={apiInfo?.image_url ?? undefined}
+        apiTokenData={apiTokenData}
+        isLoading={isLoading}
       />
 
       {/* Order Notifications */}

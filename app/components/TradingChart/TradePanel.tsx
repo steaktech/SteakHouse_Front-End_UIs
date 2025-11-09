@@ -10,7 +10,7 @@ import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 import { useBalance } from 'wagmi';
 import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
-import { useTokenData } from '@/app/hooks/useTokenData';
+import type { FullTokenDataResponse } from '@/app/types/token';
 
 const WalletModal = dynamic(
   () => import('../Modals/WalletModal/WalletModal'),
@@ -41,9 +41,16 @@ interface TradePanelProps {
   onTabChange?: (tab: 'buy' | 'sell' | 'limit') => void;
   isMobile?: boolean;
   tokenAddress?: string;
+  apiTokenData?: FullTokenDataResponse | null; // Receive API data from parent to avoid duplicate calls
 }
 
-export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange, isMobile = false, tokenAddress }) => {
+export const TradePanel: React.FC<TradePanelProps> = ({ 
+  initialTab = 'buy', 
+  onTabChange, 
+  isMobile = false, 
+  tokenAddress,
+  apiTokenData = null
+}) => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'limit'>(initialTab as any);
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
@@ -83,9 +90,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
 
   // Load token position using shared api client and structured hook
   const { data: position, isLoading: loadingPosition, error: positionError } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
-  // Also load token data (for current price) independent of wallet
-  const { data: tokenData } = useTokenData(tokenAddress || null);
-  const currentPriceUsd = position?.lastPriceUsd ?? tokenData?.price ?? null;
+  // Use token data from parent (already loaded via single API call)
+  const currentPriceUsd = position?.lastPriceUsd ?? apiTokenData?.price ?? null;
 
   // Update activeTab when initialTab prop changes
   React.useEffect(() => {

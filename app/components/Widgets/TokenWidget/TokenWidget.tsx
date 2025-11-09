@@ -5,7 +5,7 @@ import { X, Copy, Check } from 'lucide-react';
 import styles from './TokenWidget.module.css';
 import cardStyles from '@/app/components/TradingChart/MobileStyleTokenCard.module.css';
 import { TokenWidgetProps, TokenData } from './types';
-import { useTokenData } from '@/app/hooks/useTokenData';
+import type { FullTokenDataResponse } from '@/app/types/token';
 
 // Demo token data matching the screenshot
 const defaultTokenData: TokenData = {
@@ -34,6 +34,8 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
   onClose, 
   tokenData = defaultTokenData,
   tokenAddress = null,
+  apiTokenData = null, // Receive API data from parent to avoid duplicate calls
+  isLoading = false,   // Receive loading state from parent
 }) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -61,9 +63,6 @@ export const TokenWidget: React.FC<TokenWidgetProps> = ({
     }
   };
 
-
-// Fetch live token data when tokenAddress is provided
-  const { data: apiTokenData, isLoading } = useTokenData(tokenAddress ?? null, { interval: '1m', limit: 200 });
 
   // Copy token address handler with small animation
   const [copied, setCopied] = useState(false);

@@ -7,7 +7,6 @@ import { SharePopup } from './SharePopup';
 import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
-import { useTokenData } from '@/app/hooks/useTokenData';
 import { useShare } from './useShare';
 import { useHoldersData } from '@/app/hooks/useHoldersData';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
@@ -22,12 +21,15 @@ import {
 const EmojiPicker = dynamic<any>(() => import('emoji-picker-react'), { ssr: false });
 const WalletModal = dynamic(() => import('../../Modals/WalletModal/WalletModal'), { ssr: false });
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAddress }) => {
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ 
+  isOpen, 
+  onClose, 
+  tokenAddress,
+  apiTokenData = null, // Receive API data from parent to avoid duplicate calls
+}) => {
   // Wallet state
   const { isConnected: walletConnected, address } = useWallet();
 
-  // Live token data (for header)
-  const { data: apiTokenData } = useTokenData(tokenAddress || null, { interval: '1h', limit: 30 });
   const { data: holdersData } = useHoldersData({ tokenAddress: tokenAddress, enabled: Boolean(tokenAddress) });
 
   // Derived token header fields with graceful fallbacks

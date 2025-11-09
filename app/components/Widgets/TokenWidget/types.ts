@@ -26,6 +26,9 @@ export interface TokenWidgetProps {
   tokenData?: TokenData;
   // Optional: fetch live data when a token address is provided
   tokenAddress?: string | null;
+  // Receive API data from parent to avoid duplicate calls
+  apiTokenData?: any | null;
+  isLoading?: boolean;
 }
 
 export interface SocialLink {

@@ -78,7 +78,14 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
   );
 };
 
-export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress, tokenLogoUrl }) => {
+export const DesktopSidebar: React.FC<SidebarProps> = ({ 
+  expanded, 
+  setExpanded, 
+  tokenAddress, 
+  tokenLogoUrl,
+  apiTokenData = null,
+  isLoading = false,
+}) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -480,6 +487,7 @@ const handleUserProfileClose = () => {
           isOpen={isChatWidgetOpen}
           onClose={handleChatClose}
           tokenAddress={tokenAddress}
+          apiTokenData={apiTokenData}
         />
       )}
 
