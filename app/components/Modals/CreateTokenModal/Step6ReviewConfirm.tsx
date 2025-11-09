@@ -26,7 +26,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const [gradResult, setGradResult] = useState<{ supplyToCirculate?: string; ethRaisedWei?: string; priceWei?: string; priceWeiPer1e18?: string }>({});
   
   // Wallet / Top up modal state
-  const { isConnected, connect } = useWallet();
+  const { isConnected, connect, balanceFormatted } = useWallet();
   const { tradingState, topUpTradingWallet } = useTrading();
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
 
@@ -384,6 +384,19 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const abiPreview = generateAbiPreview();
   const palette = autoBrandingPreview();
 
+  // Compute minimal required ETH (creation fee + small gas buffer)
+  const configuredCreation = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
+  const minByProfile = state.profile === 'ZERO' ? 0.0005
+    : state.profile === 'SUPER' ? 0.001
+      : state.profile === 'BASIC' ? 0.01
+        : state.profile === 'ADVANCED' ? 0.01
+          : 0;
+  const effectiveCreationEth = Math.max(configuredCreation, minByProfile);
+  const gasBufferEth = 0.003; // small buffer for gas on Sepolia
+  const requiredEth = effectiveCreationEth + gasBufferEth;
+  const walletEth = parseFloat(balanceFormatted || '0');
+  const hasEnoughForCreation = isConnected && walletEth >= requiredEth;
+
   return (
     <div className={styles.panel}>
       <div className={styles.grid2}>
@@ -418,6 +431,17 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         </label>
       </div>
 
+      {!hasEnoughForCreation && isConnected && (
+        <div className={styles.card} style={{ borderColor: 'var(--warning-400)' }}>
+          <div className={styles.row}>
+            <div className={styles.pill}>Insufficient funds</div>
+            <div>
+              You need at least {fmt.format(requiredEth)} ETH (creation {fmt.format(effectiveCreationEth)} + gas buffer {fmt.format(gasBufferEth)}) but your wallet has {fmt.format(walletEth)} ETH.
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.footerNav}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           {!isConnected ? (
@@ -437,7 +461,7 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
               </button>
               <button
                 className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-                disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
+                disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei || !hasEnoughForCreation}
                 onClick={onConfirm}
               >
                 {gradLoading ? 'Calculating…' : (isLoading ? 'Creating...' : 'Confirm & Create')}

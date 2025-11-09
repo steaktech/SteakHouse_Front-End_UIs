@@ -222,27 +222,27 @@ const handleUserProfileClose = () => {
 
   const widgets = [
     // Chart, Token, Trade: greyed out by default, colorful when other widgets are open
-    {
-      icon: <BarChart3 size={16} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#666666]"} />,
-      text: 'Chart',
-      active: false,
-      greyedOut: !hasActiveWidget,
-      onClick: handleChartClick
-    },
-    {
-      icon: <Coins size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
-      text: 'Token',
-      active: false,
-      greyedOut: !hasActiveWidget,
-      onClick: handleTokenClick
-    },
-    {
-      icon: <ArrowLeftRight size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
-      text: 'Trade',
-      active: false,
-      greyedOut: !hasActiveWidget,
-      onClick: handleTradeClick
-    },
+    // {
+    //   icon: <BarChart3 size={16} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#666666]"} />,
+    //   text: 'Chart',
+    //   active: false,
+    //   greyedOut: !hasActiveWidget,
+    //   onClick: handleChartClick
+    // },
+    // {
+    //   icon: <Coins size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
+    //   text: 'Token',
+    //   active: false,
+    //   greyedOut: !hasActiveWidget,
+    //   onClick: handleTokenClick
+    // },
+    // {
+    //   icon: <ArrowLeftRight size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
+    //   text: 'Trade',
+    //   active: false,
+    //   greyedOut: !hasActiveWidget,
+    //   onClick: handleTradeClick
+    // },
     // Holders, Chat, Saved: normal behavior
     {
       icon: <Users size={16} className="text-[#d29900]" />,
