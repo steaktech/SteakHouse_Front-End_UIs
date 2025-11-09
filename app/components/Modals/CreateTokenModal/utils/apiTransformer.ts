@@ -29,6 +29,18 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   if (state.deploymentMode === 'VIRTUAL_CURVE') {
     // Virtual curve specific fields
     request.token_type = 0; // Virtual curve type
+
+    // Include explicit tokenChoice for backend routing
+    if (state.profile) {
+      const choiceMap: Record<string, 'basic' | 'advanced' | 'simple' | 'zero'> = {
+        ZERO: 'zero',
+        SUPER: 'simple',
+        BASIC: 'basic',
+        ADVANCED: 'advanced',
+      };
+      const mapped = choiceMap[state.profile];
+      if (mapped) request.tokenChoice = mapped;
+    }
     
     // Graduation cap: prefer API-computed wei token amount; fallback to USD input if missing
     if (state.basics.gradCapWei && /^\d+$/.test(state.basics.gradCapWei)) {

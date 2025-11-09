@@ -37,6 +37,12 @@ export interface CreateTokenApiRequest {
   is_super_simple?: boolean;
   is_zero_simple?: boolean;
   
+  /**
+   * Explicit profile choice for backend routing: 'basic' | 'advanced' | 'simple' | 'zero'
+   * Only set for virtual-curve flows where a profile is selected.
+   */
+  tokenChoice?: 'basic' | 'advanced' | 'simple' | 'zero';
+  
   // Curve & policy params - CORRECTED FIELD NAMES
   curve_starting_tax?: number; // percent (was curve_start_tax)
   curve_tax_duration?: number; // seconds
