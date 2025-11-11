@@ -89,7 +89,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const router = useRouter();
 
   // Use stable price data hook - only fetch when modal is open
-  const { formattedGasPrice, formattedEthPrice, loading: priceLoading } = useStablePriceData(isOpen);
+  const { formattedGasPrice, formattedEthPrice, ethPriceUsd, loading: priceLoading } = useStablePriceData(isOpen);
 
   // Toast notifications
   const { showToast } = useToast();
@@ -392,7 +392,18 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
 
         // Always call API after on-chain confirmation. Use the resolved address.
         try {
-          await createTokenApi(state, files, resolvedTokenAddress);
+          // Compute usd_spent: total ETH fee * ETH price in USD
+          const totalFeeEth = Number(state.fees.creation || 0);
+          const ethPrice = ethPriceUsd ?? 0; // Use 0 if price not available
+          const usd_spent = Number((totalFeeEth * ethPrice).toFixed(2)); // Round to 2 decimals (cents)
+          
+          console.log('[CreateTokenModal] Computing usd_spent:', {
+            totalFeeEth,
+            ethPrice,
+            usd_spent
+          });
+          
+          await createTokenApi(state, files, resolvedTokenAddress, { usd_spent });
           if (resolvedTokenAddress) {
             router.push(`/trading-chart/${resolvedTokenAddress}`);
           }
@@ -413,7 +424,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
         duration: 5000
       });
     }
-  }, [state, createTokenOnChain, createTokenApi, showToast]);
+  }, [state, createTokenOnChain, createTokenApi, showToast, ethPriceUsd, router, walletAddress]);
 
   const getStepTitle = (step: number) => {
     if (step === 0) return 'Choose deployment mode';

@@ -7,6 +7,8 @@ import { addUser } from '@/app/lib/api/services/userService';
 import type { AddUserPayload } from '@/app/types/user';
 import { UserProfileModal } from '../UserProfileModal';
 import UserWelcomeModal from '../UserWelcomeModal';
+import AirDropModal from '../AirDropModal';
+import { useTrading } from '@/app/hooks/useTrading';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -16,6 +18,7 @@ interface WalletModalProps {
 
 export default function WalletModal({ isOpen, onClose, isConnected }: WalletModalProps) {
   const { connectors, connect, disconnect, address, balanceFormatted, chainId } = useWallet();
+  const { tradingState } = useTrading();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isRegisteringUser, setIsRegisteringUser] = useState(false);
   const [userRegistrationError, setUserRegistrationError] = useState<string | null>(null);
@@ -24,6 +27,7 @@ export default function WalletModal({ isOpen, onClose, isConnected }: WalletModa
   const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isExternalFlow, setIsExternalFlow] = useState(false);
+  const [showAirDropModal, setShowAirDropModal] = useState(false);
 
   // Define registerUser function with useCallback to prevent unnecessary re-renders
 const registerUser = useCallback(async (walletAddress: string): Promise<boolean> => {
@@ -213,7 +217,7 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget && !showWelcomeModal) onClose();
+    if (e.target === e.currentTarget && !showWelcomeModal && !showAirDropModal) onClose();
   };
 
   return (
@@ -268,6 +272,18 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <button onClick={() => setShowProfileModal(true)} style={primaryButtonStyle}>View & Edit Profile</button>
+                  <button 
+                    onClick={() => setShowAirDropModal(true)} 
+                    style={{ 
+                      ...primaryButtonStyle, 
+                      opacity: tradingState?.tradingWallet ? 1 : 0.6, 
+                      cursor: tradingState?.tradingWallet ? 'pointer' : 'not-allowed'
+                    }}
+                    disabled={!tradingState?.tradingWallet}
+                    title={tradingState?.tradingWallet ? 'View your airdrop points' : 'Trading wallet not ready yet'}
+                  >
+                    View Airdrop Points
+                  </button>
                   <button onClick={handleDisconnect} style={dangerButtonStyle}>Disconnect Wallet</button>
                 </div>
               </div>
@@ -337,6 +353,15 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
           isOpen={showWelcomeModal}
           onClose={() => { setShowWelcomeModal(false); onClose(); }}
           walletAddress={connectedWalletAddress}
+        />
+      )}
+
+      {/* AirDrop Modal */}
+      {showAirDropModal && (
+        <AirDropModal
+          isOpen={showAirDropModal}
+          onClose={() => setShowAirDropModal(false)}
+          tradingWallet={tradingState?.tradingWallet || null}
         />
       )}
     </>

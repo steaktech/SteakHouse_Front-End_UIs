@@ -1,5 +1,5 @@
 // hooks/useTrading.ts
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Web3 from 'web3';
 import { useWallet } from './useWallet';
 import { fetchUserProfile } from '@/app/lib/api/services/userService';
@@ -71,36 +71,57 @@ export const useTrading = (): UseTrading => {
   });
   
   const [web3, setWeb3] = useState<Web3 | null>(null);
+  
+  // Track the last address we fetched to prevent duplicate API calls
+  const lastFetchedAddressRef = useRef<string | null>(null);
+  const isMountedRef = useRef(true);
 
   // Initialize Web3 (for receipt polling) when wallet connects and fetch trading wallet
   useEffect(() => {
+    isMountedRef.current = true;
+    
     const init = async () => {
       if (isConnected && typeof window !== 'undefined' && (window as any).ethereum) {
+        if (!isMountedRef.current) return;
         setTradingState(prev => ({ ...prev, isInitializing: true }));
+        
         try {
           const web3Instance = new Web3((window as any).ethereum);
+          if (!isMountedRef.current) return;
           setWeb3(web3Instance);
-          // Fetch trading wallet mapped to the main wallet
-          if (address) {
+          
+          // Fetch trading wallet mapped to the main wallet only if address changed
+          if (address && address !== lastFetchedAddressRef.current) {
+            lastFetchedAddressRef.current = address;
             try {
               const profile = await fetchUserProfile(address);
               const tradingWallet = (profile as any)?.trading_wallet || null;
+              if (!isMountedRef.current) return;
               setTradingState(prev => ({ ...prev, tradingWallet }));
             } catch (e) {
               console.warn('Failed to fetch trading wallet:', e);
             }
           }
+          
+          if (!isMountedRef.current) return;
           setTradingState(prev => ({ ...prev, isInitializing: false, error: null }));
         } catch (error) {
           console.error('Failed to initialize Web3:', error);
+          if (!isMountedRef.current) return;
           setTradingState(prev => ({ ...prev, isInitializing: false, error: `Failed to initialize: ${(error as Error).message}` }));
         }
       } else {
+        if (!isMountedRef.current) return;
         setWeb3(null);
         setTradingState(prev => ({ ...prev, isInitializing: false }));
       }
     };
+    
     init();
+    
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [isConnected, address]);
 
   const clearStatus = useCallback(() => {
@@ -411,8 +432,11 @@ export const useTrading = (): UseTrading => {
   const refreshTradingWallet = useCallback(async () => {
     if (!isConnected || !address) return;
     try {
+      // Update the ref to prevent duplicate fetches during refresh
+      lastFetchedAddressRef.current = address;
       const profile = await fetchUserProfile(address);
       const tradingWallet = (profile as any)?.trading_wallet || null;
+      if (!isMountedRef.current) return;
       setTradingState(prev => ({ ...prev, tradingWallet }));
     } catch (e) {
       console.warn('Failed to refresh trading wallet:', e);

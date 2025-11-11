@@ -113,5 +113,6 @@ export const useStablePriceData = (enabled: boolean = false) => {
     error,
     formattedGasPrice,
     formattedEthPrice,
+    ethPriceUsd: ethPrice, // Expose numeric USD price for calculations
   };
 };

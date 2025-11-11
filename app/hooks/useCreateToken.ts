@@ -15,8 +15,14 @@ export interface UseCreateTokenReturn {
   /**
    * Creates a token using the API
    * tokenAddressOverride can be provided to explicitly set the real token address in the API payload.
+   * opts.usd_spent can be provided to include the USD value of fees spent
    */
-  createToken: (state: TokenState, files?: { logo?: File; banner?: File }, tokenAddressOverride?: string) => Promise<CreateTokenResult>;
+  createToken: (
+    state: TokenState, 
+    files?: { logo?: File; banner?: File }, 
+    tokenAddressOverride?: string,
+    opts?: { usd_spent?: number }
+  ) => Promise<CreateTokenResult>;
   /**
    * Whether the API call is in progress
    */
@@ -53,6 +59,7 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
     state: TokenState, 
     files?: { logo?: File; banner?: File },
     tokenAddressOverride?: string,
+    opts?: { usd_spent?: number }
   ): Promise<CreateTokenResult> => {
     try {
       setIsLoading(true);
@@ -62,6 +69,11 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
       
       // Transform modal state to API request format (include real token address if provided)
       const apiRequest = transformStateToApiRequest(state, tokenAddressOverride);
+      
+      // Add USD spent if provided
+      if (opts?.usd_spent !== undefined) {
+        (apiRequest as any).usd_spent = opts.usd_spent;
+      }
       
       // Add files if provided
       const formData: CreateTokenFormData = {
@@ -79,7 +91,8 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
       console.log('[useCreateToken] Calling API with data:', {
         ...formData,
         logo: formData.logo ? `File(${formData.logo.name})` : undefined,
-        banner: formData.banner ? `File(${formData.banner.name})` : undefined
+        banner: formData.banner ? `File(${formData.banner.name})` : undefined,
+        usd_spent: opts?.usd_spent
       });
       
       // Call the API
