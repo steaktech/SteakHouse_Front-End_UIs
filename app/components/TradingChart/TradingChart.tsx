@@ -142,16 +142,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   }, [apiTokenData?.tokenInfo?.palette]);
   
   // Create audio player ref and handle audio URL updates
-  const audioPlayerRef = useRef<HTMLAudioElement>(null);
+  const mp3PlayerRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Audio playback control function
   const playAudio = () => {
-    if (audioPlayerRef.current) {
+    if (mp3PlayerRef.current) {
       if (isPlaying) {
-        audioPlayerRef.current.pause();
+        mp3PlayerRef.current.pause();
       } else {
-        audioPlayerRef.current.play();
+        mp3PlayerRef.current.play();
       }
       setIsPlaying(!isPlaying);
     }
@@ -159,14 +159,14 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   
   // Update audio source when token info changes
   useEffect(() => {
-    const audioUrl = apiTokenData?.tokenInfo?.audio_url || 'http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/theme_01.mp3';
-    if (audioPlayerRef.current && audioUrl) {
-      audioPlayerRef.current.src = audioUrl;
-      audioPlayerRef.current.load(); // Load the new audio source
-      audioPlayerRef.current.volume = 0.5; // Set volume to 50%
+    const mp3Url = apiTokenData?.tokenInfo?.mp3_url || null;
+    if (mp3PlayerRef.current && mp3Url) {
+      mp3PlayerRef.current.src = mp3Url;
+      mp3PlayerRef.current.load(); // Load the new mp3 source
+      mp3PlayerRef.current.volume = 0.5; // Set volume to 50%
       setTimeout(() => { playAudio();},5000) // Play the new audio
     }
-  }, [apiTokenData?.tokenInfo?.audio_url]);
+  }, [apiTokenData?.tokenInfo?.mp3_url]);
 
   // Local live state driven by WebSocket events
   const [candles1m, setCandles1m] = useState<Candle[]>([]);
@@ -1028,7 +1028,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
       {/* Hidden audio player for token audio */}
       <audio 
-        ref={audioPlayerRef}
+        ref={mp3PlayerRef}
         style={{ display: 'none' }}
         controls={false}
         preload="auto"
