@@ -9,6 +9,7 @@ const CreateTokenModal = dynamic(
 
 const Footer: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCertikHovered, setIsCertikHovered] = useState(false);
 
   return (
     <>
@@ -211,11 +212,83 @@ const Footer: React.FC = () => {
           <div className={styles.footerBottom} aria-label="Legal">
             <p><a href="mailto:contact@steakhouse.finance">contact@steakhouse.finance</a></p>
             <div className={styles.certikBadge} aria-label="CertiK certificate">
-              <img
-                className={styles.certikBadgeimg}
-                src="/images/certik-logo-v2.png"
-                alt="CertiK logo"
+              {/* paste the following code into the div you would like to show certik emblem */}
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    @keyframes fireShine {
+                      0%, 100% {
+                        filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 16px rgba(255, 69, 0, 0.6)) brightness(1);
+                      }
+                      50% {
+                        filter: drop-shadow(0 0 20px rgba(255, 140, 0, 1)) drop-shadow(0 0 32px rgba(255, 69, 0, 0.9)) brightness(1.2);
+                      }
+                    }
+                    @keyframes fireParticle {
+                      0% {
+                        transform: translateY(0) scale(1);
+                        opacity: 1;
+                      }
+                      100% {
+                        transform: translateY(-40px) scale(0);
+                        opacity: 0;
+                      }
+                    }
+                    @keyframes fireFlicker {
+                      0%, 100% { opacity: 0.8; }
+                      50% { opacity: 1; }
+                    }
+                    .certik-wrapper-animated {
+                      animation: fireShine 1.5s ease-in-out infinite;
+                    }
+                    .fire-particle {
+                      position: absolute;
+                      width: 8px;
+                      height: 8px;
+                      border-radius: 50%;
+                      background: radial-gradient(circle, #ff8c00, #ff4500);
+                      box-shadow: 0 0 10px #ff4500;
+                      animation: fireParticle 1.5s ease-out infinite, fireFlicker 0.3s ease-in-out infinite;
+                      pointer-events: none;
+                    }
+                    .fire-particle:nth-child(1) { left: 10%; bottom: 0; animation-delay: 0s; }
+                    .fire-particle:nth-child(2) { left: 30%; bottom: 0; animation-delay: 0.3s; }
+                    .fire-particle:nth-child(3) { left: 50%; bottom: 0; animation-delay: 0.6s; }
+                    .fire-particle:nth-child(4) { left: 70%; bottom: 0; animation-delay: 0.9s; }
+                    .fire-particle:nth-child(5) { left: 90%; bottom: 0; animation-delay: 1.2s; }
+                  `
+                }}
               />
+              <div 
+                className={isCertikHovered ? "certik-wrapper certik-wrapper-animated" : "certik-wrapper"}
+                onMouseEnter={() => setIsCertikHovered(true)}
+                onMouseLeave={() => setIsCertikHovered(false)}
+                style={{ 
+                  transform: isCertikHovered ? 'scale(2.0)' : 'scale(1.9)', 
+                  transformOrigin: 'left center', 
+                  marginRight: '30px', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  position: 'relative', 
+                  top: '20px', 
+                  left: '10px',
+                  transition: 'transform 0.3s ease, filter 0.3s ease',
+                  cursor: 'pointer'
+                }}>
+                {isCertikHovered && (
+                  <>
+                    <div className="fire-particle"></div>
+                    <div className="fire-particle"></div>
+                    <div className="fire-particle"></div>
+                    <div className="fire-particle"></div>
+                    <div className="fire-particle"></div>
+                  </>
+                )}
+                <div className="certik-emblem" data-id="39b5f42f">
+                  <a href="https://skynet.certik.com/projects/steakhouse?utm_source=SkyEmblem&utm_campaign=steakhouse&utm_medium=link">View project at certik.com</a>
+                </div>
+              </div>
+              <script async src="https://emblem.certik-assets.com/script?pid=steakhouse&vid=39b5f42f"></script>
               <span className={styles.spacer}></span>
               <a
                 className={`${styles.btn} ${styles.sm}`}
@@ -223,6 +296,7 @@ const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 title="View CertiK Certificate"
+                style={{ marginLeft: '-20px' }}
               >
                 <i className="ri-shield-check-line" aria-hidden="true"></i>
                 Audit Certificate
