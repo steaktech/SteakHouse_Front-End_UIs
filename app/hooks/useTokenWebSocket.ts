@@ -50,16 +50,13 @@ export function useTokenWebSocket({
     try {
       console.log('Initializing WebSocket connection to:', wsUrl);
       
-      // Create socket connection
+      // Create socket connection (simplified to match working example)
       socketRef.current = io(wsUrl, {
         transports: ["websocket"],
-        secure: true,
         reconnection: true,
-        rejectUnauthorized: false,
-        timeout: 10000,
         reconnectionDelay: 1000,
         reconnectionAttempts: 5,
-      } as any);
+      });
 
       const socket = socketRef.current;
 
@@ -82,7 +79,7 @@ export function useTokenWebSocket({
         setIsConnected(false);
       });
 
-      // Trade event handlers (support multiple aliases defensively)
+      // Trade event handler
       const emitTrade = (trade: any) => {
         try {
           console.log('New trade received:', trade);
@@ -93,10 +90,6 @@ export function useTokenWebSocket({
         }
       };
       socket.on('trade', emitTrade);
-      socket.on('tradeUpdate', emitTrade as any);
-      socket.on('transaction', emitTrade as any);
-      socket.on('tx', emitTrade as any);
-      socket.on('newTrade', emitTrade as any);
 
       // Chart update event handler
       socket.on('chartUpdate', (update: ChartUpdateEvent) => {
