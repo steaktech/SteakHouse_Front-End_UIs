@@ -27,7 +27,7 @@ export class CreateTokenService {
 
     // Add all fields following client's pattern
     Object.entries(tokenData).forEach(([key, value]) => {
-      if (key === 'logo' || key === 'banner') {
+      if (key === 'logo' || key === 'banner' || key === 'mp3') {
         // Handle file uploads separately
         if (value instanceof File) {
           formData.append(key, value);

@@ -261,6 +261,11 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
     request.banner_url = state.meta.banner;
   }
   
+  // MP3 URL (files are handled separately)
+  if (state.meta.mp3 && !state.meta.mp3File) {
+    request.mp3_url = state.meta.mp3;
+  }
+  
   // Category
   if (state.basics.tokenCategory) {
     // Map our categories to a simple string (API field name is 'catagory' with typo)

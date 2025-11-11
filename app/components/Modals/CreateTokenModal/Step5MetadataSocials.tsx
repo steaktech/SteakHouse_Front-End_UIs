@@ -18,11 +18,11 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
 }) => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
-  const audioInputRef = useRef<HTMLInputElement>(null);
+  const mp3InputRef = useRef<HTMLInputElement>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const handleFileChange = (field: 'logoFile' | 'bannerFile' | 'audioFile', file: File | null) => {
+  const handleFileChange = (field: 'logoFile' | 'bannerFile' | 'mp3File', file: File | null) => {
     if (file) {
       onMetaChange(field, file);
       // Clear the corresponding URL field when a file is selected
@@ -30,7 +30,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
       ? 'logo' 
       : field === 'bannerFile' 
         ? 'banner'
-        : 'audio';
+        : 'mp3';
     
     if (meta[urlField]) {
       onMetaChange(urlField, '');
@@ -38,14 +38,14 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
     }
   };
 
-  const handleUrlChange = (field: 'logo' | 'banner' | 'audio', value: string) => {
+  const handleUrlChange = (field: 'logo' | 'banner' | 'mp3', value: string) => {
     onMetaChange(field, value);
     // Clear the corresponding file field when a URL is entered
     const fileField = field === 'logo' 
       ? 'logoFile' 
       : field === 'banner' 
         ? 'bannerFile'
-        : 'audioFile';
+        : 'mp3File';
     
     if (meta[fileField]) {
       onMetaChange(fileField, null);
@@ -248,7 +248,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               {/* Audio File Upload */}
               <div style={{ marginBottom: '12px' }}>
                 <input
-                  ref={audioInputRef}
+                  ref={mp3InputRef}
                   type="file"
                   id="audio-file"
                   accept="audio/mpeg"
@@ -258,17 +258,17 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
                       alert('Audio file must be less than 10MB');
                       return;
                     }
-                    handleFileChange('audioFile', file || null);
+                    handleFileChange('mp3File', file || null);
                   }}
                   style={{ display: 'none' }}
                 />
                 <button
                   type="button"
                   className={`${styles.btn} ${styles.btnGhost}`}
-                  onClick={() => audioInputRef.current?.click()}
+                  onClick={() => mp3InputRef.current?.click()}
                   style={{ width: '100%', marginBottom: '8px' }}
                 >
-                  {meta.audioFile ? `Selected: ${meta.audioFile.name}` : 'Upload Audio File'}
+                  {meta.mp3File ? `Selected: ${meta.mp3File.name}` : 'Upload Audio File'}
                 </button>
                 
               </div>
@@ -278,10 +278,10 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               {/* URL Input Option */}
               <input 
                 className={styles.input}
-                value={meta.audio || ''}
-                onChange={(e) => handleUrlChange('audio', e.target.value)}
+                value={meta.mp3 || ''}
+                onChange={(e) => handleUrlChange('mp3', e.target.value)}
                 placeholder="https://yoursite.com/audio.mp3"
-                disabled={!!meta.audioFile}
+                disabled={!!meta.mp3File}
               />
 
               <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>

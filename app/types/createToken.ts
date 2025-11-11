@@ -24,6 +24,7 @@ export interface CreateTokenApiRequest {
   symbol?: string;
   image_url?: string;
   banner_url?: string;
+  mp3_url?: string;
   
   // Big numbers (as strings)
   total_supply?: string;
@@ -79,6 +80,7 @@ export interface CreateTokenFormData extends CreateTokenApiRequest {
   // File uploads
   logo?: File;
   banner?: File;
+  mp3?: File;
 }
 
 export interface CreateTokenResult {
@@ -91,4 +93,5 @@ export interface CreateTokenResult {
 export interface FileUploads {
   logo?: File;
   banner?: File;
+  mp3?: File;
 }

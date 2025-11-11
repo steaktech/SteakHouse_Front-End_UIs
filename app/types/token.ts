@@ -44,6 +44,9 @@ export interface Token {
     updated_at: string; // ISO 8601 date string
     image_url: string | null;
     banner_url?: string | null;
+    mp3_url: string | null;
+    auto_brand: boolean;
+    palette: string | null;
     bio: string | null;
     telegram: string | null;
     twitter: string | null;
@@ -110,7 +113,7 @@ export interface TokenInfo {
   eth_pool: number;
   telegram: string | null;
   graduated: boolean;
-  audio_url: string | null;
+  mp3_url: string | null;
   image_url: string | null;
   banner_url: string | null;
   auto_brand: boolean

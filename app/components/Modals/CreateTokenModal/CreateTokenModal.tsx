@@ -357,9 +357,10 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       }
 
       // Prepare files for API (after on-chain success)
-      const files: { logo?: File; banner?: File } = {};
+      const files: { logo?: File; banner?: File; mp3?: File } = {};
       if (state.meta.logoFile) files.logo = state.meta.logoFile;
       if (state.meta.bannerFile) files.banner = state.meta.bannerFile;
+      if (state.meta.mp3File) files.mp3 = state.meta.mp3File;
 
       // Submit on-chain transaction via Kitchen contract
       const result = await createTokenOnChain(state);

@@ -18,9 +18,8 @@ export interface UseCreateTokenReturn {
    * opts.usd_spent can be provided to include the USD value of fees spent
    */
   createToken: (
-    state: TokenState, 
-    files?: { logo?: File; banner?: File }, 
-    tokenAddressOverride?: string,
+    state: TokenState, files?: { logo?: File; banner?: File; mp3?: File}, 
+    tokenAddressOverride?: string, 
     opts?: { usd_spent?: number }
   ) => Promise<CreateTokenResult>;
   /**
@@ -57,7 +56,7 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
    */
   const createToken = useCallback(async (
     state: TokenState, 
-    files?: { logo?: File; banner?: File },
+    files?: { logo?: File; banner?: File; mp3?: File},
     tokenAddressOverride?: string,
     opts?: { usd_spent?: number }
   ): Promise<CreateTokenResult> => {
@@ -79,7 +78,8 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
       const formData: CreateTokenFormData = {
         ...apiRequest,
         ...(files?.logo && { logo: files.logo }),
-        ...(files?.banner && { banner: files.banner })
+        ...(files?.banner && { banner: files.banner }),
+        ...(files?.mp3 && { mp3: files.mp3 })
       };
       
       // Validate the data
@@ -92,6 +92,7 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
         ...formData,
         logo: formData.logo ? `File(${formData.logo.name})` : undefined,
         banner: formData.banner ? `File(${formData.banner.name})` : undefined,
+        mp3: formData.mp3 ? `File(${formData.mp3.name})` : undefined,
         usd_spent: opts?.usd_spent
       });
       

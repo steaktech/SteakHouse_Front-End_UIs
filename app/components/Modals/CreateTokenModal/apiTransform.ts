@@ -11,13 +11,15 @@ import { CreateTokenFormData } from '@/app/types/createToken';
  * @param tokenAddress - The token address (from wallet or generated)
  * @param logoFile - Optional logo file upload
  * @param bannerFile - Optional banner file upload
+ * @param mp3File - Optional mp3 file upload
  * @returns CreateTokenFormData ready for API submission
  */
 export function transformTokenStateToApiData(
   state: TokenState, 
   tokenAddress: string,
   logoFile?: File,
-  bannerFile?: File
+  bannerFile?: File,
+  mp3File?: File,
 ): CreateTokenFormData {
   const { basics, curves, meta, profile, taxMode } = state;
 
@@ -65,10 +67,12 @@ export function transformTokenStateToApiData(
     // File uploads
     logo: logoFile,
     banner: bannerFile,
+    mp3: mp3File,
     
     // Use image URLs if provided and no file uploads
     image_url: !logoFile && meta.logo ? meta.logo : undefined,
     banner_url: !bannerFile && meta.banner ? meta.banner : undefined,
+    mp3_url: !mp3File && meta.mp3 ? meta.mp3 : undefined,
   };
 
   // Add profile-specific curve settings

@@ -117,8 +117,8 @@ export interface MetaData {
   banner: string;
   bannerFile: File | null;
   autoBrand: boolean;
-  audio: string;
-  audioFile: File | null;
+  mp3: string;
+  mp3File: File | null;
   palette: string;
 }
 
