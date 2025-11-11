@@ -189,6 +189,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     
     if (Array.isArray(apiTokenData.candles)) {
       setCandles1m(apiTokenData.candles);
+      console.log('[TradingChart] Set candles from API:', apiTokenData.candles.length, 'candles');
+    } else {
+      // Fresh token with no history - set empty array and wait for WebSocket
+      console.log('[TradingChart] No candles from API (fresh token), awaiting WebSocket data');
+      setCandles1m([]);
     }
     // Handle both 'recentTrades' and 'trades' for backward compatibility
     const tradesArray = (apiTokenData as any).recentTrades || (apiTokenData as any).trades;
@@ -197,6 +202,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       setTrades(tradesArray);
     } else {
       console.warn('[TradingChart] No trades found in API response');
+      setTrades([]);
     }
   }, [apiTokenData]);
 
@@ -258,7 +264,12 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
     // Update local candle buffer for the current timeframe
     setCandles1m(prev => {
-      if (!prev.length) return [newCandle];
+      // For fresh tokens with no candles, this is the first bar
+      if (!prev || prev.length === 0) {
+        console.log('[WS] Adding first candle for fresh token:', newCandle);
+        return [newCandle];
+      }
+      
       const last = prev[prev.length - 1];
       if (last.timestamp === newCandle.timestamp) {
         const updated = [...prev];

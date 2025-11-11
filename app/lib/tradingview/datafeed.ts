@@ -142,6 +142,17 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         if (sub.address !== addr) continue;
         if (String(sub.resolution) !== eventResolution) continue;
         if (Number.isFinite(sub.lastTs) && (bar.time as number) < (sub.lastTs as number)) continue;
+        
+        // Update the cache with the new bar for fresh tokens
+        const cacheKey = `${addr}|${sub.resolution}`;
+        const cached = historyCache.get(cacheKey);
+        if (cached && cached.bars.length === 0) {
+          // For fresh tokens with no history, add this first bar to cache
+          L.log('Adding first bar to empty cache for fresh token', { addr, bar });
+          cached.bars.push(bar);
+          cached.ts = Date.now();
+        }
+        
         sub.lastTs = bar.time as number;
         sub.lastBar = bar;
         try { sub.onRealtimeCallback(bar); } catch (e) { L.error('onRealtime failed', e); }
@@ -271,6 +282,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         const cached = historyCache.get(cacheKey);
         if (cached && (now - cached.ts) < CACHE_TTL_MS) {
           G.log(`Cache hit (${cached.bars.length} bars)`);
+          // Even if cached has 0 bars, we should return noData:false to allow real-time updates
           onResult(cached.bars, { noData: false });
           historyRequestBudget.set(budgetKey, used + 1);
           return;
@@ -285,13 +297,17 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         const bars = await promise;
         pendingHistory.delete(cacheKey);
 
+        // Cache the result even if empty, so we don't keep retrying
+        historyCache.set(cacheKey, { bars, ts: now });
+
+        // NEW: For fresh tokens with no history, return empty array but noData:false
+        // This allows the chart to display real-time data when it arrives via WebSocket
         if (!bars.length) {
-          onResult([], { noData: true });
-          G.log('getBars -> 0 bars (noData=true)');
+          G.log('getBars -> 0 bars (fresh token, awaiting real-time data)');
+          onResult([], { noData: false });
+          historyRequestBudget.set(budgetKey, used + 1);
           return;
         }
-
-        historyCache.set(cacheKey, { bars, ts: now });
 
         if (bars.length < 10) {
           onResult(bars, { noData: false });
@@ -303,8 +319,16 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
 
         historyRequestBudget.set(budgetKey, used + 1);
       } catch (e: any) {
-        G.error('getBars error', e?.message || e);
-        onError?.(e?.message || 'history failed');
+        // For "Empty bars" error, treat as empty but ready for real-time data
+        const msg = e?.message || '';
+        if (msg.includes('Empty bars')) {
+          G.log('getBars -> Empty bars from API (fresh token, awaiting real-time data)');
+          onResult([], { noData: false });
+          historyRequestBudget.set(budgetKey, used + 1);
+        } else {
+          G.error('getBars error', msg || e);
+          onError?.(msg || 'history failed');
+        }
       } finally {
         G.groupEnd();
       }
