@@ -18,4 +18,5 @@ export interface AirDropPointsResponse {
     my_dev_usd_spent: number;
     referees_trade_usd: number;
   };
+  total_platform_points?: number; // Total points across all users (optional, for proportional calculation)
 }

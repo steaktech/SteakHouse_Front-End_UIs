@@ -30,6 +30,12 @@ const Icons = {
       <path d="M3 8l3 3 7-7"/>
     </svg>
   ),
+  Info: () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="8" cy="8" r="7"/>
+      <path d="M8 11.5V8M8 5.5h.01"/>
+    </svg>
+  ),
 };
 
 export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWalletProp }: AirDropModalProps) {
@@ -106,6 +112,37 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
     return v.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
   };
 
+  const formatCompact = (v: number) => {
+    if (v >= 1000000) return `$${(v / 1000000).toFixed(2)}M`;
+    if (v >= 1000) return `$${(v / 1000).toFixed(1)}K`;
+    return usd(v);
+  };
+
+  // Calculate estimated value based on 6% airdrop supply
+  // Min raise: $240k, Max raise (hard cap): $1.2M
+  // Distribution is proportional: user gets (their points / total platform points) * airdrop pool
+  const airdropEstimates = useMemo(() => {
+    if (!data?.points?.total) return { min: 0, max: 0, userSharePercentage: 0 };
+    
+    const MIN_AIRDROP_POOL = 240000; // $240k at minimum raise
+    const MAX_AIRDROP_POOL = 1200000; // $1.2M at hard cap
+    
+    // Use total_platform_points from API if available, otherwise use a conservative estimate
+    // This ensures everyone's points add up to 100% and are distributed proportionally
+    const totalPlatformPoints = data.total_platform_points || (data.points.total * 100); // Fallback multiplier
+    const userSharePercentage = (data.points.total / totalPlatformPoints) * 100;
+    
+    // Calculate user's proportional share of the airdrop pool
+    const minValue = (data.points.total / totalPlatformPoints) * MIN_AIRDROP_POOL;
+    const maxValue = (data.points.total / totalPlatformPoints) * MAX_AIRDROP_POOL;
+    
+    return {
+      min: minValue,
+      max: maxValue,
+      userSharePercentage
+    };
+  }, [data?.points?.total, data?.total_platform_points]);
+
   if (!mounted || !isOpen) return null;
 
   const modal = (
@@ -115,12 +152,12 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
         <header className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.titleWrapper}>
-              <div className={styles.titleIcon}>
+              <div className={styles.titleIcon} aria-hidden>
                 <Icons.Sparkles />
               </div>
               <h2 id="airdrop-title" className={styles.title}>Airdrop Points</h2>
             </div>
-            <p className={styles.headerSubtitle}>Your current points and contribution bases</p>
+            <p className={styles.headerSubtitle}>Track your contribution and rewards</p>
           </div>
           <button className={styles.closeButton} onClick={onClose} aria-label="Close airdrop modal">
             <Icons.Close />
@@ -144,58 +181,81 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
 
           {!loading && !error && data && (
             <>
-              <div className={styles.section}>
-                <div className={styles.walletRow}>
-                  <div className={styles.walletInfo}>
-                    <span className={styles.walletLabel}>Wallet</span>
-                    <code className={styles.walletValue}>{shortAddress}</code>
+              <div className={styles.estimateSection}>
+                <div className={styles.estimateCard}>
+                  <div className={styles.estimateHeader}>
+                    <div className={styles.estimateTitleBlock}>
+                      <div className={styles.estimateTitle}>Estimated Airdrop Value</div>
+                      <div className={styles.estimateSubtitle}>
+                        6% supply allocation • {airdropEstimates.userSharePercentage.toFixed(4)}% of pool
+                      </div>
+                    </div>
                   </div>
-                  <button className={styles.copyButton} onClick={handleCopy} aria-label="Copy wallet address" data-copied={copied}>
-                    {copied ? <Icons.Check /> : <Icons.Copy />}
-                    <span>{copied ? 'Copied' : 'Copy'}</span>
-                  </button>
+                  <div className={styles.estimateRange}>
+                    <div className={styles.rangeItem}>
+                      <div className={styles.rangeLabel}>Minimum (Low Raise)</div>
+                      <div className={styles.rangeValue}>{formatCompact(airdropEstimates.min)}</div>
+                    </div>
+                    <div className={styles.rangeDivider}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
+                    </div>
+                    <div className={styles.rangeItem}>
+                      <div className={styles.rangeLabel}>Maximum (Hard Cap)</div>
+                      <div className={`${styles.rangeValue} ${styles.maxValue}`}>{formatCompact(airdropEstimates.max)}</div>
+                    </div>
+                  </div>
+                  <div className={styles.disclaimer}>
+                    <Icons.Info />
+                    <span>Your share is calculated proportionally based on your points relative to all users. These values are based on <strong>6% of the supply</strong> being allocated to the airdrop. The airdrop pool will be <strong>$240K–$1.2M</strong> (depending on final raise), distributed proportionally among all participants. Your percentage may change as more users earn points.</span>
+                  </div>
                 </div>
               </div>
 
               <div className={styles.section}>
-                <div className={styles.sectionHeader}>Points</div>
+                <div className={styles.sectionHeader}>Your Points</div>
                 <div className={styles.cardsGrid}>
                   <div className={styles.card}>
                     <div className={styles.cardTitle}>Trade Points</div>
                     <div className={styles.cardValue}>{(data.points?.trade_points ?? 0).toLocaleString()}</div>
+                    <div className={styles.cardSub}>From trading volume</div>
                   </div>
                   <div className={styles.card}>
                     <div className={styles.cardTitle}>Dev Points</div>
                     <div className={styles.cardValue}>{(data.points?.dev_points ?? 0).toLocaleString()}</div>
+                    <div className={styles.cardSub}>From token creation</div>
                   </div>
                   <div className={styles.card}>
                     <div className={styles.cardTitle}>Referral Points</div>
                     <div className={styles.cardValue}>{(data.points?.referral_points ?? 0).toLocaleString()}</div>
+                    <div className={styles.cardSub}>From referrals</div>
                   </div>
                   <div className={`${styles.card} ${styles.cardHighlight}`}>
-                    <div className={styles.cardTitle}>Total</div>
+                    <div className={styles.cardTitle}>Total Points</div>
                     <div className={styles.cardValue}>{(data.points?.total ?? 0).toLocaleString()}</div>
+                    <div className={styles.cardSub}>All contributions</div>
                   </div>
                 </div>
               </div>
 
               <div className={styles.section}>
-                <div className={styles.sectionHeader}>Bases</div>
+                <div className={styles.sectionHeader}>Contribution Bases</div>
                 <div className={styles.cardsGrid}>
                   <div className={styles.card}>
                     <div className={styles.cardTitle}>My Trade Volume</div>
                     <div className={styles.cardValue}>{usd(data.bases?.my_trade_usd)}</div>
-                    <div className={styles.cardSub}>USD Equivalent</div>
+                    <div className={styles.cardSub}>Total USD traded</div>
                   </div>
                   <div className={styles.card}>
                     <div className={styles.cardTitle}>My Dev Spend</div>
                     <div className={styles.cardValue}>{usd(data.bases?.my_dev_usd_spent)}</div>
-                    <div className={styles.cardSub}>USD Spent</div>
+                    <div className={styles.cardSub}>Token creation fees</div>
                   </div>
                   <div className={styles.card}>
                     <div className={styles.cardTitle}>Referees Trade</div>
                     <div className={styles.cardValue}>{usd(data.bases?.referees_trade_usd)}</div>
-                    <div className={styles.cardSub}>USD Volume</div>
+                    <div className={styles.cardSub}>Referrals' volume</div>
                   </div>
                 </div>
               </div>
