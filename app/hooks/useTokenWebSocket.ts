@@ -7,6 +7,7 @@ import type { WebSocketTrade, ChartUpdateEvent } from '@/app/types/token';
 
 interface UseTokenWebSocketProps {
   tokenAddress: string | null;
+  resolution?: string;
   onTrade?: (trade: WebSocketTrade) => void;
   onChartUpdate?: (update: ChartUpdateEvent) => void;
 }
@@ -20,6 +21,7 @@ interface UseTokenWebSocketReturn {
 
 export function useTokenWebSocket({
   tokenAddress,
+  resolution = '1m',
   onTrade,
   onChartUpdate,
 }: UseTokenWebSocketProps): UseTokenWebSocketReturn {
@@ -29,6 +31,7 @@ export function useTokenWebSocket({
   const [lastTrade, setLastTrade] = useState<WebSocketTrade | null>(null);
   const [lastChartUpdate, setLastChartUpdate] = useState<ChartUpdateEvent | null>(null);
   const subscribedTokenRef = useRef<string | null>(null);
+  const subscribedResolutionRef = useRef<string | null>(null);
 
   // Initialize WebSocket connection
   const initializeConnection = useCallback(() => {
@@ -106,7 +109,7 @@ export function useTokenWebSocket({
   }, []); // Remove dependencies to prevent recreation
 
   // Subscribe to token updates
-  const subscribeToToken = useCallback((address: string) => {
+  const subscribeToToken = useCallback((address: string, res: string) => {
     const socket = socketRef.current;
     if (!socket || !socket.connected) {
       console.warn('Cannot subscribe: WebSocket not connected');
@@ -116,15 +119,24 @@ export function useTokenWebSocket({
     const normalizedAddress = address.toLowerCase();
     
     // Unsubscribe from previous token if different
-    if (subscribedTokenRef.current && subscribedTokenRef.current !== normalizedAddress) {
-      console.log('Unsubscribing from previous token:', subscribedTokenRef.current);
-      socket.emit('unsubscribe', subscribedTokenRef.current);
+    if (subscribedTokenRef.current && (subscribedTokenRef.current !== normalizedAddress || subscribedResolutionRef.current !== res)) {
+      console.log('Unsubscribing from previous token:', subscribedTokenRef.current, 'resolution:', subscribedResolutionRef.current);
+      try {
+        socket.emit('unsubscribe', { tokenAddress: subscribedTokenRef.current, resolution: subscribedResolutionRef.current });
+      } catch (err) {
+        console.error('Unsubscribe error:', err);
+      }
     }
 
-    // Subscribe to new token
-    console.log('Subscribing to token:', normalizedAddress);
-    socket.emit('subscribe', normalizedAddress);
+    // Subscribe to new token with resolution
+    console.log('Subscribing to token:', normalizedAddress, 'with resolution:', res);
+    try {
+      socket.emit('subscribe', { tokenAddress: normalizedAddress, resolution: String(res) });
+    } catch (err) {
+      console.error('Subscribe error:', err);
+    }
     subscribedTokenRef.current = normalizedAddress;
+    subscribedResolutionRef.current = res;
   }, []);
 
   // Unsubscribe from token updates
@@ -134,9 +146,14 @@ export function useTokenWebSocket({
       return;
     }
 
-    console.log('Unsubscribing from token:', subscribedTokenRef.current);
-    socket.emit('unsubscribe', subscribedTokenRef.current);
+    console.log('Unsubscribing from token:', subscribedTokenRef.current, 'resolution:', subscribedResolutionRef.current);
+    try {
+      socket.emit('unsubscribe', { tokenAddress: subscribedTokenRef.current, resolution: subscribedResolutionRef.current });
+    } catch (err) {
+      console.error('Unsubscribe error:', err);
+    }
     subscribedTokenRef.current = null;
+    subscribedResolutionRef.current = null;
   }, []);
 
   // Initialize connection on mount
@@ -148,14 +165,19 @@ export function useTokenWebSocket({
       if (socketRef.current) {
         console.log('Cleaning up WebSocket connection on unmount');
         if (subscribedTokenRef.current) {
-          console.log('Unsubscribing from token:', subscribedTokenRef.current);
-          socketRef.current.emit('unsubscribe', subscribedTokenRef.current);
+          console.log('Unsubscribing from token:', subscribedTokenRef.current, 'resolution:', subscribedResolutionRef.current);
+          try {
+            socketRef.current.emit('unsubscribe', { tokenAddress: subscribedTokenRef.current, resolution: subscribedResolutionRef.current });
+          } catch (err) {
+            console.error('Unsubscribe error:', err);
+          }
         }
         socketRef.current.disconnect();
         socketRef.current = null;
       }
       setIsConnected(false);
       subscribedTokenRef.current = null;
+      subscribedResolutionRef.current = null;
     };
   }, []); // Remove dependencies to prevent re-initialization
 
@@ -164,8 +186,13 @@ export function useTokenWebSocket({
     if (!tokenAddress) {
       if (subscribedTokenRef.current) {
         console.log('No token address, unsubscribing from:', subscribedTokenRef.current);
-        socketRef.current?.emit('unsubscribe', subscribedTokenRef.current);
+        try {
+          socketRef.current?.emit('unsubscribe', { tokenAddress: subscribedTokenRef.current, resolution: subscribedResolutionRef.current });
+        } catch (err) {
+          console.error('Unsubscribe error:', err);
+        }
         subscribedTokenRef.current = null;
+        subscribedResolutionRef.current = null;
       }
       return;
     }
@@ -173,21 +200,30 @@ export function useTokenWebSocket({
     if (isConnected && socketRef.current) {
       const normalizedAddress = tokenAddress.toLowerCase();
       
-      // Only subscribe if we're not already subscribed to this token
-      if (subscribedTokenRef.current !== normalizedAddress) {
+      // Subscribe if we're not already subscribed to this token with this resolution
+      if (subscribedTokenRef.current !== normalizedAddress || subscribedResolutionRef.current !== resolution) {
         // Unsubscribe from previous token if different
         if (subscribedTokenRef.current) {
-          console.log('Unsubscribing from previous token:', subscribedTokenRef.current);
-          socketRef.current.emit('unsubscribe', subscribedTokenRef.current);
+          console.log('Unsubscribing from previous token:', subscribedTokenRef.current, 'resolution:', subscribedResolutionRef.current);
+          try {
+            socketRef.current.emit('unsubscribe', { tokenAddress: subscribedTokenRef.current, resolution: subscribedResolutionRef.current });
+          } catch (err) {
+            console.error('Unsubscribe error:', err);
+          }
         }
 
-        // Subscribe to new token
-        console.log('Subscribing to token:', normalizedAddress);
-        socketRef.current.emit('subscribe', normalizedAddress);
+        // Subscribe to new token with resolution
+        console.log('Subscribing to token:', normalizedAddress, 'with resolution:', resolution);
+        try {
+          socketRef.current.emit('subscribe', { tokenAddress: normalizedAddress, resolution: String(resolution) });
+        } catch (err) {
+          console.error('Subscribe error:', err);
+        }
         subscribedTokenRef.current = normalizedAddress;
+        subscribedResolutionRef.current = resolution;
       }
     }
-  }, [tokenAddress, isConnected]);
+  }, [tokenAddress, resolution, isConnected]);
 
   // Handle page visibility changes (subscribe/unsubscribe on tab focus/blur)
   useEffect(() => {
@@ -200,16 +236,21 @@ export function useTokenWebSocket({
         console.log('Page visible - ensuring WebSocket subscription is active');
         if (tokenAddress && isConnected && socketRef.current && !subscribedTokenRef.current) {
           const normalizedAddress = tokenAddress.toLowerCase();
-          console.log('Re-subscribing to token after page became visible:', normalizedAddress);
-          socketRef.current.emit('subscribe', normalizedAddress);
+          console.log('Re-subscribing to token after page became visible:', normalizedAddress, 'with resolution:', resolution);
+          try {
+            socketRef.current.emit('subscribe', { tokenAddress: normalizedAddress, resolution: String(resolution) });
+          } catch (err) {
+            console.error('Subscribe error:', err);
+          }
           subscribedTokenRef.current = normalizedAddress;
+          subscribedResolutionRef.current = resolution;
         }
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [tokenAddress, isConnected]);
+  }, [tokenAddress, resolution, isConnected]);
 
   return {
     isConnected,

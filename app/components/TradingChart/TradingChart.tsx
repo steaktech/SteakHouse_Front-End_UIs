@@ -113,8 +113,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   // API: timeframe + token data
   const [timeframe, setTimeframe] = useState<string>('1m');
-  // Always fetch 1m base candles and token info; aggregate to other timeframes locally for live updates
-  const { data: apiTokenData, isLoading, error, refetch } = useTokenData(tokenAddress, { interval: '1m', limit: 200 });
+  // Fetch candles based on selected timeframe
+  const { data: apiTokenData, isLoading, error, refetch } = useTokenData(tokenAddress, { interval: timeframe, limit: 200 });
 
   // Force refetch when token address changes to ensure fresh trade data
   useEffect(() => {
@@ -200,8 +200,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     }
   }, [apiTokenData]);
 
-  // Aggregate 1m into selected timeframe for display
-  const candlesForDisplay = useMemo(() => aggregateCandles(candles1m, timeframe), [candles1m, timeframe]);
+  // Use candles directly from API for display (no aggregation needed)
+  const candlesForDisplay = useMemo(() => candles1m, [candles1m]);
 
   // Determine live price for display and price line: prefer last trade, then API price, then last close
   const livePrice: number | undefined = (() => {
@@ -246,7 +246,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const handleWsChartUpdate = ({ timeframe: tf, candle }: ChartUpdateEvent) => {
     // Debug: log incoming chart update from WebSocket
     console.log('[WS] Chart update', { timeframe: tf, candle });
-    // Only base 1m updates are expected; parse strings to numbers and normalize timestamp to ms
+    // Parse strings to numbers and normalize timestamp to ms
     const newCandle: Candle = {
       timestamp: toMs(Number(candle.timestamp)),
       open: typeof candle.open === 'string' ? parseFloat(candle.open) : (candle.open as unknown as number),
@@ -256,7 +256,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       volume: Number(candle.volume),
     };
 
-    // Update local 1m buffer used for aggregations and widgets
+    // Update local candle buffer for the current timeframe
     setCandles1m(prev => {
       if (!prev.length) return [newCandle];
       const last = prev[prev.length - 1];
@@ -323,6 +323,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   const { isConnected: wsConnected, connectionError: wsError } = useTokenWebSocket({
     tokenAddress: tokenAddress ?? null,
+    resolution: timeframe,
     onTrade: handleWsTrade,
     onChartUpdate: handleWsChartUpdate,
   });

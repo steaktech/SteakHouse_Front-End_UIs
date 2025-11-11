@@ -10,6 +10,7 @@ import { useWallet } from '@/app/hooks/useWallet';
 import { useShare } from './useShare';
 import { useHoldersData } from '@/app/hooks/useHoldersData';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
+import type { Candle } from '@/app/types/token';
 import {
   getChatHistory,
   getChatToken,
@@ -43,7 +44,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
   let change24hPct: number | undefined = undefined;
   if (candles.length >= 2) {
     // Try compute 24h change from candles; pick first candle >= 24h window
-    const inWindow = candles.filter(c => (typeof c.timestamp === 'number' ? c.timestamp : 0) >= dayAgoMs);
+    const inWindow = candles.filter((c: Candle) => (typeof c.timestamp === 'number' ? c.timestamp : 0) >= dayAgoMs);
     const series = inWindow.length >= 2 ? inWindow : candles;
     const first = series[0];
     const last = series[series.length - 1];
