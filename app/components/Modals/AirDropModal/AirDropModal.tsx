@@ -208,7 +208,7 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
                   </div>
                   <div className={styles.disclaimer}>
                     <Icons.Info />
-                    <span>Your share is calculated proportionally based on your points relative to all users. These values are based on <strong>6% of the supply</strong> being allocated to the airdrop. The airdrop pool will be <strong>$240K–$1.2M</strong> (depending on final raise), distributed proportionally among all participants. Your percentage may change as more users earn points.</span>
+                    <span>Your share is calculated proportionally based on your points relative to all users. These values are based on <strong>6% of the $STEAK supply</strong> being allocated to the airdrop. The airdrop pool will be <strong>$240K–$1.2M</strong> (depending on final raise), distributed proportionally among all participants. Your percentage may change as more users earn points.</span>
                   </div>
                 </div>
               </div>
