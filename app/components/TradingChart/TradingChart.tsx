@@ -127,7 +127,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Set brand colors to match token palette if available
   useEffect(() => {
     const autoBrand = apiTokenData?.tokenInfo?.auto_brand ?? false;
-    const palette = apiTokenData?.tokenInfo?.palette || '';
+    const palette = apiTokenData?.tokenInfo?.color_palette || '';
     if (palette && palette !== '' && autoBrand) {
       const colors = JSON.parse(palette);
       const r = document.documentElement;
@@ -139,7 +139,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       r.style.setProperty('--ab-text-200', colors?.recommended?.text);
       r.style.setProperty('--ab-text-400', colors?.recommended?.text);
     }
-  }, [apiTokenData?.tokenInfo?.palette]);
+  }, [apiTokenData?.tokenInfo?.color_palette]);
   
   // Create audio player ref and handle audio URL updates
   const mp3PlayerRef = useRef<HTMLAudioElement>(null);

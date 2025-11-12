@@ -21,7 +21,6 @@ import styles from './CreateTokenModal.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
 import { getNewStealthToken } from '@/app/lib/api/services/stealthService';
 import { useRouter } from 'next/navigation';
-import { analyzeImageWithGPT } from '@/app/lib/api/services/aiService';
 
 // Ensure Sepolia network
 const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7';
@@ -404,7 +403,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             usd_spent
           });
           
-          await createTokenApi(state, files, resolvedTokenAddress, { usd_spent });
+          await createTokenApi(state, files, resolvedTokenAddress, walletAddress, { usd_spent });
           if (resolvedTokenAddress) {
             router.push(`/trading-chart/${resolvedTokenAddress}`);
           }
@@ -474,15 +473,6 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       onClose();
     }
   }, [onClose]);
-
-  const analyzeAndUpdatePalette = async (imageSource: File | string) => {
-    const result = await analyzeImageWithGPT(imageSource);
-    handleMetaChange('palette', JSON.stringify({
-      colors: result.palette,
-      recommended: result.recommended
-    }));
-    console.log('Image analyzed successfully:', result);
-  };
 
   if (!isOpen || !mounted) return null;
 
@@ -697,32 +687,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                     goToStep(4);
                   }
                 }}
-                onContinue={async () => {
-                  try {
-                    const { bannerFile, banner, logoFile, logo, autoBrand } = state.meta;
-                    const imageSource = logoFile || logo || bannerFile || banner;
-
-                    // Skip analysis if no image or autoBrand is false
-                    if (!imageSource) {
-                      goToStep(6);
-                      return;
-                    }
-
-                    // If autoBrand is false, start analysis in background and continue
-                    if (!autoBrand) {
-                      goToStep(6);
-                      analyzeAndUpdatePalette(imageSource).catch(console.error);
-                      return;
-                    }
-
-                    // Otherwise wait for analysis before continuing
-                    await analyzeAndUpdatePalette(imageSource);
-                    goToStep(6);
-                  } catch (error) {
-                    console.error('Failed to analyze image:', error);
-                    goToStep(6);
-                  }
-                }}
+                onContinue={async () => goToStep(6)}
               />
             )}
 

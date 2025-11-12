@@ -37,6 +37,10 @@ export interface CreateTokenApiRequest {
   is_stealth?: boolean;
   is_super_simple?: boolean;
   is_zero_simple?: boolean;
+  auto_brand?: boolean;
+
+  // Auto-branding color palette
+  color_palette?: string;
   
   /**
    * Explicit profile choice for backend routing: 'basic' | 'advanced' | 'simple' | 'zero'
