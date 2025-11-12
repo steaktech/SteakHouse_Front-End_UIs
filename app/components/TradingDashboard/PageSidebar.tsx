@@ -174,14 +174,22 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
           >
             <ChevronUp size={20} className="text-amber-200" />
           </button>
-          {/* Desktop: middle-left */}
+          {/* Desktop: middle-left with vertical text */}
           <button
             onClick={() => setExpanded(true)}
             type="button"
             aria-label="Expand sidebar"
-            className="hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full transition-all shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl border border-white/20"
+            className="hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 px-2 py-3 rounded-xl transition-all shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl border border-white/20"
           >
-            <ChevronRight size={18} className="text-amber-200" />
+            <ChevronRight size={16} className="text-amber-200" />
+            <div className="w-[2px] h-4 bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)]" />
+            <h2 
+              className="text-[#daa20b] text-[11px] font-semibold tracking-[1px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]"
+              style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+            >
+              WIDGETS
+            </h2>
+            <div className="w-[2px] h-4 bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)]" />
           </button>
         </>
       )}
