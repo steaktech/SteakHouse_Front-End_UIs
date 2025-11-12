@@ -405,12 +405,40 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
       {/* Floating expand toggle (visible only when collapsed) */}
       {!expanded && (
         <>
+          <style jsx>{`
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+              }
+              to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+              }
+            }
+            @keyframes fadeInRight {
+              from {
+                opacity: 0;
+                transform: translate(-20px, -50%);
+              }
+              to {
+                opacity: 1;
+                transform: translate(0, -50%);
+              }
+            }
+            .expand-btn-mobile {
+              animation: fadeInUp 0.4s ease-out 0.3s both;
+            }
+            .expand-btn-desktop {
+              animation: fadeInRight 0.4s ease-out 0.3s both;
+            }
+          `}</style>
           {/* Mobile: bottom-center */}
           <button
             onClick={() => setExpanded(true)}
             type="button"
             aria-label="Expand sidebar"
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 p-3 rounded-full transition-all shadow-lg bg-[#1b0a03]/60 hover:bg-[#1b0a03]/70 backdrop-blur-xl border border-white/20 md:hidden"
+            className="expand-btn-mobile fixed bottom-4 left-1/2 -translate-x-1/2 z-40 p-3 rounded-full transition-all duration-200 shadow-lg bg-[#1b0a03]/60 hover:bg-[#1b0a03]/70 hover:scale-110 backdrop-blur-xl border border-white/20 md:hidden"
           >
             <ChevronUp size={20} className="text-amber-200" />
           </button>
@@ -419,7 +447,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             onClick={() => setExpanded(true)}
             type="button"
             aria-label="Expand sidebar"
-            className="hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 px-2 py-3 rounded-xl transition-all shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl border border-white/20"
+            className="expand-btn-desktop hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 px-2 py-3 rounded-xl transition-all duration-200 shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 hover:scale-105 backdrop-blur-xl border border-white/20"
           >
             <ChevronRight size={16} className="text-amber-200" />
             <div className="w-[2px] h-4 bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)]" />
