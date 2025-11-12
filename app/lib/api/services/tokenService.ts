@@ -59,13 +59,36 @@ export async function getTokensByMarketCap(params?: URLSearchParams): Promise<Pa
 
 /**
  * Fetches the complete data set for a single token page.
- * [cite_start]GET /api/token/:address/full [cite: 436]
+ * Now uses /info endpoint for token data and /chart endpoint for candles.
  */
 export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<FullTokenDataResponse> {
   console.log('getFullTokenData API call for:', address, { interval, limit });
   try {
-    // Use /full endpoint with query params to get all trades, not just 1m timeframe trades
-    const result = await apiClient<FullTokenDataResponse>(`/token/${address}/full?interval=${interval}&limit=${limit}`);
+    // Fetch token info and chart data in parallel
+    const [infoData, chartData] = await Promise.all([
+      apiClient<{
+        token: string;
+        tokenInfo: FullTokenDataResponse['tokenInfo'];
+        price: number;
+        marketCap: number;
+        lastTrade: FullTokenDataResponse['lastTrade'];
+        recentTrades: FullTokenDataResponse['recentTrades'];
+      }>(`/token/${address}/info`),
+      apiClient<{ token: string; candles: FullTokenDataResponse['candles'] }>(`/token/${address}/chart?timeframe=${interval}&limit=${limit}`)
+    ]);
+
+    // Merge the results to maintain backward compatibility
+    const result: FullTokenDataResponse = {
+      token: infoData.token,
+      tokenInfo: infoData.tokenInfo,
+      price: infoData.price,
+      marketCap: infoData.marketCap,
+      lastTrade: infoData.lastTrade,
+      recentTrades: infoData.recentTrades,
+      candles: chartData.candles,
+      interval: interval,
+    };
+
     console.log('getFullTokenData success for:', address, result);
     return result;
   } catch (error) {
