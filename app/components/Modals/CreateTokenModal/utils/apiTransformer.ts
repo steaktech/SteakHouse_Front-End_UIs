@@ -252,7 +252,15 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   if (state.meta.tw) {
     request.twitter = state.meta.tw;
   }
-  
+
+  // Auto-branding
+  if (state.meta.autoBrand) {
+    request.auto_brand = true;
+  }
+  if (state.meta.palette) {
+    request.color_palette = state.meta.palette;
+  }
+
   // Image URLs (files are handled separately)
   if (state.meta.logo && !state.meta.logoFile) {
     request.image_url = state.meta.logo;

@@ -46,7 +46,7 @@ export interface Token {
     banner_url?: string | null;
     mp3_url: string | null;
     auto_brand: boolean;
-    palette: string | null;
+    color_palette: string | null;
     bio: string | null;
     telegram: string | null;
     twitter: string | null;
@@ -106,17 +106,16 @@ export interface TokenInfo {
   symbol: string;
   burn_lp: boolean;
   creator: string;
-  palette: string | null;
+  mp3_url: string | null;
   twitter: string | null;
   website: string | null;
   catagory: string | null;
   eth_pool: number;
   telegram: string | null;
   graduated: boolean;
-  mp3_url: string | null;
   image_url: string | null;
+  auto_brand: boolean;
   banner_url: string | null;
-  auto_brand: boolean
   is_stealth: boolean;
   start_time: number;
   tax_wallet: string | null;
@@ -127,6 +126,7 @@ export interface TokenInfo {
   max_tx_step: number;
   curve_max_tx: number;
   total_supply: number;
+  color_palette: string | null;
   tax_drop_step: string | null;
   token_address: string;
   final_tax_rate: number;

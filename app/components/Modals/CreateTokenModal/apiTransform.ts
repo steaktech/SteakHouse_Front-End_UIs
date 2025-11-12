@@ -57,6 +57,10 @@ export function transformTokenStateToApiData(
     eth_pool: "0",
     circulating_supply: "0",
     graduated: false,
+
+    // Auto-branding
+    auto_brand: meta.autoBrand ? true : false,
+    color_palette: meta.palette || undefined,
     
     // Social media and metadata
     bio: meta.desc || undefined,

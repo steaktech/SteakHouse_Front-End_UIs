@@ -21,7 +21,12 @@ export class CreateTokenService {
     // Helper function to append values (following client's pattern)
     const append = (k: string, v: string | number | boolean | undefined | null) => {
       if (v !== undefined && v !== null && v !== '') {
-        formData.append(k, String(v));
+        // Special handling for JSON fields - don't double-stringify
+        if (k === 'color_palette' && typeof v === 'string' && v.startsWith('{')) {
+          formData.append(k, v); // Already JSON stringified, append as-is
+        } else {
+          formData.append(k, String(v));
+        }
       }
     };
 
