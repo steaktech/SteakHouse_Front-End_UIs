@@ -170,6 +170,7 @@ export interface FullTokenDataResponse {
   tokenInfo: TokenInfo;
   price: number;
   marketCap: number;
+  volume24h?: number;      // 24-hour trading volume
   lastTrade: Trade;
   recentTrades: Trade[];  // Primary field name
   trades?: Trade[];        // Alternative field name for backward compatibility

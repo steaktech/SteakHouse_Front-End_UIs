@@ -5,17 +5,17 @@ export interface StatCardProps {
 
 export interface TokenCardProps {
   isOneStop?: boolean;
-  imageUrl: string;
+  imageUrl?: string;
   // Optional banner image for the top of the card
   bannerUrl?: string;
-  name: string;
-  symbol: string;
-  tag: string;
-  tagColor: string;
-  description: string;
-  mcap: string;
-  liquidity: string;
-  volume: string;
+  name?: string;
+  symbol?: string;
+  tag?: string;
+  tagColor?: string;
+  description?: string;
+  mcap?: string;
+  liquidity?: string;
+  volume?: string;
   // Dynamic tax info (optional)
   currentTax?: string;
   finalTax?: string;

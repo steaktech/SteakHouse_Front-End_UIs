@@ -274,13 +274,6 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
     request.mp3_url = state.meta.mp3;
   }
   
-  // Category
-  if (state.basics.tokenCategory) {
-    // Map our categories to a simple string (API field name is 'catagory' with typo)
-    // We'll send it to match the API expectation
-    request.bio = request.bio ? `${request.bio} [${state.basics.tokenCategory}]` : `[${state.basics.tokenCategory}]`;
-  }
-  
   // Set timestamps
   request.created_at_timestamp = Date.now();
   

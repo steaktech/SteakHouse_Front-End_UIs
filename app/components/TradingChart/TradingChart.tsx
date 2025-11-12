@@ -97,18 +97,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [showLimitOrders, setShowLimitOrders] = useState(false);
   const [tokenData, setTokenData] = useState<TokenCardProps>({
-    isOneStop: false,
-    imageUrl: '/images/info_icon.jpg',
-    name: 'SpaceMan',
-    symbol: 'SPACE',
-    tag: 'Meme',
-    tagColor: '#fade79',
-    description: 'Spaceman is a meme deflationary token with a finite supply and buyback and burn mechanism.',
-    mcap: '$21.5K',
-    liquidity: '$2.3K',
-    volume: '$6.2K',
     token_address: tokenAddress,
-    progress: 82
   });
 
   // API: timeframe + token data
@@ -356,20 +345,31 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     ? (() => {
         const circulating = Number(apiInfo.circulating_supply);
         const cap = Number(apiInfo.graduation_cap_norm);
-        return !isNaN(circulating) && !isNaN(cap) && cap > 0 ? (circulating / cap) * 100 : (tokenData.progress ?? 0);
+        return !isNaN(circulating) && !isNaN(cap) && cap > 0 ? (circulating / cap) * 100 : 0;
       })()
-    : (tokenData.progress ?? 0);
+    : 0;
+  
+  // Use volume24h from API
   const volumeUsd = (() => {
-    const last = lastWsTradeRef.current ?? apiLastTrade ?? null;
-    if (!last) return tokenData.volume;
-    const v = typeof last.usdValue === 'string'
-      ? parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, ''))
-      : Number(last.usdValue ?? 0);
-    return isNaN(v) ? tokenData.volume : `$${v.toFixed(2)}`;
+    const vol24h = apiTokenData?.volume24h;
+    if (vol24h != null && !isNaN(Number(vol24h))) {
+      return formatShort(Number(vol24h));
+    }
+    return undefined;
   })();
+  
+  // Use marketCap from API
+  const marketCapFormatted = (() => {
+    const mcap = apiTokenData?.marketCap;
+    if (mcap != null && !isNaN(Number(mcap))) {
+      return formatShort(Number(mcap));
+    }
+    return undefined;
+  })();
+  
   const mobileStyleTokenData: TokenData = {
-    name: apiInfo?.name ?? tokenData.name,
-    symbol: apiInfo?.symbol ?? tokenData.symbol,
+    name: apiInfo?.name ?? 'Unknown',
+    symbol: apiInfo?.symbol ?? '???',
     logo: apiInfo?.image_url ?? undefined,
     bannerUrl: apiInfo?.banner_url ?? undefined,
     currentTax: {
@@ -377,13 +377,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       sell: taxValue,
     },
     maxTransaction: Number(maxTxPctNum.toFixed(1)),
-    description: apiInfo?.bio ?? tokenData.description,
-    marketCap: formatShort((lastWsTradeRef.current?.marketCap ?? apiTokenData?.marketCap) as number) ?? tokenData.mcap,
+    description: apiInfo?.bio ?? undefined,
+    marketCap: marketCapFormatted,
     volume: volumeUsd,
-    liquidityPool: apiInfo?.eth_pool != null ? `${Number(apiInfo.eth_pool).toFixed(2)} ETH` : tokenData.liquidity,
+    liquidityPool: apiInfo?.eth_pool != null ? `${Number(apiInfo.eth_pool).toFixed(2)} ETH` : undefined,
     bondingProgress: bondingPct,
-    tag: apiInfo?.catagory ?? tokenData.tag,
-    tagColor: tokenData.tagColor,
+    tag: apiInfo?.catagory ?? undefined,
+    tagColor: undefined,
     address: apiInfo?.real_token_address ?? apiInfo?.token_address ?? tokenAddress,
     contractAddress: apiInfo?.token_address ?? undefined,
   };

@@ -12,11 +12,15 @@ import {
   Plus,
   Bot,
   Link,
+  Lock,
 } from "lucide-react";
 import { SavedTokenWidget } from "../Widgets/SavedToken";
 import { ExplorerWidget } from "../Widgets/ExplorerWidget";
 import { ChartUserProfileWidget } from "../Widgets/ChartUserProfile";
+import { LockerWidget } from "../Widgets/LockerWidget";
+import AirDropModal from "../Modals/AirDropModal";
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
+import { useTrading } from '@/app/hooks/useTrading';
 
 interface PageSidebarProps {
   className?: string;
@@ -71,13 +75,18 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   const DEFAULT_TOP_OFFSET = "calc(4rem + 4rem + 1.5rem)";
   const [desktopTopOffset, setDesktopTopOffset] = useState<string>(DEFAULT_TOP_OFFSET);
 
-  // Widget open states (only Saved, Explorer, User)
+  // Widget open states
   const [savedOpen, setSavedOpen] = useState(false);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [lockerOpen, setLockerOpen] = useState(false);
+  const [airdropOpen, setAirdropOpen] = useState(false);
 
   // Use the same price data hook as the token creation wizard
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
+  
+  // Get trading state for airdrop modal
+  const { tradingState } = useTrading();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -148,9 +157,9 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
     window.open('#certik', '_blank');
   };
 
-  // Sidebar items — only Saved, Explorer, User are active
+  // Sidebar items — Saved, Explorer, User, Locker are active
   // Commented out items (kept for reference):
-  // Chart, Token, Trade, Holders, Chat, Locker
+  // Chart, Token, Trade, Holders, Chat
   const items: ItemProps[] = [
     {
       icon: <Bookmark size={16} className="text-[#d29900]" />,
@@ -165,6 +174,13 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
       active: explorerOpen,
       expanded,
       onClick: () => setExplorerOpen((v) => !v),
+    },
+    {
+      icon: <Lock size={16} className="text-[#d29900]" />,
+      label: "Locker",
+      active: lockerOpen,
+      expanded,
+      onClick: () => setLockerOpen((v) => !v),
     },
     {
       icon: <UserIcon size={16} className="text-[#d29900]" />,
@@ -246,6 +262,44 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             greyedOut={false}
             onClick={handleLinksClick}
           />
+
+          {/* Airdrop Button */}
+          <div className="mx-1.5 mb-2">
+            <style jsx>{`
+              @keyframes bounce-gift {
+                0%, 100% {
+                  transform: translateY(0);
+                  animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+                }
+                50% {
+                  transform: translateY(-25%);
+                  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+                }
+              }
+              .gift-bounce {
+                display: inline-block;
+                animation: bounce-gift 1s infinite;
+              }
+            `}</style>
+            <button
+              onClick={() => setAirdropOpen(true)}
+              disabled={!tradingState?.tradingWallet}
+              className={`w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 ${
+                tradingState?.tradingWallet
+                  ? 'bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg'
+                  : 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
+              }`}
+              title={tradingState?.tradingWallet ? 'View your airdrop points' : 'Trading wallet not ready yet'}
+            >
+              {expanded ? (
+                <>
+                  <span className="gift-bounce">🎁</span> Airdrop Points
+                </>
+              ) : (
+                <span className="gift-bounce">🎁</span>
+              )}
+            </button>
+          </div>
 
           {/* ETH Price and GWEI Display */}
           <div className="mx-2.5 mt-2 mb-1.5">
@@ -332,8 +386,20 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
       {explorerOpen && (
         <ExplorerWidget isOpen={explorerOpen} onClose={() => setExplorerOpen(false)} />
       )}
+      {lockerOpen && (
+        <LockerWidget isOpen={lockerOpen} onClose={() => setLockerOpen(false)} />
+      )}
       {userOpen && (
         <ChartUserProfileWidget isOpen={userOpen} onClose={() => setUserOpen(false)} />
+      )}
+
+      {/* AirDrop Modal */}
+      {airdropOpen && (
+        <AirDropModal
+          isOpen={airdropOpen}
+          onClose={() => setAirdropOpen(false)}
+          tradingWallet={tradingState?.tradingWallet || null}
+        />
       )}
 
       {/* Floating expand toggle (visible only when collapsed) */}

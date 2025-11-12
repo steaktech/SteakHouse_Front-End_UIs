@@ -27,12 +27,12 @@ export interface TokenData {
     sell: number;
   };
   maxTransaction: number;
-  description: string;
-  marketCap: string;
-  volume: string;
-  liquidityPool: string;
+  description?: string;
+  marketCap?: string;
+  volume?: string;
+  liquidityPool?: string;
   bondingProgress: number;
-  tag: string;
+  tag?: string;
   tagColor?: string;
   address?: string;
   contractAddress?: string;
@@ -381,7 +381,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         </div>
 
         <div className={styles.badgeRow}>
-          <div className={styles.badge}>{tokenData.tag}</div>
+          {tokenData.tag && <div className={styles.badge}>{tokenData.tag}</div>}
           <button
             className={`${styles.copyTokenBtn} ${copied ? styles.copied : ''}`}
             onClick={handleCopyToken}
@@ -407,36 +407,38 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       </section>
 
       {/* Description only (social icons moved to top chart toolbar) */}
-      <div style={{
-        margin: isLimitMode ? '2px 0 4px' : undefined
-      }}>
-        <p className={styles.desc} style={{
-          fontSize: isLimitMode ? '13px' : '15px',
-          lineHeight: 1.5,
-          fontWeight: 500
+      {tokenData.description && (
+        <div style={{
+          margin: isLimitMode ? '2px 0 4px' : undefined
         }}>
-          {tokenData.description}
-        </p>
-        {/**
-         * Social buttons stacked vertically on the right (commented out)
-         * <nav aria-label="Social links" style={{
-         *   display: 'flex',
-         *   flexDirection: 'column',
-         *   gap: '4px',
-         *   flexShrink: 0
-         * }}>
-         *   <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram" style={{ width: '20px', height: '20px' }}>
-         *     <Send size={8} />
-         *   </button>
-         *   <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X" style={{ width: '20px', height: '20px' }}>
-         *     <TwitterIcon />
-         *   </button>
-         *   <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website" style={{ width: '20px', height: '20px' }}>
-         *     <Globe size={8} />
-         *   </button>
-         * </nav>
-         */}
-      </div>
+          <p className={styles.desc} style={{
+            fontSize: isLimitMode ? '13px' : '15px',
+            lineHeight: 1.5,
+            fontWeight: 500
+          }}>
+            {tokenData.description}
+          </p>
+          {/**
+           * Social buttons stacked vertically on the right (commented out)
+           * <nav aria-label="Social links" style={{
+           *   display: 'flex',
+           *   flexDirection: 'column',
+           *   gap: '4px',
+           *   flexShrink: 0
+           * }}>
+           *   <button className={styles.socialBtn} onClick={handleTelegramClick} aria-label="Telegram" title="Telegram" style={{ width: '20px', height: '20px' }}>
+           *     <Send size={8} />
+           *   </button>
+           *   <button className={styles.socialBtn} onClick={handleTwitterClick} aria-label="X (Twitter)" title="X" style={{ width: '20px', height: '20px' }}>
+           *     <TwitterIcon />
+           *   </button>
+           *   <button className={styles.socialBtn} onClick={handleWebsiteClick} aria-label="Website" title="Website" style={{ width: '20px', height: '20px' }}>
+           *     <Globe size={8} />
+           *   </button>
+           * </nav>
+           */}
+        </div>
+      )}
 
       {/* Bottom panel: stats row + searing progress bar */}
       <section className={styles.score} style={{
@@ -451,19 +453,19 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             padding: isLimitMode ? '4px 5px' : undefined
           }}>
             <div className="statLabel">MCAP</div>
-            <div className="statValue">{tokenData.marketCap}</div>
+            <div className="statValue">{tokenData.marketCap || '$0'}</div>
           </div>
           <div className="stat" style={{
             padding: isLimitMode ? '4px 5px' : undefined
           }}>
             <div className="statLabel">VOLUME</div>
-            <div className="statValue">{tokenData.volume}</div>
+            <div className="statValue">{tokenData.volume || '$0'}</div>
           </div>
           <div className="stat" style={{
             padding: isLimitMode ? '4px 5px' : undefined
           }}>
             <div className="statLabel">LP</div>
-            <div className="statValue">{tokenData.liquidityPool}</div>
+            <div className="statValue">{tokenData.liquidityPool || '0 ETH'}</div>
           </div>
         </div>
 
