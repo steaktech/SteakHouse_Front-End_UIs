@@ -12,7 +12,7 @@ import {
   LockFormData
 } from './types';
 import { signAndSubmitTransaction } from '@/app/lib/web3/services/transactionService';
-import { fetchLocks as apiFetchLocks, buildWithdrawLock, buildExtendLock, buildTransferLock } from '@/app/lib/api/services/lockerService';
+import { fetchLocks as apiFetchLocks, buildWithdrawLock, buildExtendLock, buildTransferLock, buildCreateLock } from '@/app/lib/api/services/lockerService';
 import { useAccount } from 'wagmi';
 
 
@@ -300,19 +300,52 @@ const handleCreateLock = async () => {
       await onLockCreate(state.formData);
       created = true;
     } else {
-      alert('Create lock API is not available yet. Please use Extend/Withdraw/Transfer while create is being added.');
-      return;
+      // Ensure wallet address is available
+      if (!walletAddress) {
+        throw new Error('Wallet address is required to create lock');
+      }
+      
+      // Use buildCreateLock API
+      // POST /createLock { token, amount, lockDuration, owner }
+      const unsigned = await buildCreateLock(
+        state.formData.tokenAddress,
+        state.formData.amount,
+        state.formData.lockDuration,
+        walletAddress
+      );
+      
+      // Normalize gas field to hex string as 'gas'
+      const gasDec = unsigned.gas ?? unsigned.gasLimit;
+      const gasHex = gasDec ? ('0x' + Number(gasDec).toString(16)) : undefined;
+      const toSend = {
+        from: (walletAddress || unsigned.from),
+        ...(unsigned.to ? { to: unsigned.to } : {}),
+        ...(unsigned.data ? { data: unsigned.data } : {}),
+        ...(gasHex ? { gas: gasHex } : {}),
+        ...(unsigned.value ? { value: unsigned.value } : {}),
+        ...(unsigned.maxFeePerGas ? { maxFeePerGas: unsigned.maxFeePerGas } : {}),
+        ...(unsigned.maxPriorityFeePerGas ? { maxPriorityFeePerGas: unsigned.maxPriorityFeePerGas } : {}),
+        ...(unsigned.gasPrice ? { gasPrice: unsigned.gasPrice } : {}),
+      } as any;
+      
+      const txHashOrAddr = await signAndSubmitTransaction(toSend, false);
+      if (!txHashOrAddr) throw new Error('Transaction failed or was rejected');
+      
+      created = true;
+      // Refresh from API to ensure accurate state
+      await refreshLocks();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating lock:', error);
-    alert('Failed to create lock');
+    const msg = error?.message || 'Failed to create lock';
+    alert(msg);
   } finally {
     if (created) {
       setState(prev => ({
         ...prev,
         formData: {
           tokenAddress: '',
-          amount: '',
+          amount: '100',
           lockDuration: 30,
         },
         activeTab: 'manage',
