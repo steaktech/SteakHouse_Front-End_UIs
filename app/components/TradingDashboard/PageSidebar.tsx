@@ -10,10 +10,13 @@ import {
   ChevronUp,
   ChevronDown,
   Plus,
+  Bot,
+  Link,
 } from "lucide-react";
 import { SavedTokenWidget } from "../Widgets/SavedToken";
 import { ExplorerWidget } from "../Widgets/ExplorerWidget";
 import { ChartUserProfileWidget } from "../Widgets/ChartUserProfile";
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 interface PageSidebarProps {
   className?: string;
@@ -73,6 +76,9 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
 
+  // Use the same price data hook as the token creation wizard
+  const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -123,6 +129,23 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   }) = {
     "--sidebar-top-offset": desktopTopOffset,
     "--sidebar-max-height": "calc(100vh - var(--sidebar-top-offset) - 1.5rem)",
+  };
+
+  // Parse GWEI from formatted gas price (e.g., "25 gwei" -> 25)
+  const gwei = formattedGasPrice ? parseFloat(formattedGasPrice.replace(/[^0-9.]/g, '')) : null;
+
+  // Handlers for bottom section
+  const handleSteakTechBotClick = () => {
+    console.log('SteakTech Bot clicked');
+  };
+
+  const handleLinksClick = () => {
+    console.log('Links clicked');
+  };
+
+  const handleCertikClick = () => {
+    console.log('Certik clicked');
+    window.open('#certik', '_blank');
   };
 
   // Sidebar items — only Saved, Explorer, User are active
@@ -203,6 +226,102 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             />
           ))}
         </nav>
+
+        {/* Bottom Section - Fixed at bottom */}
+        <div className="flex-shrink-0 border-t border-white/20 pt-3 pb-3">
+          {/* SteakTech Bot */}
+          <Item
+            icon={<Bot size={16} className="text-[#d29900]" />}
+            label="SteakTech Bot"
+            expanded={expanded}
+            greyedOut={false}
+            onClick={handleSteakTechBotClick}
+          />
+
+          {/* Links */}
+          <Item
+            icon={<Link size={16} className="text-[#d29900]" />}
+            label="Links"
+            expanded={expanded}
+            greyedOut={false}
+            onClick={handleLinksClick}
+          />
+
+          {/* ETH Price and GWEI Display */}
+          <div className="mx-2.5 mt-2 mb-1.5">
+            {/* ETH Price */}
+            <div 
+              className="mb-1.5 px-2 py-1.5"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className="text-[#d29900] flex-shrink-0">
+                  <path d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z" fill="#8C8C8C" />
+                  <path d="M127.962 0L0 212.32l127.962 75.639V154.158z" fill="#6C6C6C" />
+                  <path d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z" fill="#8C8C8C" />
+                  <path d="M127.962 416.905v-104.72L0 236.585z" fill="#6C6C6C" />
+                </svg>
+                {expanded && (
+                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">ETH</span>
+                )}
+              </div>
+              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+                {priceLoading ? '...' : ethPrice ? `$${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '---'}
+              </span>
+            </div>
+
+            {/* GWEI */}
+            <div 
+              className="px-2 py-1.5"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                <span className="flex-shrink-0" style={{ fontSize: '12px', lineHeight: 1 }}>⛽️</span>
+                {expanded && (
+                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">GWEI</span>
+                )}
+              </div>
+              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+                {priceLoading ? '...' : gwei ? gwei.toFixed(1) : '---'}
+              </span>
+            </div>
+          </div>
+
+          {/* Certik Badge - Full width, styled like main page Footer */}
+          <div className="mx-1.5 mt-1.5 flex justify-center">
+            <button
+              onClick={handleCertikClick}
+              className="p-1.5 bg-black/30 hover:bg-black/50 border border-white/40 rounded-md transition-all duration-200 flex items-center justify-center w-full"
+              title="View CertiK Certificate"
+            >
+              <img
+                src="/images/certik-logo-v2.png"
+                alt="CertiK logo"
+                className="h-[14px] w-auto opacity-90"
+              />
+            </button>
+          </div>
+        </div>
 
       </aside>
 
