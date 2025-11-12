@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bookmark,
   ExternalLink,
@@ -65,11 +65,65 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
 
 export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   const [expanded, setExpanded] = useState(false);
+  const DEFAULT_TOP_OFFSET = "calc(4rem + 4rem + 1.5rem)";
+  const [desktopTopOffset, setDesktopTopOffset] = useState<string>(DEFAULT_TOP_OFFSET);
 
   // Widget open states (only Saved, Explorer, User)
   const [savedOpen, setSavedOpen] = useState(false);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const EXTRA_SPACING_TOP = 24; // keep a small gap below the top bars
+    let animationFrame = 0;
+
+    const measureOffsets = () => {
+      if (animationFrame) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+
+      animationFrame = window.requestAnimationFrame(() => {
+        const headerEl = document.querySelector<HTMLElement>("[data-app-header]");
+        const trendingEl = document.querySelector<HTMLElement>("[data-trending-bar]");
+
+        const headerHeight = headerEl?.getBoundingClientRect().height ?? 0;
+        const trendingHeight = trendingEl?.getBoundingClientRect().height ?? 0;
+
+        if (headerHeight || trendingHeight) {
+          const total = headerHeight + trendingHeight + EXTRA_SPACING_TOP;
+          setDesktopTopOffset((prev) => {
+            const next = `${total}px`;
+            return prev === next ? prev : next;
+          });
+        } else {
+          setDesktopTopOffset((prev) => (prev === DEFAULT_TOP_OFFSET ? prev : DEFAULT_TOP_OFFSET));
+        }
+      });
+    };
+
+    measureOffsets();
+
+    window.addEventListener("resize", measureOffsets);
+    window.addEventListener("orientationchange", measureOffsets);
+
+    return () => {
+      window.removeEventListener("resize", measureOffsets);
+      window.removeEventListener("orientationchange", measureOffsets);
+      if (animationFrame) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, []);
+
+  const sidebarStyle: (React.CSSProperties & {
+    "--sidebar-top-offset"?: string;
+    "--sidebar-max-height"?: string;
+  }) = {
+    "--sidebar-top-offset": desktopTopOffset,
+    "--sidebar-max-height": "calc(100vh - var(--sidebar-top-offset) - 1.5rem)",
+  };
 
   // Sidebar items — only Saved, Explorer, User are active
   // Commented out items (kept for reference):
@@ -109,7 +163,8 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
       )}
 
       <aside
-        className={`fixed inset-x-0 bottom-0 md:absolute md:top-0 md:bottom-0 md:left-0 z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-full w-full md:w-[160px] rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full pointer-events-none'} ${className || ''}`}
+    style={sidebarStyle}
+    className={`fixed inset-x-0 bottom-0 md:sticky md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full md:w-[160px] rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-[10px] pt-[12px] pb-[14px] relative">
