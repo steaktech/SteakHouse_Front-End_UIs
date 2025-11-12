@@ -12,12 +12,12 @@ export default function Home() {
         <Header />
         <TrendingBar />
 
-        {/* Body area: sidebar on the left between TrendingBar and Footer */}
-        <section className="relative flex items-stretch gap-0 w-full">
-          <PageSidebar />
-          <div className="flex-1 min-w-0 -mt-5 md:-mt-8 lg:-mt-10">
-            <TradingDashboard />
-          </div>
+        {/* PageSidebar is position:fixed, so it's outside the normal flow */}
+        <PageSidebar />
+        
+        {/* Body area: full width since sidebar doesn't take up space */}
+        <section className="relative w-full -mt-5 md:-mt-8 lg:-mt-10">
+          <TradingDashboard />
         </section>
       </main>
       <Footer />

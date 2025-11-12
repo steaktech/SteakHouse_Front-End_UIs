@@ -203,7 +203,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
       <aside
     style={sidebarStyle}
-    className={`fixed inset-x-0 bottom-0 md:sticky md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full md:w-[160px] rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full pointer-events-none'} ${className || ''}`}
+    className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-[10px] pt-[12px] pb-[14px] relative">
