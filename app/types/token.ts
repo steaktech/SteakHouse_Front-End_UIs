@@ -104,15 +104,10 @@ export interface TokenInfo {
   bio: string | null;
   name: string;
   symbol: string;
-<<<<<<< HEAD
-  burn_lp: boolean | null;
-  creator: string | null;
-  palette?: string | null;
-=======
   burn_lp: boolean;
   creator: string;
   mp3_url: string | null;
->>>>>>> e953310a621920d245365434043d906404a73fe9
+  palette?: string | null;
   twitter: string | null;
   website: string | null;
   catagory: string | null;
@@ -122,10 +117,6 @@ export interface TokenInfo {
   image_url: string | null;
   auto_brand: boolean;
   banner_url: string | null;
-<<<<<<< HEAD
-  auto_brand?: boolean;
-=======
->>>>>>> e953310a621920d245365434043d906404a73fe9
   is_stealth: boolean;
   start_time: number;
   tax_wallet: string | null;
