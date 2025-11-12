@@ -8,23 +8,22 @@ const BLOCKCHAIN_API_URL = process.env.NEXT_PUBLIC_BLOCKCHAIN_API_BASE_URL;
 
 ## Available Endpoints
 
-### 1. Create Lock
-```typescript
-POST /createLock
-Body: {
-  token: string,           // Token address
-  amount: string,          // Percentage or actual amount
-  lockDuration: number,    // Duration in seconds
-  owner: string            // Main wallet address
-}
+### ⚠️ Create Lock - NOT AVAILABLE
+The blockchain API does not provide a `/createLock` endpoint. 
 
-Response: {
-  message: "Unsigned create lock transaction built successfully",
-  unsignedTx: UnsignedTx
-}
+**Workaround:** Use the `onLockCreate` callback prop when using the LockerWidget component:
+```typescript
+<LockerWidget
+  isOpen={isOpen}
+  onClose={handleClose}
+  onLockCreate={async (formData) => {
+    // Implement your custom lock creation logic here
+    // This could call a different API or smart contract directly
+  }}
+/>
 ```
 
-### 2. Extend Lock
+### 1. Extend Lock
 ```typescript
 POST /extendLock
 Body: {

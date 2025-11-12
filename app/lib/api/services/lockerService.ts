@@ -63,21 +63,8 @@ export async function buildTransferLock(token: string, newOwner: string, oldOwne
   return unwrapUnsignedTx(res);
 }
 
+// NOTE: createLock endpoint is not available in the blockchain API yet
+// This function is a placeholder and will throw an error if called
 export async function buildCreateLock(token: string, amount: string, lockDurationDays: number, owner: string): Promise<UnsignedTx> {
-  // Convert amount percentage to actual token amount (this will need token decimals from the contract)
-  // For now, we'll pass the percentage as a string and let the backend handle it
-  // lockDuration needs to be converted to seconds
-  const lockDurationSeconds = lockDurationDays * 24 * 60 * 60;
-  
-  const res = await blockchainApiClient<any>(`/createLock`, {
-    method: 'POST',
-    body: JSON.stringify({ 
-      token, 
-      amount, // percentage or actual amount
-      lockDuration: lockDurationSeconds,
-      owner 
-    }),
-  });
-  if (res?.error) throw new Error(res.error);
-  return unwrapUnsignedTx(res);
+  throw new Error('Create lock functionality is not yet available. The /createLock endpoint needs to be implemented in the blockchain API. Please use the onLockCreate callback prop or wait for the API to be updated.');
 }

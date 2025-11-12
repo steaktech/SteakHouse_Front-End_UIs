@@ -8,48 +8,32 @@ The token locker functionality has been fully implemented using the blockchain A
 ### Base URL
 All endpoints use the blockchain API base URL configured in `NEXT_PUBLIC_BLOCKCHAIN_API_BASE_URL` environment variable.
 
-### 1. Create Lock
-**Endpoint:** `POST /createLock`
-**Parameters:**
-- `token` (string): Token address to lock
-- `amount` (string): Amount/percentage to lock
-- `lockDuration` (number): Lock duration in seconds
-- `owner` (string): Main wallet address (not trading address)
+### ❌ Create Lock - NOT AVAILABLE
+**Status:** The `/createLock` endpoint does not exist in the blockchain API.
 
-**Response:**
-```json
-{
-  "message": "Unsigned create lock transaction built successfully",
-  "unsignedTx": {
-    "to": "0x...",
-    "data": "0x...",
-    "from": "0x...",
-    "gasLimit": "29543"
-  }
-}
-```
+**Workaround:** Use the `onLockCreate` callback prop on the LockerWidget component to implement custom lock creation logic.
 
-### 2. Extend Lock
+### 1. Extend Lock
 **Endpoint:** `POST /extendLock`
 **Parameters:**
 - `token` (string): Token address
 - `extraTimeSec` (number): Additional time in seconds (e.g., 30 * 24 * 60 * 60 for 1 month)
 - `owner` (string): Main wallet address (not trading address)
 
-### 3. Withdraw/Unlock Lock
+### 2. Withdraw/Unlock Lock
 **Endpoint:** `POST /withdrawLock`
 **Parameters:**
 - `token` (string): Token address to withdraw
 - `owner` (string): Main wallet address (not trading address)
 
-### 4. Transfer Lock Ownership
+### 3. Transfer Lock Ownership
 **Endpoint:** `POST /transferLock`
 **Parameters:**
 - `token` (string): Token address
 - `newOwner` (string): New owner wallet address
 - `oldOwner` (string): Main wallet address of current owner (not trading address)
 
-### 5. Get Locks
+### 4. Get Locks
 **Endpoint:** `GET /getLocks/:wallet`
 **Parameters:**
 - `wallet` (string): User's main wallet address (not trading address)
@@ -71,21 +55,21 @@ The error messages are parsed and displayed to users in a user-friendly format.
 ## Files Modified
 
 ### 1. `/app/lib/api/services/lockerService.ts`
-**Added Function:**
-- `buildCreateLock(token, amount, lockDurationDays, owner)` - Builds unsigned transaction for creating a lock
-
-**Existing Functions:**
+**Functions Implemented:**
 - `fetchLocks(ownerAddress)` - Fetches all locks for a wallet
 - `buildWithdrawLock(token, owner)` - Builds unsigned transaction for withdrawing tokens
 - `buildExtendLock(token, extraTimeSec, owner)` - Builds unsigned transaction for extending lock
 - `buildTransferLock(token, newOwner, oldOwner)` - Builds unsigned transaction for transferring ownership
 
+**Not Available:**
+- ~~`buildCreateLock`~~ - The `/createLock` endpoint does not exist in the blockchain API. Use the `onLockCreate` callback prop instead.
+
 ### 2. `/app/components/Widgets/LockerWidget/LockerWidget.tsx`
 **Updated:**
-- Imported `buildCreateLock` from lockerService
-- Updated `handleCreateLock` function to use the new API endpoint
-- Added proper error handling and wallet address validation
-- Integrated with `signAndSubmitTransaction` for transaction signing and submission
+- Removed dependency on non-existent `buildCreateLock` function
+- Updated `handleCreateLock` to show informative error message when API endpoint is not available
+- Added check for `onLockCreate` callback prop before attempting to create lock
+- Maintained existing extend, withdraw, and transfer functionality with blockchain API integration
 
 ## Transaction Flow
 
