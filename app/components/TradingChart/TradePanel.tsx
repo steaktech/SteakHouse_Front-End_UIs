@@ -80,6 +80,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
   const [isLoadingMaxWallet, setIsLoadingMaxWallet] = useState(false);
   const [isToppingUp, setIsToppingUp] = useState(false);
+  const [isRefetchingPosition, setIsRefetchingPosition] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
 
   // Resolve trading wallet and ETH balance for that wallet
@@ -89,7 +90,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
   });
 
   // Load token position using shared api client and structured hook
-  const { data: position, isLoading: loadingPosition, error: positionError } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
+  const { data: position, isLoading: loadingPosition, error: positionError, refetch: refetchPosition } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
   // Use token data from parent (already loaded via single API call)
   const currentPriceUsd = position?.lastPriceUsd ?? apiTokenData?.price ?? null;
 
@@ -245,13 +246,13 @@ export const TradePanel: React.FC<TradePanelProps> = ({
 
   // Dynamic quick amounts
   // - Market BUY and Limit BUY: ETH presets
-  // - Market SELL: percentage of position (interpreted as % input)
-  // - Limit SELL: percentage of token balance (we will convert to token amount)
+  // - Market SELL: percentage of token balance (converted to token amount)
+  // - Limit SELL: percentage of token balance (converted to token amount)
   const quickAmounts = (activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy'))
     ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
     : ['25%', '50%', '75%', '100%'];
 
-  const handleQuickAmount = (value: string) => {
+  const handleQuickAmount = async (value: string) => {
     const isBuyLike = activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy');
 
     if (value === 'Max') {
@@ -266,29 +267,62 @@ export const TradePanel: React.FC<TradePanelProps> = ({
       return;
     }
 
-    // SELL paths use percentage presets
+    // SELL paths use percentage presets - convert to token amounts
     const pct = parseFloat(value.replace('%', ''));
     if (isNaN(pct) || pct <= 0) return;
 
-    if (activeTab === 'sell') {
-      // Market SELL expects percentage directly in the input
-      setAmount(String(pct));
+    // Check if wallet is connected
+    if (!tradingWalletAddress) {
+      showError('Please connect your wallet first', 'Preset amount');
       return;
     }
 
-    if (activeTab === 'limit' && limitSide === 'sell') {
-      // Limit SELL expects token amount: convert % of token balance to tokens
-      const balance = position?.qtyTokens ?? 0;
-      if (!balance || balance <= 0) {
-        showError('Token balance unavailable for this wallet', 'Preset amount');
-        return;
-      }
-      const tokens = (balance * pct) / 100;
-      // Format with sensible precision and trim trailing zeros
-      const formatted = Number(tokens.toFixed(6)).toString();
-      setAmount(formatted);
+    // Check if token is selected
+    if (!tokenAddress) {
+      showError('No token selected', 'Preset amount');
       return;
     }
+
+    // Refetch position data to ensure we have the latest balance
+    setIsRefetchingPosition(true);
+    try {
+      await refetchPosition();
+    } catch (error) {
+      console.error('Failed to refetch position:', error);
+      showError('Failed to load latest balance. Please try again.', 'Preset amount');
+      setIsRefetchingPosition(false);
+      return;
+    } finally {
+      setIsRefetchingPosition(false);
+    }
+
+    // Check if position is still loading after refetch
+    if (loadingPosition) {
+      showError('Loading token balance, please wait...', 'Preset amount');
+      return;
+    }
+
+    // Debug logging
+    console.log('Position data:', {
+      position,
+      qtyTokens: position?.qtyTokens,
+      positionError,
+      tradingWalletAddress,
+      tokenAddress
+    });
+
+    // Get token balance
+    const balance = position?.qtyTokens ?? 0;
+    if (!balance || balance <= 0) {
+      showError(`You have no tokens to sell. Balance: ${balance}`, 'Preset amount');
+      return;
+    }
+
+    // Calculate token amount from percentage
+    const tokens = (balance * pct) / 100;
+    // Format with sensible precision and trim trailing zeros
+    const formatted = Number(tokens.toFixed(6)).toString();
+    setAmount(formatted);
   };
 
   return (
@@ -517,11 +551,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             Amount {
               (activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy'))
                 ? '(ETH)'
-                : activeTab === 'sell'
-                  ? '(%)'
-                  : (activeTab === 'limit' && limitSide === 'sell')
-                    ? '(Tokens)'
-                    : ''
+                : '(Tokens)'
             }
           </label>
           <div style={{
@@ -600,6 +630,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             <button
               key={preset}
               onClick={() => handleQuickAmount(preset)}
+              disabled={isRefetchingPosition}
               className="amount-button"
               style={{
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -610,13 +641,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 color: 'var(--ab-text-400)',
                 fontSize: 'clamp(8px, 1.3vw, 10px)',
                 fontWeight: 800,
-                cursor: 'pointer',
+                cursor: isRefetchingPosition ? 'wait' : 'pointer',
                 transition: 'all 200ms ease',
                 flex: 1,
                 whiteSpace: 'nowrap',
                 overflow: 'visible',
                 textAlign: 'center',
-                minHeight: 'clamp(32px, 6vh, 36px)'
+                minHeight: 'clamp(32px, 6vh, 36px)',
+                opacity: isRefetchingPosition ? 0.5 : 1,
+                pointerEvents: isRefetchingPosition ? 'none' : 'auto'
               }}
             >
               {preset}
