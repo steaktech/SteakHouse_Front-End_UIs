@@ -403,7 +403,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
             usd_spent
           });
           
-          await createTokenApi(state, files, resolvedTokenAddress, { usd_spent });
+          await createTokenApi(state, files, resolvedTokenAddress, walletAddress, { usd_spent });
           if (resolvedTokenAddress) {
             router.push(`/trading-chart/${resolvedTokenAddress}`);
           }
@@ -687,7 +687,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                     goToStep(4);
                   }
                 }}
-                onContinue={async () => { goToStep(6) }}
+                onContinue={async () => goToStep(6)}
               />
             )}
 

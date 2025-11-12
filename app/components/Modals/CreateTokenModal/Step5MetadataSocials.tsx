@@ -328,7 +328,6 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               
             } finally {
               setIsAnalyzing(false);
-              console.log('Proceeding to next step, meta:', meta);
               onContinue();
             }
           }}

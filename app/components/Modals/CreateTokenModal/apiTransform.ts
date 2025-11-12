@@ -9,6 +9,7 @@ import { CreateTokenFormData } from '@/app/types/createToken';
  * Following the API documentation field mappings and requirements
  * @param state - The current modal state
  * @param tokenAddress - The token address (from wallet or generated)
+ * @param walletAddress - wallet address for creator field
  * @param logoFile - Optional logo file upload
  * @param bannerFile - Optional banner file upload
  * @param mp3File - Optional mp3 file upload
@@ -20,6 +21,7 @@ export function transformTokenStateToApiData(
   logoFile?: File,
   bannerFile?: File,
   mp3File?: File,
+  walletAddress?: string
 ): CreateTokenFormData {
   const { basics, curves, meta, profile, taxMode } = state;
 
@@ -27,6 +29,8 @@ export function transformTokenStateToApiData(
   const apiData: CreateTokenFormData = {
     // Required field
     token_address: tokenAddress,
+
+    creator: walletAddress || undefined,
     
     // Optional addresses - set virtual to token_address if not provided (per client logic)
     virtual_token_address: tokenAddress, // default to token_address per client
