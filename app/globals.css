@@ -46,6 +46,26 @@
   --danger-400: #ff3b3b;
 }
 
+/* Animation for drag feedback */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Block pointer events on chart/iframes during drag */
+body[style*="--dragging-pointer-events"] iframe,
+body[style*="--dragging-pointer-events"] .tradingview-widget-container,
+body[style*="--dragging-pointer-events"] [class*="tv-"],
+body[style*="--dragging-pointer-events"] canvas {
+  pointer-events: var(--dragging-pointer-events, auto) !important;
+}
+
 /* Global background fix to prevent seams and repeating */
 html, body {
   background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed;

@@ -92,8 +92,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingDesktop, setIsDraggingDesktop] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  const [dragStartHeight, setDragStartHeight] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const isDraggingRef = useRef(false);
+  const isDraggingDesktopRef = useRef(false);
+  const dragStateRef = useRef({ startY: 0, startHeight: 0, lastY: 0, frameId: 0 });
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [showLimitOrders, setShowLimitOrders] = useState(false);
   const [tokenData, setTokenData] = useState<TokenCardProps>({
@@ -505,140 +507,303 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,0,0.18)'
   };
 
-  // Drag handlers for resizing transactions
+  // Smooth drag handlers for resizing transactions
   const handleMouseDown = (e: React.MouseEvent) => {
+    isDraggingRef.current = true;
     setIsDragging(true);
-    setDragStartY(e.clientY);
-    setDragStartHeight(transactionsHeight);
+    setIsTransitioning(false);
+    dragStateRef.current.startY = e.clientY;
+    dragStateRef.current.startHeight = transactionsHeight;
+    dragStateRef.current.lastY = e.clientY;
     e.preventDefault();
+    e.stopPropagation();
   };
 
   // Touch handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
+    isDraggingRef.current = true;
     setIsDragging(true);
-    setDragStartY(e.touches[0].clientY);
-    setDragStartHeight(transactionsHeight);
+    setIsTransitioning(false);
+    const touch = e.touches[0];
+    dragStateRef.current.startY = touch.clientY;
+    dragStateRef.current.startHeight = transactionsHeight;
+    dragStateRef.current.lastY = touch.clientY;
+    
     // Add haptic feedback if available
     if (navigator.vibrate) {
-      navigator.vibrate(10); // Short vibration
+      navigator.vibrate(10);
     }
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleMouseMove = React.useCallback((e: MouseEvent) => {
-    if (!isDragging) return;
+    if (!isDraggingRef.current) return;
     
-    const deltaY = dragStartY - e.clientY; // Inverted: drag up = positive = increase height
-    const newHeight = dragStartHeight + deltaY;
+    e.preventDefault();
+    dragStateRef.current.lastY = e.clientY;
     
-    const minHeight = 56; // Keep button visible (expand button height + padding)
-    const maxHeight = Math.min(400, window.innerHeight * 0.6);
+    // Cancel any pending animation frame
+    if (dragStateRef.current.frameId) {
+      cancelAnimationFrame(dragStateRef.current.frameId);
+    }
     
-    setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
-  }, [isDragging, dragStartY, dragStartHeight]);
+    // Use requestAnimationFrame for smooth updates
+    dragStateRef.current.frameId = requestAnimationFrame(() => {
+      if (!isDraggingRef.current) return;
+      
+      const deltaY = dragStateRef.current.startY - dragStateRef.current.lastY;
+      const newHeight = dragStateRef.current.startHeight + deltaY;
+      
+      const minHeight = 56;
+      const maxHeight = Math.min(400, window.innerHeight * 0.6);
+      
+      setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+    });
+  }, []);
 
   const handleTouchMove = React.useCallback((e: TouchEvent) => {
-    if (!isDragging) return;
+    if (!isDraggingRef.current) return;
     
-    const deltaY = dragStartY - e.touches[0].clientY; // Inverted: drag up = positive = increase height
-    const newHeight = dragStartHeight + deltaY;
+    e.preventDefault();
+    const touch = e.touches[0];
+    dragStateRef.current.lastY = touch.clientY;
     
-    const minHeight = 56; // Keep button visible (expand button height + padding)
-    const maxHeight = Math.min(400, window.innerHeight * 0.6);
+    // Cancel any pending animation frame
+    if (dragStateRef.current.frameId) {
+      cancelAnimationFrame(dragStateRef.current.frameId);
+    }
     
-    setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
-    e.preventDefault(); // Prevent scrolling
-  }, [isDragging, dragStartY, dragStartHeight]);
+    // Use requestAnimationFrame for smooth updates
+    dragStateRef.current.frameId = requestAnimationFrame(() => {
+      if (!isDraggingRef.current) return;
+      
+      const deltaY = dragStateRef.current.startY - dragStateRef.current.lastY;
+      const newHeight = dragStateRef.current.startHeight + deltaY;
+      
+      const minHeight = 56;
+      const maxHeight = Math.min(400, window.innerHeight * 0.6);
+      
+      setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+    });
+  }, []);
 
-  const handleMouseUp = React.useCallback(() => {
+  const handleMouseUp = React.useCallback((e?: MouseEvent) => {
+    if (!isDraggingRef.current && !isDraggingDesktopRef.current) return;
+    
+    // Immediately stop dragging
+    isDraggingRef.current = false;
+    isDraggingDesktopRef.current = false;
+    
+    // Cancel any pending animation frame
+    if (dragStateRef.current.frameId) {
+      cancelAnimationFrame(dragStateRef.current.frameId);
+      dragStateRef.current.frameId = 0;
+    }
+    
+    // Update state
     setIsDragging(false);
     setIsDraggingDesktop(false);
   }, []);
 
   const handleTouchEnd = React.useCallback(() => {
+    if (!isDraggingRef.current) return;
+    
+    // Immediately stop dragging
+    isDraggingRef.current = false;
+    
+    // Cancel any pending animation frame
+    if (dragStateRef.current.frameId) {
+      cancelAnimationFrame(dragStateRef.current.frameId);
+      dragStateRef.current.frameId = 0;
+    }
+    
+    // Update state
     setIsDragging(false);
   }, []);
 
   // Desktop drag handlers for resizing transactions panel
   const handleDesktopMouseDown = (e: React.MouseEvent) => {
+    isDraggingDesktopRef.current = true;
     setIsDraggingDesktop(true);
-    setDragStartY(e.clientY);
-    setDragStartHeight(desktopTransactionsHeight);
+    setIsTransitioning(false);
+    dragStateRef.current.startY = e.clientY;
+    dragStateRef.current.startHeight = desktopTransactionsHeight;
+    dragStateRef.current.lastY = e.clientY;
     e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleDesktopMouseMove = React.useCallback((e: MouseEvent) => {
-    if (!isDraggingDesktop) return;
+    if (!isDraggingDesktopRef.current) return;
 
-    const deltaY = dragStartY - e.clientY; // drag up increases height
-    const newHeight = dragStartHeight + deltaY;
+    e.preventDefault();
+    dragStateRef.current.lastY = e.clientY;
+    
+    // Cancel any pending animation frame
+    if (dragStateRef.current.frameId) {
+      cancelAnimationFrame(dragStateRef.current.frameId);
+    }
+    
+    // Use requestAnimationFrame for smooth updates
+    dragStateRef.current.frameId = requestAnimationFrame(() => {
+      if (!isDraggingDesktopRef.current) return;
+      
+      const deltaY = dragStateRef.current.startY - dragStateRef.current.lastY;
+      const newHeight = dragStateRef.current.startHeight + deltaY;
 
-    const minHeight = 150; // Minimum height for desktop
-    const maxHeight = window.innerHeight * 0.7; // Max 70% of viewport height
+      const minHeight = 150;
+      const maxHeight = window.innerHeight * 0.7;
 
-    setDesktopTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
-  }, [isDraggingDesktop, dragStartY, dragStartHeight]);
+      setDesktopTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
+    });
+  }, []);
 
-  // Event listeners
+  // Event listeners for mobile drag
   React.useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (isDraggingRef.current && !isDraggingDesktopRef.current) {
+        handleMouseMove(e);
+      }
+    };
+    
+    const handleGlobalMouseUp = (e: MouseEvent) => {
+      if (isDraggingRef.current || isDraggingDesktopRef.current) {
+        handleMouseUp(e);
+      }
+    };
+    
+    const handleGlobalMouseDown = (e: MouseEvent) => {
+      // Stop dragging when clicking anywhere (including TradingView chart and iframes)
+      if (isDraggingRef.current || isDraggingDesktopRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleMouseUp();
+      }
+    };
+    
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Stop dragging when clicking anywhere
+      if (isDraggingRef.current || isDraggingDesktopRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleMouseUp();
+      }
+    };
+    
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      // Stop dragging on Escape key
+      if ((isDraggingRef.current || isDraggingDesktopRef.current) && e.key === 'Escape') {
+        e.preventDefault();
+        handleMouseUp();
+      }
+    };
+    
     if (isDragging) {
-      // Mouse events
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      // Touch events
+      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+      document.addEventListener('mousedown', handleGlobalMouseDown, { capture: true });
+      document.addEventListener('click', handleGlobalClick, { capture: true });
+      document.addEventListener('keydown', handleEscapeKey);
       document.addEventListener('touchmove', handleTouchMove, { passive: false });
       document.addEventListener('touchend', handleTouchEnd);
-      // Prevent selection and set cursor
       document.body.style.cursor = 'row-resize';
       document.body.style.userSelect = 'none';
-      document.body.style.touchAction = 'none'; // Prevent scrolling during touch
+      document.body.style.touchAction = 'none';
+      // Prevent pointer events on iframes/embeds during drag
+      document.body.style.setProperty('--dragging-pointer-events', 'none');
     } else {
-      // Remove mouse events
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      // Remove touch events
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-      // Reset styles
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      document.body.style.touchAction = '';
+      document.body.style.removeProperty('--dragging-pointer-events');
     }
     
     return () => {
-      // Cleanup all events
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      document.removeEventListener('mousedown', handleGlobalMouseDown, { capture: true });
+      document.removeEventListener('click', handleGlobalClick, { capture: true });
+      document.removeEventListener('keydown', handleEscapeKey);
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
-      // Reset styles
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      document.body.style.touchAction = '';
+      if (!isDraggingDesktop) {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        document.body.style.touchAction = '';
+      }
+      document.body.style.removeProperty('--dragging-pointer-events');
     };
-  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [isDragging, isDraggingDesktop, handleMouseMove, handleTouchMove, handleMouseUp, handleTouchEnd]);
 
   // Event listeners for desktop drag
   React.useEffect(() => {
+    const handleGlobalDesktopMouseMove = (e: MouseEvent) => {
+      if (isDraggingDesktopRef.current) {
+        handleDesktopMouseMove(e);
+      }
+    };
+    
+    const handleGlobalDesktopMouseUp = (e: MouseEvent) => {
+      if (isDraggingDesktopRef.current) {
+        handleMouseUp(e);
+      }
+    };
+    
+    const handleGlobalDesktopMouseDown = (e: MouseEvent) => {
+      // Stop dragging when clicking anywhere (including TradingView chart)
+      if (isDraggingDesktopRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleMouseUp();
+      }
+    };
+    
+    const handleGlobalDesktopClick = (e: MouseEvent) => {
+      // Stop dragging when clicking anywhere
+      if (isDraggingDesktopRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleMouseUp();
+      }
+    };
+    
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      // Stop dragging on Escape key
+      if (isDraggingDesktopRef.current && e.key === 'Escape') {
+        e.preventDefault();
+        handleMouseUp();
+      }
+    };
+    
     if (isDraggingDesktop) {
-      document.addEventListener('mousemove', handleDesktopMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleGlobalDesktopMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleGlobalDesktopMouseUp);
+      document.addEventListener('mousedown', handleGlobalDesktopMouseDown, { capture: true });
+      document.addEventListener('click', handleGlobalDesktopClick, { capture: true });
+      document.addEventListener('keydown', handleEscapeKey);
       document.body.style.cursor = 'row-resize';
       document.body.style.userSelect = 'none';
+      // Prevent pointer events on iframes/embeds during drag
+      document.body.style.setProperty('--dragging-pointer-events', 'none');
     } else {
-      document.removeEventListener('mousemove', handleDesktopMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      document.body.style.removeProperty('--dragging-pointer-events');
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleDesktopMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      if (dragStateRef.current.frameId) {
+        cancelAnimationFrame(dragStateRef.current.frameId);
+        dragStateRef.current.frameId = 0;
+      }
+      document.removeEventListener('mousemove', handleGlobalDesktopMouseMove);
+      document.removeEventListener('mouseup', handleGlobalDesktopMouseUp);
+      document.removeEventListener('mousedown', handleGlobalDesktopMouseDown, { capture: true });
+      document.removeEventListener('click', handleGlobalDesktopClick, { capture: true });
+      document.removeEventListener('keydown', handleEscapeKey);
+      if (!isDragging) {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+      document.body.style.removeProperty('--dragging-pointer-events');
     };
-  }, [isDraggingDesktop, handleDesktopMouseMove, handleMouseUp]);
+  }, [isDraggingDesktop, isDragging, handleDesktopMouseMove, handleMouseUp]);
 
   // Mobile detection
   React.useEffect(() => {
@@ -821,23 +986,37 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: '8px',
+                  height: '12px',
                   cursor: 'row-resize',
                   zIndex: 10,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.1)' : 'transparent',
-                  transition: 'background 200ms ease'
+                  background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.15)' : 'transparent',
+                  transition: 'background 150ms ease',
+                  touchAction: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isDraggingDesktop) {
+                    e.currentTarget.style.background = 'rgba(255, 215, 165, 0.08)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDraggingDesktop) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
                 }}
               >
                 <div
                   style={{
-                    width: '48px',
+                    width: isDraggingDesktop ? '64px' : '48px',
                     height: '4px',
                     borderRadius: '2px',
-                    background: isDraggingDesktop ? 'rgba(254, 234, 136, 0.8)' : 'rgba(255, 215, 165, 0.4)',
-                    transition: 'background 200ms ease'
+                    background: isDraggingDesktop 
+                      ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.6), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.6))' 
+                      : 'rgba(255, 215, 165, 0.4)',
+                    transition: 'all 150ms ease',
+                    boxShadow: isDraggingDesktop ? '0 0 8px rgba(254, 234, 136, 0.4)' : 'none'
                   }}
                 />
               </div>
@@ -941,38 +1120,95 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <div 
         className="lg:hidden fixed left-0 right-0 z-30"
         style={{ 
-          bottom: '68px', // Position above buy/sell bar on mobile
+          bottom: '68px',
           height: `${transactionsHeight}px`,
           background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
           borderTop: '1px solid rgba(255, 215, 165, 0.4)',
-          boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.2)'
+          boxShadow: isDragging 
+            ? '0 -8px 24px rgba(0, 0, 0, 0.3), 0 -2px 8px rgba(254, 234, 136, 0.2)' 
+            : '0 -4px 12px rgba(0, 0, 0, 0.2)',
+          transition: 'box-shadow 150ms ease'
         }}
       >
         {/* Drag Handle / Expand Button (Mobile Only) */}
         <div 
-          className={`absolute top-0 left-0 right-0 h-10 cursor-row-resize flex items-center justify-center transition-colors group ${isDragging ? 'bg-[rgba(255,215,165,0.1)]' : 'hover:bg-[rgba(255,215,165,0.06)]'}`}
+          className={`absolute top-0 left-0 right-0 h-12 cursor-row-resize flex items-center justify-center group`}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           onClick={() => {
-            if (transactionsHeight < 100) {
-              setTransactionsHeight(window.innerHeight * 0.3);
+            if (transactionsHeight < 100 && !isDraggingRef.current) {
+              setTransactionsHeight(window.innerHeight * 0.35);
+              if (navigator.vibrate) navigator.vibrate(10);
             }
           }}
-          style={{ zIndex: 10, touchAction: 'none' }}
+          style={{ 
+            zIndex: 10, 
+            touchAction: 'none',
+            background: isDragging 
+              ? 'linear-gradient(180deg, rgba(255, 215, 165, 0.15), rgba(255, 215, 165, 0.05))' 
+              : 'transparent',
+            transition: 'background 150ms ease'
+          }}
         >
           {transactionsHeight < 100 ? (
-            // Collapsed state - show plain text with arrow (no bubble)
-            <div className="flex items-center gap-2" style={{
-              color: '#feea88'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            // Collapsed state - enhanced button design
+            <div 
+              className="flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, rgba(254, 234, 136, 0.2), rgba(254, 234, 136, 0.1))',
+                border: '1px solid rgba(254, 234, 136, 0.3)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                color: '#feea88',
+                transition: 'all 200ms ease'
+              }}
+            >
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5"
+                style={{
+                  filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))'
+                }}
+              >
                 <polyline points="18 15 12 9 6 15"></polyline>
               </svg>
-              <span className="text-xs font-bold">RECENT TRANSACTIONS</span>
+              <span className="text-xs font-bold tracking-wide" style={{
+                textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+              }}>RECENT TRANSACTIONS</span>
             </div>
           ) : (
-            // Expanded state - show drag handle
-            <div className={`w-16 h-1.5 rounded-full transition-colors ${isDragging ? 'bg-[#feea88]' : 'bg-[rgba(255,215,165,0.5)] group-hover:bg-[rgba(255,215,165,0.7)]'}`}></div>
+            // Expanded state - enhanced drag handle
+            <div className="flex flex-col items-center gap-1.5">
+              <div 
+                className="rounded-full"
+                style={{
+                  width: isDragging ? '72px' : '56px',
+                  height: '4px',
+                  background: isDragging 
+                    ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.4), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.4))' 
+                    : 'rgba(255, 215, 165, 0.5)',
+                  transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: isDragging 
+                    ? '0 0 12px rgba(254, 234, 136, 0.5), 0 2px 4px rgba(0, 0, 0, 0.2)' 
+                    : '0 1px 2px rgba(0, 0, 0, 0.2)'
+                }}
+              />
+              {isDragging && (
+                <div 
+                  className="text-[10px] font-bold tracking-wide"
+                  style={{
+                    color: 'rgba(254, 234, 136, 0.9)',
+                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.4)',
+                    animation: 'fadeIn 150ms ease-in'
+                  }}
+                >
+                  DRAG TO RESIZE
+                </div>
+              )}
+            </div>
           )}
         </div>
         
