@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flame,
   BarChart,
@@ -24,6 +24,10 @@ import styles from "../UI/Botton.module.css";
 
 export default function TradingDashboard() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [typedText, setTypedText] = useState("");
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const { 
     tokenCards, 
     isLoading, 
@@ -44,6 +48,54 @@ export default function TradingDashboard() {
     nextPage,
     previousPage
   } = useTokens();
+
+  const sentences = [
+    "Launch a Token for $3",
+    "Multichain support: ETH, BASE, ARB, BSC",
+    "Earn up to 20% trading taxes",
+    "Fully Customizable token profiles",
+    "Choose graduation MCAP, Limits, Tax",
+    "Stealth launch routing & Private deploys",
+    "API and SDK for integrations"
+  ];
+
+  useEffect(() => {
+    const currentSentence = sentences[currentSentenceIndex];
+    const typingSpeed = isDeleting ? 30 : 80;
+    const pauseBeforeDelete = 2000;
+    const pauseBeforeNext = 500;
+
+    const timer = setTimeout(() => {
+      if (!isDeleting) {
+        // Typing
+        if (typedText.length < currentSentence.length) {
+          setTypedText(currentSentence.slice(0, typedText.length + 1));
+        } else {
+          // Finished typing, pause then start deleting
+          setTimeout(() => setIsDeleting(true), pauseBeforeDelete);
+        }
+      } else {
+        // Deleting
+        if (typedText.length > 0) {
+          setTypedText(typedText.slice(0, -1));
+        } else {
+          // Finished deleting, move to next sentence
+          setIsDeleting(false);
+          setCurrentSentenceIndex((prev) => (prev + 1) % sentences.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [typedText, isDeleting, currentSentenceIndex]);
+
+  // Reset typed text when sentence index changes
+  useEffect(() => {
+    if (!isDeleting && typedText.length === 0) {
+      // Start fresh with new sentence
+      setTypedText("");
+    }
+  }, [currentSentenceIndex]);
 
   // Style object for the main heading with gradient, stroke, and font
   const headingStyle: React.CSSProperties = {
@@ -222,15 +274,9 @@ export default function TradingDashboard() {
               <span className="2xl:text-[7rem]">Kitchen</span>
             </h1>
 
-            <p className="mt-6 text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#e4bb0f]">
-              Launch A Token For $3
-              {/* <span className="font-bold">
-                <img
-                  src="/images/3d.png"
-                  alt="$3"
-                  className="h-15 md:h-12 lg:h-14 xl:h-28 inline-block"
-                />
-              </span> */}
+            <p className="mt-6 text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-semibold text-[#e4bb0f] min-h-[1.5em]">
+              {typedText}
+              <span className="animate-pulse">|</span>
             </p>
           </div>
         </header>
