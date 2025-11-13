@@ -130,6 +130,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       r.style.setProperty('--ab-text-200', colors?.recommended?.text);
       r.style.setProperty('--ab-text-400', colors?.recommended?.text);
     }
+    else {
+      const r = document.documentElement;
+      r.style.removeProperty('--ab-bg-200');
+      r.style.removeProperty('--ab-bg-300');
+      r.style.removeProperty('--ab-bg-400');
+      r.style.removeProperty('--ab-bg-500');
+      r.style.removeProperty('--ab-desc');
+      r.style.removeProperty('--ab-text-200');
+      r.style.removeProperty('--ab-text-400');
+    }
   }, [apiTokenData?.tokenInfo?.color_palette]);
   
   // Create audio player ref and handle audio URL updates
