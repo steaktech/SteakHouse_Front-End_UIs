@@ -167,6 +167,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       mp3PlayerRef.current.volume = 0.5; // Set volume to 50%
       setTimeout(() => { playAudio();},5000) // Play the new audio
     }
+    else{
+      setIsPlaying(false)
+    }
   }, [apiTokenData?.tokenInfo?.mp3_url]);
 
   // Local live state driven by WebSocket events
@@ -788,6 +791,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                       telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
                       twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
                       websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+                      isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url? true : false}
                       isAudioPlaying={isPlaying}
                       onToggleAudio={playAudio}
                     />

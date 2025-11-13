@@ -20,6 +20,7 @@ interface TradingViewProps {
   websiteUrl?: string;
   // Audio controls
   isAudioPlaying?: boolean;
+  isAudioAvailable?: boolean;
   onToggleAudio?: () => void;
 }
 
@@ -47,6 +48,7 @@ export const TradingView: React.FC<TradingViewProps> = ({
   twitterUrl, 
   websiteUrl,
   isAudioPlaying,
+  isAudioAvailable,
   onToggleAudio
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -318,7 +320,8 @@ export const TradingView: React.FC<TradingViewProps> = ({
                     color: isAudioPlaying ? '#ffdd00' : '#ffc24b',
                     padding: '6px 8px',
                     borderRadius: 10,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: isAudioAvailable ? 'block' : 'none'
                   }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
