@@ -74,6 +74,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   const [expanded, setExpanded] = useState(false);
   const DEFAULT_TOP_OFFSET = "calc(4rem + 4rem + 1.5rem)";
   const [desktopTopOffset, setDesktopTopOffset] = useState<string>(DEFAULT_TOP_OFFSET);
+  const [isCertikHovered, setIsCertikHovered] = useState(false);
 
   // Widget open states
   const [savedOpen, setSavedOpen] = useState(false);
@@ -363,11 +364,74 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
           {/* Certik Badge - Full width, styled like main page Footer */}
           <div className="mx-1.5 mt-1.5 flex justify-center">
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
+                  @keyframes fireShine {
+                    0%, 100% {
+                      filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 16px rgba(255, 69, 0, 0.6)) brightness(1);
+                    }
+                    50% {
+                      filter: drop-shadow(0 0 20px rgba(255, 140, 0, 1)) drop-shadow(0 0 32px rgba(255, 69, 0, 0.9)) brightness(1.2);
+                    }
+                  }
+                  @keyframes fireParticle {
+                    0% {
+                      transform: translateY(0) scale(1);
+                      opacity: 1;
+                    }
+                    100% {
+                      transform: translateY(-40px) scale(0);
+                      opacity: 0;
+                    }
+                  }
+                  @keyframes fireFlicker {
+                    0%, 100% { opacity: 0.8; }
+                    50% { opacity: 1; }
+                  }
+                  .certik-wrapper-animated-sidebar {
+                    animation: fireShine 1.5s ease-in-out infinite;
+                  }
+                  .fire-particle-sidebar {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, #ff8c00, #ff4500);
+                    box-shadow: 0 0 10px #ff4500;
+                    animation: fireParticle 1.5s ease-out infinite, fireFlicker 0.3s ease-in-out infinite;
+                    pointer-events: none;
+                  }
+                  .fire-particle-sidebar:nth-child(1) { left: 10%; bottom: 0; animation-delay: 0s; }
+                  .fire-particle-sidebar:nth-child(2) { left: 30%; bottom: 0; animation-delay: 0.3s; }
+                  .fire-particle-sidebar:nth-child(3) { left: 50%; bottom: 0; animation-delay: 0.6s; }
+                  .fire-particle-sidebar:nth-child(4) { left: 70%; bottom: 0; animation-delay: 0.9s; }
+                  .fire-particle-sidebar:nth-child(5) { left: 90%; bottom: 0; animation-delay: 1.2s; }
+                `
+              }}
+            />
             <button
               onClick={handleCertikClick}
-              className="p-1.5 bg-black/30 hover:bg-black/50 border border-white/40 rounded-md transition-all duration-200 flex items-center justify-center w-full"
+              onMouseEnter={() => setIsCertikHovered(true)}
+              onMouseLeave={() => setIsCertikHovered(false)}
+              className={`p-1.5 bg-black/30 hover:bg-black/50 border border-white/40 rounded-md transition-all duration-200 flex items-center justify-center w-full relative ${
+                isCertikHovered ? 'certik-wrapper-animated-sidebar' : ''
+              }`}
               title="View CertiK Certificate"
+              style={{
+                transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)', 
+                transition: 'transform 0.3s ease, filter 0.3s ease'
+              }}
             >
+              {isCertikHovered && (
+                <>
+                  <div className="fire-particle-sidebar"></div>
+                  <div className="fire-particle-sidebar"></div>
+                  <div className="fire-particle-sidebar"></div>
+                  <div className="fire-particle-sidebar"></div>
+                  <div className="fire-particle-sidebar"></div>
+                </>
+              )}
               <img
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"

@@ -94,6 +94,7 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({
   const [isExplorerWidgetOpen, setIsExplorerWidgetOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(170);
   const [isResizing, setIsResizing] = useState(false);
+  const [isCertikHovered, setIsCertikHovered] = useState(false);
 
   // Use the same price data hook as the token creation wizard
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
@@ -442,14 +443,75 @@ const handleUserProfileClose = () => {
 
           {/* Certik Badge - Full width, styled like main page Footer */}
           <div className="mx-1.5 mt-1.5 flex justify-center">
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
+                  @keyframes fireShine {
+                    0%, 100% {
+                      filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 16px rgba(255, 69, 0, 0.6)) brightness(1);
+                    }
+                    50% {
+                      filter: drop-shadow(0 0 20px rgba(255, 140, 0, 1)) drop-shadow(0 0 32px rgba(255, 69, 0, 0.9)) brightness(1.2);
+                    }
+                  }
+                  @keyframes fireParticle {
+                    0% {
+                      transform: translateY(0) scale(1);
+                      opacity: 1;
+                    }
+                    100% {
+                      transform: translateY(-40px) scale(0);
+                      opacity: 0;
+                    }
+                  }
+                  @keyframes fireFlicker {
+                    0%, 100% { opacity: 0.8; }
+                    50% { opacity: 1; }
+                  }
+                  .certik-wrapper-animated-desktop {
+                    animation: fireShine 1.5s ease-in-out infinite;
+                  }
+                  .fire-particle-desktop {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, #ff8c00, #ff4500);
+                    box-shadow: 0 0 10px #ff4500;
+                    animation: fireParticle 1.5s ease-out infinite, fireFlicker 0.3s ease-in-out infinite;
+                    pointer-events: none;
+                  }
+                  .fire-particle-desktop:nth-child(1) { left: 10%; bottom: 0; animation-delay: 0s; }
+                  .fire-particle-desktop:nth-child(2) { left: 30%; bottom: 0; animation-delay: 0.3s; }
+                  .fire-particle-desktop:nth-child(3) { left: 50%; bottom: 0; animation-delay: 0.6s; }
+                  .fire-particle-desktop:nth-child(4) { left: 70%; bottom: 0; animation-delay: 0.9s; }
+                  .fire-particle-desktop:nth-child(5) { left: 90%; bottom: 0; animation-delay: 1.2s; }
+                `
+              }}
+            />
             <button
               onClick={handleCertikClick}
-              className="p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
+              onMouseEnter={() => setIsCertikHovered(true)}
+              onMouseLeave={() => setIsCertikHovered(false)}
+              className={`p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center relative ${
+                isCertikHovered ? 'certik-wrapper-animated-desktop' : ''
+              }`}
               title="View CertiK Certificate"
               style={{
-                width: expanded ? 'auto' : '100%'
+                width: expanded ? 'auto' : '100%',
+                transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)', 
+                transition: 'transform 0.3s ease, filter 0.3s ease'
               }}
             >
+              {isCertikHovered && (
+                <>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                </>
+              )}
               <img
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"
