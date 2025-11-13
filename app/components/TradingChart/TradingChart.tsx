@@ -110,6 +110,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     if (tokenAddress && refetch) {
       console.log('[TradingChart] Token address changed, forcing refetch:', tokenAddress);
       refetch();
+      // Clear live updates when switching tokens
+      setLiveTokenUpdates({});
     }
   }, [tokenAddress]); // Don't include refetch in deps to avoid infinite loop
 
@@ -161,6 +163,14 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [candles1m, setCandles1m] = useState<Candle[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
   const lastWsTradeRef = useRef<WebSocketTrade | null>(null);
+  
+  // Track live WebSocket updates for token card
+  const [liveTokenUpdates, setLiveTokenUpdates] = useState<{
+    marketCap?: number;
+    circulatingSupply?: number;
+    virtualEth?: number;
+    bondingProgress?: number;
+  }>({});
 
   // Seed local state from API on load/change
   useEffect(() => {
@@ -236,6 +246,35 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     lastWsTradeRef.current = trade;
     // Prepend and keep bounded; sorting in UI assumes ms timestamps
     setTrades(prev => [normalized, ...(prev || [])].slice(0, 200));
+    
+    // Update live token data for the token card
+    if (trade.marketCap || trade.circulatingSupply || trade.virtualEth) {
+      setLiveTokenUpdates(prev => {
+        const updates: typeof prev = { ...prev };
+        
+        if (typeof trade.marketCap === 'number') {
+          updates.marketCap = trade.marketCap;
+        }
+        
+        if (typeof trade.circulatingSupply === 'number') {
+          updates.circulatingSupply = trade.circulatingSupply;
+        }
+        
+        if (typeof trade.virtualEth === 'number') {
+          updates.virtualEth = trade.virtualEth;
+        }
+        
+        // Calculate bonding progress if we have circulatingSupply and graduation cap
+        if (typeof trade.circulatingSupply === 'number' && apiTokenData?.tokenInfo?.graduation_cap_norm) {
+          const cap = Number(apiTokenData.tokenInfo.graduation_cap_norm);
+          if (!isNaN(cap) && cap > 0) {
+            updates.bondingProgress = (trade.circulatingSupply / cap) * 100;
+          }
+        }
+        
+        return updates;
+      });
+    }
   };
 
   const handleWsChartUpdate = ({ timeframe: tf, candle }: ChartUpdateEvent) => {
@@ -341,13 +380,21 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const maxTxPctNum = apiInfo?.curve_max_tx && apiInfo?.total_supply
     ? (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100
     : 2.1;
-  const bondingPct = apiInfo
-    ? (() => {
-        const circulating = Number(apiInfo.circulating_supply);
-        const cap = Number(apiInfo.graduation_cap_norm);
-        return !isNaN(circulating) && !isNaN(cap) && cap > 0 ? (circulating / cap) * 100 : 0;
-      })()
-    : 0;
+  
+  // Use live bonding progress from WebSocket if available, otherwise calculate from API
+  const bondingPct = (() => {
+    // Prefer live WebSocket update
+    if (liveTokenUpdates.bondingProgress != null) {
+      return liveTokenUpdates.bondingProgress;
+    }
+    // Fall back to API data
+    if (apiInfo) {
+      const circulating = Number(apiInfo.circulating_supply);
+      const cap = Number(apiInfo.graduation_cap_norm);
+      return !isNaN(circulating) && !isNaN(cap) && cap > 0 ? (circulating / cap) * 100 : 0;
+    }
+    return 0;
+  })();
   
   // Use volume24h from API
   const volumeUsd = (() => {
@@ -358,11 +405,29 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     return undefined;
   })();
   
-  // Use marketCap from API
+  // Use marketCap from WebSocket if available (more recent), otherwise from API
   const marketCapFormatted = (() => {
+    // Prefer live WebSocket update
+    if (liveTokenUpdates.marketCap != null && !isNaN(liveTokenUpdates.marketCap)) {
+      return formatShort(liveTokenUpdates.marketCap);
+    }
+    // Fall back to API data
     const mcap = apiTokenData?.marketCap;
     if (mcap != null && !isNaN(Number(mcap))) {
       return formatShort(Number(mcap));
+    }
+    return undefined;
+  })();
+  
+  // Use virtualEth (liquidity pool) from WebSocket if available, otherwise from API
+  const liquidityPoolFormatted = (() => {
+    // Prefer live WebSocket update
+    if (liveTokenUpdates.virtualEth != null && !isNaN(liveTokenUpdates.virtualEth)) {
+      return `${liveTokenUpdates.virtualEth.toFixed(4)} ETH`;
+    }
+    // Fall back to API data
+    if (apiInfo?.eth_pool != null) {
+      return `${Number(apiInfo.eth_pool).toFixed(4)} ETH`;
     }
     return undefined;
   })();
@@ -380,7 +445,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     description: apiInfo?.bio ?? undefined,
     marketCap: marketCapFormatted,
     volume: volumeUsd,
-    liquidityPool: apiInfo?.eth_pool != null ? `${Number(apiInfo.eth_pool).toFixed(2)} ETH` : undefined,
+    liquidityPool: liquidityPoolFormatted,
     bondingProgress: bondingPct,
     tag: apiInfo?.catagory ?? undefined,
     tagColor: undefined,
