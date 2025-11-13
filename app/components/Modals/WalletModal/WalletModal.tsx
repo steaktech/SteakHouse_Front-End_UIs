@@ -3,7 +3,9 @@
 import { useWallet } from '@/app/hooks/useWallet';
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { addUser } from '@/app/lib/api/services/userService';
+import { addUser, fetchUserProfile } from '@/app/lib/api/services/userService';
+import { attachReferral } from '@/app/lib/api/services/referralService';
+import { getReferralCodeFromStorage, clearReferralCodeFromStorage } from '@/app/lib/utils/referralHelpers';
 import type { AddUserPayload } from '@/app/types/user';
 import { UserProfileModal } from '../UserProfileModal';
 import UserWelcomeModal from '../UserWelcomeModal';
@@ -35,21 +37,65 @@ const registerUser = useCallback(async (walletAddress: string): Promise<boolean>
       setIsRegisteringUser(true);
       setUserRegistrationError(null);
       
+      // Check for stored referral code from URL
+      const referralCode = getReferralCodeFromStorage();
+      console.log('🔍 Registering user with referral code:', referralCode);
+      
       const payload: AddUserPayload = {
-        wallet_address: walletAddress
+        wallet_address: walletAddress,
+        referral_code: referralCode || undefined
       };
       
       const response = await addUser(payload);
-      console.log('User register response:', walletAddress, response);
+      console.log('📝 User register response:', walletAddress, response);
+      
       if (response.created) {
-        // New user => show welcome modal
+        console.log('✅ New user created');
+        
+        // If there was a referral code, we need to fetch the trading wallet first
+        if (referralCode) {
+          console.log('🔗 Referral code detected, fetching trading wallet...');
+          
+          try {
+            // Fetch the user profile to get the trading wallet
+            const profile = await fetchUserProfile(walletAddress);
+            const tradingWallet = (profile as any)?.trading_wallet;
+            
+            if (tradingWallet) {
+              console.log('💼 Trading wallet found:', tradingWallet);
+              console.log('🚀 Attaching referral:', {
+                referee_wallet: tradingWallet,
+                referral_code: referralCode
+              });
+              
+              await attachReferral({
+                referee_wallet: tradingWallet,
+                referral_code: referralCode
+              });
+              
+              console.log('✅ Referral attached successfully');
+              clearReferralCodeFromStorage();
+            } else {
+              console.warn('⚠️ Trading wallet not found in profile, cannot attach referral');
+            }
+          } catch (referralError) {
+            console.error('❌ Failed to attach referral (non-fatal):', referralError);
+            // Don't fail registration if referral attachment fails
+          }
+        } else {
+          console.log('ℹ️ No referral code to attach');
+        }
+        
+        // Show welcome modal for new user
         setShowWelcomeModal(true);
         return true;
       }
+      
       // Existing user => do nothing
+      console.log('ℹ️ Existing user, skipping registration');
       return false;
     } catch (error) {
-      console.error('User registration failed:', error);
+      console.error('❌ User registration failed:', error);
       setUserRegistrationError(error instanceof Error ? error.message : 'Failed to register user');
       return false;
     } finally {

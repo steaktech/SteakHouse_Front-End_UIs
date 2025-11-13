@@ -8,6 +8,8 @@ import {
   updateUserProfile, 
   deleteProfilePicture 
 } from '@/app/lib/api/services/userService';
+import { updateReferralCode } from '@/app/lib/api/services/referralService';
+import { copyReferralLinkToClipboard, isValidReferralCode } from '@/app/lib/utils/referralHelpers';
 import type { 
   UserProfileModalProps, 
   ProfileFormData, 
@@ -85,6 +87,12 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
   const [withdrawAmount, setWithdrawAmount] = useState<string>('');
   const { topUpTradingWallet } = useTrading();
 
+  // Referral code state
+  const [referralCode, setReferralCode] = useState('');
+  const [referralCodeError, setReferralCodeError] = useState<string | null>(null);
+  const [isUpdatingReferralCode, setIsUpdatingReferralCode] = useState(false);
+  const [referralCodeCopied, setReferralCodeCopied] = useState(false);
+
   // Handle mounting for portal
   useEffect(() => {
     setMounted(true);
@@ -137,6 +145,10 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
     
     try {
       const profile = await fetchUserProfile(walletAddress);
+      console.log('📊 Loaded user profile:', profile);
+      console.log('🔗 Referral code:', (profile as any).referral_code);
+      console.log('👤 Referred by:', (profile as any).referred_by);
+      
       setState(prev => ({
         ...prev,
         profile,
@@ -147,6 +159,9 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
         },
         isLoading: false,
       }));
+      
+      // Load referral code from profile
+      setReferralCode((profile as any).referral_code || '');
     } catch (error) {
       console.error('Failed to load user profile:', error);
       setState(prev => ({
@@ -280,6 +295,72 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
       }));
     }
   }, [walletAddress]);
+
+  const handleUpdateReferralCode = useCallback(async () => {
+    const trimmedCode = referralCode.trim();
+    
+    // Validate referral code
+    if (!trimmedCode) {
+      setReferralCodeError('Referral code cannot be empty');
+      return;
+    }
+    
+    if (!isValidReferralCode(trimmedCode)) {
+      setReferralCodeError('Invalid format. Use 3-20 characters (letters, numbers, - or _)');
+      return;
+    }
+    
+    const tradingWallet = (state.profile as any)?.trading_wallet;
+    if (!tradingWallet) {
+      setReferralCodeError('Trading wallet not found');
+      return;
+    }
+    
+    setIsUpdatingReferralCode(true);
+    setReferralCodeError(null);
+    
+    try {
+      const response = await updateReferralCode({
+        wallet: tradingWallet,
+        referral_code: trimmedCode,
+      });
+      
+      // Update local state with new referral code
+      setState(prev => ({
+        ...prev,
+        profile: prev.profile ? {
+          ...prev.profile,
+          referral_code: response.referral_code,
+        } : null,
+        successMessage: 'Referral code updated successfully!',
+      }));
+      
+      setReferralCode(response.referral_code);
+      setIsUpdatingReferralCode(false);
+    } catch (error) {
+      console.error('Referral code update failed:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Failed to update referral code';
+      setReferralCodeError(errorMsg);
+      setIsUpdatingReferralCode(false);
+    }
+  }, [referralCode, state.profile]);
+
+  const handleCopyReferralLink = useCallback(async () => {
+    const currentCode = (state.profile as any)?.referral_code || referralCode.trim();
+    
+    if (!currentCode) {
+      setReferralCodeError('Please set a referral code first');
+      return;
+    }
+    
+    const success = await copyReferralLinkToClipboard(currentCode);
+    if (success) {
+      setReferralCodeCopied(true);
+      setTimeout(() => setReferralCodeCopied(false), 2000);
+    } else {
+      setReferralCodeError('Failed to copy referral link');
+    }
+  }, [state.profile, referralCode]);
 
   const handleSave = useCallback(async () => {
     if (!validateForm()) return;
@@ -746,6 +827,85 @@ export default function UserProfileModal({ isOpen, onClose, walletAddress }: Use
                     {state.errors.bio && (
                       <div className={styles.formError}>{state.errors.bio}</div>
                     )}
+                  </div>
+
+                  {/* Referral Code Section */}
+                  <div className={styles.formGroup}>
+                    <label htmlFor="referralCode" className={styles.formLabel}>
+                      Your Referral Code
+                      <span className={styles.optional}>(share to earn rewards)</span>
+                    </label>
+                    <div className={styles.inputWrapper}>
+                      <input
+                        id="referralCode"
+                        type="text"
+                        value={referralCode}
+                        onChange={(e) => {
+                          setReferralCode(e.target.value);
+                          setReferralCodeError(null);
+                        }}
+                        placeholder="Enter your custom referral code"
+                        className={styles.formInput}
+                        maxLength={20}
+                        disabled={isUpdatingReferralCode}
+                      />
+                      <div className={styles.inputHint}>
+                        Use 3-20 characters (letters, numbers, - or _)
+                      </div>
+                    </div>
+                    {referralCodeError && (
+                      <div className={styles.formError}>{referralCodeError}</div>
+                    )}
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={handleUpdateReferralCode}
+                        disabled={isUpdatingReferralCode || !referralCode.trim()}
+                        className={styles.saveButton}
+                        style={{ flex: 1 }}
+                      >
+                        {isUpdatingReferralCode ? 'Updating...' : 'Update Code'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCopyReferralLink}
+                        disabled={!referralCode.trim() && !(state.profile as any)?.referral_code}
+                        className={styles.cancelButton}
+                        style={{ flex: 1 }}
+                      >
+                        {referralCodeCopied ? '✓ Copied!' : '📋 Copy Link'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Referred By (Read-only if set) */}
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      Referred By
+                      {(state.profile as any)?.referred_by && (
+                        <span className={styles.optional} style={{ color: '#fbbf24' }}>
+                          🔒 locked
+                        </span>
+                      )}
+                    </label>
+                    <div className={styles.inputWrapper}>
+                      <input
+                        type="text"
+                        value={(state.profile as any)?.referred_by || 'Not referred by anyone'}
+                        readOnly
+                        className={`${styles.formInput} ${styles.readOnly}`}
+                        style={{
+                          backgroundColor: (state.profile as any)?.referred_by ? '#1a0f08' : '#2d1810',
+                          cursor: 'not-allowed',
+                          opacity: 0.8
+                        }}
+                      />
+                      {(state.profile as any)?.referred_by && (
+                        <div className={styles.inputHint} style={{ color: '#fbbf24' }}>
+                          This field cannot be changed once set
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

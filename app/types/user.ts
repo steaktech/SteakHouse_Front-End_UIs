@@ -5,6 +5,7 @@ export interface AddUserPayload {
     username?: string;
     profile_picture?: string;
     bio?: string;
+    referral_code?: string; // Referral code of who referred them (optional during signup)
   }
   
   export interface UserProfile {
@@ -12,6 +13,8 @@ export interface AddUserPayload {
     username: string | null;
     profile_picture: string | null;
     bio: string | null;
+    referral_code: string | null; // User's own referral code (editable)
+    referred_by: string | null; // Referral code of who referred them (immutable once set)
     tokens_launched: number;
     tokens_bought: number;
     total_pnl: string;

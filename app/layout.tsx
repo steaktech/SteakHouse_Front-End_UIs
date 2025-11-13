@@ -5,6 +5,7 @@ import LoadingWrapper from "./components/LoadingWrapper";
 import WagmiProviderWrapper from "./lib/providers/WagmiProvider";
 import { ToastProvider } from "./lib/providers/ToastProvider";
 import { ToastContainer } from "./components/UI/ToastContainer";
+import ReferralHandler from "./components/ReferralHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
       >
         <WagmiProviderWrapper>
           <ToastProvider>
+            <ReferralHandler />
             <LoadingWrapper>
               {children}
             </LoadingWrapper>
