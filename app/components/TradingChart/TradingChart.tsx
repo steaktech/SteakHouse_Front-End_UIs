@@ -130,6 +130,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       r.style.setProperty('--ab-text-200', colors?.recommended?.text);
       r.style.setProperty('--ab-text-400', colors?.recommended?.text);
     }
+    else {
+      const r = document.documentElement;
+      r.style.removeProperty('--ab-bg-200');
+      r.style.removeProperty('--ab-bg-300');
+      r.style.removeProperty('--ab-bg-400');
+      r.style.removeProperty('--ab-bg-500');
+      r.style.removeProperty('--ab-desc');
+      r.style.removeProperty('--ab-text-200');
+      r.style.removeProperty('--ab-text-400');
+    }
   }, [apiTokenData?.tokenInfo?.color_palette]);
   
   // Create audio player ref and handle audio URL updates
@@ -156,6 +166,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       mp3PlayerRef.current.load(); // Load the new mp3 source
       mp3PlayerRef.current.volume = 0.5; // Set volume to 50%
       setTimeout(() => { playAudio();},5000) // Play the new audio
+    }
+    else{
+      setIsPlaying(false)
     }
   }, [apiTokenData?.tokenInfo?.mp3_url]);
 
@@ -778,6 +791,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                       telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
                       twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
                       websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+                      isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url? true : false}
                       isAudioPlaying={isPlaying}
                       onToggleAudio={playAudio}
                     />
