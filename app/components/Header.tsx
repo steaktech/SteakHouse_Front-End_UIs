@@ -234,7 +234,7 @@ export default function Header() {
             {/* Network Dropdown */}
             <div className="relative" ref={networkRef}>
               <button
-                className={`${styles.headerBtn}`}
+                className={`${styles.headerBtn} ${styles.headerBtnNetwork}`}
                 onClick={() => setIsNetworkOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={isNetworkOpen}
@@ -253,12 +253,11 @@ export default function Header() {
                     alt=""
                     width={14}
                     height={14}
-                    className="mr-2"
+                    className="sm:mr-2"
                   />
                   <span className="hidden sm:inline">{selectedNetwork}</span>
-                  <span className="sm:hidden">Net</span>
                   <svg
-                    className="ml-2 h-2.5 w-2.5 sm:h-3 sm:w-3"
+                    className="ml-1 sm:ml-2 h-2.5 w-2.5 sm:h-3 sm:w-3"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -270,7 +269,7 @@ export default function Header() {
               </button>
 
               {isNetworkOpen && (
-                <div className="absolute z-50 right-0 sm:left-0 sm:right-auto top-full mt-1 min-w-full w-auto rounded-md border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur max-h-[50vh] overflow-auto overscroll-contain">
+                <div className="absolute z-50 right-0 top-full mt-1 min-w-[120px] w-auto rounded-md border border-yellow-700/30 bg-[#2b1200]/95 text-[#e9af5a] shadow-lg backdrop-blur max-h-[50vh] overflow-auto overscroll-contain">
                   <ul className="py-1">
                     {["ETH", "BSC", "BASE", "ARB"].map((n) => (
                       <li key={n}>

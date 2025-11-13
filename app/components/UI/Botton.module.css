@@ -666,6 +666,17 @@
 		letter-spacing: 0.8px !important;
 	}
 	
+	/* Compact network button on mobile */
+	.headerBtnNetwork {
+		width: 50px !important;
+		height: 34px !important;
+		min-width: 50px !important;
+		padding: 2px !important;
+	}
+	.headerBtnNetwork .headerBtnInner {
+		padding: 0 6px !important;
+	}
+	
 	/* Mobile styles for filter buttons */
 	.btn-3 {
 		padding: 8px 12px !important;
