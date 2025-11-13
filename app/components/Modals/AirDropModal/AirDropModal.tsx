@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
 import styles from './AirDropModal.module.css';
 import type { AirDropModalProps, AirDropPointsResponse } from './types';
 import { apiClient } from '@/app/lib/api/client';
 import { useTrading } from '@/app/hooks/useTrading';
+import { useWallet } from '@/app/hooks/useWallet';
+
+const WalletModal = dynamic(() => import('../WalletModal/WalletModal'), { ssr: false });
 
 // Local inline icons to match existing modal style
 const Icons = {
@@ -44,7 +48,9 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AirDropPointsResponse | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const { tradingState } = useTrading();
+  const { isConnected } = useWallet();
   const effectiveWallet = tradingWalletProp ?? tradingState?.tradingWallet ?? null;
 
   // Mount for portal and ESC handling
@@ -173,10 +179,33 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
           )}
 
           {!loading && error && (
-            <div className={`${styles.statusMessage} ${styles.errorMessage}`} role="alert">
-              <span>{error}</span>
-              <button className={styles.retryBtn} onClick={fetchPoints}>Retry</button>
-            </div>
+            <>
+              {!isConnected || !effectiveWallet ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>
+                    <Icons.Sparkles />
+                  </div>
+                  <div className={styles.emptyTitle}>Connect Your Wallet</div>
+                  <div className={styles.emptyMessage}>
+                    {error}
+                  </div>
+                  <div className={styles.walletCta}>
+                    <button
+                      className={styles.primary}
+                      onClick={() => setIsWalletModalOpen(true)}
+                      type="button"
+                    >
+                      Connect Wallet
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className={`${styles.statusMessage} ${styles.errorMessage}`} role="alert">
+                  <span>{error}</span>
+                  <button className={styles.retryBtn} onClick={fetchPoints}>Retry</button>
+                </div>
+              )}
+            </>
           )}
 
           {!loading && !error && data && (
@@ -274,6 +303,12 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
           </div>
         </footer>
       </section>
+
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={isConnected}
+      />
     </div>
   );
 

@@ -11,6 +11,8 @@ import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 import { LockerWidget } from '../Widgets/LockerWidget';
 import { ChartUserProfileWidget } from '../Widgets/ChartUserProfile';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
+import { useTrading } from '@/app/hooks/useTrading';
+import AirDropModal from '../Modals/AirDropModal';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -95,9 +97,13 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({
   const [sidebarWidth, setSidebarWidth] = useState(170);
   const [isResizing, setIsResizing] = useState(false);
   const [isCertikHovered, setIsCertikHovered] = useState(false);
+  const [airdropOpen, setAirdropOpen] = useState(false);
 
   // Use the same price data hook as the token creation wizard
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
+  
+  // Get trading state for airdrop modal
+  const { tradingState } = useTrading();
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
   const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isLockerWidgetOpen || isUserProfileWidgetOpen || isExplorerWidgetOpen;
@@ -381,6 +387,39 @@ const handleUserProfileClose = () => {
             onClick={handleLinksClick}
           />
 
+          {/* Airdrop Button */}
+          <div className="mx-1.5 mb-2">
+            <style jsx>{`
+              @keyframes bounce-gift {
+                0%, 100% {
+                  transform: translateY(0);
+                  animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+                }
+                50% {
+                  transform: translateY(-25%);
+                  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+                }
+              }
+              .gift-bounce {
+                display: inline-block;
+                animation: bounce-gift 1s infinite;
+              }
+            `}</style>
+            <button
+              onClick={() => setAirdropOpen(true)}
+              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
+              title="View your airdrop points"
+            >
+              {expanded ? (
+                <>
+                  <span className="gift-bounce">🎁</span> Airdrop Points
+                </>
+              ) : (
+                <span className="gift-bounce">🎁</span>
+              )}
+            </button>
+          </div>
+
           {/* ETH Price and GWEI Display */}
           <div className="mx-2.5 mt-2 mb-1.5">
             {/* ETH Price */}
@@ -582,6 +621,15 @@ const handleUserProfileClose = () => {
         <ChartUserProfileWidget
           isOpen={isUserProfileWidgetOpen}
           onClose={handleUserProfileClose}
+        />
+      )}
+
+      {/* AirDrop Modal */}
+      {airdropOpen && (
+        <AirDropModal
+          isOpen={airdropOpen}
+          onClose={() => setAirdropOpen(false)}
+          tradingWallet={tradingState?.tradingWallet || null}
         />
       )}
     </>

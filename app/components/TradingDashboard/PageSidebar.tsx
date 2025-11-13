@@ -284,13 +284,8 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             `}</style>
             <button
               onClick={() => setAirdropOpen(true)}
-              disabled={!tradingState?.tradingWallet}
-              className={`w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 ${
-                tradingState?.tradingWallet
-                  ? 'bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg'
-                  : 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
-              }`}
-              title={tradingState?.tradingWallet ? 'View your airdrop points' : 'Trading wallet not ready yet'}
+              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
+              title="View your airdrop points"
             >
               {expanded ? (
                 <>
