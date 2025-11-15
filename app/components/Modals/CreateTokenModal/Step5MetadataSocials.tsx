@@ -291,7 +291,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
                 className={styles.input}
                 value={meta.mp3 || ''}
                 onChange={(e) => handleUrlChange('mp3', e.target.value)}
-                placeholder="https://yoursite.com/audio.mp3"
+                placeholder="https://yoursite.com/audio.mp3 or soundcloud.com track/playlist"
                 disabled={!!meta.mp3File}
               />
 

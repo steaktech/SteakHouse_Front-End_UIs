@@ -23,6 +23,7 @@ import type { Candle, Trade, WebSocketTrade, ChartUpdateEvent } from '@/app/type
 import { aggregateCandles } from '@/app/lib/utils/candles';
 import VerticalTokenTicker from '@/app/components/Widgets/VerticalTokenTicker';
 import TopTrendingTicker from '@/app/components/Widgets/TopTrendingTicker';
+import { call } from 'viem/actions';
 
 interface TradingChartProps {
   tokenAddress?: string;
@@ -31,57 +32,57 @@ interface TradingChartProps {
 export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db" }: TradingChartProps) {
   const searchParams = useSearchParams();
   const tokenSymbol = searchParams.get('symbol');
-  
+
   // Order management and notifications
   const notifications = useNotifications();
   const orderManagement = useOrderManagement();
-  
+
   // Enhanced order handlers with notifications
   const handleOrderSubmit = async (orderData: any) => {
     const result = await orderManagement.createOrder(orderData);
-    
+
     if (result.success) {
       notifications.notifySuccess(
-        'Order Placed', 
-        result.message, 
+        'Order Placed',
+        result.message,
         result.orderId
       );
       // Fallback: ensure recent trades refresh soon after an order is placed in case WS 'trade' is delayed/missed
-      try { setTimeout(() => { refetch?.(); }, 1200); } catch {}
+      try { setTimeout(() => { refetch?.(); }, 1200); } catch { }
     } else {
       notifications.notifyError(
-        'Order Failed', 
+        'Order Failed',
         result.message
       );
     }
-    
+
     return result;
   };
-  
+
   const handleOrderCancel = async (orderId: string) => {
     const success = await orderManagement.cancelOrder(orderId);
-    
+
     if (success) {
       notifications.notifySuccess('Order Cancelled', 'Order has been successfully cancelled', orderId);
     } else {
       notifications.notifyError('Cancellation Failed', 'Failed to cancel order');
     }
-    
+
     return success;
   };
-  
+
   const handleOrderModify = async (orderId: string, newPrice: number, newAmount: number) => {
     const success = await orderManagement.modifyOrder(orderId, newPrice, newAmount);
-    
+
     if (success) {
       notifications.notifySuccess('Order Modified', 'Order has been successfully updated', orderId);
     } else {
       notifications.notifyError('Modification Failed', 'Failed to modify order');
     }
-    
+
     return success;
   };
-  
+
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarExpanded, setMobileSidebarExpanded] = useState(false);
   const [isMobileTradeOpen, setIsMobileTradeOpen] = useState(false);
@@ -143,34 +144,214 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       r.style.removeProperty('--ab-text-400');
     }
   }, [apiTokenData?.tokenInfo?.color_palette]);
-  
+
   // Create audio player ref and handle audio URL updates
   const mp3PlayerRef = useRef<HTMLAudioElement>(null);
+  const scWidgetRef = useRef<HTMLIFrameElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Audio playback control function
+  // Load SoundCloud Widget API script on component mount
+  useEffect(() => {
+    // Check if script is already loaded
+    if ((window as any).SC && (window as any).SC.Widget) {
+      console.log('[SC] SoundCloud Widget API already loaded');
+      return;
+    }
+
+    // Create and append script tag
+    const script = document.createElement('script');
+    script.src = 'https://w.soundcloud.com/player/api.js';
+    script.async = true;
+    script.onload = () => {
+      console.log('[SC] SoundCloud Widget API script loaded successfully');
+    };
+    script.onerror = () => {
+      console.error('[SC] Failed to load SoundCloud Widget API script');
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup: remove script on unmount if needed
+      // Note: We keep the script loaded for the session to avoid reloading
+    };
+  }, []);
+
+  // Audio playback control function - handles both MP3 and SoundCloud widget
   const playAudio = () => {
-    if (mp3PlayerRef.current) {
-      if (isPlaying) {
-        mp3PlayerRef.current.pause();
-      } else {
-        mp3PlayerRef.current.play();
+    const newPlayingState = !isPlaying;
+    
+    // Try to control SoundCloud widget first
+    if (scWidgetRef.current && (window as any).SC && (window as any).SC.Widget) {
+      try {
+        const widget = (window as any).SC.Widget(scWidgetRef.current);
+        if (newPlayingState) {
+          widget.play();
+        } else {
+          widget.pause();
+        }
+        setIsPlaying(newPlayingState);
+      } catch (e) {
+        console.warn('[Audio] Failed to control SoundCloud widget, falling back to MP3:', e);
       }
-      setIsPlaying(!isPlaying);
+    }
+    
+    // Fallback to regular MP3 player
+    if (mp3PlayerRef.current) {
+      if (newPlayingState) {
+        mp3PlayerRef.current.play();
+      } else {
+        mp3PlayerRef.current.pause();
+      }
+      setIsPlaying(newPlayingState);
     }
   };
-  
+
+  // Utility function to extract SoundCloud track info
+  const extractSoundCloudTrackUrl = (url: string): string | null => {
+    try {
+      // Verify it's a SoundCloud URL
+      if (!url.includes('soundcloud.com')) {
+        return null;
+      }
+      // SoundCloud URLs can be:
+      // - https://soundcloud.com/user/track-name
+      // - https://soundcloud.com/user/sets/playlist-name
+      // - https://soundcloud.com/user/track-name/s-SHORTID
+      // The widget.load() API accepts the full URL
+      return url;
+    } catch (error) {
+      console.error('[SC] Failed to parse SoundCloud URL:', error);
+      return null;
+    }
+  };
+
   // Update audio source when token info changes
   useEffect(() => {
     const mp3Url = apiTokenData?.tokenInfo?.mp3_url || null;
-    if (mp3PlayerRef.current && mp3Url) {
-      mp3PlayerRef.current.src = mp3Url;
-      mp3PlayerRef.current.load(); // Load the new mp3 source
-      mp3PlayerRef.current.volume = 0.5; // Set volume to 50%
-      setTimeout(() => { playAudio();},5000) // Play the new audio
+    console.log('[Audio] Updating audio source to:', mp3Url);
+
+    if (!mp3Url) {
+      console.log('[Audio] No audio URL provided');
+      setIsPlaying(false);
+      return;
     }
-    else{
-      setIsPlaying(false)
+
+    console.log('[Audio] Processing URL:', mp3Url);
+
+    // Check if URL is SoundCloud
+    const isSoundCloudUrl = mp3Url.includes('soundcloud.com');
+
+    if (isSoundCloudUrl) {
+      console.log('[Audio] Detected SoundCloud URL');
+      
+      // Extract and validate the SoundCloud URL
+      const scUrl = extractSoundCloudTrackUrl(mp3Url);
+      if (!scUrl) {
+        console.error('[SC] Invalid SoundCloud URL format');
+        setIsPlaying(false);
+        return;
+      }
+
+      // Load into SoundCloud widget
+      if (scWidgetRef.current && typeof window !== 'undefined') {
+        // Wait for SC API to be available
+        const waitForSC = setInterval(() => {
+          if ((window as any).SC && (window as any).SC.Widget) {
+            clearInterval(waitForSC);
+            try {
+              // Create widget instance
+              const widget = (window as any).SC.Widget(scWidgetRef.current);
+
+              // Register event listeners before loading
+              widget.bind((window as any).SC.Widget.Events.READY, function () {
+                console.log('[SC] Widget ready - initiating autoplay');
+                try {
+                  widget.play();
+                  setIsPlaying(true);
+                  console.log('[SC] Track playback started on READY');
+                } catch (e) {
+                  console.warn('[SC] Auto-play on READY failed:', e);
+                }
+              });
+
+              widget.bind((window as any).SC.Widget.Events.ERROR, function (error: any) {
+                console.error('[SC] Widget error:', error);
+                // Fallback to regular MP3 player on error
+                if (mp3PlayerRef.current) {
+                  mp3PlayerRef.current.src = mp3Url;
+                  mp3PlayerRef.current.load();
+                }
+              });
+
+              widget.bind((window as any).SC.Widget.Events.FINISH, function () {
+                console.log('[SC] Track finished - restarting for loop');
+                try {
+                  widget.seekTo(0); // Reset to beginning
+                  widget.play(); // Play again
+                  setIsPlaying(true);
+                } catch (e) {
+                  console.warn('[SC] Loop replay failed:', e);
+                }
+              });
+
+              widget.bind((window as any).SC.Widget.Events.PLAY, function () {
+                setIsPlaying(true);
+              });
+
+              widget.bind((window as any).SC.Widget.Events.PAUSE, function () {
+                setIsPlaying(false);
+              });
+
+              // Load the track with the SoundCloud URL
+              console.log('[SC] Loading track from URL:', scUrl);
+              widget.load(scUrl, {
+                options: {
+                  buying: false,
+                  sharing: false,
+                  liking: false,
+                  download: false,
+                  show_comments: true,
+                  show_playcount: true
+                },
+                callback: function() {
+                  widget.setVolume(50)
+                  playAudio()
+                }
+              });
+
+              console.log('[SC] Loaded SoundCloud track:', scUrl);
+
+            } catch (error) {
+              console.error('[SC] Failed to initialize SoundCloud widget:', error);
+              // Fallback to regular MP3 player
+              if (mp3PlayerRef.current) {
+                mp3PlayerRef.current.src = mp3Url;
+                mp3PlayerRef.current.load();
+              }
+            }
+          }
+        }, 100);
+
+        // Clear interval after 10 seconds if SC API not available
+        const timeoutId = setTimeout(() => clearInterval(waitForSC), 10000);
+
+        // Cleanup on unmount
+        return () => {
+          clearInterval(waitForSC);
+          clearTimeout(timeoutId);
+        };
+      }
+    } else {
+      // Load regular MP3 into audio player
+      if (mp3PlayerRef.current) {
+        mp3PlayerRef.current.src = mp3Url;
+        mp3PlayerRef.current.load(); // Load the new mp3 source
+        mp3PlayerRef.current.volume = 0.5; // Set volume to 50%
+        setTimeout(() => { playAudio() }, 5000);
+      } else {
+        console.error('[Audio] Audio player ref not available');
+        setIsPlaying(false);
+      }
     }
   }, [apiTokenData?.tokenInfo?.mp3_url]);
 
@@ -178,7 +359,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [candles1m, setCandles1m] = useState<Candle[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
   const lastWsTradeRef = useRef<WebSocketTrade | null>(null);
-  
+
   // Track live WebSocket updates for token card
   const [liveTokenUpdates, setLiveTokenUpdates] = useState<{
     marketCap?: number;
@@ -190,7 +371,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Seed local state from API on load/change
   useEffect(() => {
     if (!apiTokenData) return;
-    
+
     console.log('[TradingChart] API data received:', {
       hasCandles: Array.isArray(apiTokenData.candles),
       candlesCount: apiTokenData.candles?.length,
@@ -200,7 +381,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       tradesCount: (apiTokenData as any).trades?.length,
       tokenInfo: apiTokenData.tokenInfo?.symbol
     });
-    
+
     if (Array.isArray(apiTokenData.candles)) {
       setCandles1m(apiTokenData.candles);
       console.log('[TradingChart] Set candles from API:', apiTokenData.candles.length, 'candles');
@@ -261,24 +442,24 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     lastWsTradeRef.current = trade;
     // Prepend and keep bounded; sorting in UI assumes ms timestamps
     setTrades(prev => [normalized, ...(prev || [])].slice(0, 200));
-    
+
     // Update live token data for the token card
     if (trade.marketCap || trade.circulatingSupply || trade.virtualEth) {
       setLiveTokenUpdates(prev => {
         const updates: typeof prev = { ...prev };
-        
+
         if (typeof trade.marketCap === 'number') {
           updates.marketCap = trade.marketCap;
         }
-        
+
         if (typeof trade.circulatingSupply === 'number') {
           updates.circulatingSupply = trade.circulatingSupply;
         }
-        
+
         if (typeof trade.virtualEth === 'number') {
           updates.virtualEth = trade.virtualEth;
         }
-        
+
         // Calculate bonding progress if we have circulatingSupply and graduation cap
         if (typeof trade.circulatingSupply === 'number' && apiTokenData?.tokenInfo?.graduation_cap_norm) {
           const cap = Number(apiTokenData.tokenInfo.graduation_cap_norm);
@@ -286,7 +467,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             updates.bondingProgress = (trade.circulatingSupply / cap) * 100;
           }
         }
-        
+
         return updates;
       });
     }
@@ -312,7 +493,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         console.log('[WS] Adding first candle for fresh token:', newCandle);
         return [newCandle];
       }
-      
+
       const last = prev[prev.length - 1];
       if (last.timestamp === newCandle.timestamp) {
         const updated = [...prev];
@@ -395,7 +576,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const maxTxPctNum = apiInfo?.curve_max_tx && apiInfo?.total_supply
     ? (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100
     : 2.1;
-  
+
   // Use live bonding progress from WebSocket if available, otherwise calculate from API
   const bondingPct = (() => {
     // Prefer live WebSocket update
@@ -410,7 +591,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     }
     return 0;
   })();
-  
+
   // Use volume24h from API
   const volumeUsd = (() => {
     const vol24h = apiTokenData?.volume24h;
@@ -419,7 +600,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     }
     return undefined;
   })();
-  
+
   // Use marketCap from WebSocket if available (more recent), otherwise from API
   const marketCapFormatted = (() => {
     // Prefer live WebSocket update
@@ -433,7 +614,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     }
     return undefined;
   })();
-  
+
   // Use virtualEth (liquidity pool) from WebSocket if available, otherwise from API
   const liquidityPoolFormatted = (() => {
     // Prefer live WebSocket update
@@ -446,7 +627,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     }
     return undefined;
   })();
-  
+
   const mobileStyleTokenData: TokenData = {
     name: apiInfo?.name ?? 'Unknown',
     symbol: apiInfo?.symbol ?? '???',
@@ -528,7 +709,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     dragStateRef.current.startY = touch.clientY;
     dragStateRef.current.startHeight = transactionsHeight;
     dragStateRef.current.lastY = touch.clientY;
-    
+
     // Add haptic feedback if available
     if (navigator.vibrate) {
       navigator.vibrate(10);
@@ -539,68 +720,68 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   const handleMouseMove = React.useCallback((e: MouseEvent) => {
     if (!isDraggingRef.current) return;
-    
+
     e.preventDefault();
     dragStateRef.current.lastY = e.clientY;
-    
+
     // Cancel any pending animation frame
     if (dragStateRef.current.frameId) {
       cancelAnimationFrame(dragStateRef.current.frameId);
     }
-    
+
     // Use requestAnimationFrame for smooth updates
     dragStateRef.current.frameId = requestAnimationFrame(() => {
       if (!isDraggingRef.current) return;
-      
+
       const deltaY = dragStateRef.current.startY - dragStateRef.current.lastY;
       const newHeight = dragStateRef.current.startHeight + deltaY;
-      
+
       const minHeight = 56;
       const maxHeight = Math.min(400, window.innerHeight * 0.6);
-      
+
       setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
     });
   }, []);
 
   const handleTouchMove = React.useCallback((e: TouchEvent) => {
     if (!isDraggingRef.current) return;
-    
+
     e.preventDefault();
     const touch = e.touches[0];
     dragStateRef.current.lastY = touch.clientY;
-    
+
     // Cancel any pending animation frame
     if (dragStateRef.current.frameId) {
       cancelAnimationFrame(dragStateRef.current.frameId);
     }
-    
+
     // Use requestAnimationFrame for smooth updates
     dragStateRef.current.frameId = requestAnimationFrame(() => {
       if (!isDraggingRef.current) return;
-      
+
       const deltaY = dragStateRef.current.startY - dragStateRef.current.lastY;
       const newHeight = dragStateRef.current.startHeight + deltaY;
-      
+
       const minHeight = 56;
       const maxHeight = Math.min(400, window.innerHeight * 0.6);
-      
+
       setTransactionsHeight(Math.max(minHeight, Math.min(maxHeight, newHeight)));
     });
   }, []);
 
   const handleMouseUp = React.useCallback((e?: MouseEvent) => {
     if (!isDraggingRef.current && !isDraggingDesktopRef.current) return;
-    
+
     // Immediately stop dragging
     isDraggingRef.current = false;
     isDraggingDesktopRef.current = false;
-    
+
     // Cancel any pending animation frame
     if (dragStateRef.current.frameId) {
       cancelAnimationFrame(dragStateRef.current.frameId);
       dragStateRef.current.frameId = 0;
     }
-    
+
     // Update state
     setIsDragging(false);
     setIsDraggingDesktop(false);
@@ -608,16 +789,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
   const handleTouchEnd = React.useCallback(() => {
     if (!isDraggingRef.current) return;
-    
+
     // Immediately stop dragging
     isDraggingRef.current = false;
-    
+
     // Cancel any pending animation frame
     if (dragStateRef.current.frameId) {
       cancelAnimationFrame(dragStateRef.current.frameId);
       dragStateRef.current.frameId = 0;
     }
-    
+
     // Update state
     setIsDragging(false);
   }, []);
@@ -639,16 +820,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
     e.preventDefault();
     dragStateRef.current.lastY = e.clientY;
-    
+
     // Cancel any pending animation frame
     if (dragStateRef.current.frameId) {
       cancelAnimationFrame(dragStateRef.current.frameId);
     }
-    
+
     // Use requestAnimationFrame for smooth updates
     dragStateRef.current.frameId = requestAnimationFrame(() => {
       if (!isDraggingDesktopRef.current) return;
-      
+
       const deltaY = dragStateRef.current.startY - dragStateRef.current.lastY;
       const newHeight = dragStateRef.current.startHeight + deltaY;
 
@@ -666,13 +847,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseMove(e);
       }
     };
-    
+
     const handleGlobalMouseUp = (e: MouseEvent) => {
       if (isDraggingRef.current || isDraggingDesktopRef.current) {
         handleMouseUp(e);
       }
     };
-    
+
     const handleGlobalMouseDown = (e: MouseEvent) => {
       // Stop dragging when clicking anywhere (including TradingView chart and iframes)
       if (isDraggingRef.current || isDraggingDesktopRef.current) {
@@ -681,7 +862,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseUp();
       }
     };
-    
+
     const handleGlobalClick = (e: MouseEvent) => {
       // Stop dragging when clicking anywhere
       if (isDraggingRef.current || isDraggingDesktopRef.current) {
@@ -690,7 +871,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseUp();
       }
     };
-    
+
     const handleEscapeKey = (e: KeyboardEvent) => {
       // Stop dragging on Escape key
       if ((isDraggingRef.current || isDraggingDesktopRef.current) && e.key === 'Escape') {
@@ -698,7 +879,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseUp();
       }
     };
-    
+
     if (isDragging) {
       document.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
       document.addEventListener('mouseup', handleGlobalMouseUp);
@@ -715,7 +896,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     } else {
       document.body.style.removeProperty('--dragging-pointer-events');
     }
-    
+
     return () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
@@ -740,13 +921,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleDesktopMouseMove(e);
       }
     };
-    
+
     const handleGlobalDesktopMouseUp = (e: MouseEvent) => {
       if (isDraggingDesktopRef.current) {
         handleMouseUp(e);
       }
     };
-    
+
     const handleGlobalDesktopMouseDown = (e: MouseEvent) => {
       // Stop dragging when clicking anywhere (including TradingView chart)
       if (isDraggingDesktopRef.current) {
@@ -755,7 +936,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseUp();
       }
     };
-    
+
     const handleGlobalDesktopClick = (e: MouseEvent) => {
       // Stop dragging when clicking anywhere
       if (isDraggingDesktopRef.current) {
@@ -764,7 +945,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseUp();
       }
     };
-    
+
     const handleEscapeKey = (e: KeyboardEvent) => {
       // Stop dragging on Escape key
       if (isDraggingDesktopRef.current && e.key === 'Escape') {
@@ -772,7 +953,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         handleMouseUp();
       }
     };
-    
+
     if (isDraggingDesktop) {
       document.addEventListener('mousemove', handleGlobalDesktopMouseMove, { passive: false });
       document.addEventListener('mouseup', handleGlobalDesktopMouseUp);
@@ -810,10 +991,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -895,7 +1076,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           <span className="text-[#feea88] text-xs font-bold">{tokenData.progress}%</span>
         </div>
         <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
-          <div 
+          <div
             className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
             style={{
               width: `${tokenData.progress}%`,
@@ -910,17 +1091,17 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <div className="flex flex-1 text-white font-sans overflow-hidden relative">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DesktopSidebar 
-            expanded={sidebarExpanded} 
-            setExpanded={setSidebarExpanded} 
-            tokenAddress={tokenAddress} 
+          <DesktopSidebar
+            expanded={sidebarExpanded}
+            setExpanded={setSidebarExpanded}
+            tokenAddress={tokenAddress}
             tokenLogoUrl={apiInfo?.image_url ?? undefined}
             apiTokenData={apiTokenData}
             isLoading={isLoading}
           />
         </div>
-        
-          <main 
+
+        <main
           className="flex-1 p-[8px] overflow-hidden flex flex-col gap-[8px]"
           style={{
             paddingBottom: '8px',
@@ -946,7 +1127,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
                   {/* Chart fills remaining space with no gap */}
                   <div className="flex-1 min-h-0 relative">
-                    <TradingView 
+                    <TradingView
                       title={apiTokenData?.tokenInfo?.name}
                       symbol={apiTokenData?.tokenInfo?.symbol}
                       address={tokenAddress ?? undefined}
@@ -956,7 +1137,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                       telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
                       twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
                       websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
-                      isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url? true : false}
+                      isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
                       isAudioPlaying={isPlaying}
                       onToggleAudio={playAudio}
                     />
@@ -970,168 +1151,168 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 </div>
               </div>
 
-            {/* Recent Transactions Panel (desktop only) */}
-            <div 
-              className="hidden lg:block" 
-              style={{ 
-                height: `${desktopTransactionsHeight}px`,
-                position: 'relative',
-                flexShrink: 0
-              }}>
-              {/* Drag Handle */}
+              {/* Recent Transactions Panel (desktop only) */}
               <div
-                onMouseDown={handleDesktopMouseDown}
+                className="hidden lg:block"
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '12px',
-                  cursor: 'row-resize',
-                  zIndex: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.15)' : 'transparent',
-                  transition: 'background 150ms ease',
-                  touchAction: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isDraggingDesktop) {
-                    e.currentTarget.style.background = 'rgba(255, 215, 165, 0.08)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isDraggingDesktop) {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
+                  height: `${desktopTransactionsHeight}px`,
+                  position: 'relative',
+                  flexShrink: 0
+                }}>
+                {/* Drag Handle */}
                 <div
+                  onMouseDown={handleDesktopMouseDown}
                   style={{
-                    width: isDraggingDesktop ? '64px' : '48px',
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: isDraggingDesktop 
-                      ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.6), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.6))' 
-                      : 'rgba(255, 215, 165, 0.4)',
-                    transition: 'all 150ms ease',
-                    boxShadow: isDraggingDesktop ? '0 0 8px rgba(254, 234, 136, 0.4)' : 'none'
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '12px',
+                    cursor: 'row-resize',
+                    zIndex: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.15)' : 'transparent',
+                    transition: 'background 150ms ease',
+                    touchAction: 'none'
                   }}
-                />
-              </div>
-              <div style={{
-                width: '100%',
-                height: '100%',
-                position: 'relative',
-                borderRadius: 'clamp(14px, 2vw, 20px)',
-                background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-                boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-                padding: 'clamp(12px, 2.5vh, 16px)',
-                paddingTop: '20px',
-                border: '1px solid rgba(255, 215, 165, 0.4)',
-                overflow: 'hidden',
-                color: '#fff7ea',
-                display: 'flex',
-                flexDirection: 'column',
-                boxSizing: 'border-box'
-              }}>
-                {/* Content Area */}
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  {showLimitOrders ? (
-                    <CompactLimitOrderBook 
-                      orders={orderManagement.orders}
-                      tokenAddress={tokenAddress ?? undefined}
-                      onCancelOrder={handleOrderCancel}
-                      onModifyOrder={handleOrderModify}
-                      loading={orderManagement.loading}
-                      error={orderManagement.error ?? undefined}
-                      showToggle={true}
-                      showLimitOrders={showLimitOrders}
-                      onToggleChange={setShowLimitOrders}
-                      isMobile={false}
-                    />
-                  ) : (
-                    <TradeHistory 
-                      tokenAddress={tokenAddress}
-                      tokenData={apiTokenData}
-                      trades={trades}
-                      isLoading={isLoading}
-                      error={error}
-                      showToggle={true}
-                      showLimitOrders={showLimitOrders}
-                      onToggleChange={setShowLimitOrders}
-                    />
-                  )}
+                  onMouseEnter={(e) => {
+                    if (!isDraggingDesktop) {
+                      e.currentTarget.style.background = 'rgba(255, 215, 165, 0.08)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isDraggingDesktop) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <div
+                    style={{
+                      width: isDraggingDesktop ? '64px' : '48px',
+                      height: '4px',
+                      borderRadius: '2px',
+                      background: isDraggingDesktop
+                        ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.6), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.6))'
+                        : 'rgba(255, 215, 165, 0.4)',
+                      transition: 'all 150ms ease',
+                      boxShadow: isDraggingDesktop ? '0 0 8px rgba(254, 234, 136, 0.4)' : 'none'
+                    }}
+                  />
+                </div>
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  position: 'relative',
+                  borderRadius: 'clamp(14px, 2vw, 20px)',
+                  background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                  boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+                  padding: 'clamp(12px, 2.5vh, 16px)',
+                  paddingTop: '20px',
+                  border: '1px solid rgba(255, 215, 165, 0.4)',
+                  overflow: 'hidden',
+                  color: '#fff7ea',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  boxSizing: 'border-box'
+                }}>
+                  {/* Content Area */}
+                  <div style={{ flex: 1, overflow: 'hidden' }}>
+                    {showLimitOrders ? (
+                      <CompactLimitOrderBook
+                        orders={orderManagement.orders}
+                        tokenAddress={tokenAddress ?? undefined}
+                        onCancelOrder={handleOrderCancel}
+                        onModifyOrder={handleOrderModify}
+                        loading={orderManagement.loading}
+                        error={orderManagement.error ?? undefined}
+                        showToggle={true}
+                        showLimitOrders={showLimitOrders}
+                        onToggleChange={setShowLimitOrders}
+                        isMobile={false}
+                      />
+                    ) : (
+                      <TradeHistory
+                        tokenAddress={tokenAddress}
+                        tokenData={apiTokenData}
+                        trades={trades}
+                        isLoading={isLoading}
+                        error={error}
+                        showToggle={true}
+                        showLimitOrders={showLimitOrders}
+                        onToggleChange={setShowLimitOrders}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Column - Token Card and Trade Panel (desktop only) */}
-          <div 
-            className={`hidden lg:flex flex-col gap-[8px] ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
-            style={{
-              transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
-              flexShrink: 0,
-              height: '100%'
-            }}
-          >
-            {/* Token Card */}
-            <div className="flex justify-center items-center overflow-hidden" style={{ flexShrink: 0, height: 'auto' }}>
+            {/* Right Column - Token Card and Trade Panel (desktop only) */}
+            <div
+              className={`hidden lg:flex flex-col gap-[8px] ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
+              style={{
+                transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+                flexShrink: 0,
+                height: '100%'
+              }}
+            >
+              {/* Token Card */}
+              <div className="flex justify-center items-center overflow-hidden" style={{ flexShrink: 0, height: 'auto' }}>
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  maxWidth: '420px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLoading={!apiTokenData} />
+                </div>
+              </div>
+
+              {/* Trade Panel */}
               <div style={{
-                width: '100%',
-                height: '100%',
-                maxWidth: '420px',
+                flex: 1,
+                minHeight: '280px',
+                maxHeight: 'calc(100% - 5px)',
+                overflowY: 'auto',
+                overflowX: 'hidden',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                flexDirection: 'column',
+                scrollBehavior: 'smooth',
+                WebkitOverflowScrolling: 'touch'
               }}>
-                <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLoading={!apiTokenData} />
+                <TradePanel
+                  onTabChange={(tab) => setDesktopTradeTab(tab)}
+                  tokenAddress={tokenAddress}
+                  apiTokenData={apiTokenData}
+                />
               </div>
             </div>
 
-            {/* Trade Panel */}
-            <div style={{ 
-              flex: 1,
-              minHeight: '280px',
-              maxHeight: 'calc(100% - 5px)',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              scrollBehavior: 'smooth',
-              WebkitOverflowScrolling: 'touch'
-            }}>
-              <TradePanel 
-                onTabChange={(tab) => setDesktopTradeTab(tab)}
-                tokenAddress={tokenAddress}
-                apiTokenData={apiTokenData}
-              />
-            </div>
           </div>
-
-        </div>
 
         </main>
       </div>
-      
+
       {/* Recent Transactions Widget (Mobile Only) - Bottom slide-up panel */}
-      <div 
+      <div
         className="lg:hidden fixed left-0 right-0 z-30"
-        style={{ 
+        style={{
           bottom: '68px',
           height: `${transactionsHeight}px`,
           background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
           borderTop: '1px solid rgba(255, 215, 165, 0.4)',
-          boxShadow: isDragging 
-            ? '0 -8px 24px rgba(0, 0, 0, 0.3), 0 -2px 8px rgba(254, 234, 136, 0.2)' 
+          boxShadow: isDragging
+            ? '0 -8px 24px rgba(0, 0, 0, 0.3), 0 -2px 8px rgba(254, 234, 136, 0.2)'
             : '0 -4px 12px rgba(0, 0, 0, 0.2)',
           transition: 'box-shadow 150ms ease'
         }}
       >
         {/* Drag Handle / Expand Button (Mobile Only) */}
-        <div 
+        <div
           className={`absolute top-0 left-0 right-0 h-12 cursor-row-resize flex items-center justify-center group`}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
@@ -1141,18 +1322,18 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               if (navigator.vibrate) navigator.vibrate(10);
             }
           }}
-          style={{ 
-            zIndex: 10, 
+          style={{
+            zIndex: 10,
             touchAction: 'none',
-            background: isDragging 
-              ? 'linear-gradient(180deg, rgba(255, 215, 165, 0.15), rgba(255, 215, 165, 0.05))' 
+            background: isDragging
+              ? 'linear-gradient(180deg, rgba(255, 215, 165, 0.15), rgba(255, 215, 165, 0.05))'
               : 'transparent',
             transition: 'background 150ms ease'
           }}
         >
           {transactionsHeight < 100 ? (
             // Collapsed state - enhanced button design
-            <div 
+            <div
               className="flex items-center gap-2 px-4 py-2 rounded-full"
               style={{
                 background: 'linear-gradient(135deg, rgba(254, 234, 136, 0.2), rgba(254, 234, 136, 0.1))',
@@ -1162,12 +1343,12 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 transition: 'all 200ms ease'
               }}
             >
-              <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
                 strokeWidth="2.5"
                 style={{
                   filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))'
@@ -1182,22 +1363,22 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           ) : (
             // Expanded state - enhanced drag handle
             <div className="flex flex-col items-center gap-1.5">
-              <div 
+              <div
                 className="rounded-full"
                 style={{
                   width: isDragging ? '72px' : '56px',
                   height: '4px',
-                  background: isDragging 
-                    ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.4), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.4))' 
+                  background: isDragging
+                    ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.4), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.4))'
                     : 'rgba(255, 215, 165, 0.5)',
                   transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: isDragging 
-                    ? '0 0 12px rgba(254, 234, 136, 0.5), 0 2px 4px rgba(0, 0, 0, 0.2)' 
+                  boxShadow: isDragging
+                    ? '0 0 12px rgba(254, 234, 136, 0.5), 0 2px 4px rgba(0, 0, 0, 0.2)'
                     : '0 1px 2px rgba(0, 0, 0, 0.2)'
                 }}
               />
               {isDragging && (
-                <div 
+                <div
                   className="text-[10px] font-bold tracking-wide"
                   style={{
                     color: 'rgba(254, 234, 136, 0.9)',
@@ -1211,10 +1392,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             </div>
           )}
         </div>
-        
-        <div 
-          className="h-full flex flex-col" 
-          style={{ 
+
+        <div
+          className="h-full flex flex-col"
+          style={{
             display: transactionsHeight < 100 ? 'none' : 'flex',
             padding: '12px 16px 12px 16px',
             paddingTop: '48px' // Extra top padding for mobile drag handle
@@ -1222,7 +1403,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         >
           {/* Content Area - Recent Transactions Only */}
           <div className="flex-1 overflow-hidden">
-            <TradeHistory 
+            <TradeHistory
               tokenAddress={tokenAddress}
               tokenData={apiTokenData}
               trades={trades}
@@ -1236,7 +1417,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           </div>
         </div>
       </div>
-      
+
       {/* Fixed Buy/Sell bar for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
         <div className="px-3 py-3 flex items-center gap-2 max-w-screen-md mx-auto" style={{ height: '68px' }}>
@@ -1272,14 +1453,14 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               height: '36px'
             }}>SELL</div>
           </button>
-          <button 
-            onClick={() => setMobileSidebarExpanded(true)} 
-            type="button" 
+          <button
+            onClick={() => setMobileSidebarExpanded(true)}
+            type="button"
             className="flex-shrink-0"
             title="Open Widgets"
             style={{ padding: '4px', width: '48px' }}
           >
-            <div 
+            <div
               className="flex items-center justify-center"
               style={{
                 background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
@@ -1318,11 +1499,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           </div>
         </div>
       )}
-      
+
       {/* Mobile Widgets Panel */}
-      <MobileBottomBar 
-        expanded={mobileSidebarExpanded} 
-        setExpanded={setMobileSidebarExpanded} 
+      <MobileBottomBar
+        expanded={mobileSidebarExpanded}
+        setExpanded={setMobileSidebarExpanded}
         tokenAddress={tokenAddress}
         tokenLogoUrl={apiInfo?.image_url ?? undefined}
         apiTokenData={apiTokenData}
@@ -1342,7 +1523,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       </div>
 
       {/* Hidden audio player for token audio */}
-      <audio 
+      <audio
         ref={mp3PlayerRef}
         style={{ display: 'none' }}
         controls={false}
@@ -1352,6 +1533,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => setIsPlaying(false)}
+      />
+
+      {/* Hidden SoundCloud Widget iframe API */}
+      <iframe
+        id="sc-widget"
+        ref={scWidgetRef}
+        title="SoundCloud Widget"
+        style={{ display: 'none' }}
+        src="https://w.soundcloud.com/player/?url=about:blank&visual=false&show_comments=false"
+        allow="autoplay"
       />
     </div>
   );
