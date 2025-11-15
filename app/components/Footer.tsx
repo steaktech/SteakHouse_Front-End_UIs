@@ -211,6 +211,7 @@ const Footer: React.FC = () => {
           {/* Bottom: only disclaimer and copyright */}
           <div className={styles.footerBottom} aria-label="Legal">
             <p><a href="mailto:contact@steakhouse.finance">contact@steakhouse.finance</a></p>
+            <p style={{ fontSize: '0.95em', opacity: 0.7, marginTop: '8px' }}>Charts by TradingView</p>
             <div className={styles.certikBadge} aria-label="CertiK certificate">
               {/* paste the following code into the div you would like to show certik emblem */}
               <style
