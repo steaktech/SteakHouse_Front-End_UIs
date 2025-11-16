@@ -91,7 +91,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
   onExtendLock,
 }) => {
   const [state, setState] = useState<LockerWidgetState>(() => ({
-    activeTab: 'manage', // Default to manage tab
+    activeTab: 'create',
     formData: {
       tokenAddress: '',
       amount: '100', // Start at 100%
@@ -280,11 +280,10 @@ const unlockDate = r.rawUnlockTime ? new Date(Number(r.rawUnlockTime) * 1000) : 
   };
 
 const handleCreateLock = async () => {
-  if (!state.formData.tokenAddress) {
-    alert('Please enter a token address');
+  if (!state.formData.tokenAddress || !state.formData.amount) {
+    alert('Please fill in all required fields');
     return;
   }
-  
   if (!walletAddress) {
     try {
       await (window as any)?.ethereum?.request?.({ method: 'eth_requestAccounts' });
@@ -294,51 +293,26 @@ const handleCreateLock = async () => {
     }
   }
 
-  // Double-check wallet address is available after connection attempt
-  if (!walletAddress) {
-    alert('Unable to get wallet address. Please connect your wallet and try again.');
-    return;
-  }
-
   setIsLoading(true);
-  let extended = false;
+  let created = false;
   try {
-    // Use buildExtendLock API
-    // POST /extendLock { token, extraTimeSec, owner }
-    const extraTimeSec = state.formData.lockDuration * 24 * 60 * 60;
-    const unsigned = await buildExtendLock(state.formData.tokenAddress, extraTimeSec, walletAddress);
-    
-    // Normalize gas field to hex string as 'gas'
-    const gasDec = unsigned.gas ?? unsigned.gasLimit;
-    const gasHex = gasDec ? ('0x' + Number(gasDec).toString(16)) : undefined;
-    const toSend = {
-      from: (walletAddress || unsigned.from),
-      ...(unsigned.to ? { to: unsigned.to } : {}),
-      ...(unsigned.data ? { data: unsigned.data } : {}),
-      ...(gasHex ? { gas: gasHex } : {}),
-      ...(unsigned.value ? { value: unsigned.value } : {}),
-      ...(unsigned.maxFeePerGas ? { maxFeePerGas: unsigned.maxFeePerGas } : {}),
-      ...(unsigned.maxPriorityFeePerGas ? { maxPriorityFeePerGas: unsigned.maxPriorityFeePerGas } : {}),
-      ...(unsigned.gasPrice ? { gasPrice: unsigned.gasPrice } : {}),
-    } as any;
-    
-    const txHashOrAddr = await signAndSubmitTransaction(toSend, false);
-    if (!txHashOrAddr) throw new Error('Transaction failed or was rejected');
-    
-    extended = true;
-    // Refresh from API to ensure accurate state
-    await refreshLocks();
-  } catch (error: any) {
-    console.error('Error extending lock:', error);
-    const msg = error?.message || 'Failed to extend lock';
-    alert(msg);
+    if (onLockCreate) {
+      await onLockCreate(state.formData);
+      created = true;
+    } else {
+      alert('Create lock API is not available yet. Please use Extend/Withdraw/Transfer while create is being added.');
+      return;
+    }
+  } catch (error) {
+    console.error('Error creating lock:', error);
+    alert('Failed to create lock');
   } finally {
-    if (extended) {
+    if (created) {
       setState(prev => ({
         ...prev,
         formData: {
           tokenAddress: '',
-          amount: '100',
+          amount: '',
           lockDuration: 30,
         },
         activeTab: 'manage',
@@ -519,24 +493,110 @@ const handleCreateLock = async () => {
   const renderCreateTab = () => {
     const durationPresets: DurationPreset[] = [7, 14, 30, 90, 180, 365];
 
+    const unlockDate = new Date(
+      Date.now() + state.formData.lockDuration * 24 * 60 * 60 * 1000
+    );
+
     return (
       <div className={styles.form}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Token Address</label>
+          <label className={styles.label}>Liquidity Pool / Token Address</label>
           <input
             type="text"
             className={styles.input}
-            placeholder="0x... (Token address of the lock to extend)"
+            placeholder="0x..."
             value={state.formData.tokenAddress}
             onChange={(e) => handleFormChange('tokenAddress', e.target.value)}
           />
-          <div style={{ fontSize: '12px', color: 'rgba(254, 234, 136, 0.6)', marginTop: '4px' }}>
-            Enter the token address of an existing lock you want to extend
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Amount to Lock: {state.formData.amount}%</label>
+          <div style={{ position: 'relative', marginTop: '12px' }}>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={state.formData.amount}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                // Magnetic snap near major percentages (within 3% range)
+                const snapRange = 3;
+                const majorValues = [0, 25, 50, 75, 100];
+
+                let snappedValue = value;
+                for (const major of majorValues) {
+                  if (Math.abs(value - major) <= snapRange) {
+                    snappedValue = major;
+                    break;
+                  }
+                }
+
+                handleFormChange('amount', snappedValue.toString());
+              }}
+              style={{
+                width: '100%',
+                height: '8px',
+                borderRadius: '4px',
+                background: `linear-gradient(to right, #4ade80 0%, #4ade80 ${state.formData.amount}%, rgba(255, 224, 185, 0.2) ${state.formData.amount}%, rgba(255, 224, 185, 0.2) 100%)`,
+                outline: 'none',
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                cursor: 'pointer',
+                border: '1px solid rgba(255, 210, 160, 0.3)'
+              }}
+              className="locker-slider"
+            />
+            <style>{`
+              .locker-slider::-webkit-slider-thumb {
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #ffe49c, #ffc96a);
+                border: 2px solid #8c5523;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+              }
+              .locker-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #ffe49c, #ffc96a);
+                border: 2px solid #8c5523;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+              }
+              .locker-slider::-webkit-slider-thumb:hover {
+                background: linear-gradient(180deg, #ffeeb0, #ffd47e);
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+              }
+              .locker-slider::-moz-range-thumb:hover {
+                background: linear-gradient(180deg, #ffeeb0, #ffd47e);
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+              }
+            `}</style>
+            {/* Percentage markers */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginTop: '8px',
+              fontSize: '10px',
+              color: 'rgba(254, 234, 136, 0.6)',
+              fontWeight: 600
+            }}>
+              <span>0%</span>
+              <span>25%</span>
+              <span>50%</span>
+              <span>75%</span>
+              <span>100%</span>
+            </div>
           </div>
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Additional Lock Duration</label>
+          <label className={styles.label}>Lock Duration</label>
           <div className={styles.durationGrid}>
             {durationPresets.map((days) => (
               <button
@@ -553,28 +613,21 @@ const handleCreateLock = async () => {
 
         <div className={styles.infoBox}>
           <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>Additional Days</span>
+            <span className={styles.infoLabel}>Lock Duration</span>
             <span className={styles.infoValue}>{state.formData.lockDuration} Days</span>
           </div>
           <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>Additional Time</span>
-            <span className={styles.infoValue}>
-              {state.formData.lockDuration >= 365 
-                ? `${Math.floor(state.formData.lockDuration / 365)} Year${Math.floor(state.formData.lockDuration / 365) > 1 ? 's' : ''}`
-                : state.formData.lockDuration >= 30
-                ? `~${Math.floor(state.formData.lockDuration / 30)} Month${Math.floor(state.formData.lockDuration / 30) > 1 ? 's' : ''}`
-                : `${state.formData.lockDuration} Day${state.formData.lockDuration > 1 ? 's' : ''}`
-              }
-            </span>
+            <span className={styles.infoLabel}>Unlock Date</span>
+            <span className={styles.infoValue}>{formatDate(unlockDate)}</span>
           </div>
         </div>
 
         <button
           className={styles.actionBtn}
           onClick={handleCreateLock}
-          disabled={isLoading || !state.formData.tokenAddress?.trim()}
+          disabled={isLoading || !state.formData.tokenAddress?.trim() || !state.formData.amount}
         >
-          {isLoading ? 'Extending Lock...' : 'Extend Lock'}
+          {isLoading ? 'Creating Lock...' : 'Create Lock'}
         </button>
       </div>
     );
@@ -598,7 +651,7 @@ const handleCreateLock = async () => {
             onClick={() => setState(prev => ({ ...prev, activeTab: 'create' }))}
             disabled={isLoading}
           >
-            Extend a Lock
+            Create a Lock
           </button>
         </div>
       );
@@ -743,16 +796,16 @@ const handleCreateLock = async () => {
         <div className={styles.tabsContainer}>
           <div className={styles.tabs}>
             <button
+              className={`${styles.tab} ${state.activeTab === 'create' ? styles.active : ''}`}
+              onClick={() => handleTabChange('create')}
+            >
+              <Lock size={16} /> Create Lock
+            </button>
+            <button
               className={`${styles.tab} ${state.activeTab === 'manage' ? styles.active : ''}`}
               onClick={() => handleTabChange('manage')}
             >
               <Clock size={16} /> Manage Locks
-            </button>
-            <button
-              className={`${styles.tab} ${state.activeTab === 'create' ? styles.active : ''}`}
-              onClick={() => handleTabChange('create')}
-            >
-              <CalendarPlus size={16} /> Extend Lock
             </button>
           </div>
         </div>
