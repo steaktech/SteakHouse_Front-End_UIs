@@ -228,6 +228,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   // Update audio source when token info changes
   useEffect(() => {
     const mp3Url = apiTokenData?.tokenInfo?.mp3_url || null;
+    let soundsCount = 0;
+
     console.log('[Audio] Updating audio source to:', mp3Url);
 
     if (!mp3Url) {
@@ -266,6 +268,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               widget.bind((window as any).SC.Widget.Events.READY, function () {
                 console.log('[SC] Widget ready - initiating autoplay');
                 try {
+                  if (soundsCount > 1) {
+                    const rand = Math.floor(Math.random() * soundsCount);
+                    widget.skip(rand)
+                  }
                   widget.play();
                   setIsPlaying(true);
                   console.log('[SC] Track playback started on READY');
@@ -286,6 +292,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               widget.bind((window as any).SC.Widget.Events.FINISH, function () {
                 console.log('[SC] Track finished - restarting for loop');
                 try {
+                  if (soundsCount > 1) {
+                    const rand = Math.floor(Math.random() * soundsCount);
+                    widget.skip(rand)
+                  }
                   widget.seekTo(0); // Reset to beginning
                   widget.play(); // Play again
                   setIsPlaying(true);
@@ -310,16 +320,36 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   sharing: false,
                   liking: false,
                   download: false,
-                  show_comments: true,
-                  show_playcount: true
+                  show_teaser: false,
+                  show_playcount: false,
+                  show_comments: false
                 },
+                auto_play: true,
                 callback: function() {
-                  widget.setVolume(50)
-                  playAudio()
+                  widget.setVolume(50);
+                  widget.getSounds(function(sounds: any) {
+                    soundsCount = Array.isArray(sounds) ? sounds.length : 0;
+                    console.log('[SC] Tracklist count:', soundsCount);
+                    if (soundsCount > 1) {
+                      const rand = Math.floor(Math.random() * soundsCount);
+                      widget.skip(rand)
+                      widget.play();
+                      setIsPlaying(true);
+                    }
+                  });
                 }
               });
 
               console.log('[SC] Loaded SoundCloud track:', scUrl);
+
+              // Attempt to play after a delay in case READY event is missed
+              setTimeout(() => { 
+                if (!isPlaying){
+                  playAudio();
+                } else {
+                  widget.play();
+                }
+              }, 5000);
 
             } catch (error) {
               console.error('[SC] Failed to initialize SoundCloud widget:', error);
