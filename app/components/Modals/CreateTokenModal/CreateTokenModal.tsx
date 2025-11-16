@@ -390,6 +390,9 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
           }
         }
 
+        // Store the resolved token address in state for Step6 to use
+        setState(prev => ({ ...prev, createdTokenAddress: resolvedTokenAddress } as any));
+
         // Always call API after on-chain confirmation. Use the resolved address.
         try {
           // Compute usd_spent: total ETH fee * ETH price in USD
@@ -697,6 +700,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                 onConfirm={handleConfirm}
                 isLoading={isCreatingToken}
                 onBasicsChange={handleBasicsChange}
+                createdTokenAddress={state.txHash && state.txHash !== 'pending' ? (state as any).createdTokenAddress : undefined}
               />
             )}
           </main>
