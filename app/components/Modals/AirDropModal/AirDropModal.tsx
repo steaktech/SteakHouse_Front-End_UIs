@@ -125,27 +125,34 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
   };
 
   // Calculate estimated value based on 6% airdrop supply
-  // Min raise: $240k, Max raise (hard cap): $1.2M
+  // Min raise: $90k, Max raise (hard cap): $450k
   // Distribution is proportional: user gets (their points / total platform points) * airdrop pool
   const airdropEstimates = useMemo(() => {
-    if (!data?.points?.total) return { min: 0, max: 0, userSharePercentage: 0 };
+    // if (!data?.points?.total) return { min: 0, max: 0, userSharePercentage: 0 };
     
-    const MIN_AIRDROP_POOL = 240000; // $240k at minimum raise
-    const MAX_AIRDROP_POOL = 1200000; // $1.2M at hard cap
+    // const MIN_AIRDROP_POOL = 90000; // $90k at minimum raise (SC)
+    // const MAX_AIRDROP_POOL = 450000; // $450k at hard cap (HC)
     
-    // Use total_platform_points from API if available, otherwise use a conservative estimate
-    // This ensures everyone's points add up to 100% and are distributed proportionally
-    const totalPlatformPoints = data.total_platform_points || (data.points.total * 100); // Fallback multiplier
-    const userSharePercentage = (data.points.total / totalPlatformPoints) * 100;
+    // // Use total_platform_points from API if available, otherwise use a conservative estimate
+    // // This ensures everyone's points add up to 100% and are distributed proportionally
+    // const totalPlatformPoints = data.total_platform_points || (data.points.total * 100); // Fallback multiplier
+    // const userSharePercentage = (data.points.total / totalPlatformPoints) * 100;
     
-    // Calculate user's proportional share of the airdrop pool
-    const minValue = (data.points.total / totalPlatformPoints) * MIN_AIRDROP_POOL;
-    const maxValue = (data.points.total / totalPlatformPoints) * MAX_AIRDROP_POOL;
+    // // Calculate user's proportional share of the airdrop pool
+    // const minValue = (data.points.total / totalPlatformPoints) * MIN_AIRDROP_POOL;
+    // const maxValue = (data.points.total / totalPlatformPoints) * MAX_AIRDROP_POOL;
     
+    // return {
+    //   min: minValue,
+    //   max: maxValue,
+    //   userSharePercentage
+    // };
+
+    // Temporary fixed values
     return {
-      min: minValue,
-      max: maxValue,
-      userSharePercentage
+      min: 90,
+      max: 450,
+      userSharePercentage: 0
     };
   }, [data?.points?.total, data?.total_platform_points]);
 
@@ -216,14 +223,14 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
                     <div className={styles.estimateTitleBlock}>
                       <div className={styles.estimateTitle}>Estimated Airdrop Value</div>
                       <div className={styles.estimateSubtitle}>
-                        6% supply allocation • {airdropEstimates.userSharePercentage.toFixed(4)}% of pool
+                        6% supply allocation
                       </div>
                     </div>
                   </div>
                   <div className={styles.estimateRange}>
                     <div className={styles.rangeItem}>
-                      <div className={styles.rangeLabel}>Minimum (Low Raise)</div>
-                      <div className={styles.rangeValue}>{formatCompact(airdropEstimates.min)}</div>
+                      <div className={styles.rangeLabel}>(SC) MINIMUM</div>
+                      <div className={styles.rangeValue}>90k</div>
                     </div>
                     <div className={styles.rangeDivider}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -231,13 +238,13 @@ export default function AirDropModal({ isOpen, onClose, tradingWallet: tradingWa
                       </svg>
                     </div>
                     <div className={styles.rangeItem}>
-                      <div className={styles.rangeLabel}>Maximum (Hard Cap)</div>
-                      <div className={`${styles.rangeValue} ${styles.maxValue}`}>{formatCompact(airdropEstimates.max)}</div>
+                      <div className={styles.rangeLabel}>(HC) MAXIMUM</div>
+                      <div className={`${styles.rangeValue} ${styles.maxValue}`}>450k</div>
                     </div>
                   </div>
                   <div className={styles.disclaimer}>
                     <Icons.Info />
-                    <span>Your share is calculated proportionally based on your points relative to all users. These values are based on <strong>6% of the $STEAK supply</strong> being allocated to the airdrop. The airdrop pool will be <strong>$240K–$1.2M</strong> (depending on final raise), distributed proportionally among all participants. Your percentage may change as more users earn points.</span>
+                    <span>Your share is calculated proportionally based on your points relative to all users. These values are based on <strong>6% of the $STEAK supply</strong> being allocated to the airdrop. The airdrop pool will be <strong>$90K–$450K</strong> (depending on final raise), distributed proportionally among all participants. Your percentage may change as more users earn points.</span>
                   </div>
                 </div>
               </div>
