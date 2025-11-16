@@ -175,6 +175,34 @@ export default function Header() {
                 />
               </a>
 
+              {/* GitHub Icon */}
+              <a
+                href="https://github.com/steaktech" target="_blank" rel="noopener noreferrer"
+                className="w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/images/github-icon.png"
+                  alt="GitHub"
+                  width={28}
+                  height={28}
+                  className="object-contain lg:w-5 lg:h-5"
+                />
+              </a>
+
+              {/* Medium Icon */}
+              <a
+                href="https://medium.com/@steakhousefinance" target="_blank" rel="noopener noreferrer"
+                className="w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/images/medium-icon.png"
+                  alt="Medium"
+                  width={28}
+                  height={28}
+                  className="object-contain lg:w-5 lg:h-5"
+                />
+              </a>
+
               {/* Info Icon */}
               <div
                 onClick={() => setIsInfoModalOpen(true)}
