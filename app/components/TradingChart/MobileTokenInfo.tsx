@@ -14,6 +14,7 @@ interface TokenInfoData {
   graduated?: boolean;
   createdAt?: string;
   tokenType?: number;
+  bondingProgress?: number;
 }
 
 interface MobileTokenInfoProps {
@@ -149,7 +150,17 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                     Graduated
                   </span>
                 ) : (
-                  <span className="text-yellow-400">Bonding</span>
+                  <div className="flex flex-col items-end gap-1 min-w-[120px]">
+                    <span className="text-yellow-400 text-[10px]">
+                      Bonding {data.bondingProgress ? `${data.bondingProgress.toFixed(0)}%` : ''}
+                    </span>
+                    <div className="w-full h-1.5 bg-[#1a1523] rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-300"
+                        style={{ width: `${Math.min(data.bondingProgress || 0, 100)}%` }}
+                      />
+                    </div>
+                  </div>
                 )}
               </span>
             </div>
@@ -157,7 +168,12 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Token Type</span>
               <span className="text-xs font-semibold text-white">
-                {data.tokenType === 0 ? 'Standard' : `Type ${data.tokenType}`}
+                {data.tokenType === 0 ? 'ZERO' : 
+                 data.tokenType === 1 ? 'SUPER SIMPLE' : 
+                 data.tokenType === 2 ? 'BASIC' : 
+                 data.tokenType === 3 ? 'ADVANCED' : 
+                 data.tokenType === 4 ? 'CUSTOM' : 
+                 '-'}
               </span>
             </div>
 

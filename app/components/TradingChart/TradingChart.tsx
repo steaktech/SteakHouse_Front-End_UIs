@@ -1145,6 +1145,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           graduated: apiInfo?.graduated,
           createdAt: apiInfo?.inserted_at,
           tokenType: apiInfo?.token_type,
+          bondingProgress: bondingPct,
         }}
       />
 
