@@ -1,0 +1,189 @@
+"use client";
+
+import React, { useState } from 'react';
+
+interface TokenInfoData {
+  tokenAddress?: string;
+  tokenSymbol?: string;
+  marketCap?: number;
+  liquidity?: number;
+  circulatingSupply?: number;
+  volume24h?: number;
+  totalSupply?: number;
+  graduationCap?: number;
+  graduated?: boolean;
+  createdAt?: string;
+  tokenType?: number;
+}
+
+interface MobileTokenInfoProps {
+  data: TokenInfoData;
+}
+
+export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
+  // Format numbers with appropriate suffixes
+  const formatNumber = (num?: number): string => {
+    if (num === undefined || num === null) return '-';
+    
+    if (num >= 1_000_000_000) {
+      return `${(num / 1_000_000_000).toFixed(2)}B`;
+    } else if (num >= 1_000_000) {
+      return `${(num / 1_000_000).toFixed(2)}M`;
+    } else if (num >= 1_000) {
+      return `${(num / 1_000).toFixed(2)}K`;
+    }
+    return num.toFixed(2);
+  };
+
+  // Format currency values
+  const formatCurrency = (num?: number): string => {
+    if (num === undefined || num === null) return '-';
+    return `$${formatNumber(num)}`;
+  };
+
+  // Format percentage
+  const formatPercent = (num?: number): string => {
+    if (num === undefined || num === null) return '-';
+    return `${num.toFixed(0)}%`;
+  };
+
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
+
+  const gridItemClass = "flex flex-col items-center justify-center py-3 px-2 bg-[#13101a] rounded-lg border border-[#1f1a24]";
+  const labelClass = "text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1";
+  const valueClass = "text-sm sm:text-base font-bold text-white";
+
+  return (
+    <div className="lg:hidden w-full bg-[#0a0612] border-b border-[#1f1a24]">
+      <div className="px-4 py-3">
+        {/* Token Address Row */}
+        <div className="flex items-center justify-between mb-4 bg-[#13101a] rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400 uppercase tracking-wider">
+              {data.tokenSymbol || 'TOKEN'}:
+            </span>
+            <span className="text-xs text-blue-400 font-mono">
+              {data.tokenAddress ? `${data.tokenAddress.slice(0, 6)}...${data.tokenAddress.slice(-4)}` : '-'}
+            </span>
+          </div>
+          <button 
+            className="text-gray-400 hover:text-white transition-colors"
+            onClick={() => {
+              if (data.tokenAddress) {
+                navigator.clipboard.writeText(data.tokenAddress);
+              }
+            }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Stats Grid - 2 columns */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          {/* Market Cap */}
+          <div className={gridItemClass}>
+            <span className={labelClass}>MARKET CAP</span>
+            <span className={valueClass}>{formatCurrency(data.marketCap)}</span>
+          </div>
+
+          {/* Liquidity */}
+          <div className={gridItemClass}>
+            <span className={labelClass}>LIQUIDITY</span>
+            <span className={valueClass}>{formatCurrency(data.liquidity)}</span>
+          </div>
+
+          {/* Circulating Supply */}
+          <div className={gridItemClass}>
+            <span className={labelClass}>CIRC. SUPPLY</span>
+            <span className={valueClass}>{formatNumber(data.circulatingSupply)}</span>
+          </div>
+
+          {/* Total Supply */}
+          <div className={gridItemClass}>
+            <span className={labelClass}>TOTAL SUPPLY</span>
+            <span className={valueClass}>{formatNumber(data.totalSupply)}</span>
+          </div>
+
+          {/* 24H Volume */}
+          <div className={gridItemClass}>
+            <span className={labelClass}>24H VOLUME</span>
+            <span className={valueClass}>{formatCurrency(data.volume24h)}</span>
+          </div>
+
+          {/* Graduation Cap */}
+          <div className={gridItemClass}>
+            <span className={labelClass}>GRAD. CAP</span>
+            <span className={valueClass}>{formatCurrency(data.graduationCap)}</span>
+          </div>
+        </div>
+
+        {/* More Info Button */}
+        <button 
+          onClick={() => setShowMoreInfo(!showMoreInfo)}
+          className="w-full py-2 text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-1 bg-[#13101a] rounded-lg border border-[#1f1a24]"
+        >
+          {showMoreInfo ? 'Less Info' : 'More Info'}
+          <svg 
+            className={`w-4 h-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {/* Expandable More Info Section */}
+        {showMoreInfo && (
+          <div className="mt-3 space-y-2 bg-[#13101a] rounded-lg border border-[#1f1a24] p-3">
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Status</span>
+              <span className="text-xs font-semibold text-white">
+                {data.graduated ? (
+                  <span className="text-green-400 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Graduated
+                  </span>
+                ) : (
+                  <span className="text-yellow-400">Bonding</span>
+                )}
+              </span>
+            </div>
+            
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Token Type</span>
+              <span className="text-xs font-semibold text-white">
+                {data.tokenType === 0 ? 'Standard' : `Type ${data.tokenType}`}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Supply %</span>
+              <span className="text-xs font-semibold text-white">
+                {data.circulatingSupply && data.totalSupply 
+                  ? `${((data.circulatingSupply / data.totalSupply) * 100).toFixed(2)}%`
+                  : '-'
+                }
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center py-2">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Created</span>
+              <span className="text-xs font-semibold text-white">
+                {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                }) : '-'}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

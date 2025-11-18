@@ -25,6 +25,7 @@ import VerticalTokenTicker from '@/app/components/Widgets/VerticalTokenTicker';
 import TopTrendingTicker from '@/app/components/Widgets/TopTrendingTicker';
 import MobileStats from './MobileStats';
 import MobileBanner from './MobileBanner';
+import MobileTokenInfo from './MobileTokenInfo';
 import { call } from 'viem/actions';
 
 interface TradingChartProps {
@@ -1128,6 +1129,23 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       <MobileBanner
         bannerUrl={apiInfo?.banner_url ?? undefined}
         tokenName={apiInfo?.name}
+      />
+
+      {/* Mobile Token Info - Stats Panel */}
+      <MobileTokenInfo
+        data={{
+          tokenAddress: apiInfo?.token_address,
+          tokenSymbol: apiInfo?.symbol,
+          marketCap: liveTokenUpdates.marketCap ?? apiTokenData?.marketCap,
+          liquidity: liveTokenUpdates.virtualEth ?? apiInfo?.eth_pool,
+          circulatingSupply: liveTokenUpdates.circulatingSupply ?? apiInfo?.circulating_supply,
+          volume24h: apiTokenData?.volume24h,
+          totalSupply: apiInfo?.total_supply,
+          graduationCap: apiInfo?.graduation_cap,
+          graduated: apiInfo?.graduated,
+          createdAt: apiInfo?.inserted_at,
+          tokenType: apiInfo?.token_type,
+        }}
       />
 
         {/* Mobile Chart Section - Full height for visibility */}
