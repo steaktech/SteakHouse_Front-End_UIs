@@ -22,6 +22,21 @@ interface MobileTokenInfoProps {
 }
 
 export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
+  // Calculate bonding progress if not provided
+  const calculatedBondingProgress = (() => {
+    // Use provided value if available
+    if (data.bondingProgress != null) {
+      return Math.min(data.bondingProgress, 100);
+    }
+    // Calculate from market cap and graduation cap (both in same units)
+    const marketCap = data.marketCap;
+    const graduationCap = data.graduationCap;
+    if (marketCap != null && graduationCap != null && !isNaN(marketCap) && !isNaN(graduationCap) && graduationCap > 0) {
+      return Math.min((marketCap / graduationCap) * 100, 100);
+    }
+    return 0;
+  })();
+
   // Format numbers with appropriate suffixes
   const formatNumber = (num?: number): string => {
     if (num === undefined || num === null) return '-';
@@ -152,12 +167,12 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                 ) : (
                   <div className="flex flex-col items-end gap-1 min-w-[120px]">
                     <span className="text-yellow-400 text-[10px]">
-                      Bonding {data.bondingProgress ? `${data.bondingProgress.toFixed(0)}%` : ''}
+                      Bonding {calculatedBondingProgress ? `${calculatedBondingProgress.toFixed(0)}%` : ''}
                     </span>
                     <div className="w-full h-1.5 bg-[#1a1523] rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(data.bondingProgress || 0, 100)}%` }}
+                        style={{ width: `${Math.min(calculatedBondingProgress || 0, 100)}%` }}
                       />
                     </div>
                   </div>
