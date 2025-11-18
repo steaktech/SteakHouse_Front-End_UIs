@@ -214,6 +214,32 @@ html, body {
   scrollbar-color: #374151 rgba(255, 255, 255, 0.1);
 }
 
+/* Themed scrollbar for mobile trading view */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #0a0612;
+  border-radius: 3px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1f1a24 0%, #2a2332 100%);
+  border-radius: 3px;
+  border: 1px solid #342d3d;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2a2332 0%, #342d3d 100%);
+}
+
+/* Firefox scrollbar for mobile trading view */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #1f1a24 #0a0612;
+}
+
 /* Sidebar Animations and Vertical Text */
 .writing-mode-vertical {
   writing-mode: vertical-rl;

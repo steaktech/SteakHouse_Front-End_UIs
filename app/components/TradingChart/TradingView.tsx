@@ -471,8 +471,8 @@ export const TradingView: React.FC<TradingViewProps> = ({
           <div className="relative min-h-0 h-full">
             <div
               ref={containerRef}
-              className="absolute left-0 right-0 top-0"
-              style={{ bottom: 'calc(var(--mobile-bottom-inset, 0px) + var(--mobile-recent-inset, 0px) + var(--chart-bottom-offset, 0px))', background: '#07040b', borderRadius: 8 }}
+              className="absolute inset-0"
+              style={{ background: '#07040b', borderRadius: 8 }}
             />
           </div>
         </div>

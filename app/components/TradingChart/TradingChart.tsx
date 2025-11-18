@@ -23,6 +23,8 @@ import type { Candle, Trade, WebSocketTrade, ChartUpdateEvent } from '@/app/type
 import { aggregateCandles } from '@/app/lib/utils/candles';
 import VerticalTokenTicker from '@/app/components/Widgets/VerticalTokenTicker';
 import TopTrendingTicker from '@/app/components/Widgets/TopTrendingTicker';
+import MobileStats from './MobileStats';
+import MobileBanner from './MobileBanner';
 import { call } from 'viem/actions';
 
 interface TradingChartProps {
@@ -1034,28 +1036,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     setTransactionsHeight(initialHeight);
   }, []);
 
-  // Publish only the adjustable Recent Transactions panel height as CSS var.
-  // Fixed bars (buy/sell + widgets) are provided separately by --mobile-bottom-inset.
+  // No CSS variable adjustments needed - chart should remain independent of adjustable panel
   React.useEffect(() => {
-    if (!isMobile) {
-      document.documentElement.style.removeProperty('--mobile-recent-inset');
-      document.documentElement.style.removeProperty('--mobile-bottom-inset');
-      document.documentElement.style.removeProperty('--chart-bottom-offset');
-      return;
-    }
-    // Recent transactions panel height (exact), so chart aligns exactly to its top
-    document.documentElement.style.setProperty('--mobile-recent-inset', `${Math.max(0, Math.round(transactionsHeight))}px`);
-    // Fixed buy/sell bar height
-    document.documentElement.style.setProperty('--mobile-bottom-inset', '68px');
-    // No extra breathing room so it matches the interface precisely
-    document.documentElement.style.setProperty('--chart-bottom-offset', '0px');
-
-    return () => {
-      document.documentElement.style.removeProperty('--mobile-recent-inset');
-      document.documentElement.style.removeProperty('--mobile-bottom-inset');
-      document.documentElement.style.removeProperty('--chart-bottom-offset');
-    };
-  }, [isMobile, transactionsHeight]);
+    // Cleanup any existing CSS variables if they were set previously
+    document.documentElement.style.removeProperty('--mobile-recent-inset');
+    document.documentElement.style.removeProperty('--mobile-bottom-inset');
+    document.documentElement.style.removeProperty('--chart-bottom-offset');
+  }, []);
 
   // Copy to clipboard function
   const copyToClipboard = async (text: string, itemId: string) => {
@@ -1099,8 +1086,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       {/* Header */}
       <Header />
 
+      {/* Mobile Scrollable Content Container */}
+      <div className="lg:hidden flex-1 overflow-y-auto overflow-x-hidden scrollbar-custom">
+        {/* Trending Bar - Mobile Only */}
+        <TopTrendingTicker />
+
       {/* Progress Bar - Mobile Only */}
-      <div className="lg:hidden bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
+      <div className="bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
           <span className="text-[#feea88] text-xs font-bold">{tokenData.progress}%</span>
@@ -1118,7 +1110,46 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         </div>
       </div>
 
-      <div className="flex flex-1 text-white font-sans overflow-hidden relative">
+      {/* Mobile Stats - Token Info and Actions */}
+      <MobileStats
+        tokenAddress={tokenAddress}
+        tokenName={apiInfo?.name}
+        tokenSymbol={apiInfo?.symbol}
+        marketCap={marketCapFormatted}
+        currentPrice={livePrice}
+        priceChange24h={apiTokenData?.priceChange24h as number | undefined}
+        tokenIconUrl={apiInfo?.image_url ?? undefined}
+        telegramUrl={apiInfo?.telegram ?? undefined}
+        twitterUrl={apiInfo?.twitter ?? undefined}
+        websiteUrl={apiInfo?.website ?? undefined}
+      />
+
+      {/* Mobile Banner - Token Banner Image */}
+      <MobileBanner
+        bannerUrl={apiInfo?.banner_url ?? undefined}
+        tokenName={apiInfo?.name}
+      />
+
+        {/* Mobile Chart Section - Full height for visibility */}
+        <div className="w-full bg-[#0a0612] px-2 py-3 pb-24" style={{ minHeight: '500px', height: '70vh' }}>
+          <TradingView
+            title={apiTokenData?.tokenInfo?.name}
+            symbol={apiTokenData?.tokenInfo?.symbol}
+            address={tokenAddress ?? undefined}
+            timeframe={timeframe}
+            onChangeTimeframe={(tf) => setTimeframe(tf)}
+            tokenIconUrl={mobileStyleTokenData.logo}
+            telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
+            twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
+            websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+            isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
+            isAudioPlaying={isPlaying}
+            onToggleAudio={playAudio}
+          />
+        </div>
+      </div>
+
+      <div className="hidden lg:flex flex-1 text-white font-sans overflow-hidden relative">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           <DesktopSidebar
