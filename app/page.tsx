@@ -16,7 +16,6 @@ export default function Home() {
         <TrendingBar />
         <FourMemeStyleHomepage />
       </main>
-      <Footer />
       <BottomControlBar
         currentPage={pagination.currentPage}
         hasMore={pagination.hasMore}
@@ -26,6 +25,7 @@ export default function Home() {
         onNextPage={nextPage}
         onPreviousPage={previousPage}
       />
+      <Footer />
     </>
   );
 }
