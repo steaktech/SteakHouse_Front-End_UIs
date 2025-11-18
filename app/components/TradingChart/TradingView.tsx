@@ -54,11 +54,13 @@ export const TradingView: React.FC<TradingViewProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<any>(null);
   const prevDatafeedRef = useRef<any>(null);
+  const chartWrapperRef = useRef<HTMLDivElement | null>(null);
 
   // Wallet + toast
   const { isConnected } = useWallet();
   const { showError, showSuccess } = useToastHelpers();
   const [saveClicked, setSaveClicked] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const TV_LIBRARY_PATH = useMemo(() => {
     const base = (typeof window !== 'undefined' && (window.__TV_BASE__ || '')) || '';
@@ -95,6 +97,32 @@ export const TradingView: React.FC<TradingViewProps> = ({
       setShowSharePopup(true);
     }
   }, [shareData]);
+
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(prev => !prev);
+  }, []);
+
+  // Handle escape key to exit fullscreen
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when chart is fullscreen
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
 
 // Build TradingView datafeed from our API/WS
   const { isSaved, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken((address || '').toLowerCase(), false);
@@ -164,7 +192,9 @@ export const TradingView: React.FC<TradingViewProps> = ({
         timezone: 'Etc/UTC',
         theme: 'Dark',
         locale: 'en',
-        enabled_features: [],
+        fullscreen: false,
+        autosize: true,
+        enabled_features: ['header_fullscreen_button'],
         disabled_features: [
           'use_localstorage_for_settings',
           'header_symbol_search',
@@ -297,7 +327,19 @@ export const TradingView: React.FC<TradingViewProps> = ({
 
   return (
     <>
-      <div className="w-full h-full overflow-hidden">
+      <div 
+        ref={chartWrapperRef} 
+        className="w-full h-full overflow-hidden" 
+        style={isFullscreen ? {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999,
+          background: '#07040b'
+        } : {}}
+      >
         <div className="flex-grow flex flex-col h-full">
           {/* Top Toolbar */}
           <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07040b] border-b border-[#1f1a24]">
@@ -393,7 +435,36 @@ export const TradingView: React.FC<TradingViewProps> = ({
                 </button>
               </div>
 
-              {/* Socials */}
+              {/* Fullscreen + Socials */}
+              <div className="flex items-center gap-2 pl-2 pr-2 border-r border-[#1f1a24]">
+                <button
+                  type="button"
+                  title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                  onClick={toggleFullscreen}
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                    border: '1px solid #8b5a2b',
+                    color: '#ffc24b',
+                    padding: '6px 8px',
+                    borderRadius: 10,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+                    {isFullscreen ? (
+                      <>
+                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                      </>
+                    )}
+                  </svg>
+                </button>
+              </div>
               <div className="flex items-center gap-2 pl-2">
                 <button
                   type="button"
