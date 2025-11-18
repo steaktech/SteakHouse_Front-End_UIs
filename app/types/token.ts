@@ -153,6 +153,7 @@ export interface TokenInfo {
   virtual_token_address: string;
   curve_max_wallet_duration: number | null;
   steakhouse_treasury_basic: string | null;
+  price_change_24h?: number | null;
 }
 
 // Full token data API response interface

@@ -129,37 +129,41 @@ export default function MobileStats({
                   {tokenName}
                 </span>
 
-                {/* Token Symbol and 24h Change */}
+                {/* Token Symbol */}
                 <div className="flex items-center gap-2">
                   {tokenSymbol && (
                     <span className="text-[#6b7280] text-sm font-medium">
                       / {tokenSymbol}
                     </span>
                   )}
-                  {priceChange24h !== undefined && (
-                    <span
-                      className={`text-xs font-semibold flex items-center gap-0.5 ${
-                        priceChange24h >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'
-                      }`}
-                    >
-                      {priceChange24h >= 0 ? '+' : ''}
-                      {priceChange24h.toFixed(2)}% 24h
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
 
-            {/* Second Row: Price Badge (aligned with circle) */}
-            {currentPrice !== undefined && (
-              <div className="flex items-center">
+            {/* Second Row: Price Badge and 24h Change (aligned with circle) */}
+            <div className="flex items-center justify-between gap-2">
+              {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md bg-[#1f1a24] border border-[#2d2838]">
                   <span className="text-white text-xl font-bold">
                     $ {currentPrice.toFixed(6)}
                   </span>
                 </div>
-              </div>
-            )}
+              )}
+              
+              {/* 24h Price Change Badge - Bottom Right */}
+              {priceChange24h !== undefined && priceChange24h !== null && (
+                <div className="ml-auto px-2.5 py-1 rounded-md bg-[#1f1a24] border border-[#2d2838]">
+                  <span
+                    className={`text-sm font-bold flex items-center gap-0.5 ${
+                      priceChange24h >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'
+                    }`}
+                  >
+                    {priceChange24h >= 0 ? '+' : ''}
+                    {priceChange24h.toFixed(2)}% 24h
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Third Row: Social Icons (aligned with circle) */}
             <div className="flex items-center gap-2">

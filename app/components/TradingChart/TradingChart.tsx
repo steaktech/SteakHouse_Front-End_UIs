@@ -9,6 +9,7 @@ import { TradingView } from './TradingView';
 import { TradeHistory } from './TradeHistory';
 import { TradePanel } from './TradePanel';
 import { CompactLimitOrderBook } from './CompactLimitOrderBook';
+import { MobileTradeHistoryTable } from './MobileTradeHistoryTable';
 import { TokenCardProps } from '@/app/components/TradingDashboard/types';
 import { MobileStyleTokenCard, TokenData } from './MobileStyleTokenCard';
 import { useOrderManagement } from './useOrderManagement';
@@ -1118,7 +1119,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         tokenSymbol={apiInfo?.symbol}
         marketCap={marketCapFormatted}
         currentPrice={livePrice}
-        priceChange24h={apiTokenData?.priceChange24h as number | undefined}
+        priceChange24h={apiInfo?.price_change_24h ?? undefined}
         tokenIconUrl={apiInfo?.image_url ?? undefined}
         telegramUrl={apiInfo?.telegram ?? undefined}
         twitterUrl={apiInfo?.twitter ?? undefined}
@@ -1150,7 +1151,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       />
 
         {/* Mobile Chart Section - Full height for visibility */}
-        <div className="w-full bg-[#0a0612] px-2 py-3 pb-24" style={{ minHeight: '500px', height: '70vh' }}>
+        <div className="w-full bg-[#0a0612] px-2 py-3" style={{ minHeight: '500px', height: '70vh' }}>
           <TradingView
             title={apiTokenData?.tokenInfo?.name}
             symbol={apiTokenData?.tokenInfo?.symbol}
@@ -1164,6 +1165,17 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
             isAudioPlaying={isPlaying}
             onToggleAudio={playAudio}
+          />
+        </div>
+
+        {/* Mobile Trade History Table - Below Chart */}
+        <div className="w-full bg-[#07040b] px-3 py-4 pb-32">
+          <MobileTradeHistoryTable
+            tokenAddress={tokenAddress}
+            tokenData={apiTokenData}
+            trades={trades}
+            isLoading={isLoading}
+            error={error}
           />
         </div>
       </div>
