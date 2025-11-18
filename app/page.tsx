@@ -1,26 +1,31 @@
 'use client';
 import Header from "@/app/components/Header";
 import TrendingBar from "@/app/components/TrendingBar";
-import { TradingDashboard } from "@/app/components/TradingDashboard";
+import FourMemeStyleHomepage from "@/app/components/FourMemeStyleHomepage";
 import Footer from "@/app/components/Footer";
-import PageSidebar from "@/app/components/TradingDashboard/PageSidebar";
+import BottomControlBar from "@/app/components/BottomControlBar";
+import { useTokens } from "@/app/hooks/useTokens";
 
 export default function Home() {
+  const { pagination, goToPage, nextPage, previousPage } = useTokens();
+
   return (
     <>
       <main className="flex-1">
         <Header />
         <TrendingBar />
-
-        {/* Body area: sidebar on the left between TrendingBar and Footer */}
-        <section className="relative flex items-stretch gap-0 w-full">
-          <PageSidebar />
-          <div className="flex-1 min-w-0 -mt-5 md:-mt-8 lg:-mt-10">
-            <TradingDashboard />
-          </div>
-        </section>
+        <FourMemeStyleHomepage />
       </main>
       <Footer />
+      <BottomControlBar
+        currentPage={pagination.currentPage}
+        hasMore={pagination.hasMore}
+        nextPage={pagination.nextPage}
+        prevPage={pagination.prevPage}
+        onPageChange={goToPage}
+        onNextPage={nextPage}
+        onPreviousPage={previousPage}
+      />
     </>
   );
 }
