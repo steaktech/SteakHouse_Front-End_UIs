@@ -136,7 +136,7 @@ export default function MobileStats({
     return (
       <>
         $ 0.0
-        <span className="text-[20px] font-code font-semibold align-baseline inline-block leading-none translate-y-[-1px]">
+        <span className="text-[23px] font-code italic font-semibold align-baseline inline-block leading-none translate-y-[-3px]">
           {zerosSub}
         </span>
         {significant}
@@ -197,7 +197,7 @@ export default function MobileStats({
             </div>
 
             {/* Third Row: Social Icons (aligned with circle) */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center ">
               {/* Discord */}
               <a
                 href="/coming-soon"
@@ -207,8 +207,8 @@ export default function MobileStats({
                 <Image
                   src="/images/discord.png"
                   alt="Discord"
-                  width={28}
-                  height={28}
+                  width={24}
+                  height={24}
                   className="object-contain"
                 />
               </a>
@@ -224,8 +224,8 @@ export default function MobileStats({
                 <Image
                   src="/images/telegram.png"
                   alt="Telegram"
-                  width={28}
-                  height={28}
+                  width={24}
+                  height={24}
                   className="object-contain"
                 />
               </a>
@@ -241,8 +241,8 @@ export default function MobileStats({
                 <Image
                   src="/images/twitter.png"
                   alt="Twitter"
-                  width={28}
-                  height={28}
+                  width={24}
+                  height={24}
                   className="object-contain"
                 />
               </a>
@@ -258,8 +258,8 @@ export default function MobileStats({
                 <Image
                   src="/images/github-icon.png"
                   alt="GitHub"
-                  width={32}
-                  height={32}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
               </a>
@@ -275,8 +275,8 @@ export default function MobileStats({
                 <Image
                   src="/images/medium-icon.png"
                   alt="Medium"
-                  width={32}
-                  height={32}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
               </a>
@@ -308,30 +308,6 @@ export default function MobileStats({
             {/* Divider */}
             {socialLinks.length > 0 && (
               <div className="w-px h-5 bg-[#1f1a24] mx-0.5"></div>
-            )}
-
-            {/* Website Button (token-specific) */}
-            {websiteUrl && (
-              <button
-                type="button"
-                title="Website"
-                className="p-1.5 rounded-md cursor-pointer transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                onClick={() => {
-                  const url = sanitizeUrl(websiteUrl);
-                  if (url) {
-                    if (typeof window !== 'undefined') {
-                      window.open(url, '_blank', 'noopener,noreferrer');
-                    }
-                  } else {
-                    setShowSharePopup(true);
-                  }
-                }}
-                style={{
-                  background: 'rgba(31, 26, 36, 0.5)',
-                }}
-              >
-                <Globe size={16} className="text-[#9ca3af]" />
-              </button>
             )}
 
             {/* Audio Button (moved from TradingView header) */}

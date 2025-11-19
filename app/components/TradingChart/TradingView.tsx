@@ -56,6 +56,7 @@ export const TradingView: React.FC<TradingViewProps> = ({
   const widgetRef = useRef<any>(null);
   const prevDatafeedRef = useRef<any>(null);
   const chartWrapperRef = useRef<HTMLDivElement | null>(null);
+  const headerFullscreenButtonCreatedRef = useRef(false);
 
   // Wallet + toast
   const { isConnected } = useWallet();
@@ -152,6 +153,8 @@ export const TradingView: React.FC<TradingViewProps> = ({
   // Load script and create widget; recreate if datafeed (meta) changes so name updates
   useEffect(() => {
     let cancelled = false;
+    // Reset header fullscreen button flag when (re)creating widget
+    headerFullscreenButtonCreatedRef.current = false;
     if (!address) return;
 
     // If widget exists but datafeed reference changed (e.g. token name/symbol loaded), rebuild
@@ -194,7 +197,8 @@ export const TradingView: React.FC<TradingViewProps> = ({
         theme: 'Dark',
         locale: 'en',
         fullscreen: false,
-        enabled_features: ['header_fullscreen_button'],
+        // Use our own fullscreen implementation instead of TradingView's built-in one
+        enabled_features: [],
         disabled_features: [
           'use_localstorage_for_settings',
           'header_symbol_search',
@@ -204,6 +208,7 @@ export const TradingView: React.FC<TradingViewProps> = ({
           'symbol_search',
           'header_undo_redo',
           'timeframes_toolbar',
+          'header_fullscreen_button',
         ],
         overrides: {
           'paneProperties.background': '#07040b',
@@ -281,11 +286,38 @@ export const TradingView: React.FC<TradingViewProps> = ({
             }
           }
         } catch {}
+
+        // Add a custom fullscreen button into the TradingView header that uses our in-app fullscreen
+        try {
+          const w: any = widgetRef.current;
+          if (!w || headerFullscreenButtonCreatedRef.current || !w.headerReady || !w.createButton) return;
+
+          w.headerReady().then(() => {
+            if (cancelled) return;
+            try {
+              const button: HTMLElement | any = w.createButton({ align: 'right' }) || w.createButton();
+              if (!button) return;
+              button.setAttribute('title', 'Toggle fullscreen');
+              // Use TradingView's tooltip styling if available
+              if (button.classList) {
+                button.classList.add('apply-common-tooltip');
+              }
+              // Simple fullscreen glyph; TradingView will style the button chrome
+              button.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:14px;line-height:1;">⛶</span>';
+              button.addEventListener('click', () => {
+                toggleFullscreen();
+              });
+              headerFullscreenButtonCreatedRef.current = true;
+            } catch (e) {
+              console.warn('[TV] Failed to create custom fullscreen header button', e);
+            }
+          });
+        } catch {}
       });
     })();
 
     return () => { cancelled = true; };
-  }, [TV_SCRIPT_SRC, TV_LIBRARY_PATH, datafeed, address]);
+  }, [TV_SCRIPT_SRC, TV_LIBRARY_PATH, datafeed, address, toggleFullscreen]);
 
   // Respond to timeframe changes
   useEffect(() => {
@@ -341,170 +373,13 @@ export const TradingView: React.FC<TradingViewProps> = ({
         } : {}}
       >
         <div className="flex-grow flex flex-col h-full">
-          {/* Top Toolbar */}
-          <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07040b] border-b border-[#1f1a24]">
-            <div className="flex items-center gap-2 sm:gap-3 pr-2 border-r border-[#1f1a24]">
-              {tokenIconUrl ? <img src={tokenIconUrl} alt="" className="w-5 h-5 rounded-full" /> : null}
-              <div className="text-[#e5e7eb] font-semibold text-xs sm:text-sm">{title ?? 'Token'}</div>
-              {symbol ? <div className="text-[#9ca3af] text-[10px] sm:text-xs">{symbol}</div> : null}
+          {/* Top Toolbar (custom React header) - disabled in favor of TradingView's own header */}
+          {false && (
+            <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07040b] border-b border-[#1f1a24]">
+              {/* ...custom header content removed... */}
             </div>
-            <div className="flex items-center gap-2 pl-2">
-              {/* Primary actions: Save + Share */}
-              <div className="flex items-center gap-2 pr-2 border-r border-[#1f1a24]">
-                {/* Save token */}
-                <button
-                  type="button"
-                  title={isSaved ? 'Remove from saved' : 'Save token'}
-                  onClick={async () => {
-                    if (isSaveLoading) return;
-                    if (!isConnected) {
-                      showError('Please connect your wallet to save tokens', 'Save token');
-                      return;
-                    }
-                    setSaveClicked(true);
-                    await toggleSave();
-                  }}
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-                    border: '1px solid #8b5a2b',
-                    color: isSaved ? '#ffdd00' : '#ffc24b',
-                    padding: '6px 8px',
-                    borderRadius: 10,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
-                  disabled={isSaveLoading}
-                >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21 12 17.77 5.82 21 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg>
-                </button>
-                {/* Share */}
-                <button
-                  type="button"
-                  title="Share"
-                  onClick={handleShareClick}
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-                    border: '1px solid #8b5a2b',
-                    color: '#ffc24b',
-                    padding: '6px 8px',
-                    borderRadius: 10,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
-                >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 512 512" fill="none" stroke="currentColor" strokeWidth="40" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                    <path d="M496 272l-144 144c-15 15-41 4.5-41-17v-80C150 321 40 401 40 464c0-159.1 141.6-264.8 271-271.7v-80c0-21.5 26-32.1 41-17l144 144c9.4 9.4 9.4 24.6 0 34z" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Fullscreen + Socials */}
-              <div className="flex items-center gap-2 pl-2 pr-2 border-r border-[#1f1a24]">
-                <button
-                  type="button"
-                  title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-                  onClick={toggleFullscreen}
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-                    border: '1px solid #8b5a2b',
-                    color: '#ffc24b',
-                    padding: '6px 8px',
-                    borderRadius: 10,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
-                >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                    {isFullscreen ? (
-                      <>
-                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-                      </>
-                    ) : (
-                      <>
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                      </>
-                    )}
-                  </svg>
-                </button>
-              </div>
-              <div className="flex items-center gap-2 pl-2">
-                <button
-                  type="button"
-                  title={telegramUrl ? 'Telegram' : 'Telegram (not provided)'}
-                  onClick={() => {
-                    const url = sanitizeUrl(telegramUrl);
-                    if (url) window.open(url, '_blank'); else setShowSharePopup(true);
-                  }}
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-                    border: '1px solid #8b5a2b',
-                    color: '#ffc24b',
-                    padding: '6px 8px',
-                    borderRadius: 10,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
-                >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
-                    <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42l10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001l-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15l4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  title={twitterUrl ? 'X (Twitter)' : 'X (not provided)'}
-                  onClick={() => {
-                    const url = sanitizeUrl(twitterUrl);
-                    if (url) window.open(url, '_blank'); else setShowSharePopup(true);
-                  }}
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-                    border: '1px solid #8b5a2b',
-                    color: '#ffc24b',
-                    padding: '6px 8px',
-                    borderRadius: 10,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
-                >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  title={websiteUrl ? 'Website' : 'Website (not provided)'}
-                  onClick={() => {
-                    const url = sanitizeUrl(websiteUrl);
-                    if (url) window.open(url, '_blank'); else setShowSharePopup(true);
-                  }}
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-                    border: '1px solid #8b5a2b',
-                    color: '#ffc24b',
-                    padding: '6px 8px',
-                    borderRadius: 10,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.24), rgba(255, 178, 32, 0.16))'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'; }}
-                >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M2 12h20" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
+          )}
+          
           {/* Chart container */}
           <div className="relative min-h-0 h-full">
             <div
