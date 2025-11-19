@@ -128,7 +128,7 @@ export default function MobileStats({
     return (
       <>
         $ 0.0
-        <span className="text-[13px] font-mono font-semibold align-baseline inline-block leading-none translate-y-[2px]">
+        <span className="text-[20px] font-mono italic font-semibold align-baseline inline-block leading-none translate-y-[-1px]">
           {zerosSub}
         </span>
         {significant}
@@ -181,7 +181,7 @@ export default function MobileStats({
             <div className="flex items-center justify-between gap-2">
               {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md bg-[#1f1a24] border border-[#2d2838]">
-                  <span className="text-white text-xl font-bold">
+                  <span className="text-white text-3xl font-bold">
                     {renderFormattedPrice(currentPrice)}
                   </span>
                 </div>
@@ -363,9 +363,9 @@ export default function MobileStats({
           </div>
 
           {/* 24h Price Change Badge - Absolute Position Bottom Right */}
-          <div className="absolute right-0 bottom-10">
+          <div className="absolute right-0 bottom-12">
             <span
-              className={`text-4xl font-bold flex items-center gap-0.5 ${
+              className={`text-3xl font-bold flex items-center gap-0.5 ${
                 typeof priceChange24h === 'number'
                   ? priceChange24h > 0 
                     ? 'text-[#10b981]' 
