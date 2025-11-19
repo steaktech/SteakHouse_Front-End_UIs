@@ -1119,7 +1119,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         tokenSymbol={apiInfo?.symbol}
         marketCap={marketCapFormatted}
         currentPrice={livePrice}
-        priceChange24h={apiInfo?.price_change_24h ?? undefined}
+        priceChange24h={typeof apiInfo?.price_change_24h === 'number' ? apiInfo.price_change_24h : undefined}
         tokenIconUrl={apiInfo?.image_url ?? undefined}
         telegramUrl={apiInfo?.telegram ?? undefined}
         twitterUrl={apiInfo?.twitter ?? undefined}
@@ -1512,8 +1512,25 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       */}
 
       {/* Fixed Buy/Sell bar for mobile */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">
-        <div className="px-3 py-3 flex items-center gap-2 max-w-screen-md mx-auto" style={{ height: '68px' }}>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
+        {/* Fading overlay at the top with subtle blur - gradually fades away */}
+        <div style={{
+          position: 'absolute',
+          top: '-40px',
+          left: 0,
+          right: 0,
+          height: '41px',
+          background: 'linear-gradient(to bottom, rgba(7, 4, 11, 0) 0%, rgba(7, 4, 11, 0.1) 30%, rgba(7, 4, 11, 0.4) 70%, rgba(7, 4, 11, 0.8) 90%, rgba(71, 35, 3, 0.5) 100%)',
+          backdropFilter: 'blur(2px)',
+          WebkitBackdropFilter: 'blur(2px)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 40%, black 100%)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }} />
+        
+        <div className="bg-gradient-to-t from-[#472303] to-[#5a2d04]" style={{ borderTop: '1px solid rgba(218, 162, 11, 0.12)' }}>
+          <div className="px-3 py-3 flex items-center gap-2 max-w-screen-md mx-auto" style={{ height: '68px' }}>
           <button onClick={handleBuyClick} type="button" className="flex-1" style={{ padding: '4px' }}>
             <div style={{
               background: 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)',
@@ -1570,6 +1587,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               </div>
             </div>
           </button>
+        </div>
         </div>
       </div>
 

@@ -76,35 +76,12 @@ export default function MobileStats({
     await toggleSave();
   };
 
-  const socialLinks = [
-    {
-      icon: Globe,
-      url: sanitizeUrl(websiteUrl),
-      label: 'Website',
-      color: '#9ca3af',
-    },
-    {
-      icon: Send,
-      url: sanitizeUrl(telegramUrl),
-      label: 'Telegram',
-      color: '#0088cc',
-    },
-    {
-      icon: (props: any) => (
-        <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-      ),
-      url: sanitizeUrl(twitterUrl),
-      label: 'Twitter',
-      color: '#1da1f2',
-    },
-  ].filter((link) => link.url);
+  const socialLinks: any[] = [];
 
   return (
     <>
       <div className="lg:hidden bg-[#0a0612] px-3 py-3 border-b border-[#1f1a24]">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-2 relative">
           {/* Left Side: Token Info */}
           <div className="flex flex-col gap-2 flex-1 min-w-0">
             {/* First Row: Token Circle/Icon and Name + Symbol */}
@@ -140,7 +117,7 @@ export default function MobileStats({
               </div>
             </div>
 
-            {/* Second Row: Price Badge and 24h Change (aligned with circle) */}
+            {/* Second Row: Price Badge (aligned with circle) */}
             <div className="flex items-center justify-between gap-2">
               {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md bg-[#1f1a24] border border-[#2d2838]">
@@ -149,24 +126,24 @@ export default function MobileStats({
                   </span>
                 </div>
               )}
-              
-              {/* 24h Price Change Badge - Bottom Right */}
-              {priceChange24h !== undefined && priceChange24h !== null && (
-                <div className="ml-auto px-2.5 py-1 rounded-md bg-[#1f1a24] border border-[#2d2838]">
-                  <span
-                    className={`text-sm font-bold flex items-center gap-0.5 ${
-                      priceChange24h >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'
-                    }`}
-                  >
-                    {priceChange24h >= 0 ? '+' : ''}
-                    {priceChange24h.toFixed(2)}% 24h
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Third Row: Social Icons (aligned with circle) */}
             <div className="flex items-center gap-2">
+              {/* Website */}
+              {websiteUrl && (
+                <a
+                  href={sanitizeUrl(websiteUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                  style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                  title="Website"
+                >
+                  <Globe size={18} className="text-[#9ca3af]" />
+                </a>
+              )}
+
               {/* Discord */}
               <a
                 href="/coming-soon"
@@ -294,6 +271,25 @@ export default function MobileStats({
             >
               <Share2 size={16} className="text-[#9ca3af]" />
             </button>
+          </div>
+
+          {/* 24h Price Change Badge - Absolute Position Bottom Right */}
+          <div className="absolute bottom-0 right-0">
+            <span
+              className={`text-4xl font-bold flex items-center gap-0.5 ${
+                typeof priceChange24h === 'number'
+                  ? priceChange24h > 0 
+                    ? 'text-[#10b981]' 
+                    : priceChange24h < 0 
+                    ? 'text-[#ef4444]' 
+                    : 'text-[#9ca3af]'
+                  : 'text-[#9ca3af]'
+              }`}
+            >
+              {typeof priceChange24h === 'number' && priceChange24h > 0 ? '+' : ''}
+              {typeof priceChange24h === 'number' && priceChange24h < 0 ? '-' : ''}
+              {typeof priceChange24h === 'number' ? Math.abs(priceChange24h).toFixed(2) : '0.00'}% 24h
+            </span>
           </div>
         </div>
       </div>

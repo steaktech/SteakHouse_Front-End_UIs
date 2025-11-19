@@ -317,6 +317,32 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
       borderRadius: '12px',
       overflow: 'hidden'
     }}>
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(87, 37, 1, 0.2);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #ffd700, #daa20b);
+          border-radius: 4px;
+          border: 1px solid rgba(255, 215, 165, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #ffe44d, #e5b622);
+        }
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #ffd700 rgba(87, 37, 1, 0.2);
+        }
+        .table-container {
+          overflow-x: auto;
+          overflow-y: visible;
+        }
+      `}</style>
       {/* Tab Navigation */}
       <div style={{
         display: 'flex',
@@ -403,28 +429,30 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                   overflowY: 'auto', 
                   padding: '8px'
                 }}>
-                  {/* Table Header */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '70px 80px 1fr 100px 80px',
-                    gap: '8px',
-                    padding: '8px',
-                    background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    color: '#feea88',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <div>Date</div>
-                    <div>Type</div>
-                    <div>Price</div>
-                    <div>Total</div>
-                    <div>Price ${symbol}</div>
-                  </div>
+                  <div className="table-container custom-scrollbar">
+                    {/* Table Header */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '70px 80px 120px 100px 110px',
+                      minWidth: '490px',
+                      gap: '8px',
+                      padding: '8px',
+                      background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
+                      borderRadius: '8px',
+                      marginBottom: '8px',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      color: '#feea88',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>
+                      <div>Date</div>
+                      <div>Type</div>
+                      <div>Price</div>
+                      <div>Total</div>
+                      <div>Price ${symbol}</div>
+                    </div>
 
                   {/* Trade Rows - Paginated */}
                   {trades
@@ -441,7 +469,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                           key={tradeId}
                           style={{
                             display: 'grid',
-                            gridTemplateColumns: '70px 80px 1fr 100px 80px',
+                            gridTemplateColumns: '70px 80px 120px 100px 110px',
+                            minWidth: '490px',
                             gap: '8px',
                             padding: '10px 8px',
                             background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.15), rgba(87, 37, 1, 0.08))',
@@ -527,6 +556,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                         </div>
                       );
                     })}
+                  </div>
                 </div>
 
                 <Pagination
@@ -570,28 +600,30 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                   overflowY: 'auto', 
                   padding: '8px'
                 }}>
-                  {/* Orders Table Header */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '60px 80px 90px 90px 70px',
-                    gap: '8px',
-                    padding: '8px',
-                    background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    color: '#feea88',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <div>Side</div>
-                    <div>Price</div>
-                    <div>Amount</div>
-                    <div>Remaining</div>
-                    <div>Status</div>
-                  </div>
+                  <div className="table-container custom-scrollbar">
+                    {/* Orders Table Header */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '60px 80px 90px 90px 70px',
+                      minWidth: '390px',
+                      gap: '8px',
+                      padding: '8px',
+                      background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
+                      borderRadius: '8px',
+                      marginBottom: '8px',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      color: '#feea88',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>
+                      <div>Side</div>
+                      <div>Price</div>
+                      <div>Amount</div>
+                      <div>Remaining</div>
+                      <div>Status</div>
+                    </div>
 
                   {/* Order Rows - Paginated */}
                   {limitOrders
@@ -613,6 +645,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                           style={{
                             display: 'grid',
                             gridTemplateColumns: '60px 80px 90px 90px 70px',
+                            minWidth: '390px',
                             gap: '8px',
                             padding: '10px 8px',
                             background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.15), rgba(87, 37, 1, 0.08))',
@@ -680,6 +713,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                         </div>
                       );
                     })}
+                  </div>
                 </div>
 
                 <Pagination
@@ -706,13 +740,15 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                   overflowY: 'auto', 
                   padding: '8px'
                 }}>
-                  {/* Traders Table Header */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '30px 1fr 80px 60px 80px',
-                    gap: '8px',
-                    padding: '8px',
-                    background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
+                  <div className="table-container custom-scrollbar">
+                    {/* Traders Table Header */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '30px 120px 80px 60px 80px',
+                      minWidth: '370px',
+                      gap: '8px',
+                      padding: '8px',
+                      background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
                     borderRadius: '8px',
                     marginBottom: '8px',
                     fontSize: '10px',
@@ -743,7 +779,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                           key={trader.address}
                           style={{
                             display: 'grid',
-                            gridTemplateColumns: '30px 1fr 80px 60px 80px',
+                            gridTemplateColumns: '30px 120px 80px 60px 80px',
+                            minWidth: '370px',
                             gap: '8px',
                             padding: '10px 8px',
                             background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.15), rgba(87, 37, 1, 0.08))',
@@ -805,6 +842,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                         </div>
                       );
                     })}
+                  </div>
                 </div>
 
                 <Pagination
