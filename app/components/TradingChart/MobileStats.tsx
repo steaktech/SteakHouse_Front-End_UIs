@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { Bookmark, Share2, Globe, Send, ExternalLink } from 'lucide-react';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
 import { SharePopup } from '../Widgets/ChatWidget/SharePopup';
@@ -190,34 +191,19 @@ export default function MobileStats({
 
             {/* Third Row: Social Icons (aligned with circle) */}
             <div className="flex items-center gap-2">
-              {/* Website - token-specific, with TradingView-like behavior */}
-              <button
-                type="button"
-                className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
-                title={websiteUrl ? 'Website' : 'Website (not provided)'}
-                onClick={() => {
-                  const url = sanitizeUrl(websiteUrl);
-                  if (url && typeof window !== 'undefined') {
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                  } else {
-                    setShowSharePopup(true);
-                  }
-                }}
-              >
-                <Globe size={18} className="text-[#9ca3af]" />
-              </button>
-
               {/* Discord */}
               <a
                 href="/coming-soon"
-                className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 title="Discord"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-[#5865F2]">
-                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                </svg>
+                <Image
+                  src="/images/discord.png"
+                  alt="Discord"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               </a>
 
               {/* Telegram */}
@@ -225,13 +211,16 @@ export default function MobileStats({
                 href="https://t.me/steakhouse"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 title="Telegram"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-[#0088cc]">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19c-.14.75-.42 1-.68 1.03c-.58.05-1.02-.38-1.58-.75c-.88-.58-1.38-.94-2.23-1.5c-.99-.65-.35-1.01.22-1.59c.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02c-.09.02-1.49.95-4.22 2.79c-.4.27-.76.41-1.08.4c-.36-.01-1.04-.2-1.55-.37c-.63-.2-1.12-.31-1.08-.66c.02-.18.27-.36.74-.55c2.92-1.27 4.86-2.11 5.83-2.51c2.78-1.16 3.35-1.36 3.73-1.36c.08 0 .27.02.39.12c.1.08.13.19.14.27c-.01.06.01.24 0 .38z"/>
-                </svg>
+                <Image
+                  src="/images/telegram.png"
+                  alt="Telegram"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               </a>
 
               {/* Twitter/X */}
@@ -239,13 +228,16 @@ export default function MobileStats({
                 href="https://x.com/steak_tech"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 title="Twitter"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-[#1da1f2]">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
+                <Image
+                  src="/images/twitter.png"
+                  alt="Twitter"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               </a>
 
               {/* GitHub */}
@@ -253,13 +245,16 @@ export default function MobileStats({
                 href="https://github.com/steaktech"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 title="GitHub"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-[#9ca3af]">
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
-                </svg>
+                <Image
+                  src="/images/github-icon.png"
+                  alt="GitHub"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </a>
 
               {/* Medium */}
@@ -267,13 +262,16 @@ export default function MobileStats({
                 href="https://medium.com/@steakhousefinance"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 title="Medium"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-[#9ca3af]">
-                  <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/>
-                </svg>
+                <Image
+                  src="/images/medium-icon.png"
+                  alt="Medium"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </a>
             </div>
           </div>
