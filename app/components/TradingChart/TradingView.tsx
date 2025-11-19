@@ -193,7 +193,6 @@ export const TradingView: React.FC<TradingViewProps> = ({
         theme: 'Dark',
         locale: 'en',
         fullscreen: false,
-        autosize: true,
         enabled_features: ['header_fullscreen_button'],
         disabled_features: [
           'use_localstorage_for_settings',
