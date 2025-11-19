@@ -71,11 +71,26 @@ export async function getFullTokenData(address: string, interval = '1m', limit =
         tokenInfo: FullTokenDataResponse['tokenInfo'];
         price: number;
         marketCap: number;
+        volume24h?: number;
+        priceChange24h?: number;
         lastTrade: FullTokenDataResponse['lastTrade'];
         recentTrades: FullTokenDataResponse['recentTrades'];
       }>(`/token/${address}/info`),
       apiClient<{ token: string; candles: FullTokenDataResponse['candles'] }>(`/token/${address}/chart?timeframe=${interval}&limit=${limit}`)
     ]);
+
+    // Derive 24h stats from infoData when available
+    const volume24h =
+      typeof infoData.volume24h === 'number'
+        ? infoData.volume24h
+        : undefined;
+
+    const priceChange24h =
+      typeof infoData.priceChange24h === 'number'
+        ? infoData.priceChange24h
+        : typeof infoData.tokenInfo?.price_change_24h === 'number'
+        ? infoData.tokenInfo.price_change_24h
+        : undefined;
 
     // Merge the results to maintain backward compatibility
     const result: FullTokenDataResponse = {
@@ -83,10 +98,12 @@ export async function getFullTokenData(address: string, interval = '1m', limit =
       tokenInfo: infoData.tokenInfo,
       price: infoData.price,
       marketCap: infoData.marketCap,
+      volume24h,
+      priceChange24h,
       lastTrade: infoData.lastTrade,
       recentTrades: infoData.recentTrades,
       candles: chartData.candles,
-      interval: interval,
+      interval,
     };
 
     console.log('getFullTokenData success for:', address, result);

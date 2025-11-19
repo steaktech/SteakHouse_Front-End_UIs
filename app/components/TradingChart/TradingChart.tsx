@@ -1119,7 +1119,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         tokenSymbol={apiInfo?.symbol}
         marketCap={marketCapFormatted}
         currentPrice={livePrice}
-        priceChange24h={typeof apiInfo?.price_change_24h === 'number' ? apiInfo.price_change_24h : undefined}
+        priceChange24h={typeof apiTokenData?.priceChange24h === 'number' ? apiTokenData.priceChange24h : undefined}
         tokenIconUrl={apiInfo?.image_url ?? undefined}
         telegramUrl={apiInfo?.telegram ?? undefined}
         twitterUrl={apiInfo?.twitter ?? undefined}

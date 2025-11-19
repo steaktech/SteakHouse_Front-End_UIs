@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 
 interface TokenInfoData {
   tokenAddress?: string;
@@ -21,7 +22,46 @@ interface MobileTokenInfoProps {
   data: TokenInfoData;
 }
 
+// Bonding-curve helpers for formatting graduation cap MCAP
+const WEI_1E18 = 10n ** 18n;
+
+function priceWeiPer1e18AtSupply(totalSupplyRaw: bigint, supplyRaw: bigint): bigint {
+  const A = totalSupplyRaw;
+  const s = supplyRaw;
+  if (s <= 0n || s >= A) return 0n;
+  const denom = (A - s) * (A - s);
+  return (A * WEI_1E18 * WEI_1E18) / denom;
+}
+
+function computeMcapUsdFromSupplySync(params: {
+  totalSupply?: number;
+  supplyToCirculate?: number;
+  ethPriceUsd: number | null;
+}): number | null {
+  const { totalSupply, supplyToCirculate, ethPriceUsd } = params;
+  if (!totalSupply || !supplyToCirculate || !ethPriceUsd) return null;
+
+  try {
+    const A = BigInt(Math.floor(totalSupply));
+    const s = BigInt(Math.floor(supplyToCirculate));
+    if (A <= 0n || s <= 0n || s > A) return null;
+
+    const priceWeiPer1e18 = priceWeiPer1e18AtSupply(A, s);
+    const mcapWei = (priceWeiPer1e18 * s) / WEI_1E18;
+
+    // Convert wei market cap to USD using ETH price, keeping 2 decimal places (cents)
+    const centsPerEth = BigInt(Math.round(ethPriceUsd * 100));
+    const usdCents = (mcapWei * centsPerEth) / WEI_1E18;
+
+    return Number(usdCents) / 100;
+  } catch {
+    return null;
+  }
+}
+
 export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
+  const { ethPriceUsd } = useStablePriceData(true);
+
   // Calculate bonding progress if not provided
   const calculatedBondingProgress = (() => {
     // Use provided value if available
@@ -56,6 +96,43 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
     if (num === undefined || num === null) return '-';
     return `$${formatNumber(num)}`;
   };
+
+  // Liquidity and 24h volume: treat incoming values as ETH and convert to USD using current ETH price.
+  const liquidityUsd: number | undefined = (() => {
+    if (data.liquidity == null || typeof data.liquidity !== 'number') return undefined;
+    if (!ethPriceUsd || isNaN(ethPriceUsd)) return data.liquidity;
+    return data.liquidity * ethPriceUsd;
+  })();
+
+  const volume24hUsd: number | undefined = (() => {
+    if (data.volume24h == null || typeof data.volume24h !== 'number') return undefined;
+    if (!ethPriceUsd || isNaN(ethPriceUsd)) return data.volume24h;
+    return data.volume24h * ethPriceUsd;
+  })();
+
+  // Graduation cap: normalize units (handle on-chain 1e18 scaling) and compute target MCAP.
+  // If MCAP can't be computed, fall back to a human-scale token amount.
+  const graduationCapMcapUsd: number | undefined = (() => {
+    const totalSupply = data.totalSupply;
+    let supplyToCirculate: number | undefined = data.graduationCap;
+
+    // Heuristic: if the value is extremely large, assume it's 1e18-scaled and normalize.
+    if (typeof supplyToCirculate === 'number' && supplyToCirculate > 1e15) {
+      supplyToCirculate = supplyToCirculate / 1e18;
+    }
+
+    const mcap = computeMcapUsdFromSupplySync({
+      totalSupply,
+      supplyToCirculate,
+      ethPriceUsd,
+    });
+
+    if (mcap != null && !isNaN(mcap) && mcap > 0) return mcap;
+    if (supplyToCirculate != null && !isNaN(supplyToCirculate) && supplyToCirculate > 0) {
+      return supplyToCirculate;
+    }
+    return undefined;
+  })();
 
   // Format percentage
   const formatPercent = (num?: number): string => {
@@ -104,10 +181,10 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             <span className={valueClass}>{formatCurrency(data.marketCap)}</span>
           </div>
 
-          {/* Liquidity */}
+          {/* Liquidity (ETH → USD) */}
           <div className={gridItemClass}>
             <span className={labelClass}>LIQUIDITY</span>
-            <span className={valueClass}>{formatCurrency(data.liquidity)}</span>
+            <span className={valueClass}>{formatCurrency(liquidityUsd)}</span>
           </div>
 
           {/* Circulating Supply */}
@@ -122,16 +199,16 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             <span className={valueClass}>{formatNumber(data.totalSupply)}</span>
           </div>
 
-          {/* 24H Volume */}
+          {/* 24H Volume (ETH → USD) */}
           <div className={gridItemClass}>
             <span className={labelClass}>24H VOLUME</span>
-            <span className={valueClass}>{formatCurrency(data.volume24h)}</span>
+            <span className={valueClass}>{formatCurrency(volume24hUsd)}</span>
           </div>
 
-          {/* Graduation Cap */}
+          {/* Graduation Cap (formatted via bonding-curve MCAP when possible) */}
           <div className={gridItemClass}>
             <span className={labelClass}>GRAD. CAP</span>
-            <span className={valueClass}>{formatCurrency(data.graduationCap)}</span>
+            <span className={valueClass}>{formatCurrency(graduationCapMcapUsd)}</span>
           </div>
         </div>
 

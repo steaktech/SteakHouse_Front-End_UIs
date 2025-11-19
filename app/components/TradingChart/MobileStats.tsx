@@ -76,6 +76,66 @@ export default function MobileStats({
     await toggleSave();
   };
 
+  // DEXTools-style price formatting (e.g. $0.0₅3957 for very small prices)
+  const renderFormattedPrice = (price?: number) => {
+    if (price == null || isNaN(price)) {
+      return '$ -';
+    }
+    if (price === 0) {
+      return '$ 0.00';
+    }
+
+    // For normal prices, just show up to 6 decimals
+    if (price >= 0.0001) {
+      const formatted = price < 1
+        ? price.toFixed(6)
+        : price.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 6,
+          });
+      return `$ ${formatted}`;
+    }
+
+    // Very small price -> 0.0ₙXXXX format
+    const raw = price.toFixed(18); // ensure enough precision
+    const parts = raw.split('.');
+    const decimals = parts[1] ?? '';
+
+    let zeros = 0;
+    while (zeros < decimals.length && decimals[zeros] === '0') {
+      zeros++;
+    }
+
+    const significant = (decimals.slice(zeros, zeros + 4) || '0').replace(/^0+$/, '0');
+
+    const subscriptMap: Record<string, string> = {
+      '0': '₀',
+      '1': '₁',
+      '2': '₂',
+      '3': '₃',
+      '4': '₄',
+      '5': '₅',
+      '6': '₆',
+      '7': '₇',
+      '8': '₈',
+      '9': '₉',
+    };
+    const zerosSub = String(zeros)
+      .split('')
+      .map((d) => subscriptMap[d] ?? d)
+      .join('');
+
+    return (
+      <>
+        $ 0.0
+        <span className="text-[13px] font-mono font-semibold align-baseline inline-block leading-none translate-y-[2px]">
+          {zerosSub}
+        </span>
+        {significant}
+      </>
+    );
+  };
+
   const socialLinks: any[] = [];
 
   return (
@@ -122,7 +182,7 @@ export default function MobileStats({
               {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md bg-[#1f1a24] border border-[#2d2838]">
                   <span className="text-white text-xl font-bold">
-                    $ {currentPrice.toFixed(6)}
+                    {renderFormattedPrice(currentPrice)}
                   </span>
                 </div>
               )}
@@ -130,19 +190,23 @@ export default function MobileStats({
 
             {/* Third Row: Social Icons (aligned with circle) */}
             <div className="flex items-center gap-2">
-              {/* Website */}
-              {websiteUrl && (
-                <a
-                  href={sanitizeUrl(websiteUrl)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 flex items-center justify-center rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
-                  style={{ background: 'rgba(31, 26, 36, 0.5)' }}
-                  title="Website"
-                >
-                  <Globe size={18} className="text-[#9ca3af]" />
-                </a>
-              )}
+              {/* Website - token-specific, with TradingView-like behavior */}
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center rounded-md cursor-pointer transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                style={{ background: 'rgba(31, 26, 36, 0.5)' }}
+                title={websiteUrl ? 'Website' : 'Website (not provided)'}
+                onClick={() => {
+                  const url = sanitizeUrl(websiteUrl);
+                  if (url && typeof window !== 'undefined') {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  } else {
+                    setShowSharePopup(true);
+                  }
+                }}
+              >
+                <Globe size={18} className="text-[#9ca3af]" />
+              </button>
 
               {/* Discord */}
               <a
@@ -216,7 +280,7 @@ export default function MobileStats({
 
           {/* Right Side: Social Icons and Action Buttons */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            {/* Social Links */}
+            {/* Social Links (currently unused) */}
             {socialLinks.map((link, index) => {
               const Icon = link.icon;
               return (
@@ -239,6 +303,31 @@ export default function MobileStats({
             {/* Divider */}
             {socialLinks.length > 0 && (
               <div className="w-px h-5 bg-[#1f1a24] mx-0.5"></div>
+            )}
+
+            {/* Website Button (token-specific) */}
+            {websiteUrl && (
+              <button
+                type="button"
+                title="Website"
+                className="p-1.5 rounded-md cursor-pointer transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                onClick={() => {
+                  const url = sanitizeUrl(websiteUrl);
+                  if (url) {
+                    if (typeof window !== 'undefined') {
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    }
+                  } else {
+                    setShowSharePopup(true);
+                  }
+                }}
+                className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                style={{
+                  background: 'rgba(31, 26, 36, 0.5)',
+                }}
+              >
+                <Globe size={16} className="text-[#9ca3af]" />
+              </button>
             )}
 
             {/* Save Button */}
@@ -274,7 +363,7 @@ export default function MobileStats({
           </div>
 
           {/* 24h Price Change Badge - Absolute Position Bottom Right */}
-          <div className="absolute bottom-0 right-0">
+          <div className="absolute right-0 bottom-10">
             <span
               className={`text-4xl font-bold flex items-center gap-0.5 ${
                 typeof priceChange24h === 'number'
