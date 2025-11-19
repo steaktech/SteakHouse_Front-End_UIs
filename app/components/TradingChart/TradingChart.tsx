@@ -1389,7 +1389,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         </main>
       </div>
 
-      {/* Recent Transactions Widget (Mobile Only) - Bottom slide-up panel */}
+      {/* Recent Transactions Widget (Mobile Only) - Bottom slide-up panel - COMMENTED OUT FOR NOW
       <div
         className="lg:hidden fixed left-0 right-0 z-30"
         style={{
@@ -1403,7 +1403,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           transition: 'box-shadow 150ms ease'
         }}
       >
-        {/* Drag Handle / Expand Button (Mobile Only) */}
+        Drag Handle / Expand Button (Mobile Only)
         <div
           className={`absolute top-0 left-0 right-0 h-12 cursor-row-resize flex items-center justify-center group`}
           onMouseDown={handleMouseDown}
@@ -1493,7 +1493,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
             paddingTop: '48px' // Extra top padding for mobile drag handle
           }}
         >
-          {/* Content Area - Recent Transactions Only */}
+          Content Area - Recent Transactions Only
           <div className="flex-1 overflow-hidden">
             <TradeHistory
               tokenAddress={tokenAddress}
@@ -1509,6 +1509,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           </div>
         </div>
       </div>
+      */}
 
       {/* Fixed Buy/Sell bar for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-[#472303] to-[#5a2d04] border-t border-[#daa20b]/30">

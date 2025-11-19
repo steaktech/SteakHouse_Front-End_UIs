@@ -196,8 +196,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           Recent Transactions
         </h3>
         
-        {/* Toggle Switch */}
-        {showToggle && onToggleChange && (
+        {/* Toggle Switch - COMMENTED OUT FOR NOW */}
+        {/* {showToggle && onToggleChange && (
           <div style={{
             position: 'relative',
             display: 'flex',
@@ -270,7 +270,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               ORDERS
             </button>
           </div>
-        )}
+        )} */}
       </div>
       
       {/* Filter and Sort Controls - Hidden on mobile when no toggle */}
