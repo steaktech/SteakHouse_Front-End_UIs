@@ -367,6 +367,29 @@ html, body {
 .font-1\.5rem {
   font-size: 1.5rem;
 }
+
+/* Pump.fun-inspired font utilities */
+.font-pump-display {
+  font-family: var(--font-pump-display), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-degen {
+  font-family: var(--font-degen-grotesk), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.font-ui {
+  font-family: var(--font-ui-inter), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.font-code {
+  font-family: var(--font-ui-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
 .height-45{
   height: 45px;
 }

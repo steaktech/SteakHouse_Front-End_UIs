@@ -128,7 +128,7 @@ export default function MobileStats({
     return (
       <>
         $ 0.0
-        <span className="text-[20px] font-mono italic font-semibold align-baseline inline-block leading-none translate-y-[-1px]">
+        <span className="text-[20px] font-code font-semibold align-baseline inline-block leading-none translate-y-[-1px]">
           {zerosSub}
         </span>
         {significant}
@@ -162,14 +162,14 @@ export default function MobileStats({
               {/* Token Name and Symbol Column */}
               <div className="flex flex-col gap-1 flex-1 min-w-0 justify-center">
                 {/* Token Name */}
-                <span className="text-white font-bold text-lg truncate leading-tight">
+                <span className="text-white text-xl font-bold truncate leading-tight font-pump-display tracking-tight">
                   {tokenName}
                 </span>
 
                 {/* Token Symbol */}
                 <div className="flex items-center gap-2">
                   {tokenSymbol && (
-                    <span className="text-[#6b7280] text-sm font-medium">
+                    <span className="text-[#9ca3af] text-xs font-semibold uppercase tracking-[0.18em] font-degen">
                       / {tokenSymbol}
                     </span>
                   )}
@@ -181,7 +181,7 @@ export default function MobileStats({
             <div className="flex items-center justify-between gap-2">
               {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md bg-[#1f1a24] border border-[#2d2838]">
-                  <span className="text-white text-3xl font-bold">
+                  <span className="text-white text-3xl font-semibold font-degen tabular-nums">
                     {renderFormattedPrice(currentPrice)}
                   </span>
                 </div>
@@ -363,22 +363,28 @@ export default function MobileStats({
           </div>
 
           {/* 24h Price Change Badge - Absolute Position Bottom Right */}
-          <div className="absolute right-0 bottom-12">
-            <span
-              className={`text-3xl font-bold flex items-center gap-0.5 ${
+          <div className="absolute right-0 bottom-12 text-right">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#9ca3af] font-degen mb-0.5">
+              24h Change
+            </div>
+            <div
+              className={`text-2xl font-semibold flex items-center justify-end gap-0.5 font-degen tabular-nums ${
                 typeof priceChange24h === 'number'
-                  ? priceChange24h > 0 
-                    ? 'text-[#10b981]' 
-                    : priceChange24h < 0 
-                    ? 'text-[#ef4444]' 
+                  ? priceChange24h > 0
+                    ? 'text-[#10b981]'
+                    : priceChange24h < 0
+                    ? 'text-[#ef4444]'
                     : 'text-[#9ca3af]'
                   : 'text-[#9ca3af]'
               }`}
             >
               {typeof priceChange24h === 'number' && priceChange24h > 0 ? '+' : ''}
               {typeof priceChange24h === 'number' && priceChange24h < 0 ? '-' : ''}
-              {typeof priceChange24h === 'number' ? Math.abs(priceChange24h).toFixed(2) : '0.00'}% 24h
-            </span>
+              {typeof priceChange24h === 'number'
+                ? Math.abs(priceChange24h).toFixed(2)
+                : '0.00'}
+              <span className="text-sm font-normal opacity-80 ml-0.5">%</span>
+            </div>
           </div>
         </div>
       </div>

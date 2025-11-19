@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Fredoka,
+  Space_Grotesk,
+  Inter,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 import LoadingWrapper from "./components/LoadingWrapper";
 import WagmiProviderWrapper from "./lib/providers/WagmiProvider";
@@ -14,6 +21,27 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const pumpDisplay = Fredoka({
+  variable: "--font-pump-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const degenGrotesk = Space_Grotesk({
+  variable: "--font-degen-grotesk",
+  subsets: ["latin"],
+});
+
+const uiInter = Inter({
+  variable: "--font-ui-inter",
+  subsets: ["latin"],
+});
+
+const uiMono = JetBrains_Mono({
+  variable: "--font-ui-mono",
   subsets: ["latin"],
 });
 
@@ -40,7 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[url('/images/homepage-bg.webp')] bg-cover bg-center bg-no-repeat flex flex-col min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} ${pumpDisplay.variable} ${degenGrotesk.variable} ${uiInter.variable} ${uiMono.variable} antialiased bg-[url('/images/homepage-bg.webp')] bg-cover bg-center bg-no-repeat flex flex-col min-h-screen`}
       >
         <WagmiProviderWrapper>
           <ToastProvider>
