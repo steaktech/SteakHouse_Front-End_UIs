@@ -23,12 +23,12 @@ interface MobileTokenInfoProps {
 }
 
 // Bonding-curve helpers for formatting graduation cap MCAP
-const WEI_1E18 = 10n ** 18n;
+const WEI_1E18 = BigInt(10) ** BigInt(18);
 
 function priceWeiPer1e18AtSupply(totalSupplyRaw: bigint, supplyRaw: bigint): bigint {
   const A = totalSupplyRaw;
   const s = supplyRaw;
-  if (s <= 0n || s >= A) return 0n;
+  if (s <= BigInt(0) || s >= A) return BigInt(0);
   const denom = (A - s) * (A - s);
   return (A * WEI_1E18 * WEI_1E18) / denom;
 }
@@ -44,7 +44,7 @@ function computeMcapUsdFromSupplySync(params: {
   try {
     const A = BigInt(Math.floor(totalSupply));
     const s = BigInt(Math.floor(supplyToCirculate));
-    if (A <= 0n || s <= 0n || s > A) return null;
+    if (A <= BigInt(0) || s <= BigInt(0) || s > A) return null;
 
     const priceWeiPer1e18 = priceWeiPer1e18AtSupply(A, s);
     const mcapWei = (priceWeiPer1e18 * s) / WEI_1E18;

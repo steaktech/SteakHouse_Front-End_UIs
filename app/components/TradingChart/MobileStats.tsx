@@ -321,7 +321,6 @@ export default function MobileStats({
                     setShowSharePopup(true);
                   }
                 }}
-                className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
                 style={{
                   background: 'rgba(31, 26, 36, 0.5)',
                 }}
