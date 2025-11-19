@@ -68,10 +68,9 @@ body[style*="--dragging-pointer-events"] canvas {
 
 /* Global background fix to prevent seams and repeating */
 html, body {
-  background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed;
+  background: #1a0f08;
   background-attachment: fixed;
   background-repeat: no-repeat;
-  background-size: cover;
   min-height: 100vh;
 }
 

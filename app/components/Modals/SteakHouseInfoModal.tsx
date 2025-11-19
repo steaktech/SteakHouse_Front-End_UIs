@@ -37,26 +37,10 @@ const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) 
     if (!isOpen || !mounted) return null;
 
     const videos = [
-        { 
-            id: 1, 
-            title: 'Connecting your wallet and getting started', 
-            url: 'https://tuereaugboyscqlvuskt.supabase.co/storage/v1/object/sign/tutorialVids/tutorial-1-steakhouse.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMWQyNzQ5Yi02OWMxLTQ3OTYtYWZkMi1lMTMzMGE2MTk2NjkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0dXRvcmlhbFZpZHMvdHV0b3JpYWwtMS1zdGVha2hvdXNlLm1wNCIsImlhdCI6MTc2MzE4Njk2OSwiZXhwIjoxOTIwODY2OTY5fQ.MCvPVU6F_hnCzkswlfhe_GhRQ2ogdxY6X6frF7ajm1c'
-        },
-        { 
-            id: 2, 
-            title: 'Searching for tokens on homepage and using filters', 
-            url: 'https://tuereaugboyscqlvuskt.supabase.co/storage/v1/object/sign/tutorialVids/2025-11-14%2022.05.27.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMWQyNzQ5Yi02OWMxLTQ3OTYtYWZkMi1lMTMzMGE2MTk2NjkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0dXRvcmlhbFZpZHMvMjAyNS0xMS0xNCAyMi4wNS4yNy5tcDQiLCJpYXQiOjE3NjMxODY5NTgsImV4cCI6MTkyMDg2Njk1OH0.T4vB_O63CFmQN_2CeFqBGuwuZ1kdbZmtMOsYScR2Nlg'
-        },
-        { 
-            id: 3, 
-            title: 'Buying and Selling a Token', 
-            url: 'https://tuereaugboyscqlvuskt.supabase.co/storage/v1/object/sign/tutorialVids/2025-11-14%2022.04.52.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMWQyNzQ5Yi02OWMxLTQ3OTYtYWZkMi1lMTMzMGE2MTk2NjkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0dXRvcmlhbFZpZHMvMjAyNS0xMS0xNCAyMi4wNC41Mi5tcDQiLCJpYXQiOjE3NjMxODY5NDQsImV4cCI6MTkyMDg2Njk0NH0.hA0adZR_BpzlzScLRoUxYb-ABu3O8RZ7FiPsnBZ_ml8'
-        },
-        { 
-            id: 4, 
-            title: 'Creating a token', 
-            url: 'https://tuereaugboyscqlvuskt.supabase.co/storage/v1/object/sign/tutorialVids/video-create-token.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMWQyNzQ5Yi02OWMxLTQ3OTYtYWZkMi1lMTMzMGE2MTk2NjkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0dXRvcmlhbFZpZHMvdmlkZW8tY3JlYXRlLXRva2VuLm1wNCIsImlhdCI6MTc2MzE4NzAzNywiZXhwIjoxOTIwODY3MDM3fQ.LA3WcaOCmMZagRfTkNmxbMOpQQYiz5Twrt7Z4X_bqz0'
-        },
+        { id: 1, title: 'Connecting your wallet and getting started', placeholder: 'video-placeholder-1.png' },
+        { id: 2, title: 'Searching for tokens on homepage and using filters', placeholder: 'video-placeholder-2.png' },
+        { id: 3, title: 'Buying and Selling a Token', placeholder: 'video-placeholder-3.png' },
+        { id: 4, title: 'Creating a token', placeholder: 'video-placeholder-4.png' },
     ];
 
     const modalContent = (
@@ -80,88 +64,6 @@ const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-
-                {/* Video Tutorials Grid - TOP SECTION */}
-                <div className="mb-8 pb-8 border-b border-[rgb(106,61,11)]/30">
-                    <h3 className="text-xl sm:text-2xl font-bold text-[#efb95e] mb-6 text-center">
-                        Quick Start Videos
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {videos.map((video, index) => (
-                            <div key={video.id} className="group relative">
-                                {/* Video Container */}
-                                <div className="aspect-video bg-gradient-to-br from-black/60 to-black/40 rounded-xl border-2 border-[rgb(106,61,11)]/40 hover:border-[#efb95e]/60 transition-all duration-300 overflow-hidden group-hover:shadow-lg group-hover:shadow-[#efb95e]/20">
-                                    {/* Play Button Overlay */}
-                                    <div 
-                                        className="w-full h-full flex flex-col items-center justify-center bg-black/30 cursor-pointer hover:bg-black/20 transition-all"
-                                        onClick={() => setFullscreenVideo({ id: video.id, url: video.url, title: video.title })}
-                                    >
-                                        <svg 
-                                            className="w-12 h-12 text-[#efb95e] group-hover:scale-110 transition-transform duration-300" 
-                                            viewBox="0 0 24 24" 
-                                            fill="currentColor"
-                                        >
-                                            <path d="M8 5v14l11-7z"/>
-                                        </svg>
-                                        <span className="text-[#efb95e] text-xs mt-2 font-semibold">Video {index + 1}</span>
-                                    </div>
-                                </div>
-                                {/* Tooltip */}
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black/90 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 border border-[#efb95e]/30">
-                                    {video.title}
-                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/90"></div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Fullscreen Video Player Modal */}
-                {fullscreenVideo && (
-                    <div 
-                        className="fixed inset-0 bg-black/95 z-[10000] flex flex-col items-center justify-center p-4"
-                        onClick={() => setFullscreenVideo(null)}
-                    >
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setFullscreenVideo(null)}
-                            className="absolute top-6 right-6 text-white/80 hover:text-white transition-colors z-10"
-                            aria-label="Close video"
-                        >
-                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-
-                        {/* Video Title */}
-                        <div className="text-white text-xl font-semibold mb-4 text-center max-w-3xl">
-                            {fullscreenVideo.title}
-                        </div>
-
-                        {/* Video Player */}
-                        <div 
-                            className="relative w-full max-w-5xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <video
-                                src={fullscreenVideo.url}
-                                controls
-                                autoPlay
-                                className="w-full h-full"
-                                style={{
-                                    objectFit: 'contain'
-                                }}
-                            >
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-
-                        {/* Instructions */}
-                        <div className="text-white/60 text-sm mt-4 text-center">
-                            Press ESC or click outside to close
-                        </div>
-                    </div>
-                )}
 
                 {/* Header with Logo */}
                 <div className="flex justify-center mb-4">
@@ -188,66 +90,122 @@ const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) 
                         </p>
                     </div>
 
-                    {/* Compact 2x2 Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    {/* Steps in 2x2 Grid with Videos */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                         {/* Step 1 */}
                         <div className="bg-black/20 rounded-xl p-4 border border-[rgb(106,61,11)]/30 hover:border-[#efb95e]/50 transition-colors">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
-                                    1
+                            <div className="flex flex-col sm:flex-row gap-3 items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
+                                            1
+                                        </div>
+                                        <h4 className="text-lg font-bold text-[#fdfbf7]">
+                                            Connect Your Wallet
+                                        </h4>
+                                    </div>
+                                    <p className="text-[#9a816b] text-sm">
+                                        Connect your Web3 wallet and select your network to start trading.
+                                    </p>
                                 </div>
-                                <h4 className="text-lg font-bold text-[#fdfbf7]">
-                                    Connect Your Wallet
-                                </h4>
+                                {/* Video 1 */}
+                                <div className="w-full sm:w-40 flex-shrink-0 group relative">
+                                    <div className="aspect-video rounded-lg border-2 border-[rgb(106,61,11)]/40 hover:border-[#efb95e]/60 transition-all duration-300 cursor-pointer overflow-hidden group-hover:shadow-lg group-hover:shadow-[#efb95e]/20">
+                                        <img 
+                                            src="/images/thumbnails/thumbnail-1.webp" 
+                                            alt="Connect Your Wallet Tutorial" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <p className="text-[#9a816b] text-sm">
-                                Connect your Web3 wallet and select your network to start trading.
-                            </p>
                         </div>
 
                         {/* Step 2 */}
                         <div className="bg-black/20 rounded-xl p-4 border border-[rgb(106,61,11)]/30 hover:border-[#efb95e]/50 transition-colors">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
-                                    2
+                            <div className="flex flex-col sm:flex-row gap-3 items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
+                                            2
+                                        </div>
+                                        <h4 className="text-lg font-bold text-[#fdfbf7]">
+                                            Search & Discover
+                                        </h4>
+                                    </div>
+                                    <p className="text-[#9a816b] text-sm">
+                                        Browse trending tokens and use filters to find the best opportunities.
+                                    </p>
                                 </div>
-                                <h4 className="text-lg font-bold text-[#fdfbf7]">
-                                    Search & Discover
-                                </h4>
+                                {/* Video 2 */}
+                                <div className="w-full sm:w-40 flex-shrink-0 group relative">
+                                    <div className="aspect-video rounded-lg border-2 border-[rgb(106,61,11)]/40 hover:border-[#efb95e]/60 transition-all duration-300 cursor-pointer overflow-hidden group-hover:shadow-lg group-hover:shadow-[#efb95e]/20">
+                                        <img 
+                                            src="/images/thumbnails/thumbnail-2.webp" 
+                                            alt="Search & Discover Tutorial" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <p className="text-[#9a816b] text-sm">
-                                Browse trending tokens and use filters to find the best opportunities.
-                            </p>
                         </div>
 
                         {/* Step 3 */}
                         <div className="bg-black/20 rounded-xl p-4 border border-[rgb(106,61,11)]/30 hover:border-[#efb95e]/50 transition-colors">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
-                                    3
+                            <div className="flex flex-col sm:flex-row gap-3 items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
+                                            3
+                                        </div>
+                                        <h4 className="text-lg font-bold text-[#fdfbf7]">
+                                            Buy & Sell Tokens
+                                        </h4>
+                                    </div>
+                                    <p className="text-[#9a816b] text-sm">
+                                        Trade seamlessly with real-time charts and instant execution.
+                                    </p>
                                 </div>
-                                <h4 className="text-lg font-bold text-[#fdfbf7]">
-                                    Buy & Sell Tokens
-                                </h4>
+                                {/* Video 3 */}
+                                <div className="w-full sm:w-40 flex-shrink-0 group relative">
+                                    <div className="aspect-video rounded-lg border-2 border-[rgb(106,61,11)]/40 hover:border-[#efb95e]/60 transition-all duration-300 cursor-pointer overflow-hidden group-hover:shadow-lg group-hover:shadow-[#efb95e]/20">
+                                        <img 
+                                            src="/images/thumbnails/thumbnail-3.webp" 
+                                            alt="Buy & Sell Tokens Tutorial" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <p className="text-[#9a816b] text-sm">
-                                Trade seamlessly with real-time charts and instant execution.
-                            </p>
                         </div>
 
                         {/* Step 4 */}
                         <div className="bg-black/20 rounded-xl p-4 border border-[rgb(106,61,11)]/30 hover:border-[#efb95e]/50 transition-colors">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
-                                    4
+                            <div className="flex flex-col sm:flex-row gap-3 items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#efb95e] to-[#d6a043] flex items-center justify-center text-[rgb(49,25,0)] font-bold text-lg">
+                                            4
+                                        </div>
+                                        <h4 className="text-lg font-bold text-[#fdfbf7]">
+                                            Create Your Token
+                                        </h4>
+                                    </div>
+                                    <p className="text-[#9a816b] text-sm">
+                                        Launch your own token in minutes with zero coding required.
+                                    </p>
                                 </div>
-                                <h4 className="text-lg font-bold text-[#fdfbf7]">
-                                    Create Your Token
-                                </h4>
+                                {/* Video 4 */}
+                                <div className="w-full sm:w-40 flex-shrink-0 group relative">
+                                    <div className="aspect-video rounded-lg border-2 border-[rgb(106,61,11)]/40 hover:border-[#efb95e]/60 transition-all duration-300 cursor-pointer overflow-hidden group-hover:shadow-lg group-hover:shadow-[#efb95e]/20">
+                                        <img 
+                                            src="/images/thumbnails/thumbnail-4.webp" 
+                                            alt="Create Your Token Tutorial" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <p className="text-[#9a816b] text-sm">
-                                Launch your own token in minutes with zero coding required.
-                            </p>
                         </div>
                     </div>
 
