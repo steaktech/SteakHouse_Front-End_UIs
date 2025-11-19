@@ -16,6 +16,14 @@ interface TokenInfoData {
   createdAt?: string;
   tokenType?: number;
   bondingProgress?: number;
+  // Extra descriptive and limit/tax fields for "More Info" section
+  description?: string;
+  currentMaxTx?: number;      // percent of total supply
+  finalMaxTx?: number;        // percent of total supply
+  currentMaxWallet?: number;  // percent of total supply
+  finalMaxWallet?: number;    // percent of total supply
+  currentTax?: number;        // percent
+  finalTax?: number;          // percent
 }
 
 interface MobileTokenInfoProps {
@@ -231,6 +239,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         {/* Expandable More Info Section */}
         {showMoreInfo && (
           <div className="mt-3 space-y-2 bg-[#13101a] rounded-lg border border-[#1f1a24] p-3">
+            {/* Status */}
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Status</span>
               <span className="text-xs font-semibold text-white">
@@ -256,7 +265,16 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                 )}
               </span>
             </div>
+
+            {/* Description */}
+            <div className="flex justify-between items-start py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider mr-4">Description</span>
+              <span className="text-xs font-semibold text-white text-right max-w-[60%] break-words">
+                {data.description && data.description.trim().length > 0 ? data.description : '-'}
+              </span>
+            </div>
             
+            {/* Token Type */}
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Token Type</span>
               <span className="text-xs font-semibold text-white">
@@ -269,6 +287,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
               </span>
             </div>
 
+            {/* Supply percentage */}
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Supply %</span>
               <span className="text-xs font-semibold text-white">
@@ -279,8 +298,51 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
               </span>
             </div>
 
+            {/* Current / Final Max Tx */}
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Current MaxTx</span>
+              <span className="text-xs font-semibold text-white">
+                {data.currentMaxTx != null ? formatPercent(data.currentMaxTx) : '-'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Final MaxTx</span>
+              <span className="text-xs font-semibold text-white">
+                {data.finalMaxTx != null ? formatPercent(data.finalMaxTx) : '-'}
+              </span>
+            </div>
+
+            {/* Current / Final Max Wallet */}
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Current MaxWallet</span>
+              <span className="text-xs font-semibold text-white">
+                {data.currentMaxWallet != null ? formatPercent(data.currentMaxWallet) : '-'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Final MaxWallet</span>
+              <span className="text-xs font-semibold text-white">
+                {data.finalMaxWallet != null ? formatPercent(data.finalMaxWallet) : '-'}
+              </span>
+            </div>
+
+            {/* Current / Final Tax */}
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Current Tax</span>
+              <span className="text-xs font-semibold text-white">
+                {data.currentTax != null ? `${data.currentTax.toFixed(2)}%` : '-'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Final Tax</span>
+              <span className="text-xs font-semibold text-white">
+                {data.finalTax != null ? `${data.finalTax.toFixed(2)}%` : '-'}
+              </span>
+            </div>
+
+            {/* Created at */}
             <div className="flex justify-between items-center py-2">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Created</span>
+              <span className="text-xs text-gray-400 uppercase tracking-wider">Created At</span>
               <span className="text-xs font-semibold text-white">
                 {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
                   month: 'short',

@@ -17,6 +17,10 @@ interface MobileStatsProps {
   telegramUrl?: string;
   twitterUrl?: string;
   websiteUrl?: string;
+  // Audio controls (moved from TradingView header)
+  isAudioPlaying?: boolean;
+  isAudioAvailable?: boolean;
+  onToggleAudio?: () => void;
 }
 
 export default function MobileStats({
@@ -30,6 +34,9 @@ export default function MobileStats({
   telegramUrl,
   twitterUrl,
   websiteUrl,
+  isAudioPlaying,
+  isAudioAvailable,
+  onToggleAudio,
 }: MobileStatsProps) {
   const [showSharePopup, setShowSharePopup] = useState(false);
   const { isSaved, isLoading: isSaveLoading, toggleSave } = useSaveToken(
@@ -324,6 +331,46 @@ export default function MobileStats({
                 }}
               >
                 <Globe size={16} className="text-[#9ca3af]" />
+              </button>
+            )}
+
+            {/* Audio Button (moved from TradingView header) */}
+            {isAudioAvailable && onToggleAudio && (
+              <button
+                type="button"
+                onClick={onToggleAudio}
+                className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                style={{
+                  background: 'rgba(31, 26, 36, 0.5)',
+                }}
+                title={isAudioPlaying ? 'Mute Audio' : 'Play Audio'}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={isAudioPlaying ? '#ffd700' : '#9ca3af'}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ display: 'block' }}
+                >
+                  {isAudioPlaying ? (
+                    <>
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    </>
+                  ) : (
+                    <>
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                      <line x1="23" y1="9" x2="17" y2="15" />
+                      <line x1="17" y1="9" x2="23" y2="15" />
+                    </>
+                  )}
+                </svg>
               </button>
             )}
 

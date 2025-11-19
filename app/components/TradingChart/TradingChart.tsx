@@ -607,6 +607,80 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const apiInfo = apiTokenData?.tokenInfo;
   const apiLastTrade = apiTokenData?.lastTrade;
   const taxValue = Number(apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? 3);
+
+  // Helpers to compute limit percentages from tokenInfo (as % of total supply)
+  const computeLimitPct = (limitTokens?: number | null): number | undefined => {
+    if (!apiInfo?.total_supply || limitTokens == null) return undefined;
+    const total = Number(apiInfo.total_supply);
+    const lim = Number(limitTokens);
+    if (!Number.isFinite(total) || !Number.isFinite(lim) || total <= 0 || lim <= 0) return undefined;
+    return (lim / total) * 100;
+  };
+
+  const computeCurrentAndFinalLimitPct = (
+    baseTokens?: number | null,
+    stepTokens?: number | null,
+    intervalSec?: number | string | null,
+    limitDurationSec?: number | string | null,
+    createdAtMs?: number | null,
+  ): { current?: number; final?: number } => {
+    if (baseTokens == null) return { current: undefined, final: undefined };
+
+    const base = Number(baseTokens);
+    if (!Number.isFinite(base) || base <= 0) return { current: undefined, final: undefined };
+
+    const step = stepTokens != null ? Number(stepTokens) : undefined;
+    const interval = intervalSec != null ? Number(intervalSec) : undefined;
+    const limitDur = limitDurationSec != null ? Number(limitDurationSec) : undefined;
+
+    // If we don't have dynamic step/interval info, treat as static limit
+    if (!step || !interval || !limitDur || step <= 0 || interval <= 0 || limitDur <= 0) {
+      const pct = computeLimitPct(base);
+      return { current: pct, final: pct };
+    }
+
+    const totalSteps = Math.floor(limitDur / interval);
+    if (!Number.isFinite(totalSteps) || totalSteps <= 0) {
+      const pct = computeLimitPct(base);
+      return { current: pct, final: pct };
+    }
+
+    const finalTokens = base + step * totalSteps;
+    const finalPct = computeLimitPct(finalTokens) ?? computeLimitPct(base);
+
+    let currentTokens = base;
+    if (createdAtMs && createdAtMs > 0) {
+      const nowSec = Date.now() / 1000;
+      const createdSec = createdAtMs / 1000;
+      const elapsedSec = Math.max(0, nowSec - createdSec);
+      const stepsSoFar = Math.min(Math.floor(elapsedSec / interval), totalSteps);
+      if (stepsSoFar > 0) {
+        currentTokens = base + step * stepsSoFar;
+      }
+    }
+    const currentPct = computeLimitPct(currentTokens) ?? computeLimitPct(base);
+
+    return { current: currentPct, final: finalPct };
+  };
+
+  // Max Tx / Max Wallet percentages for "More Info" (as % of total supply)
+  const maxTxLimits = computeCurrentAndFinalLimitPct(
+    apiInfo?.curve_max_tx ?? null,
+    apiInfo?.max_tx_step ?? null,
+    apiInfo?.max_tx_interval ?? null,
+    apiInfo?.limit_removal_time ?? null,
+    apiInfo?.created_at_timestamp ?? null,
+  );
+
+  const maxWalletLimits = computeCurrentAndFinalLimitPct(
+    apiInfo?.curve_max_wallet ?? null,
+    apiInfo?.max_wallet_step ?? null,
+    apiInfo?.max_wallet_interval ?? null,
+    apiInfo?.limit_removal_time ?? null,
+    apiInfo?.created_at_timestamp ?? null,
+  );
+
+  // Fallback max-tx for token card display (simple heuristic)
   const maxTxPctNum = apiInfo?.curve_max_tx && apiInfo?.total_supply
     ? (Number(apiInfo.curve_max_tx) / Number(apiInfo.total_supply)) * 100
     : 2.1;
@@ -1124,6 +1198,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         telegramUrl={apiInfo?.telegram ?? undefined}
         twitterUrl={apiInfo?.twitter ?? undefined}
         websiteUrl={apiInfo?.website ?? undefined}
+        isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
+        isAudioPlaying={isPlaying}
+        onToggleAudio={playAudio}
       />
 
       {/* Mobile Banner - Token Banner Image */}
@@ -1147,25 +1224,29 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           createdAt: apiInfo?.inserted_at,
           tokenType: apiInfo?.token_type,
           bondingProgress: bondingPct,
+          description: apiInfo?.bio ?? undefined,
+          currentMaxTx: maxTxLimits.current,
+          finalMaxTx: maxTxLimits.final,
+          currentMaxWallet: maxWalletLimits.current,
+          finalMaxWallet: maxWalletLimits.final,
+          currentTax: apiInfo?.curve_starting_tax ?? apiInfo?.final_tax_rate ?? undefined,
+          finalTax: apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? undefined,
         }}
       />
 
         {/* Mobile Chart Section - Full height for visibility */}
         <div className="w-full bg-[#0a0612] px-2 py-3" style={{ minHeight: '500px', height: '70vh' }}>
-          <TradingView
-            title={apiTokenData?.tokenInfo?.name}
-            symbol={apiTokenData?.tokenInfo?.symbol}
-            address={tokenAddress ?? undefined}
-            timeframe={timeframe}
-            onChangeTimeframe={(tf) => setTimeframe(tf)}
-            tokenIconUrl={mobileStyleTokenData.logo}
-            telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
-            twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
-            websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
-            isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
-            isAudioPlaying={isPlaying}
-            onToggleAudio={playAudio}
-          />
+                  <TradingView
+                      title={apiTokenData?.tokenInfo?.name}
+                      symbol={apiTokenData?.tokenInfo?.symbol}
+                      address={tokenAddress ?? undefined}
+                      timeframe={timeframe}
+                      onChangeTimeframe={(tf) => setTimeframe(tf)}
+                      tokenIconUrl={mobileStyleTokenData.logo}
+                      telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
+                      twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
+                      websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+                    />
         </div>
 
         {/* Mobile Trade History Table - Below Chart */}
@@ -1229,9 +1310,6 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                       telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
                       twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
                       websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
-                      isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
-                      isAudioPlaying={isPlaying}
-                      onToggleAudio={playAudio}
                     />
                   </div>
 

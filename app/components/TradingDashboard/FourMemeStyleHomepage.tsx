@@ -18,7 +18,7 @@ import { useTokens } from "@/app/hooks/useTokens";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SteakHouseInfoModal from "../Modals/SteakHouseInfoModal";
 import CreateTokenModal from "../Modals/CreateTokenModal/CreateTokenModal";
-import styles from "./UI/Botton.module.css";
+import styles from "../UI/Botton.module.css";
 
 interface FilterButtonProps {
   icon: React.ReactNode;
