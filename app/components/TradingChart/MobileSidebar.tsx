@@ -16,10 +16,12 @@ interface WidgetCardProps {
   text: string;
   active?: boolean;
   onClick?: () => void;
+  compact?: boolean;
 }
 
-const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) => {
-  const baseClasses = "flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
+const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick, compact }) => {
+  const baseClasses = "flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all duration-200 ease-in-out";
+  const paddingClasses = compact ? "px-3 py-2" : "p-3";
   
   // Chat widget colors
   const activeStyle = {
@@ -35,7 +37,7 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
 
   return (
     <div 
-      className={baseClasses}
+      className={`${baseClasses} ${paddingClasses}`}
       style={active ? activeStyle : inactiveStyle}
       onClick={onClick}
       onMouseEnter={(e) => {
@@ -101,6 +103,11 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({
     setExpanded(false); // Close the mobile sidebar when opening the widget
   };
 
+  const handleAirdropClick = () => {
+    setAirdropOpen(true);
+    setExpanded(false);
+  };
+
   // Handlers for new widgets
   const handleLockerClick = () => {
     console.log('Locker clicked');
@@ -121,8 +128,9 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({
   };
 
   const widgets = [
-    { icon: <BarChart3 size={20} style={{ color: '#1c0f07' }} />, text: 'Chart', active: true },
-    { icon: <Coins size={20} style={{ color: '#ffc24b' }} />, text: 'Token', onClick: handleTokenClick },
+    { icon: <span className="gift-bounce">
+      🎁
+    </span>, text: 'Airdrop Points', active: true, onClick: handleAirdropClick, compact: true },
     { icon: <Users size={20} style={{ color: '#ffc24b' }} />, text: 'Holders', onClick: handleHoldersClick },
     { icon: <MessageCircle size={20} style={{ color: '#ffc24b' }} />, text: 'Chat', onClick: handleChatClick },
     { icon: <Bookmark size={20} style={{ color: '#ffc24b' }} />, text: 'Saved', onClick: handleSavedTokenClick },
@@ -182,45 +190,57 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({
 
         {/* Widget Grid */}
         <div className="p-4 pb-6">
+          <style jsx global>{`
+            @keyframes bounce-gift {
+              0% {
+                transform: translateX(0) rotate(0deg);
+              }
+              25% {
+                transform: translateX(-1px) rotate(-2deg);
+              }
+              50% {
+                transform: translateX(1px) rotate(2deg);
+              }
+              75% {
+                transform: translateX(-1px) rotate(-2deg);
+              }
+              100% {
+                transform: translateX(0) rotate(0deg);
+              }
+            }
+            .gift-bounce {
+              display: inline-block;
+              transform-origin: center bottom;
+              animation: bounce-gift 1.2s ease-in-out infinite;
+            }
+          `}</style>
           <div className="space-y-3">
-            {/* First Row: Chart and Token */}
-            <div className="grid grid-cols-2 gap-3">
-              {widgets.slice(0, 2).map((widget, index) => (
-                <WidgetCard
-                  key={index}
-                  icon={widget.icon}
-                  text={widget.text}
-                  active={widget.active}
-                  onClick={widget.onClick || (() => {
-                    // Handle widget selection here
-                    console.log(`Selected widget: ${widget.text}`);
-                  })}
-                />
-              ))}
-            </div>
-            {/* Second Row: Holders, Chat, Saved */}
+            {/* First Row: Airdrop Points (full width) */}
             <div className="grid grid-cols-3 gap-3">
-              {widgets.slice(2, 5).map((widget, index) => (
-                <WidgetCard
-                  key={index + 2}
-                  icon={widget.icon}
-                  text={widget.text}
-                  active={widget.active}
-                  onClick={widget.onClick || (() => {
-                    // Handle widget selection here
-                    console.log(`Selected widget: ${widget.text}`);
-                  })}
-                />
+              {widgets.slice(0, 1).map((widget, index) => (
+                <div key={index} className="col-span-3">
+                  <WidgetCard
+                    icon={widget.icon}
+                    text={widget.text}
+                    active={widget.active}
+                    compact={widget.compact}
+                    onClick={widget.onClick || (() => {
+                      // Handle widget selection here
+                      console.log(`Selected widget: ${widget.text}`);
+                    })}
+                  />
+                </div>
               ))}
             </div>
-            {/* Third Row: Locker, Explorer, User */}
+            {/* Remaining Widgets */}
             <div className="grid grid-cols-3 gap-3">
-              {widgets.slice(5, 8).map((widget, index) => (
+              {widgets.slice(1).map((widget, index) => (
                 <WidgetCard
-                  key={index + 5}
+                  key={index + 1}
                   icon={widget.icon}
                   text={widget.text}
                   active={widget.active}
+                  compact={widget.compact}
                   onClick={widget.onClick || (() => {
                     // Handle widget selection here
                     console.log(`Selected widget: ${widget.text}`);
@@ -228,40 +248,9 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({
                 />
               ))}
             </div>
-          </div>
-
-          {/* Airdrop Button */}
-          <div className="px-4 pb-4">
-            <style jsx>{`
-              @keyframes bounce-gift {
-                0%, 100% {
-                  transform: translateY(0);
-                  animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-                }
-                50% {
-                  transform: translateY(-25%);
-                  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-                }
-              }
-              .gift-bounce {
-                display: inline-block;
-                animation: bounce-gift 1s infinite;
-              }
-            `}</style>
-            <button
-              onClick={() => {
-                setAirdropOpen(true);
-                setExpanded(false);
-              }}
-              className="w-full px-4 py-3 rounded-lg text-[12px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
-              title="View your airdrop points"
-            >
-              <span className="gift-bounce">🎁</span> Airdrop Points
-            </button>
           </div>
         </div>
       </div>
-
       {/* SteakHolders Widget - mount only when open to avoid early API calls */}
       {isHoldersWidgetOpen && (
         <SteakHoldersWidget 
