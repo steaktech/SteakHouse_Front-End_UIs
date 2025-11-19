@@ -28,14 +28,16 @@ export function useRecentTrades({
 
   // Format trades for UI consumption
   const formattedTrades = useMemo(() => {
-    if (!data?.recentTrades) {
+    // Handle both 'recentTrades' and 'trades' field names for backward compatibility
+    const tradesArray = (data as any)?.recentTrades || (data as any)?.trades;
+    if (!tradesArray) {
       return [];
     }
 
     // Take only the requested number of trades and format them
-    const limitedTrades = data.recentTrades.slice(0, maxTrades);
+    const limitedTrades = tradesArray.slice(0, maxTrades);
     return formatTradesForUI(limitedTrades);
-  }, [data?.recentTrades, maxTrades]);
+  }, [data, maxTrades]);
 
   return {
     trades: formattedTrades,

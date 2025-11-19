@@ -7,10 +7,10 @@ import { SharePopup } from './SharePopup';
 import { usd2, nf0, formatPct, shortAddr, relTime, escapeHtml } from './utils';
 import styles from './ChatWidget.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
-import { useTokenData } from '@/app/hooks/useTokenData';
 import { useShare } from './useShare';
 import { useHoldersData } from '@/app/hooks/useHoldersData';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
+import type { Candle } from '@/app/types/token';
 import {
   getChatHistory,
   getChatToken,
@@ -20,13 +20,17 @@ import {
 } from '@/app/lib/api/chatClient';
 
 const EmojiPicker = dynamic<any>(() => import('emoji-picker-react'), { ssr: false });
+const WalletModal = dynamic(() => import('../../Modals/WalletModal/WalletModal'), { ssr: false });
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAddress }) => {
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ 
+  isOpen, 
+  onClose, 
+  tokenAddress,
+  apiTokenData = null, // Receive API data from parent to avoid duplicate calls
+}) => {
   // Wallet state
-  const { isConnected: walletConnected, address, connect } = useWallet();
+  const { isConnected: walletConnected, address } = useWallet();
 
-  // Live token data (for header)
-  const { data: apiTokenData } = useTokenData(tokenAddress || null, { interval: '1h', limit: 30 });
   const { data: holdersData } = useHoldersData({ tokenAddress: tokenAddress, enabled: Boolean(tokenAddress) });
 
   // Derived token header fields with graceful fallbacks
@@ -40,7 +44,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   let change24hPct: number | undefined = undefined;
   if (candles.length >= 2) {
     // Try compute 24h change from candles; pick first candle >= 24h window
-    const inWindow = candles.filter(c => (typeof c.timestamp === 'number' ? c.timestamp : 0) >= dayAgoMs);
+    const inWindow = candles.filter((c: Candle) => (typeof c.timestamp === 'number' ? c.timestamp : 0) >= dayAgoMs);
     const series = inWindow.length >= 2 ? inWindow : candles;
     const first = series[0];
     const last = series[series.length - 1];
@@ -73,6 +77,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
   const [composerInput, setComposerInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [hasEmojiPickerMounted, setHasEmojiPickerMounted] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   // Refs
   const feedRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -766,7 +771,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
             <div className={styles.walletCta}>
               <button
                 className={styles.primary}
-                onClick={() => connect().catch(() => { })}
+                onClick={() => setIsWalletModalOpen(true)}
                 type="button"
               >
                 Connect wallet to post
@@ -846,6 +851,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, tokenAd
           )}
         </footer>
       </aside>
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        isConnected={walletConnected}
+      />
     </>
   );
 };

@@ -93,7 +93,9 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
     return `${days}d ago`;
   };
 
-  const trades: Trade[] = (liveTrades && liveTrades.length ? liveTrades : (tokenData?.recentTrades ?? []));
+  // Handle both 'recentTrades' and 'trades' field names for backward compatibility
+  const apiTrades = (tokenData as any)?.recentTrades || (tokenData as any)?.trades || [];
+  const trades: Trade[] = (liveTrades && liveTrades.length ? liveTrades : apiTrades);
   const symbol = tokenData?.tokenInfo?.symbol ?? '';
 
   // Filter and sort API trades, then map to display objects used by this panel
@@ -194,8 +196,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           Recent Transactions
         </h3>
         
-        {/* Toggle Switch */}
-        {showToggle && onToggleChange && (
+        {/* Toggle Switch - COMMENTED OUT FOR NOW */}
+        {/* {showToggle && onToggleChange && (
           <div style={{
             position: 'relative',
             display: 'flex',
@@ -268,7 +270,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               ORDERS
             </button>
           </div>
-        )}
+        )} */}
       </div>
       
       {/* Filter and Sort Controls - Hidden on mobile when no toggle */}

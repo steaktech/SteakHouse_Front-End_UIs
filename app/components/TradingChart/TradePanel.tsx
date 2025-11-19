@@ -10,6 +10,7 @@ import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
 import { useBalance } from 'wagmi';
 import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
+import type { FullTokenDataResponse } from '@/app/types/token';
 
 const WalletModal = dynamic(
   () => import('../Modals/WalletModal/WalletModal'),
@@ -40,9 +41,16 @@ interface TradePanelProps {
   onTabChange?: (tab: 'buy' | 'sell' | 'limit') => void;
   isMobile?: boolean;
   tokenAddress?: string;
+  apiTokenData?: FullTokenDataResponse | null; // Receive API data from parent to avoid duplicate calls
 }
 
-export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTabChange, isMobile = false, tokenAddress }) => {
+export const TradePanel: React.FC<TradePanelProps> = ({ 
+  initialTab = 'buy', 
+  onTabChange, 
+  isMobile = false, 
+  tokenAddress,
+  apiTokenData = null
+}) => {
   const [activeTab, setActiveTab] = useState<'buy' | 'sell' | 'limit'>(initialTab as any);
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
@@ -72,6 +80,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   const [isLoadingMaxTx, setIsLoadingMaxTx] = useState(false);
   const [isLoadingMaxWallet, setIsLoadingMaxWallet] = useState(false);
   const [isToppingUp, setIsToppingUp] = useState(false);
+  const [isRefetchingPosition, setIsRefetchingPosition] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
 
   // Resolve trading wallet and ETH balance for that wallet
@@ -81,7 +90,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
   });
 
   // Load token position using shared api client and structured hook
-  const { data: position, isLoading: loadingPosition, error: positionError } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
+  const { data: position, isLoading: loadingPosition, error: positionError, refetch: refetchPosition } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
+  // Use token data from parent (already loaded via single API call)
+  const currentPriceUsd = position?.lastPriceUsd ?? apiTokenData?.price ?? null;
 
   // Update activeTab when initialTab prop changes
   React.useEffect(() => {
@@ -191,7 +202,16 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
       }
     } catch (error) {
       const e = error as any;
-      const reason = e?.raw?.error?.reason || e?.raw?.error?.shortMessage || e?.raw?.error?.info?.error?.message || e?.message || 'Trade failed';
+      // Prefer the nested info.error.message from backend, then other fallbacks
+      const reason =
+        e?.raw?.error?.info?.error?.message ||
+        e?.info?.error?.message ||
+        e?.info?.message ||
+        e?.raw?.error?.shortMessage ||
+        e?.raw?.error?.revert?.args?.[0] ||
+        e?.raw?.error?.reason ||
+        e?.message ||
+        'Trade failed';
       showError(reason, `${action} failed`, 12000);
     }
   };
@@ -224,21 +244,85 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
     }
   };
 
-  // Dynamic quick amounts - buy shows ETH amounts, sell shows percentages
-  const quickAmounts = activeTab === 'buy' ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max'] : ['25%', '50%', '75%', '100%'];
+  // Dynamic quick amounts
+  // - Market BUY and Limit BUY: ETH presets
+  // - Market SELL: percentage of token balance (converted to token amount)
+  // - Limit SELL: percentage of token balance (converted to token amount)
+  const quickAmounts = (activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy'))
+    ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
+    : ['25%', '50%', '75%', '100%'];
 
-  const handleQuickAmount = (value: string) => {
+  const handleQuickAmount = async (value: string) => {
+    const isBuyLike = activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy');
+
     if (value === 'Max') {
-      handleBuyMaxTx(); // Use the API to get actual max amount
-    } else if (activeTab === 'buy') {
-      setAmount(value.split(' ')[0]);
-    } else {
-      // For sell mode, handle percentage values (placeholder logic)
-      if (value === '25%') setAmount('25');
-      else if (value === '50%') setAmount('50');
-      else if (value === '75%') setAmount('75');
-      else if (value === '100%') setAmount('100');
+      // Uses backend limits to determine maximum ETH spend
+      handleBuyMaxTx();
+      return;
     }
+
+    if (isBuyLike) {
+      // BUY (market) and BUY LIMIT use ETH amounts like "0.5 ETH"
+      setAmount(value.split(' ')[0]);
+      return;
+    }
+
+    // SELL paths use percentage presets - convert to token amounts
+    const pct = parseFloat(value.replace('%', ''));
+    if (isNaN(pct) || pct <= 0) return;
+
+    // Check if wallet is connected
+    if (!tradingWalletAddress) {
+      showError('Please connect your wallet first', 'Preset amount');
+      return;
+    }
+
+    // Check if token is selected
+    if (!tokenAddress) {
+      showError('No token selected', 'Preset amount');
+      return;
+    }
+
+    // Refetch position data to ensure we have the latest balance
+    setIsRefetchingPosition(true);
+    try {
+      await refetchPosition();
+    } catch (error) {
+      console.error('Failed to refetch position:', error);
+      showError('Failed to load latest balance. Please try again.', 'Preset amount');
+      setIsRefetchingPosition(false);
+      return;
+    } finally {
+      setIsRefetchingPosition(false);
+    }
+
+    // Check if position is still loading after refetch
+    if (loadingPosition) {
+      showError('Loading token balance, please wait...', 'Preset amount');
+      return;
+    }
+
+    // Debug logging
+    console.log('Position data:', {
+      position,
+      qtyTokens: position?.qtyTokens,
+      positionError,
+      tradingWalletAddress,
+      tokenAddress
+    });
+
+    // Get token balance
+    const balance = position?.qtyTokens ?? 0;
+    if (!balance || balance <= 0) {
+      showError(`You have no tokens to sell. Balance: ${balance}`, 'Preset amount');
+      return;
+    }
+
+    // Calculate token amount from percentage
+    const tokens = (balance * pct) / 100;
+    // Format with sensible precision and trim trailing zeros
+    const formatted = Number(tokens.toFixed(6)).toString();
+    setAmount(formatted);
   };
 
   return (
@@ -464,7 +548,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             marginBottom: '6px',
             textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
           }}>
-            Amount {(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '(ETH)' : activeTab === 'sell' ? '(%)' : ''}
+            Amount {
+              (activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy'))
+                ? '(ETH)'
+                : '(Tokens)'
+            }
           </label>
           <div style={{
             position: 'relative',
@@ -542,6 +630,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
             <button
               key={preset}
               onClick={() => handleQuickAmount(preset)}
+              disabled={isRefetchingPosition}
               className="amount-button"
               style={{
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
@@ -552,13 +641,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 color: 'var(--ab-text-400)',
                 fontSize: 'clamp(8px, 1.3vw, 10px)',
                 fontWeight: 800,
-                cursor: 'pointer',
+                cursor: isRefetchingPosition ? 'wait' : 'pointer',
                 transition: 'all 200ms ease',
                 flex: 1,
                 whiteSpace: 'nowrap',
                 overflow: 'visible',
                 textAlign: 'center',
-                minHeight: 'clamp(32px, 6vh, 36px)'
+                minHeight: 'clamp(32px, 6vh, 36px)',
+                opacity: isRefetchingPosition ? 0.5 : 1,
+                pointerEvents: isRefetchingPosition ? 'none' : 'auto'
               }}
             >
               {preset}
@@ -981,9 +1072,15 @@ export const TradePanel: React.FC<TradePanelProps> = ({ initialTab = 'buy', onTa
                 <button
                   key={preset}
                   onClick={() => {
-                    const currentPrice = 21.50; // Mock current price
+                    const base = typeof currentPriceUsd === 'number' ? currentPriceUsd : Number(currentPriceUsd);
+                    if (!base || isNaN(base)) {
+                      showError('Current price unavailable', 'Quick price');
+                      return;
+                    }
                     const multiplier = 1 + parseFloat(preset.replace('%', '')) / 100;
-                    setLimitPrice((currentPrice * multiplier).toFixed(2));
+                    const next = base * multiplier;
+                    const decimals = base < 1 ? 6 : 2;
+                    setLimitPrice(next.toFixed(decimals));
                   }}
                   style={{
                     background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',

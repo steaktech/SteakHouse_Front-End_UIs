@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Fredoka,
+  Space_Grotesk,
+  Inter,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 import LoadingWrapper from "./components/LoadingWrapper";
 import WagmiProviderWrapper from "./lib/providers/WagmiProvider";
 import { ToastProvider } from "./lib/providers/ToastProvider";
 import { ToastContainer } from "./components/UI/ToastContainer";
+import ReferralHandler from "./components/ReferralHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,6 +21,27 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const pumpDisplay = Fredoka({
+  variable: "--font-pump-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const degenGrotesk = Space_Grotesk({
+  variable: "--font-degen-grotesk",
+  subsets: ["latin"],
+});
+
+const uiInter = Inter({
+  variable: "--font-ui-inter",
+  subsets: ["latin"],
+});
+
+const uiMono = JetBrains_Mono({
+  variable: "--font-ui-mono",
   subsets: ["latin"],
 });
 
@@ -43,6 +72,7 @@ export default function RootLayout({
       >
         <WagmiProviderWrapper>
           <ToastProvider>
+            <ReferralHandler />
             <LoadingWrapper>
               {children}
             </LoadingWrapper>

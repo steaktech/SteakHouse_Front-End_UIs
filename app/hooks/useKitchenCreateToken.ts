@@ -55,6 +55,14 @@ export function useKitchenCreateToken(options: UseKitchenCreateTokenOptions = {}
       try {
         const sim = await service.simulateCreateTokenCall(state);
         if (!sim.success) {
+          const reason = String(sim.reason || '').toLowerCase();
+          // If the failure is clearly due to insufficient funds, stop here and surface a helpful error
+          if (reason.includes('insufficient funds')) {
+            const err = new Error('Insufficient funds for creation fee and gas. Please fund your wallet with a small amount of ETH and try again.');
+            setError(err);
+            onError?.(err);
+            return { success: false, error: err.message };
+          }
           console.warn('[KitchenCreate] Simulation failed, proceeding to wallet popup anyway:', sim.reason);
         } else {
           console.log('[KitchenCreate] Simulation passed');

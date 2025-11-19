@@ -321,3 +321,26 @@
 .removeBtn:hover {
   background: rgba(255, 92, 92, 0.1);
 }
+
+/* Wallet connect CTA */
+.walletCta {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.primary {
+  background: linear-gradient(180deg, #ffc24b, #ffb020);
+  color: #1a0f08;
+  font-weight: 700;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 176, 32, 0.25);
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { X, User, TrendingUp, TrendingDown, Activity, Clock, DollarSign, Award, Target, BarChart3, ArrowUpRight, ArrowDownRight, Copy, ExternalLink } from 'lucide-react';
 import styles from './ChartUserProfileWidget.module.css';
 import {
@@ -20,6 +21,8 @@ import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTop
 import WalletWithdrawModal from '@/app/components/Modals/WalletWithdrawModal/WalletWithdrawModal';
 import { resolveTradingWallet } from '@/app/lib/user/tradingWalletCache';
 import { getCurrentChainId } from '@/app/lib/config/constants';
+
+const WalletModal = dynamic(() => import('../../Modals/WalletModal/WalletModal'), { ssr: false });
 
 // Demo data for user profile
 const demoUserData: UserProfileData = {
@@ -232,8 +235,9 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
   });
 
   const userData = data;
-  const { address: eoa, chainId: walletChainId } = useWallet();
+  const { address: eoa, chainId: walletChainId, isConnected } = useWallet();
   const { tradingState, topUpTradingWallet } = useTrading();
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [positions, setPositions] = useState<TokenPosition[]>([]);
   const [filteredPositions, setFilteredPositions] = useState<TokenPosition[]>([]);
   const [transactions, setTransactions] = useState<TokenTransaction[]>([]);
@@ -976,11 +980,32 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
           </div>
         </div>
 
-        <div className={styles.content}>
-          {state.activeTab === 'overview' && renderOverviewTab()}
-          {state.activeTab === 'positions' && renderPositionsTab()}
-          {state.activeTab === 'history' && renderHistoryTab()}
-        </div>
+        {!isConnected ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>
+              <User size={28} />
+            </div>
+            <div className={styles.emptyTitle}>Connect your wallet</div>
+            <div className={styles.emptyMessage}>
+              Connect to view your profile, positions, and history.
+            </div>
+            <div className={styles.walletCta}>
+              <button
+                className={styles.primary}
+                onClick={() => setIsWalletModalOpen(true)}
+                type="button"
+              >
+                Connect wallet
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.content}>
+            {state.activeTab === 'overview' && renderOverviewTab()}
+            {state.activeTab === 'positions' && renderPositionsTab()}
+            {state.activeTab === 'history' && renderHistoryTab()}
+          </div>
+        )}
 
         {/* Wallet & Top-Up Modal */}
         <WalletTopUpModal
@@ -994,6 +1019,11 @@ export const ChartUserProfileWidget: React.FC<ChartUserProfileWidgetProps> = ({
           isOpen={isWithdrawModalOpen}
           onClose={() => setIsWithdrawModalOpen(false)}
           defaultAmountEth={withdrawAmount}
+        />
+        <WalletModal
+          isOpen={isWalletModalOpen}
+          onClose={() => setIsWalletModalOpen(false)}
+          isConnected={!!isConnected}
         />
       </div>
     </div>

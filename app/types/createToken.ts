@@ -24,6 +24,7 @@ export interface CreateTokenApiRequest {
   symbol?: string;
   image_url?: string;
   banner_url?: string;
+  mp3_url?: string;
   
   // Big numbers (as strings)
   total_supply?: string;
@@ -36,6 +37,16 @@ export interface CreateTokenApiRequest {
   is_stealth?: boolean;
   is_super_simple?: boolean;
   is_zero_simple?: boolean;
+  auto_brand?: boolean;
+
+  // Auto-branding color palette
+  color_palette?: string;
+  
+  /**
+   * Explicit profile choice for backend routing: 'basic' | 'advanced' | 'simple' | 'zero'
+   * Only set for virtual-curve flows where a profile is selected.
+   */
+  tokenChoice?: 'basic' | 'advanced' | 'simple' | 'zero';
   
   // Curve & policy params - CORRECTED FIELD NAMES
   curve_starting_tax?: number; // percent (was curve_start_tax)
@@ -73,6 +84,7 @@ export interface CreateTokenFormData extends CreateTokenApiRequest {
   // File uploads
   logo?: File;
   banner?: File;
+  mp3?: File;
 }
 
 export interface CreateTokenResult {
@@ -85,4 +97,5 @@ export interface CreateTokenResult {
 export interface FileUploads {
   logo?: File;
   banner?: File;
+  mp3?: File;
 }

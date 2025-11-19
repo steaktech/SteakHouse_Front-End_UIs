@@ -93,7 +93,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
     ws.on('connect', () => {
       L.log('WS connected', (ws as any).id);
       for (const [, sub] of diag.subs) {
-        try { (ws as any).emit('subscribe', { tokenAddress: sub.address, resolution: String(sub.resolution) }); } catch {}
+        try { (ws as any).emit('subscribe', sub.address); } catch {}
       }
     });
     ws.on('disconnect', (reason: any) => L.warn('WS disconnect', reason));
@@ -115,12 +115,44 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
       };
       if (!Number.isFinite(bar.time) || !Number.isFinite(bar.close)) return;
 
-      const eventResolution = String(msg?.resolution ?? msg?.timeframe ?? '1');
+      const eventResolution = (() => {
+        const val = msg?.resolution ?? msg?.timeframe ?? '1';
+        const s = String(val);
+        switch (s.toLowerCase()) {
+          case '1':
+          case '5':
+          case '15':
+          case '60':
+          case '240':
+          case '1440':
+            return s;
+          case '1m': return '1';
+          case '5m': return '5';
+          case '15m': return '15';
+          case '1h': return '60';
+          case '4h': return '240';
+          case '1d':
+          case '1day':
+          case '24h': return '1440';
+          default: return s;
+        }
+      })();
 
       for (const [uid, sub] of diag.subs) {
         if (sub.address !== addr) continue;
         if (String(sub.resolution) !== eventResolution) continue;
         if (Number.isFinite(sub.lastTs) && (bar.time as number) < (sub.lastTs as number)) continue;
+        
+        // Update the cache with the new bar for fresh tokens
+        const cacheKey = `${addr}|${sub.resolution}`;
+        const cached = historyCache.get(cacheKey);
+        if (cached && cached.bars.length === 0) {
+          // For fresh tokens with no history, add this first bar to cache
+          L.log('Adding first bar to empty cache for fresh token', { addr, bar });
+          cached.bars.push(bar);
+          cached.ts = Date.now();
+        }
+        
         sub.lastTs = bar.time as number;
         sub.lastBar = bar;
         try { sub.onRealtimeCallback(bar); } catch (e) { L.error('onRealtime failed', e); }
@@ -250,6 +282,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         const cached = historyCache.get(cacheKey);
         if (cached && (now - cached.ts) < CACHE_TTL_MS) {
           G.log(`Cache hit (${cached.bars.length} bars)`);
+          // Even if cached has 0 bars, we should return noData:false to allow real-time updates
           onResult(cached.bars, { noData: false });
           historyRequestBudget.set(budgetKey, used + 1);
           return;
@@ -264,13 +297,17 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         const bars = await promise;
         pendingHistory.delete(cacheKey);
 
+        // Cache the result even if empty, so we don't keep retrying
+        historyCache.set(cacheKey, { bars, ts: now });
+
+        // NEW: For fresh tokens with no history, return empty array but noData:false
+        // This allows the chart to display real-time data when it arrives via WebSocket
         if (!bars.length) {
-          onResult([], { noData: true });
-          G.log('getBars -> 0 bars (noData=true)');
+          G.log('getBars -> 0 bars (fresh token, awaiting real-time data)');
+          onResult([], { noData: false });
+          historyRequestBudget.set(budgetKey, used + 1);
           return;
         }
-
-        historyCache.set(cacheKey, { bars, ts: now });
 
         if (bars.length < 10) {
           onResult(bars, { noData: false });
@@ -282,8 +319,16 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
 
         historyRequestBudget.set(budgetKey, used + 1);
       } catch (e: any) {
-        G.error('getBars error', e?.message || e);
-        onError?.(e?.message || 'history failed');
+        // For "Empty bars" error, treat as empty but ready for real-time data
+        const msg = e?.message || '';
+        if (msg.includes('Empty bars')) {
+          G.log('getBars -> Empty bars from API (fresh token, awaiting real-time data)');
+          onResult([], { noData: false });
+          historyRequestBudget.set(budgetKey, used + 1);
+        } else {
+          G.error('getBars error', msg || e);
+          onError?.(msg || 'history failed');
+        }
       } finally {
         G.groupEnd();
       }
@@ -297,7 +342,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
         ensureSocket();
         diag.subs.set(subscriberUID, { address: addr, resolution, onRealtimeCallback, lastTs: undefined });
         if (diag.socket?.connected) {
-          try { diag.socket.emit('subscribe', { tokenAddress: addr, resolution: String(resolution) }); } catch {}
+          try { diag.socket.emit('subscribe', addr); } catch {}
           S.log('WS subscribe sent', { addr, resolution: String(resolution) });
         } else {
           S.warn('WS not connected yet; will subscribe on connect');
@@ -315,7 +360,7 @@ export function makeTVDatafeed(opts: MakeDatafeedOptions) {
       try {
         const sub = diag.subs.get(subscriberUID);
         if (sub && diag.socket?.connected) {
-          try { diag.socket.emit('unsubscribe', { tokenAddress: sub.address, resolution: String(sub.resolution) }); } catch {}
+          try { diag.socket.emit('unsubscribe', sub.address); } catch {}
           U.log('WS unsubscribe sent', { address: sub.address, resolution: String(sub.resolution) });
         }
         diag.subs.delete(subscriberUID);

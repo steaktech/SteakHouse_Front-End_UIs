@@ -29,6 +29,7 @@ export interface ChatWidgetProps {
   isOpen: boolean;
   onClose: () => void;
   tokenAddress?: string; // ERC-20 token address for the room (lowercased before use)
+  apiTokenData?: any | null; // Receive API data from parent to avoid duplicate calls
 }
 
 export type SortMode = 'new' | 'old' | 'top';

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import Web3 from 'web3';
 import { TokenState } from './types';
 import { fmt } from './utils';
 import styles from './CreateTokenModal.module.css';
@@ -6,12 +7,15 @@ import { simulateGradCap } from '@/app/lib/api/services/gradCapService';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+import { useToastHelpers } from '@/app/hooks/useToast';
+import { KitchenService } from '@/app/lib/web3/services/kitchenService';
 
 interface Step6ReviewConfirmProps {
   state: TokenState;
   onConfirm: () => void;
   isLoading?: boolean;
   onBasicsChange: (field: string, value: any) => void;
+  createdTokenAddress?: string;
 }
 
 const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
@@ -19,16 +23,26 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   onConfirm,
   isLoading = false,
   onBasicsChange,
+  createdTokenAddress,
 }) => {
   const [understandFees, setUnderstandFees] = useState(false);
   const [gradLoading, setGradLoading] = useState(false);
   const [gradError, setGradError] = useState<string | null>(null);
   const [gradResult, setGradResult] = useState<{ supplyToCirculate?: string; ethRaisedWei?: string; priceWei?: string; priceWeiPer1e18?: string }>({});
   
+  // Buy options quote state
+  const [buyOptionsQuote, setBuyOptionsQuote] = useState<string[] | null>(null);
+  const [buyOptionsLoading, setBuyOptionsLoading] = useState(false);
+  const [buyOptionsError, setBuyOptionsError] = useState<string | null>(null);
+  
   // Wallet / Top up modal state
-  const { isConnected, connect } = useWallet();
+  const { isConnected, connect, balanceFormatted } = useWallet();
   const { tradingState, topUpTradingWallet } = useTrading();
+  const { showError, showSuccess, showInfo } = useToastHelpers();
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
+  const [topUpDefaultAmount, setTopUpDefaultAmount] = useState<string>('');
+  const [isQuickTopUpPending, setIsQuickTopUpPending] = useState(false);
+  const [pendingTopUpHash, setPendingTopUpHash] = useState<string | null>(null);
 
   // Format big integer wei to human tokens (18 decimals)
   const formatUnits = (wei?: string, decimals: number = 18) => {
@@ -55,6 +69,59 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
     isMountedRef.current = true;
     return () => { isMountedRef.current = false; };
   }, []);
+
+  // Fetch buy options quote when token is created
+  useEffect(() => {
+    if (!createdTokenAddress || !isConnected) return;
+    
+    const fetchBuyOptions = async () => {
+      try {
+        setBuyOptionsLoading(true);
+        setBuyOptionsError(null);
+        
+        // Initialize Web3 and KitchenService
+        if (typeof window === 'undefined' || !(window as any).ethereum) {
+          throw new Error('Ethereum provider not found');
+        }
+        
+        const web3 = new Web3((window as any).ethereum);
+        const accounts = await web3.eth.getAccounts();
+        
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No accounts found');
+        }
+        
+        const kitchenService = new KitchenService(web3, accounts[0]);
+        
+        console.log('\n=== FETCHING BUY OPTIONS QUOTE ===');
+        console.log('Token Address:', createdTokenAddress);
+        
+        const ethCosts = await kitchenService.quoteDevBuyOptions(createdTokenAddress);
+        
+        console.log('\n=== BUY OPTIONS RESULTS ===');
+        console.log('Raw wei values:', ethCosts);
+        console.log('Formatted:');
+        ethCosts.forEach((cost, idx) => {
+          const percent = [1, 3, 5, 10, 15][idx];
+          const ethAmount = web3.utils.fromWei(cost, 'ether');
+          console.log(`  ${percent}% supply: ${ethAmount} ETH (${cost} wei)`);
+        });
+        console.log('================================\n');
+        
+        setBuyOptionsQuote(ethCosts);
+        showSuccess('Buy options calculated successfully', 'Buy Options');
+      } catch (error: any) {
+        console.error('[Step6] Error fetching buy options:', error);
+        const errorMsg = error?.message || 'Failed to fetch buy options';
+        setBuyOptionsError(errorMsg);
+        showError(errorMsg, 'Buy Options Error');
+      } finally {
+        setBuyOptionsLoading(false);
+      }
+    };
+    
+    fetchBuyOptions();
+  }, [createdTokenAddress, isConnected, showSuccess, showError]);
 
   useEffect(() => {
     // Trigger simulation when arriving here or when inputs change
@@ -384,6 +451,82 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
   const abiPreview = generateAbiPreview();
   const palette = autoBrandingPreview();
 
+  // Handle quick preset top-ups (trigger wallet popup, then wait for confirmation)
+  const handleQuickPresetTopUp = async (amt: string) => {
+    if (!isConnected) {
+      try { await connect(); } catch {}
+      return;
+    }
+    if (!tradingState?.tradingWallet) {
+      showError('Trading wallet is not available.', 'Top up');
+      return;
+    }
+    try {
+      setIsQuickTopUpPending(true);
+      const hash = await topUpTradingWallet(amt);
+      if (!hash) {
+        const msg = tradingState?.error || 'Transaction rejected or failed to submit.';
+        showError(msg, 'Top up');
+        setIsQuickTopUpPending(false);
+        return;
+      }
+      setPendingTopUpHash(hash);
+      showInfo(`Top up submitted. Waiting for confirmation...`, 'Top up', 8000);
+    } catch (e: any) {
+      const msg = e?.message || 'Failed to top up';
+      showError(msg, 'Top up failed', 12000);
+      setIsQuickTopUpPending(false);
+    }
+  };
+
+  // Poll for confirmation when we have a pending tx hash
+  useEffect(() => {
+    if (!pendingTopUpHash) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const provider: any = (typeof window !== 'undefined') ? (window as any).ethereum : null;
+        if (!provider) {
+          // If no provider, stop and mark as not pending
+          setIsQuickTopUpPending(false);
+          return;
+        }
+        const receipt = await provider.request({ method: 'eth_getTransactionReceipt', params: [pendingTopUpHash] });
+        if (receipt) {
+          const status = receipt?.status;
+          const ok = status === '0x1' || status === 1 || status === true;
+          const short = `${pendingTopUpHash.slice(0, 10)}...${pendingTopUpHash.slice(-6)}`;
+          if (ok) {
+            showSuccess(`Top up confirmed. Tx: ${short}`, 'Top up', 10000);
+          } else {
+            showError('Top up failed on-chain.', 'Top up failed', 12000);
+          }
+          setPendingTopUpHash(null);
+          setIsQuickTopUpPending(false);
+          return;
+        }
+      } catch (e) {
+        // Ignore intermittent RPC errors and keep polling
+      }
+      if (!cancelled) setTimeout(poll, 3000);
+    };
+    poll();
+    return () => { cancelled = true; };
+  }, [pendingTopUpHash, showSuccess, showError]);
+
+  // Compute minimal required ETH (creation fee + small gas buffer)
+  const configuredCreation = typeof state.fees.creation === 'number' ? state.fees.creation : 0;
+  const minByProfile = state.profile === 'ZERO' ? 0.0005
+    : state.profile === 'SUPER' ? 0.001
+      : state.profile === 'BASIC' ? 0.01
+        : state.profile === 'ADVANCED' ? 0.01
+          : 0;
+  const effectiveCreationEth = Math.max(configuredCreation, minByProfile);
+  const gasBufferEth = 0.003; // small buffer for gas on Sepolia
+  const requiredEth = effectiveCreationEth + gasBufferEth;
+  const walletEth = parseFloat(balanceFormatted || '0');
+  const hasEnoughForCreation = isConnected && walletEth >= requiredEth;
+
   return (
     <div className={styles.panel}>
       <div className={styles.grid2}>
@@ -418,7 +561,56 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
         </label>
       </div>
 
+      {!hasEnoughForCreation && isConnected && (
+        <div className={styles.card} style={{ borderColor: 'var(--warning-400)' }}>
+          <div className={styles.row}>
+            <div className={styles.pill}>Insufficient funds</div>
+            <div>
+              You need at least {fmt.format(requiredEth)} ETH (creation {fmt.format(effectiveCreationEth)} + gas buffer {fmt.format(gasBufferEth)}) but your wallet has {fmt.format(walletEth)} ETH.
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.footerNav}>
+        {/* Buy supply quick bar (replaces generic Top Up) */}
+        {isConnected && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div className={styles.labelWithTooltip} style={{ margin: 0 }}>
+              Buy some supply <span title="Send a small amount of ETH to your trading wallet to buy initial supply.">ⓘ</span>
+            </div>
+            <div className={styles.segmented} role="group" aria-label="Buy supply presets" style={isQuickTopUpPending ? { opacity: 0.6, pointerEvents: 'none' } : undefined}>
+              {[
+                { label: '1%', amount: '0.05' },
+                { label: '3%', amount: '0.1' },
+                { label: '5%', amount: '0.25' },
+                { label: '10%', amount: '0.5' },
+                { label: '15%', amount: '1' }
+              ].map(({ label, amount }) => (
+                <div
+                  key={label}
+                  className={styles.segment}
+                  onClick={() => { void handleQuickPresetTopUp(amount); }}
+                >
+                  {label}
+                </div>
+              ))}
+              <div
+                className={styles.segment}
+                onClick={() => { setTopUpDefaultAmount(''); setIsTopUpOpen(true); }}
+              >
+                Custom
+              </div>
+            </div>
+            {isQuickTopUpPending && (
+              <div className={styles.pill} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span className={styles.loadingSpinner} />
+                Waiting for confirmation…
+              </div>
+            )}
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
           {!isConnected ? (
             <button
@@ -430,14 +622,8 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           ) : (
             <>
               <button
-                className={`${styles.btn} ${styles.navButton}`}
-                onClick={() => setIsTopUpOpen(true)}
-              >
-                Top Up
-              </button>
-              <button
                 className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-                disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei}
+                disabled={!understandFees || isLoading || gradLoading || !!gradError || !state.basics.gradCapWei || !hasEnoughForCreation}
                 onClick={onConfirm}
               >
                 {gradLoading ? 'Calculating…' : (isLoading ? 'Creating...' : 'Confirm & Create')}
@@ -481,12 +667,59 @@ const Step6ReviewConfirm: React.FC<Step6ReviewConfirmProps> = ({
           )}
         </div>
       )}
+
+      {/* Buy Options Quote Display */}
+      {createdTokenAddress && (
+        <div className={styles.card} style={{ marginTop: '12px', borderColor: 'var(--success-400)' }}>
+          <div className={styles.row}>
+            <div className={styles.pill}>Buy Options Quote</div>
+            <div>
+              {buyOptionsLoading && 'Fetching buy options...'}
+              {buyOptionsError && <span style={{ color: 'var(--danger-400)' }}>{buyOptionsError}</span>}
+              {buyOptionsQuote && (
+                <div>
+                  <strong>ETH costs to buy token supply percentages:</strong>
+                </div>
+              )}
+            </div>
+          </div>
+          {buyOptionsQuote && (
+            <div className={styles.hint} style={{ marginTop: '8px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ textAlign: 'left', padding: '4px', color: 'var(--muted)' }}>Supply %</th>
+                    <th style={{ textAlign: 'right', padding: '4px', color: 'var(--muted)' }}>ETH Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 3, 5, 10, 15].map((percent, idx) => {
+                    if (typeof window === 'undefined') return null;
+                    const Web3 = require('web3');
+                    const web3 = new Web3();
+                    const ethAmount = web3.utils.fromWei(buyOptionsQuote[idx], 'ether');
+                    return (
+                      <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '4px' }}>{percent}%</td>
+                        <td style={{ padding: '4px', textAlign: 'right', fontFamily: 'monospace' }}>
+                          {parseFloat(ethAmount).toFixed(6)} ETH
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Top Up Modal */}
       <WalletTopUpModal
         isOpen={isTopUpOpen}
         onClose={() => setIsTopUpOpen(false)}
         tradingWallet={tradingState?.tradingWallet}
-        defaultAmountEth={tradingState?.topUpSuggestionEth || ''}
+        defaultAmountEth={topUpDefaultAmount || tradingState?.topUpSuggestionEth || ''}
         onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
       />
     </div>

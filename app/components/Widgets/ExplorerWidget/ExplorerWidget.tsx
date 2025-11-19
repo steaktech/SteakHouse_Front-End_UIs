@@ -1200,11 +1200,29 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
     const vol = (() => {
       const last = data.lastTrade;
       if (!last) return 0;
-      const v = typeof last.usdValue === 'string' ? parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, '')) : Number(last.usdValue || 0);
+      const v = typeof last.usdValue === 'string'
+        ? parseFloat(String(last.usdValue).replace(/[^0-9.-]+/g, ''))
+        : Number(last.usdValue || 0);
       return Number.isFinite(v) ? v : 0;
     })();
     const createdAtMs = Number(t.created_at_timestamp) || Date.now();
     const status: SectionType = t.graduated ? 'graduated' : 'newly-created';
+
+    // Prefer 24h stats from FullTokenDataResponse, with sensible fallbacks
+    const volume24h =
+      typeof data.volume24h === 'number' && Number.isFinite(data.volume24h)
+        ? data.volume24h
+        : vol;
+
+    const priceChange24h = (() => {
+      if (typeof data.priceChange24h === 'number' && Number.isFinite(data.priceChange24h)) {
+        return data.priceChange24h;
+      }
+      if (typeof t.price_change_24h === 'number' && Number.isFinite(t.price_change_24h)) {
+        return t.price_change_24h;
+      }
+      return 0;
+    })();
 
     return {
       id: t.token_address,
@@ -1214,8 +1232,8 @@ export const ExplorerWidget: React.FC<ExplorerWidgetProps> = ({
       creator: t.creator || '',
       marketCap,
       price: Number(data.price) || 0,
-      volume24h: vol,
-      priceChange24h: 0,
+      volume24h,
+      priceChange24h,
       holders: 0,
       createdAt: new Date(createdAtMs),
       status,

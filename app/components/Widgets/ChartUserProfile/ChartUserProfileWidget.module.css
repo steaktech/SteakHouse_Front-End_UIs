@@ -750,6 +750,29 @@
   text-align: center;
 }
 
+/* Wallet connect CTA */
+.walletCta {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.primary {
+  background: linear-gradient(180deg, var(--primary-400), var(--primary-500));
+  color: #1c0f07;
+  font-weight: 800;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 176, 32, 0.25);
+}
+
 .emptyIcon {
   width: 64px;
   height: 64px;

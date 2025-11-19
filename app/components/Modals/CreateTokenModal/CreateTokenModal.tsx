@@ -21,7 +21,6 @@ import styles from './CreateTokenModal.module.css';
 import { useWallet } from '@/app/hooks/useWallet';
 import { getNewStealthToken } from '@/app/lib/api/services/stealthService';
 import { useRouter } from 'next/navigation';
-import { analyzeImageWithGPT } from '@/app/lib/api/services/aiService';
 
 // Ensure Sepolia network
 const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7';
@@ -89,7 +88,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
   const router = useRouter();
 
   // Use stable price data hook - only fetch when modal is open
-  const { formattedGasPrice, formattedEthPrice, loading: priceLoading } = useStablePriceData(isOpen);
+  const { formattedGasPrice, formattedEthPrice, ethPriceUsd, loading: priceLoading } = useStablePriceData(isOpen);
 
   // Toast notifications
   const { showToast } = useToast();
@@ -357,9 +356,10 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       }
 
       // Prepare files for API (after on-chain success)
-      const files: { logo?: File; banner?: File } = {};
+      const files: { logo?: File; banner?: File; mp3?: File } = {};
       if (state.meta.logoFile) files.logo = state.meta.logoFile;
       if (state.meta.bannerFile) files.banner = state.meta.bannerFile;
+      if (state.meta.mp3File) files.mp3 = state.meta.mp3File;
 
       // Submit on-chain transaction via Kitchen contract
       const result = await createTokenOnChain(state);
@@ -390,9 +390,23 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
           }
         }
 
+        // Store the resolved token address in state for Step6 to use
+        setState(prev => ({ ...prev, createdTokenAddress: resolvedTokenAddress } as any));
+
         // Always call API after on-chain confirmation. Use the resolved address.
         try {
-          await createTokenApi(state, files, resolvedTokenAddress);
+          // Compute usd_spent: total ETH fee * ETH price in USD
+          const totalFeeEth = Number(state.fees.creation || 0);
+          const ethPrice = ethPriceUsd ?? 0; // Use 0 if price not available
+          const usd_spent = Number((totalFeeEth * ethPrice).toFixed(2)); // Round to 2 decimals (cents)
+          
+          console.log('[CreateTokenModal] Computing usd_spent:', {
+            totalFeeEth,
+            ethPrice,
+            usd_spent
+          });
+          
+          await createTokenApi(state, files, resolvedTokenAddress, walletAddress, { usd_spent });
           if (resolvedTokenAddress) {
             router.push(`/trading-chart/${resolvedTokenAddress}`);
           }
@@ -413,7 +427,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
         duration: 5000
       });
     }
-  }, [state, createTokenOnChain, createTokenApi, showToast]);
+  }, [state, createTokenOnChain, createTokenApi, showToast, ethPriceUsd, router, walletAddress]);
 
   const getStepTitle = (step: number) => {
     if (step === 0) return 'Choose deployment mode';
@@ -462,15 +476,6 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
       onClose();
     }
   }, [onClose]);
-
-  const analyzeAndUpdatePalette = async (imageSource: File | string) => {
-    const result = await analyzeImageWithGPT(imageSource);
-    handleMetaChange('palette', JSON.stringify({
-      colors: result.palette,
-      recommended: result.recommended
-    }));
-    console.log('Image analyzed successfully:', result);
-  };
 
   if (!isOpen || !mounted) return null;
 
@@ -685,32 +690,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                     goToStep(4);
                   }
                 }}
-                onContinue={async () => {
-                  try {
-                    const { bannerFile, banner, logoFile, logo, autoBrand } = state.meta;
-                    const imageSource = logoFile || logo || bannerFile || banner;
-
-                    // Skip analysis if no image or autoBrand is false
-                    if (!imageSource) {
-                      goToStep(6);
-                      return;
-                    }
-
-                    // If autoBrand is false, start analysis in background and continue
-                    if (!autoBrand) {
-                      goToStep(6);
-                      analyzeAndUpdatePalette(imageSource).catch(console.error);
-                      return;
-                    }
-
-                    // Otherwise wait for analysis before continuing
-                    await analyzeAndUpdatePalette(imageSource);
-                    goToStep(6);
-                  } catch (error) {
-                    console.error('Failed to analyze image:', error);
-                    goToStep(6);
-                  }
-                }}
+                onContinue={async () => goToStep(6)}
               />
             )}
 
@@ -720,6 +700,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                 onConfirm={handleConfirm}
                 isLoading={isCreatingToken}
                 onBasicsChange={handleBasicsChange}
+                createdTokenAddress={state.txHash && state.txHash !== 'pending' ? (state as any).createdTokenAddress : undefined}
               />
             )}
           </main>

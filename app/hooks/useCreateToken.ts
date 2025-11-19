@@ -15,8 +15,15 @@ export interface UseCreateTokenReturn {
   /**
    * Creates a token using the API
    * tokenAddressOverride can be provided to explicitly set the real token address in the API payload.
+   * opts.usd_spent can be provided to include the USD value of fees spent
    */
-  createToken: (state: TokenState, files?: { logo?: File; banner?: File }, tokenAddressOverride?: string) => Promise<CreateTokenResult>;
+  createToken: (
+    state: TokenState, 
+    files?: { logo?: File; banner?: File; mp3?: File}, 
+    tokenAddressOverride?: string, 
+    walletAddress?: string,
+    opts?: { usd_spent?: number }
+  ) => Promise<CreateTokenResult>;
   /**
    * Whether the API call is in progress
    */
@@ -51,23 +58,35 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
    */
   const createToken = useCallback(async (
     state: TokenState, 
-    files?: { logo?: File; banner?: File },
+    files?: { logo?: File; banner?: File; mp3?: File},
     tokenAddressOverride?: string,
+    walletAddress?: string,
+    opts?: { usd_spent?: number }
   ): Promise<CreateTokenResult> => {
     try {
       setIsLoading(true);
       setError(null);
       
       console.log('[useCreateToken] Starting token creation...');
+      console.log('[useCreateToken] Wallet address:', walletAddress);
       
       // Transform modal state to API request format (include real token address if provided)
       const apiRequest = transformStateToApiRequest(state, tokenAddressOverride);
+      
+      // Add wallet address as creator
+      apiRequest.creator = walletAddress;
+
+      // Add USD spent if provided
+      if (opts?.usd_spent !== undefined) {
+        (apiRequest as any).usd_spent = opts.usd_spent;
+      }
       
       // Add files if provided
       const formData: CreateTokenFormData = {
         ...apiRequest,
         ...(files?.logo && { logo: files.logo }),
-        ...(files?.banner && { banner: files.banner })
+        ...(files?.banner && { banner: files.banner }),
+        ...(files?.mp3 && { mp3: files.mp3 })
       };
       
       // Validate the data
@@ -78,8 +97,11 @@ export function useCreateToken(options: UseCreateTokenOptions = {}): UseCreateTo
       
       console.log('[useCreateToken] Calling API with data:', {
         ...formData,
+        creator: walletAddress,
         logo: formData.logo ? `File(${formData.logo.name})` : undefined,
-        banner: formData.banner ? `File(${formData.banner.name})` : undefined
+        banner: formData.banner ? `File(${formData.banner.name})` : undefined,
+        mp3: formData.mp3 ? `File(${formData.mp3.name})` : undefined,
+        usd_spent: opts?.usd_spent
       });
       
       // Call the API

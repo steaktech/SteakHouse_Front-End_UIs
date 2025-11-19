@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { MetaData } from './types';
 import HelpTooltip from '../../UI/HelpTooltip';
 import styles from './CreateTokenModal.module.css';
+import { analyzeImageWithGPT } from '@/app/lib/api/services/aiService';
 
 interface Step5MetadataSocialsProps {
   meta: MetaData;
@@ -18,44 +19,54 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
 }) => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
-  const audioInputRef = useRef<HTMLInputElement>(null);
+  const mp3InputRef = useRef<HTMLInputElement>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const handleFileChange = (field: 'logoFile' | 'bannerFile' | 'audioFile', file: File | null) => {
+  const handleFileChange = (field: 'logoFile' | 'bannerFile' | 'mp3File', file: File | null) => {
     if (file) {
       onMetaChange(field, file);
       // Clear the corresponding URL field when a file is selected
-      const urlField = field === 'logoFile' 
-      ? 'logo' 
-      : field === 'bannerFile' 
-        ? 'banner'
-        : 'audio';
-    
-    if (meta[urlField]) {
-      onMetaChange(urlField, '');
-    }
+      const urlField = field === 'logoFile'
+        ? 'logo'
+        : field === 'bannerFile'
+          ? 'banner'
+          : 'mp3';
+
+      if (meta[urlField]) {
+        onMetaChange(urlField, '');
+      }
     }
   };
 
-  const handleUrlChange = (field: 'logo' | 'banner' | 'audio', value: string) => {
+  const handleUrlChange = (field: 'logo' | 'banner' | 'mp3', value: string) => {
     onMetaChange(field, value);
     // Clear the corresponding file field when a URL is entered
-    const fileField = field === 'logo' 
-      ? 'logoFile' 
-      : field === 'banner' 
+    const fileField = field === 'logo'
+      ? 'logoFile'
+      : field === 'banner'
         ? 'bannerFile'
-        : 'audioFile';
-    
+        : 'mp3File';
+
     if (meta[fileField]) {
       onMetaChange(fileField, null);
     }
   };
+
+  const analyzeAndUpdatePalette = async (imageSource: File | string) => {
+      const result = await analyzeImageWithGPT(imageSource);
+      onMetaChange('palette', JSON.stringify({
+        colors: result.palette,
+        recommended: result.recommended
+      }));
+      console.log('Image analyzed successfully:', result);
+    };
+
   return (
     <div className={styles.panel}>
       {/* Optional Notice */}
-      <div className={`${styles.card} ${styles.cardAlt}`} style={{marginBottom: '20px'}}>
-        <div style={{textAlign: 'center', color: '#e8b35c'}}>
+      <div className={`${styles.card} ${styles.cardAlt}`} style={{ marginBottom: '20px' }}>
+        <div style={{ textAlign: 'center', color: '#e8b35c' }}>
           🎨 <strong>All fields are optional!</strong> You can always add this information later.
         </div>
       </div>
@@ -63,7 +74,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
       {/* Description */}
       <div className={styles.card}>
         <div className={styles.label}>
-          Project Description 
+          Project Description
           <HelpTooltip content="Tell people what your token is about! This helps build trust and community." />
         </div>
         <textarea
@@ -79,7 +90,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
       <div className={styles.grid2}>
         <div className={styles.card}>
           <div className={styles.label}>
-            Website 
+            Website
             <HelpTooltip content="Your official website. Helps establish credibility and provides more info to users." />
           </div>
           <input
@@ -88,9 +99,9 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
             onChange={(e) => onMetaChange('website', e.target.value)}
             placeholder="https://yourtoken.com"
           />
-          
-          <div className={styles.label} style={{marginTop: '16px'}}>
-            Telegram 
+
+          <div className={styles.label} style={{ marginTop: '16px' }}>
+            Telegram
             <HelpTooltip content="Telegram community link. Great for building an active community around your token." />
           </div>
           <input
@@ -100,10 +111,10 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
             placeholder="https://t.me/yourtoken"
           />
         </div>
-        
+
         <div className={styles.card}>
           <div className={styles.label}>
-            X (Twitter) 
+            X (Twitter)
             <HelpTooltip content="Twitter/X account for announcements and community updates." />
           </div>
           <input
@@ -116,13 +127,13 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
       </div>
 
       {/* Visual Assets */}
-      <div className={styles.grid2} style={{marginTop: '16px'}}>
+      <div className={styles.grid2} style={{ marginTop: '16px' }}>
         <div className={styles.card}>
           <div className={styles.label}>
-            Token Logo 
+            Token Logo
             <HelpTooltip content="Square image (500x500px recommended) that represents your token. Shows up in wallets and exchanges." />
           </div>
-          
+
           {/* File Upload Option */}
           <div style={{ marginBottom: '12px' }}>
             <input
@@ -145,28 +156,28 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               {meta.logoFile ? `Selected: ${meta.logoFile.name}` : 'Upload Logo File'}
             </button>
           </div>
-          
+
           <div style={{ textAlign: 'center', margin: '8px 0', color: '#888' }}>OR</div>
-          
+
           {/* URL Input Option */}
-          <input 
+          <input
             className={styles.input}
             value={meta.logo}
             onChange={(e) => handleUrlChange('logo', e.target.value)}
             placeholder="https://yoursite.com/logo.png"
             disabled={!!meta.logoFile}
           />
-          <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
+          <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
             Recommended: 500x500px, PNG/JPG
           </div>
         </div>
-        
+
         <div className={styles.card}>
           <div className={styles.label}>
-            Banner Image 
+            Banner Image
             <HelpTooltip content="Wide banner image (1500x500px recommended) for your token's page header. Makes your token look professional!" />
           </div>
-          
+
           {/* File Upload Option */}
           <div style={{ marginBottom: '12px' }}>
             <input
@@ -189,18 +200,18 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               {meta.bannerFile ? `Selected: ${meta.bannerFile.name}` : 'Upload Banner File'}
             </button>
           </div>
-          
+
           <div style={{ textAlign: 'center', margin: '8px 0', color: '#888' }}>OR</div>
-          
+
           {/* URL Input Option */}
-          <input 
+          <input
             className={styles.input}
             value={meta.banner}
             onChange={(e) => handleUrlChange('banner', e.target.value)}
             placeholder="https://yoursite.com/banner.png"
             disabled={!!meta.bannerFile}
           />
-          <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
+          <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
             Recommended: 1500x500px, PNG/JPG
           </div>
         </div>
@@ -212,10 +223,10 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
           type="button"
           className={`${styles.btn} ${styles.btnGhost}`}
           onClick={() => setShowAdvanced(!showAdvanced)}
-          style={{ 
-            width: '100%', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
             padding: '12px'
           }}
@@ -241,51 +252,51 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
 
             <div className={styles.card}>
               <div className={styles.label}>
-                Audio Branding 
-                <HelpTooltip content="Add a unique audio signature to your token (MP3 file, max 10MB)" />
+                Audio Branding
+                <HelpTooltip content="Add a unique audio signature to your token (MP3 file, max 2MB)" />
               </div>
-              
+
               {/* Audio File Upload */}
               <div style={{ marginBottom: '12px' }}>
                 <input
-                  ref={audioInputRef}
+                  ref={mp3InputRef}
                   type="file"
                   id="audio-file"
                   accept="audio/mpeg"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file && file.size > 10 * 1024 * 1024) {
-                      alert('Audio file must be less than 10MB');
+                    if (file && file.size > 2 * 1024 * 1024) {
+                      alert('MP3 file must be less than 2MB');
                       return;
                     }
-                    handleFileChange('audioFile', file || null);
+                    handleFileChange('mp3File', file || null);
                   }}
                   style={{ display: 'none' }}
                 />
                 <button
                   type="button"
                   className={`${styles.btn} ${styles.btnGhost}`}
-                  onClick={() => audioInputRef.current?.click()}
+                  onClick={() => mp3InputRef.current?.click()}
                   style={{ width: '100%', marginBottom: '8px' }}
                 >
-                  {meta.audioFile ? `Selected: ${meta.audioFile.name}` : 'Upload Audio File'}
+                  {meta.mp3File ? `Selected: ${meta.mp3File.name}` : 'Upload Audio File'}
                 </button>
-                
+
               </div>
-              
+
               <div style={{ textAlign: 'center', margin: '8px 0', color: '#888' }}>OR</div>
-              
+
               {/* URL Input Option */}
-              <input 
+              <input
                 className={styles.input}
-                value={meta.audio || ''}
-                onChange={(e) => handleUrlChange('audio', e.target.value)}
-                placeholder="https://yoursite.com/audio.mp3"
-                disabled={!!meta.audioFile}
+                value={meta.mp3 || ''}
+                onChange={(e) => handleUrlChange('mp3', e.target.value)}
+                placeholder="https://yoursite.com/audio.mp3 or soundcloud.com track/playlist"
+                disabled={!!meta.mp3File}
               />
 
-              <div style={{fontSize: '12px', color: '#888', marginTop: '4px'}}>
-                Supported: MP3 format, max 10MB
+              <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+                Supported: MP3 format, max size 2MB
               </div>
             </div>
           </div>
@@ -293,23 +304,31 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
       </div>
 
       <div className={styles.footerNav}>
-        <button 
-          type="button" 
+        <button
+          type="button"
           className={`${styles.btn} ${styles.btnGhost} ${styles.navButton}`}
           onClick={onBack}
         >
           Back
         </button>
-        
+
         <button
           type="button"
           className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
           onClick={async () => {
             setIsAnalyzing(true);
             try {
-              await onContinue();
+              // Always await analysis if we have an image
+              const { bannerFile, banner, logoFile, logo, autoBrand } = meta;
+              const imageSource = logoFile || logo || bannerFile || banner;
+
+              if (imageSource && autoBrand) {
+                await analyzeAndUpdatePalette(imageSource); // Wait for completion
+              }
+              
             } finally {
               setIsAnalyzing(false);
+              onContinue();
             }
           }}
           disabled={isAnalyzing}
@@ -317,17 +336,17 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
           {isAnalyzing ? (
             <span className="flex items-center gap-2">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle 
-                  className="opacity-25" 
-                  cx="12" 
-                  cy="12" 
-                  r="10" 
-                  stroke="currentColor" 
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
                   strokeWidth="4"
                 />
-                <path 
-                  className="opacity-75" 
-                  fill="currentColor" 
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>

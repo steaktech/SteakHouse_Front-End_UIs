@@ -7,6 +7,8 @@ import { SteakHoldersWidget } from '../Widgets/SteakHoldersWidget';
 import { ChatWidget } from '../Widgets/ChatWidget';
 import { SavedTokenWidget } from '../Widgets/SavedToken';
 import { TokenWidget } from '../Widgets/TokenWidget';
+import { useTrading } from '@/app/hooks/useTrading';
+import AirDropModal from '../Modals/AirDropModal';
 
 // Props for each widget card
 interface WidgetCardProps {
@@ -62,11 +64,22 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick }) 
   );
 };
 
-export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress, tokenLogoUrl }) => {
+export const MobileBottomBar: React.FC<SidebarProps> = ({ 
+  expanded, 
+  setExpanded, 
+  tokenAddress, 
+  tokenLogoUrl,
+  apiTokenData = null,
+  isLoading = false,
+}) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
   const [isTokenWidgetOpen, setIsTokenWidgetOpen] = useState(false);
+  const [airdropOpen, setAirdropOpen] = useState(false);
+  
+  // Get trading state for airdrop modal
+  const { tradingState } = useTrading();
 
   const handleHoldersClick = () => {
     setIsHoldersWidgetOpen(true);
@@ -216,6 +229,36 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded,
               ))}
             </div>
           </div>
+
+          {/* Airdrop Button */}
+          <div className="px-4 pb-4">
+            <style jsx>{`
+              @keyframes bounce-gift {
+                0%, 100% {
+                  transform: translateY(0);
+                  animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+                }
+                50% {
+                  transform: translateY(-25%);
+                  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+                }
+              }
+              .gift-bounce {
+                display: inline-block;
+                animation: bounce-gift 1s infinite;
+              }
+            `}</style>
+            <button
+              onClick={() => {
+                setAirdropOpen(true);
+                setExpanded(false);
+              }}
+              className="w-full px-4 py-3 rounded-lg text-[12px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
+              title="View your airdrop points"
+            >
+              <span className="gift-bounce">🎁</span> Airdrop Points
+            </button>
+          </div>
         </div>
       </div>
 
@@ -235,6 +278,7 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded,
           isOpen={isChatWidgetOpen}
           onClose={() => setIsChatWidgetOpen(false)}
           tokenAddress={tokenAddress}
+          apiTokenData={apiTokenData}
         />
       )}
 
@@ -252,6 +296,17 @@ export const MobileBottomBar: React.FC<SidebarProps> = ({ expanded, setExpanded,
           isOpen={isTokenWidgetOpen}
           onClose={() => setIsTokenWidgetOpen(false)}
           tokenAddress={tokenAddress}
+          apiTokenData={apiTokenData}
+          isLoading={isLoading}
+        />
+      )}
+
+      {/* AirDrop Modal */}
+      {airdropOpen && (
+        <AirDropModal
+          isOpen={airdropOpen}
+          onClose={() => setAirdropOpen(false)}
+          tradingWallet={tradingState?.tradingWallet || null}
         />
       )}
     </>

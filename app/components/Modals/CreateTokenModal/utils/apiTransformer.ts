@@ -29,6 +29,18 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   if (state.deploymentMode === 'VIRTUAL_CURVE') {
     // Virtual curve specific fields
     request.token_type = 0; // Virtual curve type
+
+    // Include explicit tokenChoice for backend routing
+    if (state.profile) {
+      const choiceMap: Record<string, 'basic' | 'advanced' | 'simple' | 'zero'> = {
+        ZERO: 'zero',
+        SUPER: 'simple',
+        BASIC: 'basic',
+        ADVANCED: 'advanced',
+      };
+      const mapped = choiceMap[state.profile];
+      if (mapped) request.tokenChoice = mapped;
+    }
     
     // Graduation cap: prefer API-computed wei token amount; fallback to USD input if missing
     if (state.basics.gradCapWei && /^\d+$/.test(state.basics.gradCapWei)) {
@@ -240,7 +252,15 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   if (state.meta.tw) {
     request.twitter = state.meta.tw;
   }
-  
+
+  // Auto-branding
+  if (state.meta.autoBrand) {
+    request.auto_brand = true;
+  }
+  if (state.meta.palette) {
+    request.color_palette = state.meta.palette;
+  }
+
   // Image URLs (files are handled separately)
   if (state.meta.logo && !state.meta.logoFile) {
     request.image_url = state.meta.logo;
@@ -249,11 +269,9 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
     request.banner_url = state.meta.banner;
   }
   
-  // Category
-  if (state.basics.tokenCategory) {
-    // Map our categories to a simple string (API field name is 'catagory' with typo)
-    // We'll send it to match the API expectation
-    request.bio = request.bio ? `${request.bio} [${state.basics.tokenCategory}]` : `[${state.basics.tokenCategory}]`;
+  // MP3 URL (files are handled separately)
+  if (state.meta.mp3 && !state.meta.mp3File) {
+    request.mp3_url = state.meta.mp3;
   }
   
   // Set timestamps

@@ -9,15 +9,19 @@ import { CreateTokenFormData } from '@/app/types/createToken';
  * Following the API documentation field mappings and requirements
  * @param state - The current modal state
  * @param tokenAddress - The token address (from wallet or generated)
+ * @param walletAddress - wallet address for creator field
  * @param logoFile - Optional logo file upload
  * @param bannerFile - Optional banner file upload
+ * @param mp3File - Optional mp3 file upload
  * @returns CreateTokenFormData ready for API submission
  */
 export function transformTokenStateToApiData(
   state: TokenState, 
   tokenAddress: string,
   logoFile?: File,
-  bannerFile?: File
+  bannerFile?: File,
+  mp3File?: File,
+  walletAddress?: string
 ): CreateTokenFormData {
   const { basics, curves, meta, profile, taxMode } = state;
 
@@ -25,6 +29,8 @@ export function transformTokenStateToApiData(
   const apiData: CreateTokenFormData = {
     // Required field
     token_address: tokenAddress,
+
+    creator: walletAddress || undefined,
     
     // Optional addresses - set virtual to token_address if not provided (per client logic)
     virtual_token_address: tokenAddress, // default to token_address per client
@@ -55,6 +61,10 @@ export function transformTokenStateToApiData(
     eth_pool: "0",
     circulating_supply: "0",
     graduated: false,
+
+    // Auto-branding
+    auto_brand: meta.autoBrand ? true : false,
+    color_palette: meta.palette || undefined,
     
     // Social media and metadata
     bio: meta.desc || undefined,
@@ -65,10 +75,12 @@ export function transformTokenStateToApiData(
     // File uploads
     logo: logoFile,
     banner: bannerFile,
+    mp3: mp3File,
     
     // Use image URLs if provided and no file uploads
     image_url: !logoFile && meta.logo ? meta.logo : undefined,
     banner_url: !bannerFile && meta.banner ? meta.banner : undefined,
+    mp3_url: !mp3File && meta.mp3 ? meta.mp3 : undefined,
   };
 
   // Add profile-specific curve settings

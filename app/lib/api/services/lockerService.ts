@@ -62,3 +62,9 @@ export async function buildTransferLock(token: string, newOwner: string, oldOwne
   if (res?.error) throw new Error(res.error);
   return unwrapUnsignedTx(res);
 }
+
+// NOTE: createLock endpoint is not available in the blockchain API yet
+// This function is a placeholder and will throw an error if called
+export async function buildCreateLock(token: string, amount: string, lockDurationDays: number, owner: string): Promise<UnsignedTx> {
+  throw new Error('Create lock functionality is not yet available. The /createLock endpoint needs to be implemented in the blockchain API. Please use the onLockCreate callback prop or wait for the API to be updated.');
+}

@@ -103,6 +103,16 @@ export const WEB3_CONFIG = {
     8453: process.env.NEXT_PUBLIC_KITCHEN_CONTRACT_ADDRESS_BASE, // Base
   },
   
+  // KitchenUtils Contract Address (for dev tooling and quotes)
+  KITCHEN_UTILS_ADDRESS: process.env.NEXT_PUBLIC_KITCHEN_UTILS_CONTRACT_ADDRESS as string,
+  
+  // Network-specific KitchenUtils addresses
+  KITCHEN_UTILS_ADDRESSES: {
+    1: process.env.NEXT_PUBLIC_KITCHEN_UTILS_CONTRACT_ADDRESS_MAINNET,
+    11155111: process.env.NEXT_PUBLIC_KITCHEN_UTILS_CONTRACT_ADDRESS_SEPOLIA || process.env.NEXT_PUBLIC_KITCHEN_UTILS_CONTRACT_ADDRESS,
+    8453: process.env.NEXT_PUBLIC_KITCHEN_UTILS_CONTRACT_ADDRESS_BASE,
+  },
+  
   // Default chain configuration (dynamically set based on active network)
   get DEFAULT_CHAIN_ID() {
     return NETWORKS[this.ACTIVE_NETWORK].chainId;
@@ -160,6 +170,14 @@ export const getKitchenAddress = (chainId?: number): string => {
   
   return WEB3_CONFIG.KITCHEN_ADDRESSES[targetChainId as keyof typeof WEB3_CONFIG.KITCHEN_ADDRESSES] 
     || WEB3_CONFIG.KITCHEN_ADDRESS;
+};
+
+// Get KitchenUtils contract address for specific chain
+export const getKitchenUtilsAddress = (chainId?: number): string => {
+  const targetChainId = chainId || getCurrentChainId();
+  
+  return WEB3_CONFIG.KITCHEN_UTILS_ADDRESSES[targetChainId as keyof typeof WEB3_CONFIG.KITCHEN_UTILS_ADDRESSES] 
+    || WEB3_CONFIG.KITCHEN_UTILS_ADDRESS;
 };
 
 // Easy network switching function

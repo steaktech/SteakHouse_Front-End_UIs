@@ -91,7 +91,7 @@ export const LockerWidget: React.FC<LockerWidgetProps> = ({
   onExtendLock,
 }) => {
   const [state, setState] = useState<LockerWidgetState>(() => ({
-    activeTab: onLockCreate ? 'create' : 'manage',
+    activeTab: 'create',
     formData: {
       tokenAddress: '',
       amount: '100', // Start at 100%

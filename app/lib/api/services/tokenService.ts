@@ -59,14 +59,54 @@ export async function getTokensByMarketCap(params?: URLSearchParams): Promise<Pa
 
 /**
  * Fetches the complete data set for a single token page.
- * [cite_start]GET /api/token/:address/full [cite: 436]
+ * Now uses /info endpoint for token data and /chart endpoint for candles.
  */
 export async function getFullTokenData(address: string, interval = '1m', limit = 100): Promise<FullTokenDataResponse> {
   console.log('getFullTokenData API call for:', address, { interval, limit });
   try {
-    //const result = await apiClient<FullTokenDataResponse>(`/token/${address}/full?interval=${interval}&limit=${limit}`);
-    const result = await apiClient<FullTokenDataResponse>(`/token/${address}/full`);
-    console.log('getFullTokenData success for:', address);
+    // Fetch token info and chart data in parallel
+    const [infoData, chartData] = await Promise.all([
+      apiClient<{
+        token: string;
+        tokenInfo: FullTokenDataResponse['tokenInfo'];
+        price: number;
+        marketCap: number;
+        volume24h?: number;
+        priceChange24h?: number;
+        lastTrade: FullTokenDataResponse['lastTrade'];
+        recentTrades: FullTokenDataResponse['recentTrades'];
+      }>(`/token/${address}/info`),
+      apiClient<{ token: string; candles: FullTokenDataResponse['candles'] }>(`/token/${address}/chart?timeframe=${interval}&limit=${limit}`)
+    ]);
+
+    // Derive 24h stats from infoData when available
+    const volume24h =
+      typeof infoData.volume24h === 'number'
+        ? infoData.volume24h
+        : undefined;
+
+    const priceChange24h =
+      typeof infoData.priceChange24h === 'number'
+        ? infoData.priceChange24h
+        : typeof infoData.tokenInfo?.price_change_24h === 'number'
+        ? infoData.tokenInfo.price_change_24h
+        : undefined;
+
+    // Merge the results to maintain backward compatibility
+    const result: FullTokenDataResponse = {
+      token: infoData.token,
+      tokenInfo: infoData.tokenInfo,
+      price: infoData.price,
+      marketCap: infoData.marketCap,
+      volume24h,
+      priceChange24h,
+      lastTrade: infoData.lastTrade,
+      recentTrades: infoData.recentTrades,
+      candles: chartData.candles,
+      interval,
+    };
+
+    console.log('getFullTokenData success for:', address, result);
     return result;
   } catch (error) {
     console.error('getFullTokenData error for:', address, error);

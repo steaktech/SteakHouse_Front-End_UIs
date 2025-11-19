@@ -4,6 +4,7 @@ import KitchenABI from "@/app/contracts/Kitchen.json";
 import { 
   WEB3_CONFIG, 
   getKitchenAddress, 
+  getKitchenUtilsAddress,
   getCurrentNetwork, 
   getCurrentChainId, 
   getCurrentCurrencySymbol 
@@ -34,15 +35,18 @@ export interface GasFees {
 export class KitchenService {
   private web3: Web3;
   private contract: any;
+  private utilsContract: any;
   private account: string;
   private chainId: number;
   private kitchenAddress: string;
+  private kitchenUtilsAddress: string;
 
   constructor(web3: Web3, account: string, chainId?: number) {
     this.web3 = web3;
     this.account = account;
     this.chainId = chainId || WEB3_CONFIG.DEFAULT_CHAIN_ID;
     this.kitchenAddress = getKitchenAddress(this.chainId);
+    this.kitchenUtilsAddress = getKitchenUtilsAddress(this.chainId);
     
     // Validate contract address
     if (!this.kitchenAddress || this.kitchenAddress === 'undefined') {
@@ -55,6 +59,33 @@ export class KitchenService {
     
     // Initialize contract instance
     this.contract = new this.web3.eth.Contract(KitchenABI, this.kitchenAddress);
+    
+    // Initialize KitchenUtils contract if address is available
+    if (this.kitchenUtilsAddress && this.web3.utils.isAddress(this.kitchenUtilsAddress)) {
+      // Minimal ABI for quoteDevBuyOptions function
+      const utilsABI = [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "name": "quoteDevBuyOptions",
+          "outputs": [
+            {
+              "internalType": "uint256[5]",
+              "name": "ethCosts",
+              "type": "uint256[5]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ];
+      this.utilsContract = new this.web3.eth.Contract(utilsABI, this.kitchenUtilsAddress);
+    }
   }
 
 
@@ -805,6 +836,47 @@ export class KitchenService {
     } catch (e) {
       // If read calls fail, treat as not configured
       return { ok: false, missing: ['factory','storage','kitchenBondingCurve','graduation'], details: {} };
+    }
+  }
+
+  /**
+   * Quote ETH costs for buying 1%, 3%, 5%, 10%, 15% of token supply.
+   * Calls quoteDevBuyOptions(address token) from KitchenUtils contract.
+   * 
+   * @param tokenAddress - The token contract address to quote buy options for
+   * @returns Array of 5 ETH cost values (in wei) for [1%, 3%, 5%, 10%, 15%] supply purchases
+   */
+  async quoteDevBuyOptions(tokenAddress: string): Promise<string[]> {
+    if (!this.utilsContract) {
+      throw new Error('KitchenUtils contract not initialized - contract address not configured');
+    }
+    
+    if (!this.web3 || !this.web3.utils.isAddress(tokenAddress)) {
+      throw new Error('Invalid token address provided');
+    }
+    
+    try {
+      const token = this.web3.utils.toChecksumAddress(tokenAddress);
+      
+      console.log('[KitchenService] Calling quoteDevBuyOptions for token:', token);
+      
+      // Call the view function (no transaction required)
+      const result = await this.utilsContract.methods.quoteDevBuyOptions(token).call();
+      
+      // Convert BigInt results to string array for easier handling
+      const ethCosts = result.map((cost: any) => cost.toString());
+      
+      console.log('[KitchenService] quoteDevBuyOptions results:');
+      console.log('  1% supply cost:', this.web3.utils.fromWei(ethCosts[0], 'ether'), 'ETH');
+      console.log('  3% supply cost:', this.web3.utils.fromWei(ethCosts[1], 'ether'), 'ETH');
+      console.log('  5% supply cost:', this.web3.utils.fromWei(ethCosts[2], 'ether'), 'ETH');
+      console.log(' 10% supply cost:', this.web3.utils.fromWei(ethCosts[3], 'ether'), 'ETH');
+      console.log(' 15% supply cost:', this.web3.utils.fromWei(ethCosts[4], 'ether'), 'ETH');
+      
+      return ethCosts;
+    } catch (error: any) {
+      console.error('[KitchenService] Error calling quoteDevBuyOptions:', error);
+      throw new Error(`Failed to quote buy options: ${error.message || 'Unknown error'}`);
     }
   }
 

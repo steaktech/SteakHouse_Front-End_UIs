@@ -14,19 +14,25 @@ export interface SteakHouseInfoModalProps {
  */
 const SteakHouseInfoModal: FC<SteakHouseInfoModalProps> = ({ isOpen, onClose }) => {
     const [mounted, setMounted] = useState(false);
+    const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+    const [fullscreenVideo, setFullscreenVideo] = useState<{ id: number; url: string; title: string } | null>(null);
 
     useEffect(() => {
         setMounted(true);
         const handleEsc = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
-                onClose();
+                if (fullscreenVideo) {
+                    setFullscreenVideo(null);
+                } else {
+                    onClose();
+                }
             }
         };
         window.addEventListener('keydown', handleEsc);
         return () => {
             window.removeEventListener('keydown', handleEsc);
         };
-    }, [onClose]);
+    }, [onClose, fullscreenVideo]);
 
     if (!isOpen || !mounted) return null;
 

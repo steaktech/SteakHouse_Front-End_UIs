@@ -11,6 +11,8 @@ import { ExplorerWidget } from '../Widgets/ExplorerWidget';
 import { LockerWidget } from '../Widgets/LockerWidget';
 import { ChartUserProfileWidget } from '../Widgets/ChartUserProfile';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
+import { useTrading } from '@/app/hooks/useTrading';
+import AirDropModal from '../Modals/AirDropModal';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -78,7 +80,14 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
   );
 };
 
-export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, tokenAddress, tokenLogoUrl }) => {
+export const DesktopSidebar: React.FC<SidebarProps> = ({ 
+  expanded, 
+  setExpanded, 
+  tokenAddress, 
+  tokenLogoUrl,
+  apiTokenData = null,
+  isLoading = false,
+}) => {
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -87,9 +96,14 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({ expanded, setExpanded, 
   const [isExplorerWidgetOpen, setIsExplorerWidgetOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(170);
   const [isResizing, setIsResizing] = useState(false);
+  const [isCertikHovered, setIsCertikHovered] = useState(false);
+  const [airdropOpen, setAirdropOpen] = useState(false);
 
   // Use the same price data hook as the token creation wizard
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
+  
+  // Get trading state for airdrop modal
+  const { tradingState } = useTrading();
 
   // Determine if any secondary widgets are open (making Chart, Token, Trade active)
   const hasActiveWidget = isHoldersWidgetOpen || isChatWidgetOpen || isSavedTokenWidgetOpen || isLockerWidgetOpen || isUserProfileWidgetOpen || isExplorerWidgetOpen;
@@ -222,27 +236,27 @@ const handleUserProfileClose = () => {
 
   const widgets = [
     // Chart, Token, Trade: greyed out by default, colorful when other widgets are open
-    {
-      icon: <BarChart3 size={16} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#666666]"} />,
-      text: 'Chart',
-      active: false,
-      greyedOut: !hasActiveWidget,
-      onClick: handleChartClick
-    },
-    {
-      icon: <Coins size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
-      text: 'Token',
-      active: false,
-      greyedOut: !hasActiveWidget,
-      onClick: handleTokenClick
-    },
-    {
-      icon: <ArrowLeftRight size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
-      text: 'Trade',
-      active: false,
-      greyedOut: !hasActiveWidget,
-      onClick: handleTradeClick
-    },
+    // {
+    //   icon: <BarChart3 size={16} className={hasActiveWidget ? "text-[#ffdd00]" : "text-[#666666]"} />,
+    //   text: 'Chart',
+    //   active: false,
+    //   greyedOut: !hasActiveWidget,
+    //   onClick: handleChartClick
+    // },
+    // {
+    //   icon: <Coins size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
+    //   text: 'Token',
+    //   active: false,
+    //   greyedOut: !hasActiveWidget,
+    //   onClick: handleTokenClick
+    // },
+    // {
+    //   icon: <ArrowLeftRight size={16} className={hasActiveWidget ? "text-[#d29900]" : "text-[#666666]"} />,
+    //   text: 'Trade',
+    //   active: false,
+    //   greyedOut: !hasActiveWidget,
+    //   onClick: handleTradeClick
+    // },
     // Holders, Chat, Saved: normal behavior
     {
       icon: <Users size={16} className="text-[#d29900]" />,
@@ -373,6 +387,39 @@ const handleUserProfileClose = () => {
             onClick={handleLinksClick}
           />
 
+          {/* Airdrop Button */}
+          <div className="mx-1.5 mb-2">
+            <style jsx>{`
+              @keyframes bounce-gift {
+                0%, 100% {
+                  transform: translateY(0);
+                  animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+                }
+                50% {
+                  transform: translateY(-25%);
+                  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+                }
+              }
+              .gift-bounce {
+                display: inline-block;
+                animation: bounce-gift 1s infinite;
+              }
+            `}</style>
+            <button
+              onClick={() => setAirdropOpen(true)}
+              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
+              title="View your airdrop points"
+            >
+              {expanded ? (
+                <>
+                  <span className="gift-bounce">🎁</span> Airdrop Points
+                </>
+              ) : (
+                <span className="gift-bounce">🎁</span>
+              )}
+            </button>
+          </div>
+
           {/* ETH Price and GWEI Display */}
           <div className="mx-2.5 mt-2 mb-1.5">
             {/* ETH Price */}
@@ -435,14 +482,75 @@ const handleUserProfileClose = () => {
 
           {/* Certik Badge - Full width, styled like main page Footer */}
           <div className="mx-1.5 mt-1.5 flex justify-center">
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
+                  @keyframes fireShine {
+                    0%, 100% {
+                      filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.8)) drop-shadow(0 0 16px rgba(255, 69, 0, 0.6)) brightness(1);
+                    }
+                    50% {
+                      filter: drop-shadow(0 0 20px rgba(255, 140, 0, 1)) drop-shadow(0 0 32px rgba(255, 69, 0, 0.9)) brightness(1.2);
+                    }
+                  }
+                  @keyframes fireParticle {
+                    0% {
+                      transform: translateY(0) scale(1);
+                      opacity: 1;
+                    }
+                    100% {
+                      transform: translateY(-40px) scale(0);
+                      opacity: 0;
+                    }
+                  }
+                  @keyframes fireFlicker {
+                    0%, 100% { opacity: 0.8; }
+                    50% { opacity: 1; }
+                  }
+                  .certik-wrapper-animated-desktop {
+                    animation: fireShine 1.5s ease-in-out infinite;
+                  }
+                  .fire-particle-desktop {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, #ff8c00, #ff4500);
+                    box-shadow: 0 0 10px #ff4500;
+                    animation: fireParticle 1.5s ease-out infinite, fireFlicker 0.3s ease-in-out infinite;
+                    pointer-events: none;
+                  }
+                  .fire-particle-desktop:nth-child(1) { left: 10%; bottom: 0; animation-delay: 0s; }
+                  .fire-particle-desktop:nth-child(2) { left: 30%; bottom: 0; animation-delay: 0.3s; }
+                  .fire-particle-desktop:nth-child(3) { left: 50%; bottom: 0; animation-delay: 0.6s; }
+                  .fire-particle-desktop:nth-child(4) { left: 70%; bottom: 0; animation-delay: 0.9s; }
+                  .fire-particle-desktop:nth-child(5) { left: 90%; bottom: 0; animation-delay: 1.2s; }
+                `
+              }}
+            />
             <button
               onClick={handleCertikClick}
-              className="p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center"
+              onMouseEnter={() => setIsCertikHovered(true)}
+              onMouseLeave={() => setIsCertikHovered(false)}
+              className={`p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center relative ${
+                isCertikHovered ? 'certik-wrapper-animated-desktop' : ''
+              }`}
               title="View CertiK Certificate"
               style={{
-                width: expanded ? 'auto' : '100%'
+                width: expanded ? 'auto' : '100%',
+                transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)', 
+                transition: 'transform 0.3s ease, filter 0.3s ease'
               }}
             >
+              {isCertikHovered && (
+                <>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                  <div className="fire-particle-desktop"></div>
+                </>
+              )}
               <img
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"
@@ -480,6 +588,7 @@ const handleUserProfileClose = () => {
           isOpen={isChatWidgetOpen}
           onClose={handleChatClose}
           tokenAddress={tokenAddress}
+          apiTokenData={apiTokenData}
         />
       )}
 
@@ -512,6 +621,15 @@ const handleUserProfileClose = () => {
         <ChartUserProfileWidget
           isOpen={isUserProfileWidgetOpen}
           onClose={handleUserProfileClose}
+        />
+      )}
+
+      {/* AirDrop Modal */}
+      {airdropOpen && (
+        <AirDropModal
+          isOpen={airdropOpen}
+          onClose={() => setAirdropOpen(false)}
+          tradingWallet={tradingState?.tradingWallet || null}
         />
       )}
     </>

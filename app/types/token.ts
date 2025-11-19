@@ -44,6 +44,9 @@ export interface Token {
     updated_at: string; // ISO 8601 date string
     image_url: string | null;
     banner_url?: string | null;
+    mp3_url: string | null;
+    auto_brand: boolean;
+    color_palette: string | null;
     bio: string | null;
     telegram: string | null;
     twitter: string | null;
@@ -103,17 +106,17 @@ export interface TokenInfo {
   symbol: string;
   burn_lp: boolean;
   creator: string;
-  palette: string | null;
+  mp3_url: string | null;
+  palette?: string | null;
   twitter: string | null;
   website: string | null;
   catagory: string | null;
   eth_pool: number;
   telegram: string | null;
   graduated: boolean;
-  audio_url: string | null;
   image_url: string | null;
+  auto_brand: boolean;
   banner_url: string | null;
-  auto_brand: boolean
   is_stealth: boolean;
   start_time: number;
   tax_wallet: string | null;
@@ -121,34 +124,36 @@ export interface TokenInfo {
   updated_at: string;
   inserted_at: string;
   is_advanced: boolean;
-  max_tx_step: number;
-  curve_max_tx: number;
+  max_tx_step: number | null;
+  curve_max_tx: number | null;
   total_supply: number;
+  color_palette: string | null;
   tax_drop_step: string | null;
   token_address: string;
-  final_tax_rate: number;
+  final_tax_rate: number | null;
   graduation_cap: number;
   is_zero_simple: boolean;
   is_super_simple: boolean;
   max_tx_interval: string | null;
-  max_wallet_step: number;
-  created_at_block: number;
-  curve_max_wallet: number;
+  max_wallet_step: number | null;
+  created_at_block: number | null;
+  curve_max_wallet: number | null;
   lp_lock_duration: number;
   tax_drop_interval: string | null;
   circulating_supply: number;
-  curve_starting_tax: number;
-  curve_tax_duration: number;
+  curve_starting_tax: number | null;
+  curve_tax_duration: number | null;
   limit_removal_time: string | null;
   real_token_address: string | null;
   graduation_cap_norm: number;
   max_wallet_interval: string | null;
   created_at_timestamp: number;
   graduation_timestamp: string | null;
-  curve_max_tx_duration: number;
+  curve_max_tx_duration: number | null;
   virtual_token_address: string;
-  curve_max_wallet_duration: number;
-  steakhouse_treasury_basic: string;
+  curve_max_wallet_duration: number | null;
+  steakhouse_treasury_basic: string | null;
+  price_change_24h?: number | null;
 }
 
 // Full token data API response interface
@@ -157,10 +162,15 @@ export interface FullTokenDataResponse {
   tokenInfo: TokenInfo;
   price: number;
   marketCap: number;
+  volume24h?: number;      // 24-hour trading volume
+  priceChange24h?: number; // 24-hour price change percentage
   lastTrade: Trade;
-  recentTrades: Trade[];
+  recentTrades: Trade[];  // Primary field name
+  trades?: Trade[];        // Alternative field name for backward compatibility
   candles: Candle[];
   interval: string;
+  timeframe?: string;      // Alternative field name for interval
+  lastPrice?: number;      // Alternative field name for price
 }
 
 // WebSocket Event Types

@@ -46,6 +46,26 @@
   --danger-400: #ff3b3b;
 }
 
+/* Animation for drag feedback */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Block pointer events on chart/iframes during drag */
+body[style*="--dragging-pointer-events"] iframe,
+body[style*="--dragging-pointer-events"] .tradingview-widget-container,
+body[style*="--dragging-pointer-events"] [class*="tv-"],
+body[style*="--dragging-pointer-events"] canvas {
+  pointer-events: var(--dragging-pointer-events, auto) !important;
+}
+
 /* Global background fix to prevent seams and repeating */
 html, body {
   background: #1a0f08;
@@ -193,6 +213,32 @@ html, body {
   scrollbar-color: #374151 rgba(255, 255, 255, 0.1);
 }
 
+/* Themed scrollbar for mobile trading view */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #0a0612;
+  border-radius: 3px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1f1a24 0%, #2a2332 100%);
+  border-radius: 3px;
+  border: 1px solid #342d3d;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2a2332 0%, #342d3d 100%);
+}
+
+/* Firefox scrollbar for mobile trading view */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #1f1a24 #0a0612;
+}
+
 /* Sidebar Animations and Vertical Text */
 .writing-mode-vertical {
   writing-mode: vertical-rl;
@@ -320,6 +366,29 @@ html, body {
 .font-1\.5rem {
   font-size: 1.5rem;
 }
+
+/* Pump.fun-inspired font utilities */
+.font-pump-display {
+  font-family: var(--font-pump-display), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-degen {
+  font-family: var(--font-degen-grotesk), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.font-ui {
+  font-family: var(--font-ui-inter), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.font-code {
+  font-family: var(--font-ui-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
 .height-45{
   height: 45px;
 }
