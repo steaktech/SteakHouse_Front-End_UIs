@@ -327,7 +327,7 @@ export default function MobileStats({
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke={isAudioPlaying ? '#ffd700' : '#9ca3af'}
+                  stroke="#e9af5a"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -363,7 +363,7 @@ export default function MobileStats({
             >
               <Bookmark
                 size={16}
-                className={isSaved ? 'text-[#ffd700]' : 'text-[#9ca3af]'}
+                className="text-[#e9af5a]"
                 fill={isSaved ? 'currentColor' : 'none'}
               />
             </button>
@@ -378,7 +378,7 @@ export default function MobileStats({
               }}
               title="Share"
             >
-              <Share2 size={16} className="text-[#9ca3af]" />
+              <Share2 size={16} className="text-[#e9af5a]" />
             </button>
           </div>
 

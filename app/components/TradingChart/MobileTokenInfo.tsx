@@ -163,7 +163,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             <span className="text-xs text-gray-400 uppercase tracking-wider">
               {data.tokenSymbol || 'TOKEN'}:
             </span>
-            <span className="text-xs text-blue-400 font-mono">
+            <span className="text-xs text-[#e9af5a] font-mono">
               {data.tokenAddress ? `${data.tokenAddress.slice(0, 6)}...${data.tokenAddress.slice(-4)}` : '-'}
             </span>
           </div>
