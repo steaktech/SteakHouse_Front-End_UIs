@@ -59,11 +59,11 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
         w-7 h-7
         flex items-center justify-center 
         rounded-md
-        border border-[#e9af5a]/50 group-hover:border-[#e9af5a]
+        bg-[#13101a]
+        border border-[#1f1a24] group-hover:border-[#e9af5a]/50
         text-[#e9af5a] group-hover:text-[#ffdca3]
-        bg-black/40 backdrop-blur-sm
         transition-all duration-300 ease-out
-        group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(233,175,90,0.3)]
+        group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(233,175,90,0.15)]
       ">
         <svg 
           viewBox="0 0 24 24" 
