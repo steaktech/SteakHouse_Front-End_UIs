@@ -355,8 +355,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
       `}</style>
       <div className="custom-scrollbar" style={{
         width: '100%',
-        height: '100%',
-        maxHeight: 'none',
+        height: 'auto',
         minHeight: '100%',
         position: 'relative',
         borderRadius: 'clamp(14px, 2vw, 20px)',
@@ -364,8 +363,6 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
         padding: isMobile ? '10px' : 'clamp(12px, 2.5vh, 16px)',
         border: '1px solid rgba(255, 215, 165, 0.4)',
-        overflowY: 'auto',
-        overflowX: 'hidden',
         color: '#fff7ea',
         display: 'flex',
         flexDirection: 'column',

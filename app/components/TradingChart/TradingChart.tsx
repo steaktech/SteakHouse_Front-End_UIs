@@ -1284,13 +1284,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           {/* Content row: Left chart area + Right token card panel */}
           <div className="flex flex-1 gap-[8px] overflow-hidden">
             {/* Left Column - Chart and Recent Transactions */}
-            <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
+            <div className="flex-1 flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden scrollbar-custom">
               {/* Top trending bar (desktop only) within left column only */}
               <div className="hidden md:block">
                 <TopTrendingTicker />
               </div>
               {/* Trading Chart flanked by vertical trending tickers */}
-              <div className="flex-1 min-h-0 overflow-hidden">
+              <div className="flex-1 min-h-[500px] overflow-hidden">
                 <div className="h-full w-full flex items-stretch gap-0">
                   {/* Left vertical ticker (temporarily disabled)
                   <div className="hidden lg:flex flex-none">
@@ -1421,7 +1421,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
             {/* Right Column - Token Card and Trade Panel (desktop only) */}
             <div
-              className={`hidden lg:flex flex-col gap-[8px] ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
+              className={`hidden lg:flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden scrollbar-custom ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
               style={{
                 transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                 flexShrink: 0,
@@ -1444,15 +1444,10 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
               {/* Trade Panel */}
               <div style={{
-                flex: 1,
+                flex: '1 0 auto',
                 minHeight: '280px',
-                maxHeight: 'calc(100% - 5px)',
-                overflowY: 'auto',
-                overflowX: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                scrollBehavior: 'smooth',
-                WebkitOverflowScrolling: 'touch'
               }}>
                 <TradePanel
                   onTabChange={(tab) => setDesktopTradeTab(tab)}
