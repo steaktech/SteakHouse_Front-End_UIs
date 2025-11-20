@@ -1672,20 +1672,12 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
       {/* Mobile trade modal */}
       {isMobileTradeOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setIsMobileTradeOpen(false)} />
-          <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className="w-[92vw] max-w-[480px] h-fit max-h-[90vh] rounded-2xl border border-[#daa20b]/30 bg-[#07040b] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#472303] to-[#5a2d04] border-b border-[#daa20b]/30">
-                <h2 className="text-[#daa20b] font-semibold">{selectedTradeTab === 'buy' ? 'Buy' : 'Sell'} Order</h2>
-                <button onClick={() => setIsMobileTradeOpen(false)} className="p-2" type="button">
-                  <X className="text-[#daa20b]" size={20} />
-                </button>
-              </div>
-              <div className="p-2 overflow-y-auto">
-                <MobileBuySellPanel orderType={selectedTradeTab} tokenAddress={tokenAddress} apiTokenData={apiTokenData} />
-              </div>
-            </div>
-          </div>
+          <MobileBuySellPanel 
+            orderType={selectedTradeTab} 
+            tokenAddress={tokenAddress} 
+            apiTokenData={apiTokenData} 
+            onClose={() => setIsMobileTradeOpen(false)}
+          />
         </div>
       )}
 

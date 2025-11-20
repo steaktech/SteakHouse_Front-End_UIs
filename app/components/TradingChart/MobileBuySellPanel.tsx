@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { X } from 'lucide-react';
 import { useWallet } from '@/app/hooks/useWallet';
 import { useTrading } from '@/app/hooks/useTrading';
 import { getMaxTxInfo, extractEthToCurve, getMaxWalletInfo, extractMaxWalletEthToCurve } from '@/app/lib/api/services/blockchainService';
@@ -38,13 +39,15 @@ const WalletModal = dynamic(
 interface MobileBuySellPanelProps {
   orderType: 'buy' | 'sell';
   tokenAddress?: string;
-  apiTokenData?: FullTokenDataResponse | null; // Receive API data from parent to avoid duplicate calls
+  apiTokenData?: FullTokenDataResponse | null;
+  onClose?: () => void;
 }
 
 export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({ 
   orderType, 
   tokenAddress,
-  apiTokenData = null
+  apiTokenData = null,
+  onClose
 }) => {
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
@@ -59,12 +62,10 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
     } catch { return '1'; }
   });
 
-  // Wallet + trading integration (same as desktop TradePanel)
   const { isConnected, isConnecting } = useWallet();
   const { tradingState, buyToken, sellToken, clearStatus, isReady, topUpTradingWallet } = useTrading();
   const { showError, showSuccess } = useToastHelpers();
 
-  // Wallet & top-up modals
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
@@ -73,18 +74,14 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
   const [isToppingUp, setIsToppingUp] = useState(false);
   const hasShownTopUpRef = React.useRef(false);
 
-  // Persist slippage to localStorage
   React.useEffect(() => {
     try { if (typeof window !== 'undefined') window.localStorage.setItem('trade.slippagePct', slippagePct || ''); } catch {}
   }, [slippagePct]);
 
-  // Resolve trading wallet and token state for helpers
   const tradingWalletAddress = tradingState?.tradingWallet || null;
   const { data: position } = useUserTokenPosition(tradingWalletAddress, tokenAddress);
-  // Use token data from parent (already loaded via single API call)
   const currentPriceUsd = position?.lastPriceUsd ?? apiTokenData?.price ?? null;
 
-  // Show top-up suggestion when trading wallet has insufficient funds
   React.useEffect(() => {
     if (tradingState?.canTopUp && !hasShownTopUpRef.current) {
       if (tradingState.topUpSuggestionEth) setTopUpAmount(tradingState.topUpSuggestionEth);
@@ -96,9 +93,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
     }
   }, [tradingState?.canTopUp, tradingState?.topUpSuggestionEth, showError]);
 
-  // Dynamic quick amounts based on buy/sell mode
   const quickAmounts = orderType === 'buy'
-    ? ['0.1 ETH', '0.5 ETH', '1 ETH', 'Max']
+    ? ['0.1 ETH', '0.5 ETH', '1 ETH', '2 ETH', 'Max']
     : ['25%', '50%', '75%', '100%'];
 
   const handleBuyMaxTx = async () => {
@@ -133,14 +129,11 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
       }
       return;
     }
-    // SELL paths
     if (tradeType === 'market') {
-      // Market SELL expects percentage directly
       const pct = value.replace('%', '');
       setAmount(pct);
       return;
     }
-    // Limit SELL expects token amount: convert % of token balance
     const pctNum = parseFloat(value.replace('%', ''));
     if (isNaN(pctNum) || pctNum <= 0) return;
     const balance = position?.qtyTokens ?? 0;
@@ -224,7 +217,6 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
     }
   };
 
-  // Set max wallet handler (ETH spend for buy)
   const handleSetMaxWallet = async () => {
     if (!tokenAddress) {
       showError('No token selected for trading', 'Set Max Wallet');
@@ -250,11 +242,9 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
 
   const handleSubmit = async () => {
     if (tradeType === 'market') {
-      // Use the same trade execution as desktop
       await handleConfirmTrade();
       return;
     }
-    // Limit orders
     const price = parseFloat(limitPrice || '0');
     const amt = parseFloat(amount || '0');
     if (!tokenAddress) { showError('No token selected for trading', 'Limit Order'); return; }
@@ -269,7 +259,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
         walletAddress: tradingWalletAddress,
         side: orderType,
         limitPriceUsd: price,
-        amountTokens: amt, // API expects tokens for sell, ETH for buy
+        amountTokens: amt,
       });
       const msg = resp?.message || 'Limit order placed';
       showSuccess(msg, 'Limit Order');
@@ -281,6 +271,11 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
       setIsPlacingLimit(false);
     }
   };
+
+  // Colors based on Buy/Sell for active states in the new theme
+  const activeGradient = orderType === 'buy'
+    ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+    : 'linear-gradient(180deg, #f87171, #ef4444)';
 
   return (
     <>
@@ -304,481 +299,528 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
           overflow: visible !important;
           white-space: nowrap !important;
         }
+
+        .mobile-buy-sell-panel {
+          max-width: 520px;
+          overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+          .mobile-buy-sell-panel {
+            max-width: 100%;
+            width: 100%;
+            max-height: 85vh;
+            height: auto !important;
+            padding: 12px 10px 16px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+          }
+
+          .mobile-buy-sell-panel::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          .mobile-buy-sell-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 999px;
+            margin: 4px;
+          }
+
+          .mobile-buy-sell-panel::-webkit-scrollbar-thumb {
+            background: #8c5523;
+            border: 1px solid #3e250c;
+            border-radius: 999px;
+          }
+
+          .mobile-buy-sell-panel::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+          }
+          
+           /* Quick amount buttons */
+          .mobile-quick-amounts-row {
+            flex-wrap: wrap;
+            row-gap: 6px;
+          }
+
+          .mobile-quick-amounts-row .amount-button {
+            flex: 1 0 calc(33% - 4px) !important; 
+            min-width: calc(33% - 4px);
+            font-size: 10px !important;
+            min-height: 40px !important;
+          }
+        }
       `}</style>
       <div style={{
-        width: '100%',
-        height: 'fit-content',
-        position: 'relative',
-        borderRadius: 'clamp(14px, 2vw, 20px)',
-        background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-        boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-        padding: '10px',
-        border: '1px solid rgba(255, 215, 165, 0.4)',
-        overflow: 'visible',
-        color: '#fff7ea',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(3px)',
+        zIndex: 9999,
         display: 'flex',
-        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
         boxSizing: 'border-box'
       }}>
-        {/* Market/Limit Tabs */}
-        <div style={{
-          position: 'relative',
-          display: 'flex',
-          width: '100%',
-          height: '40px',
-          borderRadius: '16px',
-          background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-          border: '1px solid rgba(255, 215, 165, 0.4)',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-          marginBottom: '12px',
-          padding: '4px',
-          flexShrink: 0
-        }}>
-          {/* Sliding Background */}
-          <div style={{
-            position: 'absolute',
-            top: '4px',
-            left: tradeType === 'market' ? '4px' : 'calc(50% + 2px)',
-            height: 'calc(100% - 8px)',
-            width: 'calc(50% - 3px)',
-            borderRadius: '12px',
-            transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-            background: orderType === 'buy'
-              ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-              : 'linear-gradient(180deg, #f87171, #ef4444)',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-          }} />
-          <button
-            onClick={() => setTradeType('market')}
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              flex: 1,
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 800,
-              color: tradeType === 'market' ? '#1f2937' : '#feea88',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 200ms ease',
-              letterSpacing: '0.4px'
-            }}
-          >
-            MARKET
-          </button>
-          <button
-            onClick={() => setTradeType('limit')}
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              flex: 1,
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 800,
-              color: tradeType === 'limit' ? '#1f2937' : '#feea88',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 200ms ease',
-              letterSpacing: '0.4px'
-            }}
-          >
-            LIMIT
-          </button>
-        </div>
-
-        {/* Action Links */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-          gap: '4px',
-          flexWrap: 'wrap',
-          flexShrink: 0
-        }}>
-          <button 
-            onClick={handleBuyMaxTx}
-            disabled={isLoadingMaxTx}
-            style={{
-            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-            border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: '8px',
-            padding: '4px 8px',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-            color: '#feea88',
-            fontSize: '8px',
-            fontWeight: 800,
-            cursor: isLoadingMaxTx ? 'not-allowed' : 'pointer',
-            transition: 'all 200ms ease',
-            flex: 1,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            opacity: isLoadingMaxTx ? 0.5 : 1
-          }}>{isLoadingMaxTx ? 'Loading...' : 'Buy max TX'}</button>
-
-          <button 
-            onClick={handleSetMaxWallet}
-            disabled={isLoadingMaxWallet}
-            style={{
-            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-            border: '1px solid rgba(255, 210, 160, 0.4)',
-            borderRadius: '8px',
-            padding: '4px 8px',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-            color: '#feea88',
-            fontSize: '8px',
-            fontWeight: 800,
-            cursor: isLoadingMaxWallet ? 'not-allowed' : 'pointer',
-            transition: 'all 200ms ease',
-            flex: 1,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            opacity: isLoadingMaxWallet ? 0.5 : 1
-          }}>{isLoadingMaxWallet ? 'Loading...' : 'Buy max wallet'}</button>
-        </div>
-
-        {/* Amount Input */}
-        <div style={{
-          position: 'relative',
-          marginBottom: '6px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
-        }}>
-          <div style={{
+        <div
+          className="mobile-buy-sell-panel"
+          style={{
+            width: '100%',
+            height: 'fit-content',
             position: 'relative',
-            background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+            borderRadius: '20px',
+            background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 165, 0.1)',
+            padding: '10px',
             border: '1px solid rgba(255, 215, 165, 0.4)',
-            borderRadius: '12px',
-            padding: '3px',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+            color: '#fff7ea',
+            display: 'flex',
+            flexDirection: 'column',
+            boxSizing: 'border-box'
+          }}
+        >
+          {/* Header */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '0 4px 10px 4px',
+            marginBottom: '6px',
+            borderBottom: '1px solid rgba(255, 215, 165, 0.1)'
           }}>
-            <input
-              type="text"
-              className="no-spinner"
-              value={amount}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                  setAmount(value);
-                }
-              }}
-              style={{
-                width: '100%',
-                background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
-                color: '#feea88',
-                fontSize: '16px',
-                fontWeight: 800,
-                padding: '8px 40px 8px 12px',
-                borderRadius: '8px',
-                border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
-                outline: 'none',
-                textAlign: 'left',
-                fontFamily: '"Sora", "Inter", sans-serif',
-                transition: 'all 200ms ease',
-                boxSizing: 'border-box'
-              }}
-              onWheel={(e) => e.currentTarget.blur()}
-              placeholder="0"
-              onFocus={(e) => {
-                e.target.style.border = `2px solid ${orderType === 'buy' ? '#4ade80' : '#f87171'}`;
-                e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
-              }}
-              onBlur={(e) => {
-                e.target.style.border = `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-            <button style={{
-              position: 'absolute',
-              right: '6px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'linear-gradient(180deg, #ffe49c, #ffc96a)',
-              borderRadius: '50%',
-              padding: '6px',
-              color: '#3a200f',
-              border: '1px solid rgba(140, 85, 35, 0.28)',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            <h2 style={{
+              color: '#feea88',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              margin: 0
             }}>
-              {orderType === 'buy' ? <EthereumIcon /> : <QuestionMarkIcon />}
+              {orderType} Order
+            </h2>
+            <button 
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#feea88',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <X size={24} />
             </button>
           </div>
-        </div>
 
-        {/* Slippage Tolerance */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          marginBottom: '8px',
-        }}>
-          <span style={{ fontSize: '10px', color: '#feea88', fontWeight: 700 }}>Slippage</span>
-          <input
-            type="text"
-            value={slippagePct}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === '' || /^\d*(?:\.\d{0,2})?$/.test(v)) setSlippagePct(v);
-            }}
-            placeholder="1"
-            style={{
-              width: '60px',
-              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-              border: '1px solid rgba(255, 215, 165, 0.4)',
-              borderRadius: '8px',
-              color: '#feea88',
-              padding: '4px 6px',
-              fontWeight: 700,
-              fontSize: '10px'
-            }}
-          />
-          {['0.1','0.5','1','2'].map(p => (
-            <button key={p} onClick={() => setSlippagePct(p)} style={{
-              background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-              border: '1px solid rgba(255, 210, 160, 0.4)',
-              borderRadius: '8px',
-              padding: '6px 6px',
-              color: '#feea88',
-              fontSize: '9px',
-              fontWeight: 800,
-              cursor: 'pointer',
-            }}>{p}%</button>
-          ))}
-        </div>
-
-        {/* Preset Amounts */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-          gap: '2px',
-          flexShrink: 0
-        }}>
-          {quickAmounts.map((preset) => (
+          {/* Market/Limit Tabs */}
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            width: '100%',
+            height: '40px',
+            borderRadius: '16px',
+            background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+            border: '1px solid rgba(255, 215, 165, 0.4)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            marginBottom: '12px',
+            padding: '4px',
+            flexShrink: 0
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '4px',
+              left: tradeType === 'market' ? '4px' : 'calc(50% + 2px)',
+              height: 'calc(100% - 8px)',
+              width: 'calc(50% - 3px)',
+              borderRadius: '12px',
+              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+              background: activeGradient,
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+            }} />
             <button
-              key={preset}
-              onClick={() => handleQuickAmount(preset)}
-              className="amount-button"
+              onClick={() => setTradeType('market')}
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                flex: 1,
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: tradeType === 'market' ? '#1f2937' : '#feea88',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                letterSpacing: '0.4px'
+              }}
+            >
+              MARKET
+            </button>
+            <button
+              onClick={() => setTradeType('limit')}
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                flex: 1,
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: tradeType === 'limit' ? '#1f2937' : '#feea88',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 200ms ease',
+                letterSpacing: '0.4px'
+              }}
+            >
+              LIMIT
+            </button>
+          </div>
+
+          {/* Helper Chips */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '12px',
+            marginBottom: '16px'
+          }}>
+            <button 
+              onClick={handleBuyMaxTx}
+              disabled={isLoadingMaxTx}
               style={{
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                 border: '1px solid rgba(255, 210, 160, 0.4)',
                 borderRadius: '8px',
-                padding: '8px 4px',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                padding: '6px 12px',
                 color: '#feea88',
-                fontSize: '8px',
+                fontSize: '10px',
                 fontWeight: 800,
-                cursor: 'pointer',
+                cursor: isLoadingMaxTx ? 'not-allowed' : 'pointer',
                 transition: 'all 200ms ease',
-                flex: 1,
-                whiteSpace: 'nowrap',
-                overflow: 'visible',
-                textAlign: 'center',
-                minHeight: '32px'
+                textTransform: 'uppercase',
+                opacity: isLoadingMaxTx ? 0.5 : 1
               }}
             >
-              {preset}
+              {isLoadingMaxTx ? 'Loading...' : 'Buy Max TX'}
             </button>
-          ))}
-        </div>
-
-        {/* Limit Price Input (only shown for limit orders) */}
-        {tradeType === 'limit' && (
-          <>
-            <div style={{ marginBottom: '8px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '11px',
-                fontWeight: 700,
+            <button 
+              onClick={handleSetMaxWallet}
+              disabled={isLoadingMaxWallet}
+              style={{
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                border: '1px solid rgba(255, 210, 160, 0.4)',
+                borderRadius: '8px',
+                padding: '6px 12px',
                 color: '#feea88',
-                marginBottom: '6px',
-                textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
-              }}>
-                Limit Price ($)
-              </label>
+                fontSize: '10px',
+                fontWeight: 800,
+                cursor: isLoadingMaxWallet ? 'not-allowed' : 'pointer',
+                transition: 'all 200ms ease',
+                textTransform: 'uppercase',
+                opacity: isLoadingMaxWallet ? 0.5 : 1
+              }}
+            >
+              {isLoadingMaxWallet ? 'Loading...' : 'Buy Max Wallet'}
+            </button>
+          </div>
+
+          {/* Limit Price Input */}
+          {tradeType === 'limit' && (
+            <div style={{ marginBottom: '12px', position: 'relative' }}>
+               <div style={{ 
+                 position: 'absolute', 
+                 left: '16px', 
+                 top: '50%', 
+                 transform: 'translateY(-50%)',
+                 pointerEvents: 'none',
+                 zIndex: 10
+               }}>
+                <span style={{ color: '#feea88', fontSize: '14px', fontWeight: 'bold' }}>Price $</span>
+              </div>
               <div style={{
                 position: 'relative',
                 background: 'linear-gradient(180deg, #7f4108, #6f3906)',
                 border: '1px solid rgba(255, 215, 165, 0.4)',
                 borderRadius: '14px',
-                padding: '4px',
+                padding: '3px',
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
               }}>
                 <input
-                  type="text"
+                  type="number"
+                  className="no-spinner"
                   value={limitPrice}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                      setLimitPrice(value);
-                    }
-                  }}
+                  onChange={(e) => setLimitPrice(e.target.value)}
                   style={{
                     width: '100%',
                     background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
                     color: '#feea88',
-                    fontSize: '16px',
+                    fontSize: '20px',
                     fontWeight: 800,
-                    padding: '8px 12px',
+                    padding: '8px 16px 8px 80px',
                     borderRadius: '10px',
                     border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
                     outline: 'none',
-                    textAlign: 'left',
+                    textAlign: 'right',
                     fontFamily: '"Sora", "Inter", sans-serif',
                     transition: 'all 200ms ease',
                     boxSizing: 'border-box'
                   }}
                   placeholder="0.00"
-                  onFocus={(e) => {
-                    e.target.style.border = `2px solid ${orderType === 'buy' ? '#4ade80' : '#f87171'}`;
-                    e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.border = `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
-                    e.target.style.boxShadow = 'none';
-                  }}
                 />
               </div>
             </div>
+          )}
 
-            {/* Quick Price Buttons */}
+          {/* Amount Input */}
+          <div style={{
+            position: 'relative',
+            marginBottom: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
+             <div style={{ 
+               position: 'absolute', 
+               left: '16px', 
+               top: '50%', 
+               transform: 'translateY(-50%)',
+               pointerEvents: 'none',
+               zIndex: 10
+             }}>
+              <span style={{ color: '#feea88', fontSize: '24px', fontWeight: 'bold' }}>$</span>
+            </div>
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '4px',
-              marginBottom: '8px',
-              flexShrink: 0
+              position: 'relative',
+              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+              border: '1px solid rgba(255, 215, 165, 0.4)',
+              borderRadius: '14px',
+              padding: '3px',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
             }}>
-              {['-5%', '-2%', '+2%', '+5%'].map((preset) => (
-                <button
-                  key={preset}
-                  onClick={() => {
-                    const base = typeof currentPriceUsd === 'number' ? currentPriceUsd : Number(currentPriceUsd);
-                    if (!base || isNaN(base)) {
-                      showError('Current price unavailable', 'Quick price');
-                      return;
-                    }
-                    const multiplier = 1 + parseFloat(preset.replace('%', '')) / 100;
-                    const next = base * multiplier;
-                    const decimals = base < 1 ? 6 : 2;
-                    setLimitPrice(next.toFixed(decimals));
+              <input
+                type="number"
+                className="no-spinner"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
+                    color: '#feea88',
+                    fontSize: '28px',
+                    fontWeight: 800,
+                    padding: '8px 60px 8px 40px',
+                    borderRadius: '10px',
+                    border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                    outline: 'none',
+                  textAlign: 'right',
+                  fontFamily: '"Sora", "Inter", sans-serif',
+                  transition: 'all 200ms ease',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="0.0"
+                onFocus={(e) => {
+                  e.target.style.border = `2px solid ${orderType === 'buy' ? '#4ade80' : '#f87171'}`;
+                  e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: '#fbbf24',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'black',
+                border: 'none',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+              }}>
+                {orderType === 'buy' ? <EthereumIcon /> : <QuestionMarkIcon />}
+              </div>
+            </div>
+          </div>
+
+          {/* Slippage Section */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              marginBottom: '8px',
+              alignItems: 'center'
+            }}>
+              <label style={{ 
+                fontSize: '12px', 
+                fontWeight: 'bold', 
+                color: '#feea88', 
+                textTransform: 'uppercase', 
+                letterSpacing: '0.05em' 
+              }}>
+                Slippage %
+              </label>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ width: '80px', flexShrink: 0 }}>
+                <input
+                  type="number"
+                  value={slippagePct}
+                  onChange={(e) => setSlippagePct(e.target.value)}
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                    border: '1px solid rgba(255, 215, 165, 0.4)',
+                    borderRadius: '8px',
+                    color: '#feea88',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    outline: 'none'
                   }}
+                />
+              </div>
+              <div style={{ flex: 1, display: 'flex', gap: '8px' }}>
+                {['0.1', '0.5', '1', '2'].map((val) => (
+                  <button
+                    key={val}
+                    onClick={() => setSlippagePct(val)}
+                    style={{
+                      flex: 1,
+                      height: '40px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      border: slippagePct === val ? '1px solid #fbbf24' : '1px solid rgba(255, 210, 160, 0.4)',
+                      background: slippagePct === val ? 'rgba(251, 191, 36, 0.2)' : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                      color: '#feea88',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {val}%
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Amounts Grid */}
+          <div
+            className="mobile-quick-amounts-row"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: '12px',
+              marginBottom: '20px',
+            }}
+          >
+            {quickAmounts.map((label, idx) => {
+               const isMax = label === 'Max' || label === '100%';
+               return (
+                <button
+                  key={idx}
+                  onClick={() => handleQuickAmount(label)}
+                  className="amount-button"
                   style={{
                     background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                     border: '1px solid rgba(255, 210, 160, 0.4)',
-                    borderRadius: '8px',
-                    padding: '8px 6px',
+                    borderRadius: '12px',
+                    padding: '12px',
                     boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     color: '#feea88',
-                    fontSize: '10px',
-                    fontWeight: 700,
+                    fontSize: '14px',
+                    fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 200ms ease',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    gridColumn: isMax ? '1 / -1' : undefined,
                   }}
                 >
-                  {preset}
+                  {label}
                 </button>
-              ))}
-            </div>
-          </>
-        )}
+               );
+            })}
+          </div>
 
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          disabled={
-            tradeType === 'market'
-              ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady))
-              : (isPlacingLimit || !limitPrice)
-          }
-          style={{
-            width: '100%',
-            background: (tradeType === 'market'
-              ? (!isConnected 
-                  ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
-                  : (orderType === 'buy'
-                      ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                      : 'linear-gradient(180deg, #f87171, #ef4444)'))
-              : (limitPrice
-                  ? (orderType === 'buy'
-                      ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                      : 'linear-gradient(180deg, #f87171, #ef4444)')
-                  : 'linear-gradient(180deg, #6b7280, #4b5563)')),
-            color: (tradeType === 'market' && !isConnected) || limitPrice ? '#1f2937' : (tradeType === 'market' ? '#1f2937' : '#9ca3af'),
-            fontWeight: 800,
-            fontSize: '13px',
-            padding: '12px',
-            borderRadius: '16px',
-            border: 'none',
-            cursor: (
+          {/* Submit Button */}
+          <button
+            onClick={handleSubmit}
+            disabled={
               tradeType === 'market'
-                ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 'not-allowed' : 'pointer'
-                : ((isPlacingLimit || !limitPrice) ? 'not-allowed' : 'pointer')
-            ),
-            transition: 'all 200ms ease',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
-            textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
-            marginTop: 'auto',
-            flexShrink: 0,
-            letterSpacing: '0.5px',
-            minHeight: '40px',
-            opacity: (
-              tradeType === 'market'
-                ? ((isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 0.5 : 1)
-                : ((isPlacingLimit || !limitPrice) ? 0.6 : 1)
-            )
-          }}
-          onMouseEnter={(e) => {
-            const target = e.target as HTMLButtonElement;
-            const disabled = tradeType === 'market'
-              ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady))
-              : !limitPrice;
-            if (!disabled) {
-              target.style.transform = 'translateY(-1px)';
-              target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15)';
+                ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady))
+                : (isPlacingLimit || !limitPrice)
             }
-          }}
-          onMouseLeave={(e) => {
-            const target = e.target as HTMLButtonElement;
-            target.style.transform = 'translateY(0)';
-            target.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)';
-          }}
+            style={{
+              width: '100%',
+              background: (tradeType === 'market'
+                ? (!isConnected 
+                    ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
+                    : activeGradient)
+                : (limitPrice
+                    ? activeGradient
+                    : 'linear-gradient(180deg, #6b7280, #4b5563)')),
+              color: (tradeType === 'market' && !isConnected) || limitPrice ? '#1f2937' : (tradeType === 'market' ? '#1f2937' : '#9ca3af'),
+              fontWeight: 900,
+              fontSize: '16px',
+              padding: '16px',
+              borderRadius: '16px',
+              border: 'none',
+              cursor: (
+                tradeType === 'market'
+                  ? (isConnecting || tradingState?.isTrading || (!isConnected ? false : !isReady)) ? 'not-allowed' : 'pointer'
+                  : ((isPlacingLimit || !limitPrice) ? 'not-allowed' : 'pointer')
+              ),
+              transition: 'all 200ms ease',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1)',
+              textShadow: '0 1px 0 rgba(255, 255, 255, 0.3)',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              marginTop: 'auto'
+            }}
           >
-          {tradeType === 'market'
-            ? (!isConnected 
-                ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
-                : (tradingState?.isTrading ? `${orderType.toUpperCase()}ING...` : `CONFIRM ${orderType.toUpperCase()} TRADE`))
-            : (isPlacingLimit ? `PLACING ${orderType.toUpperCase()}...` : `PLACE ${orderType.toUpperCase()} LIMIT ORDER`)}
-        </button>
-        {/* Wallet & Top-Up Modals */}
-        <WalletModal
-          isOpen={isWalletModalOpen}
-          onClose={() => setIsWalletModalOpen(false)}
-          isConnected={isConnected}
-        />
-        <WalletTopUpModal
-          isOpen={isTopUpModalOpen}
-          onClose={() => setIsTopUpModalOpen(false)}
-          tradingWallet={tradingState?.tradingWallet}
-          defaultAmountEth={topUpAmount || tradingState?.topUpSuggestionEth || ''}
-          onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
-        />
+            {tradeType === 'market'
+              ? (!isConnected 
+                  ? (isConnecting ? 'CONNECTING...' : 'LOG IN')
+                  : (tradingState?.isTrading ? `${orderType.toUpperCase()}ING...` : `CONFIRM ${orderType.toUpperCase()} TRADE`))
+              : (isPlacingLimit ? `PLACING ${orderType.toUpperCase()}...` : `PLACE ${orderType.toUpperCase()} LIMIT ORDER`)}
+          </button>
+
+          {/* Wallet & Top-Up Modals */}
+          <WalletModal
+            isOpen={isWalletModalOpen}
+            onClose={() => setIsWalletModalOpen(false)}
+            isConnected={isConnected}
+          />
+          <WalletTopUpModal
+            isOpen={isTopUpModalOpen}
+            onClose={() => setIsTopUpModalOpen(false)}
+            tradingWallet={tradingState?.tradingWallet}
+            defaultAmountEth={topUpAmount || tradingState?.topUpSuggestionEth || ''}
+            onConfirmTopUp={async (amt) => topUpTradingWallet(amt)}
+          />
+        </div>
       </div>
     </>
   );
