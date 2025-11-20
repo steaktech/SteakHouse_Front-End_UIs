@@ -301,14 +301,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
         }
 
         .mobile-buy-sell-panel {
-          max-width: 520px;
+          max-width: 360px;
+          width: 100%;
           overflow: hidden;
         }
 
         @media (max-width: 768px) {
           .mobile-buy-sell-panel {
-            max-width: 100%;
-            width: 100%;
+            max-width: 360px !important;
+            width: 95% !important;
             max-height: 85vh;
             height: auto !important;
             padding: 12px 10px 16px !important;
@@ -345,8 +346,9 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
           .mobile-quick-amounts-row .amount-button {
             flex: 1 0 calc(33% - 4px) !important; 
             min-width: calc(33% - 4px);
-            font-size: 10px !important;
-            min-height: 40px !important;
+            font-size: 13px !important;
+            min-height: 32px !important;
+            padding: 8px !important;
           }
         }
       `}</style>
@@ -496,7 +498,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
           {/* Helper Chips */}
           <div style={{
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             gap: '12px',
             marginBottom: '16px'
           }}>
@@ -504,17 +506,21 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               onClick={handleBuyMaxTx}
               disabled={isLoadingMaxTx}
               style={{
+                flex: 1,
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                 border: '1px solid rgba(255, 210, 160, 0.4)',
                 borderRadius: '8px',
-                padding: '6px 12px',
+                padding: '6px 4px',
                 color: '#feea88',
                 fontSize: '10px',
                 fontWeight: 800,
                 cursor: isLoadingMaxTx ? 'not-allowed' : 'pointer',
                 transition: 'all 200ms ease',
                 textTransform: 'uppercase',
-                opacity: isLoadingMaxTx ? 0.5 : 1
+                opacity: isLoadingMaxTx ? 0.5 : 1,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
               {isLoadingMaxTx ? 'Loading...' : 'Buy Max TX'}
@@ -523,17 +529,21 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               onClick={handleSetMaxWallet}
               disabled={isLoadingMaxWallet}
               style={{
+                flex: 1,
                 background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                 border: '1px solid rgba(255, 210, 160, 0.4)',
                 borderRadius: '8px',
-                padding: '6px 12px',
+                padding: '6px 4px',
                 color: '#feea88',
                 fontSize: '10px',
                 fontWeight: 800,
                 cursor: isLoadingMaxWallet ? 'not-allowed' : 'pointer',
                 transition: 'all 200ms ease',
                 textTransform: 'uppercase',
-                opacity: isLoadingMaxWallet ? 0.5 : 1
+                opacity: isLoadingMaxWallet ? 0.5 : 1,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
               {isLoadingMaxWallet ? 'Loading...' : 'Buy Max Wallet'}
@@ -542,52 +552,78 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
 
           {/* Limit Price Input */}
           {tradeType === 'limit' && (
-            <div style={{ marginBottom: '12px', position: 'relative' }}>
-               <div style={{ 
-                 position: 'absolute', 
-                 left: '16px', 
-                 top: '50%', 
-                 transform: 'translateY(-50%)',
-                 pointerEvents: 'none',
-                 zIndex: 10
-               }}>
-                <span style={{ color: '#feea88', fontSize: '14px', fontWeight: 'bold' }}>Price $</span>
-              </div>
-              <div style={{
-                position: 'relative',
-                background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-                border: '1px solid rgba(255, 215, 165, 0.4)',
-                borderRadius: '14px',
-                padding: '3px',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+            <>
+              <label style={{ 
+                fontSize: '12px', 
+                fontWeight: 'bold', 
+                color: '#feea88', 
+                textTransform: 'uppercase', 
+                letterSpacing: '0.05em',
+                marginBottom: '6px',
+                marginLeft: '4px',
+                display: 'block'
               }}>
-                <input
-                  type="number"
-                  className="no-spinner"
-                  value={limitPrice}
-                  onChange={(e) => setLimitPrice(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
-                    color: '#feea88',
-                    fontSize: '20px',
-                    fontWeight: 800,
-                    padding: '8px 16px 8px 80px',
-                    borderRadius: '10px',
-                    border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
-                    outline: 'none',
-                    textAlign: 'right',
-                    fontFamily: '"Sora", "Inter", sans-serif',
-                    transition: 'all 200ms ease',
-                    boxSizing: 'border-box'
-                  }}
-                  placeholder="0.00"
-                />
+                Limit Price
+              </label>
+              <div style={{ marginBottom: '12px', position: 'relative' }}>
+                 <div style={{ 
+                   position: 'absolute', 
+                   left: '16px', 
+                   top: '50%', 
+                   transform: 'translateY(-50%)',
+                   pointerEvents: 'none',
+                   zIndex: 10
+                 }}>
+                  <span style={{ color: '#feea88', fontSize: '14px', fontWeight: 'bold' }}>Price $</span>
+                </div>
+                <div style={{
+                  position: 'relative',
+                  background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                  border: '1px solid rgba(255, 215, 165, 0.4)',
+                  borderRadius: '14px',
+                  padding: '3px',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+                }}>
+                  <input
+                    type="number"
+                    className="no-spinner"
+                    value={limitPrice}
+                    onChange={(e) => setLimitPrice(e.target.value)}
+                    style={{
+                      width: '100%',
+                      background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
+                      color: '#feea88',
+                      fontSize: '20px',
+                      fontWeight: 800,
+                      padding: '8px 16px 8px 80px',
+                      borderRadius: '10px',
+                      border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                      outline: 'none',
+                      textAlign: 'right',
+                      fontFamily: '"Sora", "Inter", sans-serif',
+                      transition: 'all 200ms ease',
+                      boxSizing: 'border-box'
+                    }}
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {/* Amount Input */}
+          <label style={{ 
+            fontSize: '12px', 
+            fontWeight: 'bold', 
+            color: '#feea88', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.05em',
+            marginBottom: '6px',
+            marginLeft: '4px',
+            display: 'block'
+          }}>
+            Amount
+          </label>
           <div style={{
             position: 'relative',
             marginBottom: '20px',
@@ -747,10 +783,10 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                     background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
                     border: '1px solid rgba(255, 210, 160, 0.4)',
                     borderRadius: '12px',
-                    padding: '12px',
+                    padding: '8px',
                     boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     color: '#feea88',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 200ms ease',
@@ -783,8 +819,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                     : 'linear-gradient(180deg, #6b7280, #4b5563)')),
               color: (tradeType === 'market' && !isConnected) || limitPrice ? '#1f2937' : (tradeType === 'market' ? '#1f2937' : '#9ca3af'),
               fontWeight: 900,
-              fontSize: '16px',
-              padding: '16px',
+              fontSize: '14px',
+              padding: '12px',
               borderRadius: '16px',
               border: 'none',
               cursor: (
