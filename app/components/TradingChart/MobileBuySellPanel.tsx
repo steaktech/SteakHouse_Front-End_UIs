@@ -772,8 +772,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               marginBottom: '20px',
             }}
           >
-            {quickAmounts.map((label, idx) => {
-               const isMax = label === 'Max' || label === '100%';
+          {quickAmounts.map((label, idx) => {
+               const isMax = label === 'Max';
                return (
                 <button
                   key={idx}
