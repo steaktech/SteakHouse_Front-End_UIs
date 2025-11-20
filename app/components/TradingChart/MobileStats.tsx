@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import Image from 'next/image';
 import { Bookmark, Share2, Globe, Send, ExternalLink } from 'lucide-react';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
 import { SharePopup } from '../Widgets/ChatWidget/SharePopup';
@@ -22,6 +21,61 @@ interface MobileStatsProps {
   isAudioAvailable?: boolean;
   onToggleAudio?: () => void;
 }
+
+// SVG paths for the requested brand icons
+const ICONS = {
+  discord: (
+    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.419-2.1568 2.419z" />
+  ),
+  telegram: (
+    <path d="M22.2646 1.99384C22.5431 1.85525 22.8694 1.90093 23.0968 2.11033C23.3242 2.31973 23.3934 2.64301 23.2733 2.93395L19.2208 19.4339C19.0237 20.2357 18.0552 20.588 17.3639 20.0844L11.9327 16.1298L9.30046 19.1563C9.04546 19.4496 8.60952 19.5256 8.26668 19.337C7.92384 19.1484 7.76728 18.7472 7.89498 18.3836L9.4759 13.8829L3.47292 9.51234C2.82848 9.04322 2.87694 8.04835 3.56007 7.64216L22.2646 1.99384ZM11.3651 13.377L17.8962 6.4469L10.8843 12.2628L10.4263 13.5664L11.3651 13.377Z" />
+  ),
+  x: (
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  ),
+  github: (
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+  ),
+  medium: (
+    <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z" />
+  )
+};
+
+const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: string, label: string }) => {
+  return (
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="group relative flex items-center justify-center"
+    >
+      {/* Glow Effect (Behind) */}
+      <div className="absolute inset-0 bg-[#e9af5a]/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Main Container */}
+      <div className="
+        relative
+        w-7 h-7
+        flex items-center justify-center 
+        rounded-md
+        border border-[#e9af5a]/50 group-hover:border-[#e9af5a]
+        text-[#e9af5a] group-hover:text-[#ffdca3]
+        bg-black/40 backdrop-blur-sm
+        transition-all duration-300 ease-out
+        group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(233,175,90,0.3)]
+      ">
+        <svg 
+          viewBox="0 0 24 24" 
+          fill="currentColor" 
+          className="w-3 h-3 transition-transform duration-300 group-hover:scale-110"
+        >
+          {icon}
+        </svg>
+      </div>
+    </a>
+  );
+};
 
 export default function MobileStats({
   tokenAddress,
@@ -197,89 +251,32 @@ export default function MobileStats({
             </div>
 
             {/* Third Row: Social Icons (aligned with circle) */}
-            <div className="flex items-center ">
-              {/* Discord */}
-              <a
-                href="/coming-soon"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                title="Discord"
-              >
-                <Image
-                  src="/images/discord.png"
-                  alt="Discord"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* Telegram */}
-              <a
-                href="https://t.me/steakhouse"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                title="Telegram"
-              >
-                <Image
-                  src="/images/telegram.png"
-                  alt="Telegram"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* Twitter/X */}
-              <a
-                href="https://x.com/steak_tech"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                title="Twitter"
-              >
-                <Image
-                  src="/images/twitter.png"
-                  alt="Twitter"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* GitHub */}
-              <a
-                href="https://github.com/steaktech"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                title="GitHub"
-              >
-                <Image
-                  src="/images/github-icon.png"
-                  alt="GitHub"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              </a>
-
-              {/* Medium */}
-              <a
-                href="https://medium.com/@steakhousefinance"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                title="Medium"
-              >
-                <Image
-                  src="/images/medium-icon.png"
-                  alt="Medium"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              </a>
+            <div className="flex items-center gap-3 mt-1">
+              <SocialButton 
+                icon={ICONS.discord} 
+                label="Discord" 
+                href="/coming-soon" 
+              />
+              <SocialButton 
+                icon={ICONS.telegram} 
+                label="Telegram" 
+                href={telegramUrl || "https://t.me/steakhouse"} 
+              />
+              <SocialButton 
+                icon={ICONS.x} 
+                label="X (Twitter)" 
+                href={twitterUrl || "https://x.com/steak_tech"} 
+              />
+              <SocialButton 
+                icon={ICONS.github} 
+                label="GitHub" 
+                href="https://github.com/steaktech" 
+              />
+              <SocialButton 
+                icon={ICONS.medium} 
+                label="Medium" 
+                href="https://medium.com/@steakhousefinance" 
+              />
             </div>
           </div>
 
