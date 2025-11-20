@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface LoadingWrapperProps {
   children: React.ReactNode;
@@ -19,24 +20,22 @@ const LoadingScreen = () => (
     <div className="relative flex flex-col items-center gap-8 transform animate-fade-in">
       {/* Central Image Container */}
       <div className="relative">
-        <img
+        <Image
           src="/images/loading-animation.gif"
           alt="Loading Animation"
+          width={256}
+          height={256}
           className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-2xl"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.onerror = null;
-            target.src = 'https://placehold.co/200x200/e8b35c/1d1107?text=🚀';
-          }}
+          priority
         />
       </div>
-      
+
       {/* Enhanced Loading Text */}
       <div className="flex flex-col items-center gap-4 mt-8">
         <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-[#e8b35c] via-[#f3cc76] to-[#e8b35c] bg-clip-text text-transparent animate-shimmer tracking-wider">
           Steakhouse
         </h1>
-        
+
         <div className="flex items-center gap-3">
           <p className="text-xl md:text-2xl font-medium text-[#e8b35c] animate-pulse">
             Loading
@@ -47,12 +46,12 @@ const LoadingScreen = () => (
             <div className="w-2 h-2 bg-[#e8b35c] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="w-64 md:w-80 h-1 bg-[#e8b35c]/20 rounded-full overflow-hidden mt-4">
           <div className="h-full bg-gradient-to-r from-[#e8b35c] to-[#f3cc76] rounded-full animate-progress"></div>
         </div>
-        
+
         <p className="text-sm text-[#e8b35c]/60 mt-2 animate-fade-in-delayed">
           Preparing your trading experience...
         </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { Bookmark, Share2, Globe, Send, ExternalLink } from 'lucide-react';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
 import { SharePopup } from '../Widgets/ChatWidget/SharePopup';
@@ -43,16 +44,16 @@ const ICONS = {
 
 const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: string, label: string }) => {
   return (
-    <a 
-      href={href} 
-      target="_blank" 
+    <a
+      href={href}
+      target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
       className="group relative flex items-center justify-center"
     >
       {/* Glow Effect (Behind) */}
       <div className="absolute inset-0 bg-[#e9af5a]/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
+
       {/* Main Container */}
       <div className="
         relative
@@ -65,9 +66,9 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
         transition-all duration-300 ease-out
         group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(233,175,90,0.15)]
       ">
-        <svg 
-          viewBox="0 0 24 24" 
-          fill="currentColor" 
+        <svg
+          viewBox="0 0 24 24"
+          fill="currentColor"
           className="w-3 h-3 transition-transform duration-300 group-hover:scale-110"
         >
           {icon}
@@ -104,8 +105,8 @@ export default function MobileStats({
     url: typeof window !== 'undefined' && tokenAddress
       ? `${window.location.origin}/trading-chart/${tokenAddress}`
       : typeof window !== 'undefined'
-      ? window.location.href
-      : '',
+        ? window.location.href
+        : '',
   };
 
   const sanitizeUrl = useCallback((url?: string | null) => {
@@ -152,9 +153,9 @@ export default function MobileStats({
       const formatted = price < 1
         ? price.toFixed(6)
         : price.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 6,
-          });
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 6,
+        });
       return `$ ${formatted}`;
     }
 
@@ -210,17 +211,19 @@ export default function MobileStats({
             <div className="flex gap-3">
               {/* Token Initial Circle or Icon */}
               {tokenIconUrl ? (
-                <img
+                <Image
                   src={tokenIconUrl}
                   alt={tokenName}
-                  className="w-12 h-12 rounded-full flex-shrink-0"
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded-full flex-shrink-0 object-cover"
                 />
               ) : (
                 <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-[#daa20b] to-[#8b5a2b] text-white font-bold text-xl">
                   {tokenName.charAt(0).toUpperCase()}
                 </div>
               )}
-              
+
               {/* Token Name and Symbol Column */}
               <div className="flex flex-col gap-1 flex-1 min-w-0 justify-center">
                 {/* Token Name */}
@@ -252,30 +255,30 @@ export default function MobileStats({
 
             {/* Third Row: Social Icons (aligned with circle) */}
             <div className="flex items-center gap-3 mt-1">
-              <SocialButton 
-                icon={ICONS.discord} 
-                label="Discord" 
-                href="/coming-soon" 
+              <SocialButton
+                icon={ICONS.discord}
+                label="Discord"
+                href="/coming-soon"
               />
-              <SocialButton 
-                icon={ICONS.telegram} 
-                label="Telegram" 
-                href={telegramUrl || "https://t.me/steakhouse"} 
+              <SocialButton
+                icon={ICONS.telegram}
+                label="Telegram"
+                href={telegramUrl || "https://t.me/steakhouse"}
               />
-              <SocialButton 
-                icon={ICONS.x} 
-                label="X (Twitter)" 
-                href={twitterUrl || "https://x.com/steak_tech"} 
+              <SocialButton
+                icon={ICONS.x}
+                label="X (Twitter)"
+                href={twitterUrl || "https://x.com/steak_tech"}
               />
-              <SocialButton 
-                icon={ICONS.github} 
-                label="GitHub" 
-                href="https://github.com/steaktech" 
+              <SocialButton
+                icon={ICONS.github}
+                label="GitHub"
+                href="https://github.com/steaktech"
               />
-              <SocialButton 
-                icon={ICONS.medium} 
-                label="Medium" 
-                href="https://medium.com/@steakhousefinance" 
+              <SocialButton
+                icon={ICONS.medium}
+                label="Medium"
+                href="https://medium.com/@steakhousefinance"
               />
             </div>
           </div>
@@ -385,15 +388,14 @@ export default function MobileStats({
               24h Change
             </div>
             <div
-              className={`text-2xl font-semibold flex items-center justify-end gap-0.5 font-degen tabular-nums ${
-                typeof priceChange24h === 'number'
-                  ? priceChange24h > 0
-                    ? 'text-[#10b981]'
-                    : priceChange24h < 0
+              className={`text-2xl font-semibold flex items-center justify-end gap-0.5 font-degen tabular-nums ${typeof priceChange24h === 'number'
+                ? priceChange24h > 0
+                  ? 'text-[#10b981]'
+                  : priceChange24h < 0
                     ? 'text-[#ef4444]'
                     : 'text-[#9ca3af]'
-                  : 'text-[#9ca3af]'
-              }`}
+                : 'text-[#9ca3af]'
+                }`}
             >
               {typeof priceChange24h === 'number' && priceChange24h > 0 ? '+' : ''}
               {typeof priceChange24h === 'number' && priceChange24h < 0 ? '-' : ''}
@@ -409,7 +411,7 @@ export default function MobileStats({
       <SharePopup
         isOpen={showSharePopup}
         onClose={() => setShowSharePopup(false)}
-        onShare={() => {}}
+        onShare={() => { }}
         shareData={shareData}
       />
     </>

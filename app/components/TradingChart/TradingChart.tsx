@@ -1,11 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/app/components/Header';
 import { DesktopSidebar } from './DesktopSidebar';
 import { MobileBottomBar } from './MobileSidebar';
-import { TradingView } from './TradingView';
+import dynamic from 'next/dynamic';
+
+const TradingView = dynamic(
+  () => import('./TradingView').then((mod) => mod.TradingView),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-[#0a0612] animate-pulse" />
+  }
+);
 import { TradeHistory } from './TradeHistory';
 import { TradePanel } from './TradePanel';
 import { CompactLimitOrderBook } from './CompactLimitOrderBook';
@@ -155,35 +164,12 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Load SoundCloud Widget API script on component mount
-  useEffect(() => {
-    // Check if script is already loaded
-    if ((window as any).SC && (window as any).SC.Widget) {
-      console.log('[SC] SoundCloud Widget API already loaded');
-      return;
-    }
-
-    // Create and append script tag
-    const script = document.createElement('script');
-    script.src = 'https://w.soundcloud.com/player/api.js';
-    script.async = true;
-    script.onload = () => {
-      console.log('[SC] SoundCloud Widget API script loaded successfully');
-    };
-    script.onerror = () => {
-      console.error('[SC] Failed to load SoundCloud Widget API script');
-    };
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup: remove script on unmount if needed
-      // Note: We keep the script loaded for the session to avoid reloading
-    };
-  }, []);
+  // SoundCloud Widget API is loaded via next/script below
 
   // Audio playback control function - handles both MP3 and SoundCloud widget
   const playAudio = () => {
     const newPlayingState = !isPlaying;
-    
+
     // Try to control SoundCloud widget first
     if (scWidgetRef.current && (window as any).SC && (window as any).SC.Widget) {
       try {
@@ -198,7 +184,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         console.warn('[Audio] Failed to control SoundCloud widget, falling back to MP3:', e);
       }
     }
-    
+
     // Fallback to regular MP3 player
     if (mp3PlayerRef.current) {
       if (newPlayingState) {
@@ -249,7 +235,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
     if (isSoundCloudUrl) {
       console.log('[Audio] Detected SoundCloud URL');
-      
+
       // Extract and validate the SoundCloud URL
       const scUrl = extractSoundCloudTrackUrl(mp3Url);
       if (!scUrl) {
@@ -329,9 +315,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   show_comments: false
                 },
                 auto_play: true,
-                callback: function() {
+                callback: function () {
                   widget.setVolume(50);
-                  widget.getSounds(function(sounds: any) {
+                  widget.getSounds(function (sounds: any) {
                     soundsCount = Array.isArray(sounds) ? sounds.length : 0;
                     console.log('[SC] Tracklist count:', soundsCount);
                     if (soundsCount > 1) {
@@ -347,8 +333,8 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               console.log('[SC] Loaded SoundCloud track:', scUrl);
 
               // Attempt to play after a delay in case READY event is missed
-              setTimeout(() => { 
-                if (!isPlaying){
+              setTimeout(() => {
+                if (!isPlaying) {
                   playAudio();
                 } else {
                   widget.play();
@@ -1167,86 +1153,86 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         {/* Trending Bar - Mobile Only */}
         <TopTrendingTicker />
 
-      {/* Progress Bar - Mobile Only */}
-      <div className="bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
-          <span className="text-[#feea88] text-xs font-bold">{tokenData.progress}%</span>
-        </div>
-        <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
-          <div
-            className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
-            style={{
-              width: `${tokenData.progress}%`,
-              boxShadow: '0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/40 rounded-full"></div>
+        {/* Progress Bar - Mobile Only */}
+        <div className="bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
+            <span className="text-[#feea88] text-xs font-bold">{tokenData.progress}%</span>
+          </div>
+          <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
+            <div
+              className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
+              style={{
+                width: `${tokenData.progress}%`,
+                boxShadow: '0 0 8px rgba(255, 215, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-white/40 rounded-full"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Stats - Token Info and Actions */}
-      <MobileStats
-        tokenAddress={tokenAddress}
-        tokenName={apiInfo?.name}
-        tokenSymbol={apiInfo?.symbol}
-        marketCap={marketCapFormatted}
-        currentPrice={livePrice}
-        priceChange24h={typeof apiTokenData?.priceChange24h === 'number' ? apiTokenData.priceChange24h : undefined}
-        tokenIconUrl={apiInfo?.image_url ?? undefined}
-        telegramUrl={apiInfo?.telegram ?? undefined}
-        twitterUrl={apiInfo?.twitter ?? undefined}
-        websiteUrl={apiInfo?.website ?? undefined}
-        isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
-        isAudioPlaying={isPlaying}
-        onToggleAudio={playAudio}
-      />
+        {/* Mobile Stats - Token Info and Actions */}
+        <MobileStats
+          tokenAddress={tokenAddress}
+          tokenName={apiInfo?.name}
+          tokenSymbol={apiInfo?.symbol}
+          marketCap={marketCapFormatted}
+          currentPrice={livePrice}
+          priceChange24h={typeof apiTokenData?.priceChange24h === 'number' ? apiTokenData.priceChange24h : undefined}
+          tokenIconUrl={apiInfo?.image_url ?? undefined}
+          telegramUrl={apiInfo?.telegram ?? undefined}
+          twitterUrl={apiInfo?.twitter ?? undefined}
+          websiteUrl={apiInfo?.website ?? undefined}
+          isAudioAvailable={apiTokenData?.tokenInfo?.mp3_url ? true : false}
+          isAudioPlaying={isPlaying}
+          onToggleAudio={playAudio}
+        />
 
-      {/* Mobile Banner - Token Banner Image */}
-      <MobileBanner
-        bannerUrl={apiInfo?.banner_url ?? undefined}
-        tokenName={apiInfo?.name}
-      />
+        {/* Mobile Banner - Token Banner Image */}
+        <MobileBanner
+          bannerUrl={apiInfo?.banner_url ?? undefined}
+          tokenName={apiInfo?.name}
+        />
 
-      {/* Mobile Token Info - Stats Panel */}
-      <MobileTokenInfo
-        data={{
-          tokenAddress: apiInfo?.token_address,
-          tokenSymbol: apiInfo?.symbol,
-          marketCap: liveTokenUpdates.marketCap ?? apiTokenData?.marketCap,
-          liquidity: liveTokenUpdates.virtualEth ?? apiInfo?.eth_pool,
-          circulatingSupply: liveTokenUpdates.circulatingSupply ?? apiInfo?.circulating_supply,
-          volume24h: apiTokenData?.volume24h,
-          totalSupply: apiInfo?.total_supply,
-          graduationCap: apiInfo?.graduation_cap,
-          graduated: apiInfo?.graduated,
-          createdAt: apiInfo?.inserted_at,
-          tokenType: apiInfo?.token_type,
-          bondingProgress: bondingPct,
-          description: apiInfo?.bio ?? undefined,
-          currentMaxTx: maxTxLimits.current,
-          finalMaxTx: maxTxLimits.final,
-          currentMaxWallet: maxWalletLimits.current,
-          finalMaxWallet: maxWalletLimits.final,
-          currentTax: apiInfo?.curve_starting_tax ?? apiInfo?.final_tax_rate ?? undefined,
-          finalTax: apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? undefined,
-        }}
-      />
+        {/* Mobile Token Info - Stats Panel */}
+        <MobileTokenInfo
+          data={{
+            tokenAddress: apiInfo?.token_address,
+            tokenSymbol: apiInfo?.symbol,
+            marketCap: liveTokenUpdates.marketCap ?? apiTokenData?.marketCap,
+            liquidity: liveTokenUpdates.virtualEth ?? apiInfo?.eth_pool,
+            circulatingSupply: liveTokenUpdates.circulatingSupply ?? apiInfo?.circulating_supply,
+            volume24h: apiTokenData?.volume24h,
+            totalSupply: apiInfo?.total_supply,
+            graduationCap: apiInfo?.graduation_cap,
+            graduated: apiInfo?.graduated,
+            createdAt: apiInfo?.inserted_at,
+            tokenType: apiInfo?.token_type,
+            bondingProgress: bondingPct,
+            description: apiInfo?.bio ?? undefined,
+            currentMaxTx: maxTxLimits.current,
+            finalMaxTx: maxTxLimits.final,
+            currentMaxWallet: maxWalletLimits.current,
+            finalMaxWallet: maxWalletLimits.final,
+            currentTax: apiInfo?.curve_starting_tax ?? apiInfo?.final_tax_rate ?? undefined,
+            finalTax: apiInfo?.final_tax_rate ?? apiInfo?.curve_starting_tax ?? undefined,
+          }}
+        />
 
         {/* Mobile Chart Section - Full height for visibility */}
         <div className="w-full bg-[#0a0612] px-2 py-3" style={{ minHeight: '500px', height: '70vh' }}>
-                  <TradingView
-                      title={apiTokenData?.tokenInfo?.name}
-                      symbol={apiTokenData?.tokenInfo?.symbol}
-                      address={tokenAddress ?? undefined}
-                      timeframe={timeframe}
-                      onChangeTimeframe={(tf) => setTimeframe(tf)}
-                      tokenIconUrl={mobileStyleTokenData.logo}
-                      telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
-                      twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
-                      websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
-                    />
+          <TradingView
+            title={apiTokenData?.tokenInfo?.name}
+            symbol={apiTokenData?.tokenInfo?.symbol}
+            address={tokenAddress ?? undefined}
+            timeframe={timeframe}
+            onChangeTimeframe={(tf) => setTimeframe(tf)}
+            tokenIconUrl={mobileStyleTokenData.logo}
+            telegramUrl={apiTokenData?.tokenInfo?.telegram ?? undefined}
+            twitterUrl={apiTokenData?.tokenInfo?.twitter ?? undefined}
+            websiteUrl={apiTokenData?.tokenInfo?.website ?? undefined}
+          />
         </div>
 
         {/* Mobile Trade History Table - Below Chart */}
@@ -1601,76 +1587,76 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           pointerEvents: 'none',
           zIndex: 1
         }} />
-        
+
         <div className="bg-gradient-to-t from-[#472303] to-[#5a2d04]" style={{ borderTop: '1px solid rgba(218, 162, 11, 0.12)' }}>
           <div className="px-3 py-3 flex items-center gap-2 max-w-screen-md mx-auto" style={{ height: '68px' }}>
-          <button onClick={handleBuyClick} type="button" className="flex-1" style={{ padding: '4px' }}>
-            <div style={{
-              background: 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              fontWeight: 800,
-              color: '#1f2937',
-              letterSpacing: '0.5px',
-              fontSize: '13px',
-              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '36px'
-            }}>BUY</div>
-          </button>
-          <button onClick={handleSellClick} type="button" className="flex-1" style={{ padding: '4px' }}>
-            <div style={{
-              background: 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
-              borderRadius: '12px',
-              textAlign: 'center',
-              fontWeight: 800,
-              color: '#2b1b14',
-              letterSpacing: '0.5px',
-              fontSize: '13px',
-              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,0,0.18)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '36px'
-            }}>SELL</div>
-          </button>
-          <button
-            onClick={() => setMobileSidebarExpanded(true)}
-            type="button"
-            className="flex-shrink-0"
-            title="Open Widgets"
-            style={{ padding: '4px', width: '48px' }}
-          >
-            <div
-              className="flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
+            <button onClick={handleBuyClick} type="button" className="flex-1" style={{ padding: '4px' }}>
+              <div style={{
+                background: 'linear-gradient(180deg, #6ef0a1, #34d37a 60%, #23bd6a)',
                 borderRadius: '12px',
+                textAlign: 'center',
+                fontWeight: 800,
+                color: '#1f2937',
+                letterSpacing: '0.5px',
+                fontSize: '13px',
                 boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
-                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 height: '36px'
-              }}
+              }}>BUY</div>
+            </button>
+            <button onClick={handleSellClick} type="button" className="flex-1" style={{ padding: '4px' }}>
+              <div style={{
+                background: 'linear-gradient(180deg, #ffb1a6, #ff7a6f 60%, #ff5b58)',
+                borderRadius: '12px',
+                textAlign: 'center',
+                fontWeight: 800,
+                color: '#2b1b14',
+                letterSpacing: '0.5px',
+                fontSize: '13px',
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -6px 12px rgba(0,0,0,0.18)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '36px'
+              }}>SELL</div>
+            </button>
+            <button
+              onClick={() => setMobileSidebarExpanded(true)}
+              type="button"
+              className="flex-shrink-0"
+              title="Open Widgets"
+              style={{ padding: '4px', width: '48px' }}
             >
-              <div className="flex flex-col items-center justify-center gap-0.5">
-                <div className="w-1 h-1 bg-black rounded-full"></div>
-                <div className="w-1 h-1 bg-black rounded-full"></div>
-                <div className="w-1 h-1 bg-black rounded-full"></div>
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(180deg, #ffd700, #daa20b 60%, #b8860b)',
+                  borderRadius: '12px',
+                  boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.55), inset 0 -6px 12px rgba(0,0,0,0.18)',
+                  width: '100%',
+                  height: '36px'
+                }}
+              >
+                <div className="flex flex-col items-center justify-center gap-0.5">
+                  <div className="w-1 h-1 bg-black rounded-full"></div>
+                  <div className="w-1 h-1 bg-black rounded-full"></div>
+                  <div className="w-1 h-1 bg-black rounded-full"></div>
+                </div>
               </div>
-            </div>
-          </button>
-        </div>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile trade modal */}
       {isMobileTradeOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
-          <MobileBuySellPanel 
-            orderType={selectedTradeTab} 
-            tokenAddress={tokenAddress} 
-            apiTokenData={apiTokenData} 
+          <MobileBuySellPanel
+            orderType={selectedTradeTab}
+            tokenAddress={tokenAddress}
+            apiTokenData={apiTokenData}
             onClose={() => setIsMobileTradeOpen(false)}
           />
         </div>
@@ -1719,6 +1705,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         style={{ display: 'none' }}
         src="https://w.soundcloud.com/player/?url=about:blank&visual=false&show_comments=false"
         allow="autoplay"
+      />
+      <Script
+        src="https://w.soundcloud.com/player/api.js"
+        strategy="lazyOnload"
+        onLoad={() => {
+          console.log('[SC] SoundCloud Widget API script loaded successfully');
+        }}
+        onError={() => {
+          console.error('[SC] Failed to load SoundCloud Widget API script');
+        }}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { Send, Globe, Copy, Check, Bookmark } from 'lucide-react';
 import styles from './MobileStyleTokenCard.module.css';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
@@ -9,7 +10,7 @@ import { useWallet } from '@/app/hooks/useWallet';
 // Twitter icon component
 const TwitterIcon = () => (
   <svg width="8" height="8" viewBox="0 0 1200 1227" fill="currentColor">
-    <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6902H306.615L611.412 515.685L658.88 583.579L1055.08 1150.31H892.476L569.165 687.854V687.828Z"/>
+    <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6902H306.615L611.412 515.685L658.88 583.579L1055.08 1150.31H892.476L569.165 687.854V687.828Z" />
   </svg>
 );
 
@@ -124,11 +125,11 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
 
   const seedFlames = () => {
     if (!flamesRef.current || !fillRef.current) return;
-    
+
     const w = fillRef.current.clientWidth || 1;
     const FLAME_COUNT = 14; // Reduced for compact version
     const FLAME_WIDTH = 18; // Match the compact CSS flame width
-    
+
     const existingFlames = flamesRef.current.querySelectorAll(`.${styles.flame}`);
     if (existingFlames.length === FLAME_COUNT && w > 0) {
       existingFlames.forEach((flame, i) => {
@@ -137,9 +138,9 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       });
       return;
     }
-    
+
     flamesRef.current.innerHTML = '';
-    
+
     for (let i = 0; i < FLAME_COUNT; i++) {
       const flame = document.createElement('span');
       flame.className = styles.flame;
@@ -157,7 +158,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
     sparkTimer.current = setInterval(() => {
       if (!fillRef.current) return;
       if (document.querySelectorAll(`.${styles.spark}`).length > 40) return;
-      
+
       const spark = document.createElement('span');
       spark.className = styles.spark;
       const w = fillRef.current.clientWidth;
@@ -190,7 +191,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
 
   const setProgress = (percent: number) => {
     if (!fillRef.current || !trackRef.current || !labelRef.current) return;
-    
+
     const clamped = Math.max(0, Math.min(100, percent));
     fillRef.current.style.width = `${clamped}%`;
     trackRef.current.setAttribute('aria-valuenow', clamped.toFixed(1));
@@ -202,26 +203,26 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
 
   const animateTo = (target: number, ms = 1600) => {
     if (!fillRef.current) return;
-    
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
-    
+
     const startWidth = parseFloat(fillRef.current.style.width) || 0;
     const t0 = performance.now();
     let lastFlameUpdate = 0;
-    
+
     const frame = (t: number) => {
       const k = Math.min(1, (t - t0) / ms);
       const eased = 1 - Math.pow(1 - k, 3);
       const value = startWidth + (target - startWidth) * eased;
       setProgress(value);
-      
+
       if (t - lastFlameUpdate > 100) {
         seedFlames();
         lastFlameUpdate = t;
       }
-      
+
       if (k < 1) {
         animationFrameRef.current = requestAnimationFrame(frame);
       } else {
@@ -245,10 +246,10 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       }
       return;
     }
-    
+
     setProgress(0);
     seedFlames();
-    
+
     if (!prefersReducedMotion) {
       startSparks();
     }
@@ -338,10 +339,17 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
         style={{
           margin: isLimitMode ? '-8px -14px 3px -14px' : undefined,
           position: 'relative',
-          ...(tokenData.bannerUrl
-            ? ({ ['--banner-image' as any]: `url(${tokenData.bannerUrl})` } as React.CSSProperties)
-            : {})
+          overflow: 'hidden',
         }}>
+        {tokenData.bannerUrl && (
+          <Image
+            src={tokenData.bannerUrl}
+            alt="Token Banner"
+            fill
+            className="object-cover"
+            style={{ zIndex: 0 }}
+          />
+        )}
         <div
           className={`${styles.bannerLayer} ${styles.gradient}`}
           style={{
@@ -349,8 +357,8 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             zIndex: 1,
             ...(tokenData.bannerUrl
               ? {
-                  background: `radial-gradient(90% 100% at 50% 0%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05) 45%, transparent 75%)`,
-                }
+                background: `radial-gradient(90% 100% at 50% 0%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05) 45%, transparent 75%)`,
+              }
               : {}),
           }}
         ></div>
@@ -392,7 +400,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             {copied ? <Check size={12} /> : <Copy size={12} />}
           </button>
         </div>
-      </header>
+      </header >
 
       <section className={styles.taxLine} style={{
         marginTop: isLimitMode ? '2px' : undefined,
@@ -407,18 +415,19 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
       </section>
 
       {/* Description only (social icons moved to top chart toolbar) */}
-      {tokenData.description && (
-        <div style={{
-          margin: isLimitMode ? '2px 0 4px' : undefined
-        }}>
-          <p className={styles.desc} style={{
-            fontSize: isLimitMode ? '13px' : '15px',
-            lineHeight: 1.5,
-            fontWeight: 500
+      {
+        tokenData.description && (
+          <div style={{
+            margin: isLimitMode ? '2px 0 4px' : undefined
           }}>
-            {tokenData.description}
-          </p>
-          {/**
+            <p className={styles.desc} style={{
+              fontSize: isLimitMode ? '13px' : '15px',
+              lineHeight: 1.5,
+              fontWeight: 500
+            }}>
+              {tokenData.description}
+            </p>
+            {/**
            * Social buttons stacked vertically on the right (commented out)
            * <nav aria-label="Social links" style={{
            *   display: 'flex',
@@ -437,8 +446,9 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
            *   </button>
            * </nav>
            */}
-        </div>
-      )}
+          </div>
+        )
+      }
 
       {/* Bottom panel: stats row + searing progress bar */}
       <section className={styles.score} style={{
@@ -483,7 +493,7 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
             padding: isLimitMode ? '2px' : undefined
           }}
         >
-          <div ref={fillRef} className={styles.fill} style={{ 
+          <div ref={fillRef} className={styles.fill} style={{
             width: '0%',
             height: isLimitMode ? '26px' : undefined,
             borderRadius: isLimitMode ? '13px' : undefined
@@ -494,6 +504,6 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({ toke
           </div>
         </div>
       </section>
-    </article>
+    </article >
   );
 };
