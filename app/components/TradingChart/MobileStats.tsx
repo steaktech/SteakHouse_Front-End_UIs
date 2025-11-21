@@ -60,7 +60,7 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
         w-7 h-7
         flex items-center justify-center 
         rounded-md
-        bg-[#13101a]
+        bg-[#07040b]
         border border-[#1f1a24] group-hover:border-[#e9af5a]/50
         text-[#e9af5a] group-hover:text-[#ffdca3]
         transition-all duration-300 ease-out
@@ -203,7 +203,7 @@ export default function MobileStats({
 
   return (
     <>
-      <div className="bg-[#0a0612] px-3 py-3 border-b border-[#1f1a24]">
+      <div className="bg-[#07040b] px-3 py-3 border-b border-[#07040b]">
         <div className="flex items-start justify-between gap-2 relative">
           {/* Left Side: Token Info */}
           <div className="flex flex-col gap-2 flex-1 min-w-0">
@@ -245,7 +245,7 @@ export default function MobileStats({
             {/* Second Row: Price Badge (aligned with circle) */}
             <div className="flex items-center justify-between gap-2">
               {currentPrice !== undefined && (
-                <div className="px-3 py-1.5 rounded-md bg-[#1f1a24] border border-[#2d2838]">
+                <div className="px-3 py-1.5 rounded-md border border-[#1f1a24]" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
                   <span className="text-white text-3xl font-semibold font-degen tabular-nums">
                     {renderFormattedPrice(currentPrice)}
                   </span>

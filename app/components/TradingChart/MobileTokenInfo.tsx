@@ -155,7 +155,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
   const valueClass = "text-sm sm:text-base font-bold text-white";
 
   return (
-    <div className="w-full bg-[#0a0612] border-b border-[#1f1a24]">
+    <div className="w-full bg-[#07040b] border-b border-[#07040b]">
       <div className="px-4 py-3">
         {/* Token Address Row */}
         <div className="flex items-center justify-between mb-4 rounded-lg px-3 py-2" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
