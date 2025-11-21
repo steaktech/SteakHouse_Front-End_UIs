@@ -150,7 +150,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
   const [showMoreInfo, setShowMoreInfo] = useState(false);
 
-  const gridItemClass = "flex flex-col items-center justify-center py-3 px-2 bg-[#13101a] rounded-lg border border-[#1f1a24]";
+  const gridItemClass = "flex flex-col items-center justify-center py-3 px-2 rounded-lg border border-[#1f1a24]";
   const labelClass = "text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1";
   const valueClass = "text-sm sm:text-base font-bold text-white";
 
@@ -158,7 +158,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
     <div className="w-full bg-[#0a0612] border-b border-[#1f1a24]">
       <div className="px-4 py-3">
         {/* Token Address Row */}
-        <div className="flex items-center justify-between mb-4 bg-[#13101a] rounded-lg px-3 py-2">
+        <div className="flex items-center justify-between mb-4 rounded-lg px-3 py-2" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-400 uppercase tracking-wider">
               {data.tokenSymbol || 'TOKEN'}:
@@ -184,37 +184,37 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         {/* Stats Grid - 2 columns */}
         <div className="grid grid-cols-2 gap-3 mb-3">
           {/* Market Cap */}
-          <div className={gridItemClass}>
+          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             <span className={labelClass}>MARKET CAP</span>
             <span className={valueClass}>{formatCurrency(data.marketCap)}</span>
           </div>
 
           {/* Liquidity (ETH → USD) */}
-          <div className={gridItemClass}>
+          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             <span className={labelClass}>LIQUIDITY</span>
             <span className={valueClass}>{formatCurrency(liquidityUsd)}</span>
           </div>
 
           {/* Circulating Supply */}
-          <div className={gridItemClass}>
+          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             <span className={labelClass}>CIRC. SUPPLY</span>
             <span className={valueClass}>{formatNumber(data.circulatingSupply)}</span>
           </div>
 
           {/* Total Supply */}
-          <div className={gridItemClass}>
+          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             <span className={labelClass}>TOTAL SUPPLY</span>
             <span className={valueClass}>{formatNumber(data.totalSupply)}</span>
           </div>
 
           {/* 24H Volume (ETH → USD) */}
-          <div className={gridItemClass}>
+          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             <span className={labelClass}>24H VOLUME</span>
             <span className={valueClass}>{formatCurrency(volume24hUsd)}</span>
           </div>
 
           {/* Graduation Cap (formatted via bonding-curve MCAP when possible) */}
-          <div className={gridItemClass}>
+          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             <span className={labelClass}>GRAD. CAP</span>
             <span className={valueClass}>{formatCurrency(graduationCapMcapUsd)}</span>
           </div>
@@ -223,7 +223,8 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         {/* More Info Button */}
         <button
           onClick={() => setShowMoreInfo(!showMoreInfo)}
-          className="w-full py-2 text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-1 bg-[#13101a] rounded-lg border border-[#1f1a24]"
+          className="w-full py-2 text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-1 rounded-lg border border-[#1f1a24]"
+          style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}
         >
           {showMoreInfo ? 'Less Info' : 'More Info'}
           <svg
@@ -238,7 +239,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
         {/* Expandable More Info Section */}
         {showMoreInfo && (
-          <div className="mt-3 space-y-2 bg-[#13101a] rounded-lg border border-[#1f1a24] p-3">
+          <div className="mt-3 space-y-2 rounded-lg border border-[#1f1a24] p-3" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
             {/* Status */}
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Status</span>
