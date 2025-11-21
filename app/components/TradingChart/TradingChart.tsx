@@ -741,6 +741,52 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
     tagColor: undefined,
     address: apiInfo?.real_token_address ?? apiInfo?.token_address ?? tokenAddress,
     contractAddress: apiInfo?.token_address ?? undefined,
+    tokenAddress: apiInfo?.real_token_address ?? apiInfo?.token_address ?? tokenAddress,
+    price: typeof livePrice === 'number' ? livePrice : undefined,
+    priceChange24h:
+      typeof apiTokenData?.priceChange24h === 'number'
+        ? apiTokenData.priceChange24h
+        : undefined,
+    rawMarketCap:
+      liveTokenUpdates.marketCap ??
+      (apiTokenData?.marketCap != null ? Number(apiTokenData.marketCap) : undefined),
+    rawLiquidityEth:
+      liveTokenUpdates.virtualEth ??
+      (apiInfo?.eth_pool != null ? Number(apiInfo.eth_pool) : undefined),
+    rawVolume24h:
+      apiTokenData?.volume24h != null ? Number(apiTokenData.volume24h) : undefined,
+    circulatingSupply:
+      liveTokenUpdates.circulatingSupply ??
+      (apiInfo?.circulating_supply != null
+        ? Number(apiInfo.circulating_supply)
+        : undefined),
+    totalSupply:
+      apiInfo?.total_supply != null ? Number(apiInfo.total_supply) : undefined,
+    graduationCap:
+      apiInfo?.graduation_cap != null ? Number(apiInfo.graduation_cap) : undefined,
+    graduated: apiInfo?.graduated ?? undefined,
+    createdAt: apiInfo?.inserted_at ?? undefined,
+    tokenType:
+      apiInfo?.token_type != null ? Number(apiInfo.token_type) : undefined,
+    currentMaxTxPct: maxTxLimits.current,
+    finalMaxTxPct: maxTxLimits.final,
+    currentMaxWalletPct: maxWalletLimits.current,
+    finalMaxWalletPct: maxWalletLimits.final,
+    currentTaxPct:
+      apiInfo?.curve_starting_tax != null
+        ? Number(apiInfo.curve_starting_tax)
+        : apiInfo?.final_tax_rate != null
+          ? Number(apiInfo.final_tax_rate)
+          : undefined,
+    finalTaxPct:
+      apiInfo?.final_tax_rate != null
+        ? Number(apiInfo.final_tax_rate)
+        : apiInfo?.curve_starting_tax != null
+          ? Number(apiInfo.curve_starting_tax)
+          : undefined,
+    telegramUrl: apiInfo?.telegram ?? undefined,
+    twitterUrl: apiInfo?.twitter ?? undefined,
+    websiteUrl: apiInfo?.website ?? undefined,
   };
 
   // Load token data based on URL parameter
@@ -1424,7 +1470,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <MobileStyleTokenCard tokenData={mobileStyleTokenData} isLoading={!apiTokenData} />
+                  <MobileStyleTokenCard
+                    tokenData={mobileStyleTokenData}
+                    isLoading={!apiTokenData}
+                    isAudioPlaying={isPlaying}
+                    isAudioAvailable={!!apiTokenData?.tokenInfo?.mp3_url}
+                    onToggleAudio={playAudio}
+                  />
                 </div>
               </div>
 

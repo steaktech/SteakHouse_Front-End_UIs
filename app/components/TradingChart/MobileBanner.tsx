@@ -17,7 +17,7 @@ export default function MobileBanner({
   }
 
   return (
-    <div className="lg:hidden w-full h-[120px] bg-[#0a0612] border-b border-[#1f1a24] overflow-hidden">
+    <div className="w-full h-[120px] bg-[#0a0612] border-b border-[#1f1a24] overflow-hidden">
       <div className="relative w-full h-full">
         <Image
           src={bannerUrl}

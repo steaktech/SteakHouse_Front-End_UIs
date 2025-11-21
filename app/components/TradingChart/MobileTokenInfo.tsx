@@ -88,7 +88,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
   // Format numbers with appropriate suffixes
   const formatNumber = (num?: number): string => {
     if (num === undefined || num === null) return '-';
-    
+
     if (num >= 1_000_000_000) {
       return `${(num / 1_000_000_000).toFixed(2)}B`;
     } else if (num >= 1_000_000) {
@@ -155,7 +155,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
   const valueClass = "text-sm sm:text-base font-bold text-white";
 
   return (
-    <div className="lg:hidden w-full bg-[#0a0612] border-b border-[#1f1a24]">
+    <div className="w-full bg-[#0a0612] border-b border-[#1f1a24]">
       <div className="px-4 py-3">
         {/* Token Address Row */}
         <div className="flex items-center justify-between mb-4 bg-[#13101a] rounded-lg px-3 py-2">
@@ -167,7 +167,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
               {data.tokenAddress ? `${data.tokenAddress.slice(0, 6)}...${data.tokenAddress.slice(-4)}` : '-'}
             </span>
           </div>
-          <button 
+          <button
             className="text-gray-400 hover:text-white transition-colors"
             onClick={() => {
               if (data.tokenAddress) {
@@ -221,15 +221,15 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         </div>
 
         {/* More Info Button */}
-        <button 
+        <button
           onClick={() => setShowMoreInfo(!showMoreInfo)}
           className="w-full py-2 text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-1 bg-[#13101a] rounded-lg border border-[#1f1a24]"
         >
           {showMoreInfo ? 'Less Info' : 'More Info'}
-          <svg 
-            className={`w-4 h-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className={`w-4 h-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -256,7 +256,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                       Bonding {calculatedBondingProgress ? `${calculatedBondingProgress.toFixed(0)}%` : ''}
                     </span>
                     <div className="w-full h-1.5 bg-[#1a1523] rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(calculatedBondingProgress || 0, 100)}%` }}
                       />
@@ -273,17 +273,17 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                 {data.description && data.description.trim().length > 0 ? data.description : '-'}
               </span>
             </div>
-            
+
             {/* Token Type */}
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Token Type</span>
               <span className="text-xs font-semibold text-white">
-                {data.tokenType === 0 ? 'ZERO' : 
-                 data.tokenType === 1 ? 'SUPER SIMPLE' : 
-                 data.tokenType === 2 ? 'BASIC' : 
-                 data.tokenType === 3 ? 'ADVANCED' : 
-                 data.tokenType === 4 ? 'CUSTOM' : 
-                 '-'}
+                {data.tokenType === 0 ? 'ZERO' :
+                  data.tokenType === 1 ? 'SUPER SIMPLE' :
+                    data.tokenType === 2 ? 'BASIC' :
+                      data.tokenType === 3 ? 'ADVANCED' :
+                        data.tokenType === 4 ? 'CUSTOM' :
+                          '-'}
               </span>
             </div>
 
@@ -291,7 +291,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
               <span className="text-xs text-gray-400 uppercase tracking-wider">Supply %</span>
               <span className="text-xs font-semibold text-white">
-                {data.circulatingSupply && data.totalSupply 
+                {data.circulatingSupply && data.totalSupply
                   ? `${((data.circulatingSupply / data.totalSupply) * 100).toFixed(2)}%`
                   : '-'
                 }

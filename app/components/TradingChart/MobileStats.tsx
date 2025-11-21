@@ -203,7 +203,7 @@ export default function MobileStats({
 
   return (
     <>
-      <div className="lg:hidden bg-[#0a0612] px-3 py-3 border-b border-[#1f1a24]">
+      <div className="bg-[#0a0612] px-3 py-3 border-b border-[#1f1a24]">
         <div className="flex items-start justify-between gap-2 relative">
           {/* Left Side: Token Info */}
           <div className="flex flex-col gap-2 flex-1 min-w-0">
