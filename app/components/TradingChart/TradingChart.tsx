@@ -1453,7 +1453,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
 
             {/* Right Column - Token Card and Trade Panel (desktop only) */}
             <div
-              className={`hidden lg:flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden scrollbar-custom ${desktopTradeTab === 'limit' ? 'w-[300px]' : 'w-[290px]'}`}
+              className={`hidden lg:flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden scrollbar-custom ${desktopTradeTab === 'limit' ? 'w-[360px]' : 'w-[350px]'}`}
               style={{
                 transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
                 flexShrink: 0,
