@@ -52,7 +52,7 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
       className="group relative flex items-center justify-center"
     >
       {/* Glow Effect (Behind) */}
-      <div className="absolute inset-0 bg-[#e9af5a]/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'rgba(254, 234, 136, 0.2)' }} />
 
       {/* Main Container */}
       <div className="
@@ -60,12 +60,14 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
         w-7 h-7
         flex items-center justify-center 
         rounded-md
-        bg-[#07040b]
-        border border-[#1f1a24] group-hover:border-[#e9af5a]/50
-        text-[#e9af5a] group-hover:text-[#ffdca3]
+        border group-hover:border-[#feea88]/60
+        text-[#feea88] group-hover:text-[#ffdca3]
         transition-all duration-300 ease-out
-        group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(233,175,90,0.15)]
-      ">
+        group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(254,234,136,0.2)]
+      " style={{
+          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+          borderColor: 'rgba(255, 210, 160, 0.3)'
+        }}>
         <svg
           viewBox="0 0 24 24"
           fill="currentColor"
@@ -203,7 +205,10 @@ export default function MobileStats({
 
   return (
     <>
-      <div className="bg-[#07040b] px-3 py-3 border-b border-[#07040b]">
+      <div className="px-3 py-3 border-b" style={{
+        background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+        borderColor: 'rgba(255, 215, 165, 0.2)'
+      }}>
         <div className="flex items-start justify-between gap-2 relative">
           {/* Left Side: Token Info */}
           <div className="flex flex-col gap-2 flex-1 min-w-0">
@@ -245,7 +250,11 @@ export default function MobileStats({
             {/* Second Row: Price Badge (aligned with circle) */}
             <div className="flex items-center justify-between gap-2">
               {currentPrice !== undefined && (
-                <div className="px-3 py-1.5 rounded-md border border-[#1f1a24]" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
+                <div className="px-3 py-1.5 rounded-md border" style={{
+                  background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                  borderColor: 'rgba(255, 210, 160, 0.25)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+                }}>
                   <span className="text-white text-3xl font-semibold font-degen tabular-nums">
                     {renderFormattedPrice(currentPrice)}
                   </span>
@@ -297,7 +306,8 @@ export default function MobileStats({
                   className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
                   title={link.label}
                   style={{
-                    background: 'rgba(31, 26, 36, 0.5)',
+                    background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                    borderColor: 'rgba(255, 210, 160, 0.3)'
                   }}
                 >
                   <Icon size={16} style={{ color: link.color }} />
@@ -307,7 +317,7 @@ export default function MobileStats({
 
             {/* Divider */}
             {socialLinks.length > 0 && (
-              <div className="w-px h-5 bg-[#1f1a24] mx-0.5"></div>
+              <div className="w-px h-5 mx-0.5" style={{ background: 'rgba(255, 210, 160, 0.3)' }}></div>
             )}
 
             {/* Audio Button (moved from TradingView header) */}
@@ -315,9 +325,10 @@ export default function MobileStats({
               <button
                 type="button"
                 onClick={onToggleAudio}
-                className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
                 style={{
-                  background: 'rgba(31, 26, 36, 0.5)',
+                  background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                  borderColor: 'rgba(255, 210, 160, 0.3)'
                 }}
                 title={isAudioPlaying ? 'Mute Audio' : 'Play Audio'}
               >
@@ -327,7 +338,7 @@ export default function MobileStats({
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#e9af5a"
+                  stroke="#feea88"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -355,15 +366,16 @@ export default function MobileStats({
               type="button"
               onClick={handleSaveClick}
               disabled={isSaveLoading}
-              className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+              className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
-                background: 'rgba(31, 26, 36, 0.5)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                borderColor: 'rgba(255, 210, 160, 0.3)'
               }}
               title={isSaved ? 'Saved' : 'Save token'}
             >
               <Bookmark
                 size={16}
-                className="text-[#e9af5a]"
+                className="text-[#feea88]"
                 fill={isSaved ? 'currentColor' : 'none'}
               />
             </button>
@@ -372,13 +384,14 @@ export default function MobileStats({
             <button
               type="button"
               onClick={handleShareClick}
-              className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+              className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
-                background: 'rgba(31, 26, 36, 0.5)',
+                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                borderColor: 'rgba(255, 210, 160, 0.3)'
               }}
               title="Share"
             >
-              <Share2 size={16} className="text-[#e9af5a]" />
+              <Share2 size={16} className="text-[#feea88]" />
             </button>
           </div>
 

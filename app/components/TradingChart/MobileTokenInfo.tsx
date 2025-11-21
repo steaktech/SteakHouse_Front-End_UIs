@@ -150,25 +150,35 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
   const [showMoreInfo, setShowMoreInfo] = useState(false);
 
-  const gridItemClass = "flex flex-col items-center justify-center py-3 px-2 rounded-lg border border-[#1f1a24]";
-  const labelClass = "text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1";
-  const valueClass = "text-sm sm:text-base font-bold text-white";
+  const gridItemClass = "flex flex-col items-center justify-center py-3 px-2 rounded-lg border";
+  const labelClass = "text-[10px] sm:text-xs uppercase tracking-wider mb-1 flex items-center gap-1";
+  const valueClass = "text-sm sm:text-base font-bold";
 
   return (
-    <div className="w-full bg-[#07040b] border-b border-[#07040b]">
+    <div className="w-full border-b" style={{
+      background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+      borderColor: 'rgba(255, 215, 165, 0.2)'
+    }}>
       <div className="px-4 py-3">
         {/* Token Address Row */}
-        <div className="flex items-center justify-between mb-4 rounded-lg px-3 py-2" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
+        <div className="flex items-center justify-between mb-4 rounded-lg px-3 py-2" style={{
+          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+          border: '1px solid rgba(255, 210, 160, 0.25)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+        }}>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 uppercase tracking-wider">
+            <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>
               {data.tokenSymbol || 'TOKEN'}:
             </span>
-            <span className="text-xs text-[#e9af5a] font-mono">
+            <span className="text-xs font-mono" style={{ color: '#feea88' }}>
               {data.tokenAddress ? `${data.tokenAddress.slice(0, 6)}...${data.tokenAddress.slice(-4)}` : '-'}
             </span>
           </div>
           <button
-            className="text-gray-400 hover:text-white transition-colors"
+            className="transition-colors"
+            style={{ color: 'var(--ab-text-200, #d4a574)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#feea88'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--ab-text-200, #d4a574)'}
             onClick={() => {
               if (data.tokenAddress) {
                 navigator.clipboard.writeText(data.tokenAddress);
@@ -184,47 +194,78 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         {/* Stats Grid - 2 columns */}
         <div className="grid grid-cols-2 gap-3 mb-3">
           {/* Market Cap */}
-          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
-            <span className={labelClass}>MARKET CAP</span>
-            <span className={valueClass}>{formatCurrency(data.marketCap)}</span>
+          <div className={gridItemClass} style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
+            <span className={labelClass} style={{ color: 'var(--ab-text-200, #d4a574)' }}>MARKET CAP</span>
+            <span className={valueClass} style={{ color: 'var(--ab-text-400, #feea88)' }}>{formatCurrency(data.marketCap)}</span>
           </div>
 
           {/* Liquidity (ETH → USD) */}
-          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
-            <span className={labelClass}>LIQUIDITY</span>
-            <span className={valueClass}>{formatCurrency(liquidityUsd)}</span>
+          <div className={gridItemClass} style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
+            <span className={labelClass} style={{ color: 'var(--ab-text-200, #d4a574)' }}>LIQUIDITY</span>
+            <span className={valueClass} style={{ color: 'var(--ab-text-400, #feea88)' }}>{formatCurrency(liquidityUsd)}</span>
           </div>
 
           {/* Circulating Supply */}
-          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
-            <span className={labelClass}>CIRC. SUPPLY</span>
-            <span className={valueClass}>{formatNumber(data.circulatingSupply)}</span>
+          <div className={gridItemClass} style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
+            <span className={labelClass} style={{ color: 'var(--ab-text-200, #d4a574)' }}>CIRC. SUPPLY</span>
+            <span className={valueClass} style={{ color: 'var(--ab-text-400, #feea88)' }}>{formatNumber(data.circulatingSupply)}</span>
           </div>
 
           {/* Total Supply */}
-          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
-            <span className={labelClass}>TOTAL SUPPLY</span>
-            <span className={valueClass}>{formatNumber(data.totalSupply)}</span>
+          <div className={gridItemClass} style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
+            <span className={labelClass} style={{ color: 'var(--ab-text-200, #d4a574)' }}>TOTAL SUPPLY</span>
+            <span className={valueClass} style={{ color: 'var(--ab-text-400, #feea88)' }}>{formatNumber(data.totalSupply)}</span>
           </div>
 
           {/* 24H Volume (ETH → USD) */}
-          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
-            <span className={labelClass}>24H VOLUME</span>
-            <span className={valueClass}>{formatCurrency(volume24hUsd)}</span>
+          <div className={gridItemClass} style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
+            <span className={labelClass} style={{ color: 'var(--ab-text-200, #d4a574)' }}>24H VOLUME</span>
+            <span className={valueClass} style={{ color: 'var(--ab-text-400, #feea88)' }}>{formatCurrency(volume24hUsd)}</span>
           </div>
 
           {/* Graduation Cap (formatted via bonding-curve MCAP when possible) */}
-          <div className={gridItemClass} style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
-            <span className={labelClass}>GRAD. CAP</span>
-            <span className={valueClass}>{formatCurrency(graduationCapMcapUsd)}</span>
+          <div className={gridItemClass} style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
+            <span className={labelClass} style={{ color: 'var(--ab-text-200, #d4a574)' }}>GRAD. CAP</span>
+            <span className={valueClass} style={{ color: 'var(--ab-text-400, #feea88)' }}>{formatCurrency(graduationCapMcapUsd)}</span>
           </div>
         </div>
 
         {/* More Info Button */}
         <button
           onClick={() => setShowMoreInfo(!showMoreInfo)}
-          className="w-full py-2 text-xs text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-1 mt-1 rounded-lg border border-[#1f1a24]"
-          style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}
+          className="w-full py-2 text-xs transition-colors flex items-center justify-center gap-1 mt-1 rounded-lg border"
+          style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+            borderColor: 'rgba(255, 210, 160, 0.4)',
+            color: 'var(--ab-text-200, #d4a574)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#feea88'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--ab-text-200, #d4a574)'}
         >
           {showMoreInfo ? 'Less Info' : 'More Info'}
           <svg
@@ -239,11 +280,15 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
         {/* Expandable More Info Section */}
         {showMoreInfo && (
-          <div className="mt-3 space-y-2 rounded-lg border border-[#1f1a24] p-3" style={{ background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))' }}>
+          <div className="mt-3 space-y-2 rounded-lg border p-3" style={{
+            background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+          }}>
             {/* Status */}
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Status</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Status</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.graduated ? (
                   <span className="text-green-400 flex items-center gap-1">
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -256,7 +301,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                     <span className="text-yellow-400 text-[10px]">
                       Bonding {calculatedBondingProgress ? `${calculatedBondingProgress.toFixed(0)}%` : ''}
                     </span>
-                    <div className="w-full h-1.5 bg-[#1a1523] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(60, 32, 18, 0.5)' }}>
                       <div
                         className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(calculatedBondingProgress || 0, 100)}%` }}
@@ -268,17 +313,17 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             </div>
 
             {/* Description */}
-            <div className="flex justify-between items-start py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider mr-4">Description</span>
-              <span className="text-xs font-semibold text-white text-right max-w-[60%] break-words">
+            <div className="flex justify-between items-start py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider mr-4" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Description</span>
+              <span className="text-xs font-semibold text-right max-w-[60%] break-words" style={{ color: '#feea88' }}>
                 {data.description && data.description.trim().length > 0 ? data.description : '-'}
               </span>
             </div>
 
             {/* Token Type */}
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Token Type</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Token Type</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.tokenType === 0 ? 'ZERO' :
                   data.tokenType === 1 ? 'SUPER SIMPLE' :
                     data.tokenType === 2 ? 'BASIC' :
@@ -289,9 +334,9 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             </div>
 
             {/* Supply percentage */}
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Supply %</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Supply %</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.circulatingSupply && data.totalSupply
                   ? `${((data.circulatingSupply / data.totalSupply) * 100).toFixed(2)}%`
                   : '-'
@@ -300,51 +345,51 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             </div>
 
             {/* Current / Final Max Tx */}
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Current MaxTx</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Current MaxTx</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.currentMaxTx != null ? formatPercent(data.currentMaxTx) : '-'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Final MaxTx</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Final MaxTx</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.finalMaxTx != null ? formatPercent(data.finalMaxTx) : '-'}
               </span>
             </div>
 
             {/* Current / Final Max Wallet */}
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Current MaxWallet</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Current MaxWallet</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.currentMaxWallet != null ? formatPercent(data.currentMaxWallet) : '-'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Final MaxWallet</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Final MaxWallet</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.finalMaxWallet != null ? formatPercent(data.finalMaxWallet) : '-'}
               </span>
             </div>
 
             {/* Current / Final Tax */}
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Current Tax</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Current Tax</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.currentTax != null ? `${data.currentTax.toFixed(2)}%` : '-'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-[#1f1a24]">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Final Tax</span>
-              <span className="text-xs font-semibold text-white">
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Final Tax</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.finalTax != null ? `${data.finalTax.toFixed(2)}%` : '-'}
               </span>
             </div>
 
             {/* Created at */}
             <div className="flex justify-between items-center py-2">
-              <span className="text-xs text-gray-400 uppercase tracking-wider">Created At</span>
-              <span className="text-xs font-semibold text-white">
+              <span className="text-xs uppercase tracking-wider" style={{ color: 'var(--ab-text-200, #d4a574)' }}>Created At</span>
+              <span className="text-xs font-semibold" style={{ color: '#feea88' }}>
                 {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
