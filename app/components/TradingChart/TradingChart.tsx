@@ -1357,70 +1357,16 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
               <div
                 className="hidden lg:block"
                 style={{
-                  height: `${desktopTransactionsHeight}px`,
-                  position: 'relative',
                   flexShrink: 0
                 }}>
-                {/* Drag Handle */}
-                <div
-                  onMouseDown={handleDesktopMouseDown}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '12px',
-                    cursor: 'row-resize',
-                    zIndex: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.15)' : 'transparent',
-                    transition: 'background 150ms ease',
-                    touchAction: 'none'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isDraggingDesktop) {
-                      e.currentTarget.style.background = 'rgba(255, 215, 165, 0.08)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isDraggingDesktop) {
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  <div
-                    style={{
-                      width: isDraggingDesktop ? '64px' : '48px',
-                      height: '4px',
-                      borderRadius: '2px',
-                      background: isDraggingDesktop
-                        ? 'linear-gradient(90deg, rgba(254, 234, 136, 0.6), rgba(254, 234, 136, 0.9), rgba(254, 234, 136, 0.6))'
-                        : 'rgba(255, 215, 165, 0.4)',
-                      transition: 'all 150ms ease',
-                      boxShadow: isDraggingDesktop ? '0 0 8px rgba(254, 234, 136, 0.4)' : 'none'
-                    }}
-                  />
-                </div>
                 <div style={{
                   width: '100%',
-                  height: '100%',
-                  position: 'relative',
-                  borderRadius: 'clamp(14px, 2vw, 20px)',
-                  background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-                  boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
-                  padding: 'clamp(12px, 2.5vh, 16px)',
-                  paddingTop: '20px',
-                  border: '1px solid rgba(255, 215, 165, 0.4)',
-                  overflow: 'hidden',
-                  color: '#fff7ea',
                   display: 'flex',
                   flexDirection: 'column',
                   boxSizing: 'border-box'
                 }}>
                   {/* Content Area */}
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ flex: 1 }}>
                     {showLimitOrders ? (
                       <CompactLimitOrderBook
                         orders={orderManagement.orders}

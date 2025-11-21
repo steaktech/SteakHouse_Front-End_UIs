@@ -7,18 +7,18 @@ import { useWallet } from '@/app/hooks/useWallet';
 
 // Custom SVG Arrow Icons
 const BuyArrow = ({ size = 12 }: { size?: number }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path 
-      d="M7 17L17 7M17 7H9M17 7V15" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <path
+      d="M7 17L17 7M17 7H9M17 7V15"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
       fill="none"
     />
@@ -26,18 +26,18 @@ const BuyArrow = ({ size = 12 }: { size?: number }) => (
 );
 
 const SellArrow = ({ size = 12 }: { size?: number }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path 
-      d="M17 7L7 17M7 17H15M7 17V9" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <path
+      d="M17 7L7 17M7 17H15M7 17V9"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
       fill="none"
     />
@@ -50,6 +50,9 @@ interface MobileTradeHistoryTableProps {
   trades?: Trade[];
   isLoading?: boolean;
   error?: string | null;
+  transparent?: boolean;
+  hideTabs?: boolean;
+  disableScroll?: boolean;
 }
 
 type TabType = 'history' | 'positions' | 'topTraders' | 'pricemc';
@@ -62,6 +65,9 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
   trades: liveTrades,
   isLoading = false,
   error = null,
+  transparent = false,
+  hideTabs = false,
+  disableScroll = false,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('history');
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
@@ -84,11 +90,11 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
   }, [activeTab]);
 
   // Fetch limit orders (positions)
-  const { 
-    data: limitOrders, 
-    isLoading: ordersLoading, 
+  const {
+    data: limitOrders,
+    isLoading: ordersLoading,
     error: ordersError,
-    refetch: refetchOrders 
+    refetch: refetchOrders
   } = useLimitOrders({
     wallet: walletAddress,
     tokenAddress: tokenAddress,
@@ -153,9 +159,9 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
   // Calculate top traders from trades
   const topTraders = useMemo(() => {
-    const traderStats = new Map<string, { 
-      address: string; 
-      totalVolume: number; 
+    const traderStats = new Map<string, {
+      address: string;
+      totalVolume: number;
       trades: number;
       buys: number;
       sells: number;
@@ -176,10 +182,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
       };
 
       const volume = typeof trade.usdValue === 'number' ? trade.usdValue : parseFloat(String(trade.usdValue).replace('$', ''));
-      
+
       existing.totalVolume += volume;
       existing.trades += 1;
-      
+
       if (trade.type === 'BUY') {
         existing.buys += 1;
         existing.profit -= volume; // Cost
@@ -200,12 +206,12 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
   const priceStats = useMemo(() => {
     const currentPrice = tokenData?.price || 0;
     const currentMC = tokenData?.marketCap || 0;
-    
+
     // Calculate 24h change from trades
     const now = Date.now();
     const oneDayAgo = now - (24 * 60 * 60 * 1000);
     const tradesLast24h = trades.filter(t => t.timestamp >= oneDayAgo);
-    
+
     let priceChange24h = 0;
     if (tradesLast24h.length > 0) {
       const oldestTrade = tradesLast24h[tradesLast24h.length - 1];
@@ -233,17 +239,17 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
   ];
 
   // Pagination helper component
-  const Pagination = ({ 
-    currentPage, 
-    totalItems, 
-    onPageChange 
-  }: { 
-    currentPage: number; 
-    totalItems: number; 
+  const Pagination = ({
+    currentPage,
+    totalItems,
+    onPageChange
+  }: {
+    currentPage: number;
+    totalItems: number;
     onPageChange: (page: number) => void;
   }) => {
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-    
+
     if (totalPages <= 1) return null;
 
     return (
@@ -263,8 +269,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
             fontSize: '11px',
             fontWeight: 700,
             color: currentPage === 1 ? '#666' : '#e9af5a',
-            background: currentPage === 1 
-              ? 'rgba(87, 37, 1, 0.1)' 
+            background: currentPage === 1
+              ? 'rgba(87, 37, 1, 0.1)'
               : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
             border: '1px solid rgba(255, 215, 165, 0.3)',
             borderRadius: '6px',
@@ -292,8 +298,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
             fontSize: '11px',
             fontWeight: 700,
             color: currentPage === totalPages ? '#666' : '#e9af5a',
-            background: currentPage === totalPages 
-              ? 'rgba(87, 37, 1, 0.1)' 
+            background: currentPage === totalPages
+              ? 'rgba(87, 37, 1, 0.1)'
               : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
             border: '1px solid rgba(255, 215, 165, 0.3)',
             borderRadius: '6px',
@@ -310,12 +316,12 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
   return (
     <div style={{
       width: '100%',
-      height: '100%',
+      height: disableScroll ? 'auto' : '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: '#07040b',
-      borderRadius: '12px',
-      overflow: 'hidden'
+      background: transparent ? 'transparent' : '#07040b',
+      borderRadius: transparent ? '0' : '12px',
+      overflow: disableScroll ? 'visible' : 'hidden'
     }}>
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
@@ -344,72 +350,74 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         }
       `}</style>
       {/* Tab Navigation */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        padding: '8px',
-        background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3))',
-        borderBottom: '1px solid rgba(255, 215, 165, 0.2)',
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
-      }}>
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              position: 'relative',
-              padding: '6px 12px',
-              fontSize: '11px',
-              fontWeight: 800,
-              color: activeTab === tab.id ? '#2b1b14' : '#e9af5a',
-              background: activeTab === tab.id 
-                ? 'linear-gradient(180deg, #e9af5a, #e9af5a)'
-                : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-              border: '1px solid',
-              borderColor: activeTab === tab.id ? '#e9af5a' : 'rgba(255, 215, 165, 0.3)',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              whiteSpace: 'nowrap',
-              boxShadow: activeTab === tab.id 
-                ? 'inset 0 2px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)'
-                : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            {tab.label}
-            {tab.badge && (
-              <span style={{
-                padding: '2px 6px',
-                fontSize: '9px',
-                fontWeight: 700,
-                borderRadius: '10px',
-                background: activeTab === tab.id ? '#2b1b14' : '#e9af5a',
-                color: activeTab === tab.id ? '#e9af5a' : '#2b1b14'
-              }}>
-                {tab.badge}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      {!hideTabs && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          padding: '8px',
+          background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3))',
+          borderBottom: '1px solid rgba(255, 215, 165, 0.2)',
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}>
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                position: 'relative',
+                padding: '6px 12px',
+                fontSize: '11px',
+                fontWeight: 800,
+                color: activeTab === tab.id ? '#2b1b14' : '#e9af5a',
+                background: activeTab === tab.id
+                  ? 'linear-gradient(180deg, #e9af5a, #e9af5a)'
+                  : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                border: '1px solid',
+                borderColor: activeTab === tab.id ? '#e9af5a' : 'rgba(255, 215, 165, 0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+                boxShadow: activeTab === tab.id
+                  ? 'inset 0 2px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)'
+                  : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              {tab.label}
+              {tab.badge && (
+                <span style={{
+                  padding: '2px 6px',
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  background: activeTab === tab.id ? '#2b1b14' : '#e9af5a',
+                  color: activeTab === tab.id ? '#e9af5a' : '#2b1b14'
+                }}>
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Tab Content */}
       <div style={{
-        flex: 1,
-        overflow: 'hidden',
+        flex: disableScroll ? 'none' : 1,
+        overflow: disableScroll ? 'visible' : 'hidden',
         display: 'flex',
         flexDirection: 'column'
       }}>
         {/* Trade History Tab */}
         {activeTab === 'history' && (
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: disableScroll ? 'none' : 1, overflow: disableScroll ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
             {isLoading ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a' }}>
                 Loading trades...
@@ -424,9 +432,9 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
               </div>
             ) : (
               <>
-                <div className="custom-scrollbar" style={{ 
-                  flex: 1, 
-                  overflowY: 'auto', 
+                <div className={disableScroll ? "" : "custom-scrollbar"} style={{
+                  flex: disableScroll ? 'none' : 1,
+                  overflowY: disableScroll ? 'visible' : 'auto',
                   padding: '8px'
                 }}>
                   <div className="table-container custom-scrollbar">
@@ -452,111 +460,111 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       <div>Type</div>
                       <div>Price</div>
                       <div>Total</div>
-                      <div>Price ${symbol}</div>
+                      <div>Price ${tokenData?.tokenInfo?.symbol || 'Token'}</div>
                     </div>
 
-                  {/* Trade Rows - Paginated */}
-                  {trades
-                    .slice(
-                      (currentPage.history - 1) * ITEMS_PER_PAGE,
-                      currentPage.history * ITEMS_PER_PAGE
-                    )
-                    .map((trade, idx) => {
-                      const isBuy = trade.type === 'BUY';
-                      const tradeId = `trade-${(currentPage.history - 1) * ITEMS_PER_PAGE + idx}`;
-                      
-                      return (
-                        <div
-                          key={tradeId}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '70px 80px 120px 100px 110px',
-                            minWidth: '490px',
-                            gap: '8px',
-                            padding: '10px 8px',
-                            background: 'rgba(87, 37, 1, 0.6)',
-                            border: '2px solid rgba(255, 215, 165, 0.4)',
-                            borderRadius: '8px',
-                            marginBottom: '6px',
-                            fontSize: '11px',
-                            alignItems: 'center'
-                          }}
-                        >
-                          {/* Date */}
-                          <div style={{ 
-                            color: '#fff7ea', 
-                            fontSize: '10px',
-                            fontWeight: 600 
-                          }}>
-                            {formatDate(trade.timestamp)}
-                          </div>
+                    {/* Trade Rows - Paginated */}
+                    {trades
+                      .slice(
+                        (currentPage.history - 1) * ITEMS_PER_PAGE,
+                        currentPage.history * ITEMS_PER_PAGE
+                      )
+                      .map((trade, idx) => {
+                        const isBuy = trade.type === 'BUY';
+                        const tradeId = `trade-${(currentPage.history - 1) * ITEMS_PER_PAGE + idx}`;
 
-                          {/* Type */}
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}>
+                        return (
+                          <div
+                            key={tradeId}
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '70px 80px 120px 100px 110px',
+                              minWidth: '490px',
+                              gap: '8px',
+                              padding: '10px 8px',
+                              background: 'rgba(87, 37, 1, 0.6)',
+                              border: '2px solid rgba(255, 215, 165, 0.4)',
+                              borderRadius: '8px',
+                              marginBottom: '6px',
+                              fontSize: '11px',
+                              alignItems: 'center'
+                            }}
+                          >
+                            {/* Date */}
+                            <div style={{
+                              color: '#fff7ea',
+                              fontSize: '10px',
+                              fontWeight: 600
+                            }}>
+                              {formatDate(trade.timestamp)}
+                            </div>
+
+                            {/* Type */}
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              width: '20px',
-                              height: '20px',
-                              borderRadius: '6px',
-                              background: isBuy 
-                                ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                                : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                              gap: '4px'
                             }}>
-                              {isBuy ? <BuyArrow size={10} /> : <SellArrow size={10} />}
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '20px',
+                                height: '20px',
+                                borderRadius: '6px',
+                                background: isBuy
+                                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                                  : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                              }}>
+                                {isBuy ? <BuyArrow size={10} /> : <SellArrow size={10} />}
+                              </div>
+                              <span style={{
+                                fontWeight: 800,
+                                color: isBuy ? '#4ade80' : '#ff7a6f',
+                                fontSize: '10px'
+                              }}>
+                                {isBuy ? 'buy' : 'sell'}
+                              </span>
                             </div>
-                            <span style={{
+
+                            {/* Price (ETH amount) */}
+                            <div style={{
+                              color: '#fff7ea',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <img
+                                src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
+                                alt="ETH"
+                                style={{ width: '12px', height: '12px' }}
+                              />
+                              {formatNumber(trade.amountEth)}
+                            </div>
+
+                            {/* Total (USD) */}
+                            <div style={{
+                              color: '#e9af5a',
                               fontWeight: 800,
-                              color: isBuy ? '#4ade80' : '#ff7a6f',
+                              fontSize: '11px'
+                            }}>
+                              {formatUSD(trade.usdValue)}
+                            </div>
+
+                            {/* Token Price */}
+                            <div style={{
+                              color: '#fff7ea',
+                              fontWeight: 700,
                               fontSize: '10px'
                             }}>
-                              {isBuy ? 'buy' : 'sell'}
-                            </span>
+                              {formatNumber(trade.price)}
+                            </div>
                           </div>
-
-                          {/* Price (ETH amount) */}
-                          <div style={{
-                            color: '#fff7ea',
-                            fontWeight: 700,
-                            fontSize: '11px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}>
-                            <img 
-                              src="https://cryptologos.cc/logos/ethereum-eth-logo.png" 
-                              alt="ETH" 
-                              style={{ width: '12px', height: '12px' }}
-                            />
-                            {formatNumber(trade.amountEth)}
-                          </div>
-
-                          {/* Total (USD) */}
-                          <div style={{
-                            color: '#e9af5a',
-                            fontWeight: 800,
-                            fontSize: '11px'
-                          }}>
-                            {formatUSD(trade.usdValue)}
-                          </div>
-
-                          {/* Token Price */}
-                          <div style={{
-                            color: '#fff7ea',
-                            fontWeight: 700,
-                            fontSize: '10px'
-                          }}>
-                            {formatNumber(trade.price)}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 </div>
 
@@ -572,11 +580,11 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
         {/* My Positions Tab */}
         {activeTab === 'positions' && (
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: disableScroll ? 'none' : 1, overflow: disableScroll ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
             {!isConnected ? (
-              <div style={{ 
-                padding: '20px', 
-                textAlign: 'center', 
+              <div style={{
+                padding: '20px',
+                textAlign: 'center',
                 color: '#e9af5a',
                 fontSize: '12px'
               }}>
@@ -596,9 +604,9 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
               </div>
             ) : (
               <>
-                <div className="custom-scrollbar" style={{ 
-                  flex: 1, 
-                  overflowY: 'auto', 
+                <div className={disableScroll ? "" : "custom-scrollbar"} style={{
+                  flex: disableScroll ? 'none' : 1,
+                  overflowY: disableScroll ? 'visible' : 'auto',
                   padding: '8px'
                 }}>
                   <div className="table-container custom-scrollbar">
@@ -627,94 +635,94 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       <div>Status</div>
                     </div>
 
-                  {/* Order Rows - Paginated */}
-                  {limitOrders
-                    .slice(
-                      (currentPage.positions - 1) * ITEMS_PER_PAGE,
-                      currentPage.positions * ITEMS_PER_PAGE
-                    )
-                    .map((order) => {
-                      const isBuy = order.side === 'buy';
-                      const statusColor = 
-                        order.status === 'filled' ? '#4ade80' :
-                        order.status === 'cancelled' ? '#ff5b58' :
-                        order.status === 'failed' ? '#ef4444' :
-                        '#e9af5a';
+                    {/* Order Rows - Paginated */}
+                    {limitOrders
+                      .slice(
+                        (currentPage.positions - 1) * ITEMS_PER_PAGE,
+                        currentPage.positions * ITEMS_PER_PAGE
+                      )
+                      .map((order) => {
+                        const isBuy = order.side === 'buy';
+                        const statusColor =
+                          order.status === 'filled' ? '#4ade80' :
+                            order.status === 'cancelled' ? '#ff5b58' :
+                              order.status === 'failed' ? '#ef4444' :
+                                '#e9af5a';
 
-                      return (
-                        <div
-                          key={order.id}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '60px 80px 90px 90px 70px',
-                            minWidth: '390px',
-                            gap: '8px',
-                            padding: '10px 8px',
-                            background: 'rgba(87, 37, 1, 0.6)',
-                            border: '2px solid rgba(255, 215, 165, 0.4)',
-                            borderRadius: '8px',
-                            marginBottom: '6px',
-                            fontSize: '11px',
-                            alignItems: 'center'
-                          }}
-                        >
-                          {/* Side */}
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}>
+                        return (
+                          <div
+                            key={order.id}
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '60px 80px 90px 90px 70px',
+                              minWidth: '390px',
+                              gap: '8px',
+                              padding: '10px 8px',
+                              background: 'rgba(87, 37, 1, 0.6)',
+                              border: '2px solid rgba(255, 215, 165, 0.4)',
+                              borderRadius: '8px',
+                              marginBottom: '6px',
+                              fontSize: '11px',
+                              alignItems: 'center'
+                            }}
+                          >
+                            {/* Side */}
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              width: '18px',
-                              height: '18px',
-                              borderRadius: '6px',
-                              background: isBuy 
-                                ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                                : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                              gap: '4px'
                             }}>
-                              {isBuy ? <BuyArrow size={9} /> : <SellArrow size={9} />}
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '18px',
+                                height: '18px',
+                                borderRadius: '6px',
+                                background: isBuy
+                                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                                  : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                              }}>
+                                {isBuy ? <BuyArrow size={9} /> : <SellArrow size={9} />}
+                              </div>
+                              <span style={{
+                                fontWeight: 800,
+                                color: isBuy ? '#4ade80' : '#ff7a6f',
+                                fontSize: '9px',
+                                textTransform: 'uppercase'
+                              }}>
+                                {order.side}
+                              </span>
                             </div>
-                            <span style={{
+
+                            {/* Price */}
+                            <div style={{ color: '#e9af5a', fontWeight: 700, fontSize: '10px' }}>
+                              ${order.price.toFixed(4)}
+                            </div>
+
+                            {/* Amount */}
+                            <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '10px' }}>
+                              {formatNumber(order.amount)}
+                            </div>
+
+                            {/* Remaining */}
+                            <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '10px' }}>
+                              {formatNumber(order.remaining)}
+                            </div>
+
+                            {/* Status */}
+                            <div style={{
+                              color: statusColor,
                               fontWeight: 800,
-                              color: isBuy ? '#4ade80' : '#ff7a6f',
                               fontSize: '9px',
                               textTransform: 'uppercase'
                             }}>
-                              {order.side}
-                            </span>
+                              {order.status}
+                            </div>
                           </div>
-
-                          {/* Price */}
-                          <div style={{ color: '#e9af5a', fontWeight: 700, fontSize: '10px' }}>
-                            ${order.price.toFixed(4)}
-                          </div>
-
-                          {/* Amount */}
-                          <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '10px' }}>
-                            {formatNumber(order.amount)}
-                          </div>
-
-                          {/* Remaining */}
-                          <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '10px' }}>
-                            {formatNumber(order.remaining)}
-                          </div>
-
-                          {/* Status */}
-                          <div style={{
-                            color: statusColor,
-                            fontWeight: 800,
-                            fontSize: '9px',
-                            textTransform: 'uppercase'
-                          }}>
-                            {order.status}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 </div>
 
@@ -730,16 +738,16 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
         {/* Top Traders Tab */}
         {activeTab === 'topTraders' && (
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: disableScroll ? 'none' : 1, overflow: disableScroll ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
             {topTraders.length === 0 ? (
               <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a', fontSize: '12px' }}>
                 No trader data available
               </div>
             ) : (
               <>
-                <div className="custom-scrollbar" style={{ 
-                  flex: 1, 
-                  overflowY: 'auto', 
+                <div className={disableScroll ? "" : "custom-scrollbar"} style={{
+                  flex: disableScroll ? 'none' : 1,
+                  overflowY: disableScroll ? 'visible' : 'auto',
                   padding: '8px'
                 }}>
                   <div className="table-container custom-scrollbar">
@@ -751,100 +759,100 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       gap: '8px',
                       padding: '8px',
                       background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
-                    border: '2px solid rgba(255, 215, 165, 0.4)',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    color: '#e9af5a',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1
-                  }}>
-                    <div>#</div>
-                    <div>Address</div>
-                    <div>Volume</div>
-                    <div>Trades</div>
-                    <div>Profit</div>
-                  </div>
+                      border: '2px solid rgba(255, 215, 165, 0.4)',
+                      borderRadius: '8px',
+                      marginBottom: '8px',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      color: '#e9af5a',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1
+                    }}>
+                      <div>#</div>
+                      <div>Address</div>
+                      <div>Volume</div>
+                      <div>Trades</div>
+                      <div>Profit</div>
+                    </div>
 
-                  {/* Trader Rows - Paginated */}
-                  {topTraders
-                    .slice(
-                      (currentPage.topTraders - 1) * ITEMS_PER_PAGE,
-                      currentPage.topTraders * ITEMS_PER_PAGE
-                    )
-                    .map((trader, idx) => {
-                      const actualRank = (currentPage.topTraders - 1) * ITEMS_PER_PAGE + idx + 1;
-                      
-                      return (
-                        <div
-                          key={trader.address}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '30px 120px 80px 60px 80px',
-                            minWidth: '370px',
-                            gap: '8px',
-                            padding: '10px 8px',
-                            background: 'rgba(87, 37, 1, 0.6)',
-                            border: '2px solid rgba(255, 215, 165, 0.4)',
-                            borderRadius: '8px',
-                            marginBottom: '6px',
-                            fontSize: '11px',
-                            alignItems: 'center'
-                          }}
-                        >
-                          {/* Rank */}
-                          <div style={{
-                            color: actualRank <= 3 ? '#e9af5a' : '#e9af5a',
-                            fontWeight: 800,
-                            fontSize: '11px'
-                          }}>
-                            {actualRank}
-                          </div>
+                    {/* Trader Rows - Paginated */}
+                    {topTraders
+                      .slice(
+                        (currentPage.topTraders - 1) * ITEMS_PER_PAGE,
+                        currentPage.topTraders * ITEMS_PER_PAGE
+                      )
+                      .map((trader, idx) => {
+                        const actualRank = (currentPage.topTraders - 1) * ITEMS_PER_PAGE + idx + 1;
 
-                          {/* Address */}
-                          <div 
-                            style={{ 
-                              color: '#fff7ea', 
-                              fontWeight: 600, 
+                        return (
+                          <div
+                            key={trader.address}
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: '30px 120px 80px 60px 80px',
+                              minWidth: '370px',
+                              gap: '8px',
+                              padding: '10px 8px',
+                              background: 'rgba(87, 37, 1, 0.6)',
+                              border: '2px solid rgba(255, 215, 165, 0.4)',
+                              borderRadius: '8px',
+                              marginBottom: '6px',
                               fontSize: '11px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px'
+                              alignItems: 'center'
                             }}
-                            onClick={() => copyToClipboard(trader.address, `trader-${actualRank}`)}
                           >
-                            {shortenAddress(trader.address)}
-                            {copiedItem === `trader-${actualRank}` ? (
-                              <span style={{ color: '#4ade80', fontSize: '9px' }}>✓</span>
-                            ) : (
-                              <span style={{ color: '#e9af5a', fontSize: '9px' }}>📋</span>
-                            )}
-                          </div>
+                            {/* Rank */}
+                            <div style={{
+                              color: actualRank <= 3 ? '#e9af5a' : '#e9af5a',
+                              fontWeight: 800,
+                              fontSize: '11px'
+                            }}>
+                              {actualRank}
+                            </div>
 
-                          {/* Volume */}
-                          <div style={{ color: '#e9af5a', fontWeight: 700, fontSize: '11px' }}>
-                            {formatUSD(trader.totalVolume)}
-                          </div>
+                            {/* Address */}
+                            <div
+                              style={{
+                                color: '#fff7ea',
+                                fontWeight: 600,
+                                fontSize: '11px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              onClick={() => copyToClipboard(trader.address, `trader-${actualRank}`)}
+                            >
+                              {shortenAddress(trader.address)}
+                              {copiedItem === `trader-${actualRank}` ? (
+                                <span style={{ color: '#4ade80', fontSize: '9px' }}>✓</span>
+                              ) : (
+                                <span style={{ color: '#e9af5a', fontSize: '9px' }}>📋</span>
+                              )}
+                            </div>
 
-                          {/* Trades */}
-                          <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '11px' }}>
-                            {trader.trades}
-                          </div>
+                            {/* Volume */}
+                            <div style={{ color: '#e9af5a', fontWeight: 700, fontSize: '11px' }}>
+                              {formatUSD(trader.totalVolume)}
+                            </div>
 
-                          {/* Profit */}
-                          <div style={{
-                            color: trader.profit >= 0 ? '#4ade80' : '#ff7a6f',
-                            fontWeight: 800,
-                            fontSize: '11px'
-                          }}>
-                            {trader.profit >= 0 ? '+' : ''}{formatUSD(trader.profit)}
+                            {/* Trades */}
+                            <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '11px' }}>
+                              {trader.trades}
+                            </div>
+
+                            {/* Profit */}
+                            <div style={{
+                              color: trader.profit >= 0 ? '#4ade80' : '#ff7a6f',
+                              fontWeight: 800,
+                              fontSize: '11px'
+                            }}>
+                              {trader.profit >= 0 ? '+' : ''}{formatUSD(trader.profit)}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 </div>
 
@@ -860,10 +868,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
         {/* Price / MC Tab */}
         {activeTab === 'pricemc' && (
-          <div style={{ 
-            flex: 1, 
-            overflow: 'hidden', 
-            display: 'flex', 
+          <div style={{
+            flex: disableScroll ? 'none' : 1,
+            overflow: disableScroll ? 'visible' : 'hidden',
+            display: 'flex',
             flexDirection: 'column',
             padding: '12px'
           }}>
