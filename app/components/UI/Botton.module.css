@@ -28,31 +28,30 @@
 	font-weight: 700;
 	font-size: 18px;
 	border-radius: 12px;
-	background: linear-gradient(
-		135deg,
-		var(--orange-400) 0%,
-		var(--brown-600) 100%
-	);
+	background: linear-gradient(135deg,
+			var(--orange-400) 0%,
+			var(--brown-600) 100%);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	overflow: hidden;
 	transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .btn-1::after {
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(
-		90deg,
-		transparent,
-		rgba(255, 255, 255, 0.25),
-		transparent
-	);
+	background: linear-gradient(90deg,
+			transparent,
+			rgba(255, 255, 255, 0.25),
+			transparent);
 	transform: translateX(-100%);
 	transition: transform 0.5s ease;
 }
+
 .btn-1:hover::after {
 	transform: translateX(100%);
 }
+
 .btn-1:hover {
 	transform: translateY(-3px);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
@@ -63,36 +62,36 @@
 	position: relative;
 	padding: 3px;
 	border-radius: 50px;
-	background: linear-gradient(
-		135deg,
-		var(--gold-300),
-		var(--orange-500),
-		var(--brown-600),
-		var(--gold-400)
-	);
+	background: linear-gradient(135deg,
+			var(--gold-300),
+			var(--orange-500),
+			var(--brown-600),
+			var(--gold-400));
 	background-size: 300% 300%;
 	animation: smoothGradient 4s ease infinite;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 	transition: transform 0.4s ease, box-shadow 0.4s ease;
 	overflow: hidden;
 }
+
 @keyframes smoothGradient {
 	0% {
 		background-position: 0% 50%;
 	}
+
 	50% {
 		background-position: 100% 50%;
 	}
+
 	100% {
 		background-position: 0% 50%;
 	}
 }
+
 .btn-2-inner {
-	background: linear-gradient(
-		135deg,
-		var(--orange-500) 0%,
-		var(--brown-600) 100%
-	);
+	background: linear-gradient(135deg,
+			var(--orange-500) 0%,
+			var(--brown-600) 100%);
 	color: var(--cream);
 	padding: 0;
 	border-radius: 47px;
@@ -109,13 +108,13 @@
 	text-transform: uppercase;
 	letter-spacing: 1.8px;
 }
+
 .btn-2:hover .btn-2-inner {
-	background: linear-gradient(
-		135deg,
-		var(--orange-400) 0%,
-		var(--brown-500) 100%
-	);
+	background: linear-gradient(135deg,
+			var(--orange-400) 0%,
+			var(--brown-500) 100%);
 }
+
 .btn-2:hover {
 	transform: scale(1.05);
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
@@ -130,17 +129,15 @@
 	font-size: 15px;
 	border-radius: 12px;
 	color: #f6d485;
-	background: linear-gradient(
-		145deg,
-		#3a1c08 0%,
-		#4a2409 25%,
-		#5a2f0a 50%,
-		#4a2409 75%,
-		#3a1c08 100%
-	);
+	background: linear-gradient(145deg,
+			#3a1c08 0%,
+			#4a2409 25%,
+			#5a2f0a 50%,
+			#4a2409 75%,
+			#3a1c08 100%);
 	background-size: 200% 200%;
 	border: 1.5px solid rgba(234, 176, 0, 0.3);
-	box-shadow: 
+	box-shadow:
 		0 4px 15px rgba(158, 92, 40, 0.4),
 		0 2px 8px rgba(0, 0, 0, 0.3),
 		inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -156,12 +153,10 @@
 	position: absolute;
 	inset: 1px;
 	border-radius: 10px;
-	background: linear-gradient(
-		145deg,
-		transparent 0%,
-		rgba(255, 215, 0, 0.08) 50%,
-		transparent 100%
-	);
+	background: linear-gradient(145deg,
+			transparent 0%,
+			rgba(255, 215, 0, 0.08) 50%,
+			transparent 100%);
 	opacity: 0;
 	pointer-events: none;
 	animation: subtleBlink 3s ease-in-out infinite;
@@ -169,10 +164,15 @@
 
 /* Very subtle blink animation */
 @keyframes subtleBlink {
-	0%, 90%, 100% {
+
+	0%,
+	90%,
+	100% {
 		opacity: 0;
 	}
-	45%, 55% {
+
+	45%,
+	55% {
 		opacity: 0.6;
 	}
 }
@@ -183,28 +183,31 @@
 }
 
 @keyframes subtleBlinkHover {
-	0%, 85%, 100% {
+
+	0%,
+	85%,
+	100% {
 		opacity: 0;
 	}
-	40%, 60% {
+
+	40%,
+	60% {
 		opacity: 0.8;
 	}
 }
 
 .btn-3:hover {
 	color: #fff5d6;
-	background: linear-gradient(
-		145deg,
-		#4a2a0a 0%,
-		#5d340c 25%,
-		#73420f 50%,
-		#5d340c 75%,
-		#4a2a0a 100%
-	);
+	background: linear-gradient(145deg,
+			#4a2a0a 0%,
+			#5d340c 25%,
+			#73420f 50%,
+			#5d340c 75%,
+			#4a2a0a 100%);
 	background-size: 200% 200%;
 	border-color: rgba(234, 176, 0, 0.6);
 	transform: translateY(-3px) scale(1.02);
-	box-shadow: 
+	box-shadow:
 		0 8px 25px rgba(158, 92, 40, 0.5),
 		0 4px 15px rgba(0, 0, 0, 0.4),
 		0 0 20px rgba(234, 176, 0, 0.2),
@@ -215,9 +218,12 @@
 
 /* Animate background on hover */
 @keyframes backgroundShift {
-	0%, 100% {
+
+	0%,
+	100% {
 		background-position: 0% 50%;
 	}
+
 	50% {
 		background-position: 100% 50%;
 	}
@@ -226,7 +232,7 @@
 /* Active state enhancement */
 .btn-3:active {
 	transform: translateY(-1px) scale(0.98);
-	box-shadow: 
+	box-shadow:
 		0 2px 10px rgba(158, 92, 40, 0.6),
 		0 1px 5px rgba(0, 0, 0, 0.5),
 		inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -239,50 +245,48 @@
 	font-weight: 600;
 	font-size: 18px;
 	border-radius: 15px;
-	background: linear-gradient(
-		135deg,
-		var(--orange-500) 0%,
-		var(--brown-600) 100%
-	);
+	background: linear-gradient(135deg,
+			var(--orange-500) 0%,
+			var(--brown-600) 100%);
 	color: var(--cream);
 	overflow: hidden;
 	transition: transform 0.3s ease, box-shadow 0.3s ease;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
 }
+
 .btn-4 .marbling {
 	position: absolute;
 	inset: 0;
 	opacity: 0;
-	background: radial-gradient(
-			circle at 20% 50%,
+	background: radial-gradient(circle at 20% 50%,
 			rgba(255, 255, 255, 0.08) 0%,
-			transparent 50%
-		),
-		radial-gradient(
-			circle at 80% 50%,
+			transparent 50%),
+		radial-gradient(circle at 80% 50%,
 			rgba(255, 255, 255, 0.08) 0%,
-			transparent 50%
-		),
-		radial-gradient(
-			circle at 50% 50%,
+			transparent 50%),
+		radial-gradient(circle at 50% 50%,
 			rgba(255, 255, 255, 0.05) 0%,
-			transparent 60%
-		);
+			transparent 60%);
 	transition: opacity 0.5s ease;
 }
+
 .btn-4:hover .marbling {
 	opacity: 1;
 	animation: marbleFlow 2s ease-in-out infinite;
 }
+
 @keyframes marbleFlow {
+
 	0%,
 	100% {
 		transform: translateX(0);
 	}
+
 	50% {
 		transform: translateX(10px);
 	}
 }
+
 .btn-4:hover {
 	transform: scale(1.05);
 	box-shadow: 0 12px 40px rgba(111, 70, 5, 0.35);
@@ -296,17 +300,15 @@
 	font-size: 16px;
 	border-radius: 12px;
 	color: #f6d485;
-	background: linear-gradient(
-		145deg,
-		#3a1c08 0%,
-		#4a2409 25%,
-		#5a2f0a 50%,
-		#4a2409 75%,
-		#3a1c08 100%
-	);
+	background: linear-gradient(145deg,
+			#3a1c08 0%,
+			#4a2409 25%,
+			#5a2f0a 50%,
+			#4a2409 75%,
+			#3a1c08 100%);
 	background-size: 200% 200%;
 	border: 1.5px solid rgba(234, 176, 0, 0.3);
-	box-shadow: 
+	box-shadow:
 		0 4px 15px rgba(158, 92, 40, 0.4),
 		0 2px 8px rgba(0, 0, 0, 0.3),
 		inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -354,12 +356,10 @@
 	position: absolute;
 	inset: 1px;
 	border-radius: 10px;
-	background: linear-gradient(
-		145deg,
-		transparent 0%,
-		rgba(255, 215, 0, 0.08) 50%,
-		transparent 100%
-	);
+	background: linear-gradient(145deg,
+			transparent 0%,
+			rgba(255, 215, 0, 0.08) 50%,
+			transparent 100%);
 	opacity: 0;
 	pointer-events: none;
 	animation: subtleBlink 3s ease-in-out infinite;
@@ -387,6 +387,7 @@
 	border-color: rgba(255, 255, 255, 0.2);
 	backdrop-filter: none;
 }
+
 .btn-5.searchLike:hover {
 	background: rgba(255, 255, 255, 0.05);
 }
@@ -396,10 +397,10 @@
 	opacity: 1;
 }
 
-.btn-5:hover::before {
+/* .btn-5:hover::before {
 	content: "Search";
 	opacity: 1;
-}
+} */
 
 .btn-5:hover::after {
 	animation: subtleBlinkHover 2s ease-in-out infinite;
@@ -426,18 +427,16 @@
 
 .btn-5:hover {
 	color: #fff5d6;
-	background: linear-gradient(
-		145deg,
-		#5a3c0c 0%,
-		#6d420e 25%,
-		#83520f 50%,
-		#6d420e 75%,
-		#5a3c0c 100%
-	);
+	background: linear-gradient(145deg,
+			#5a3c0c 0%,
+			#6d420e 25%,
+			#83520f 50%,
+			#6d420e 75%,
+			#5a3c0c 100%);
 	background-size: 200% 200%;
 	border-color: rgba(234, 176, 0, 0.6);
 	transform: translateY(-3px) scale(1.02);
-	box-shadow: 
+	box-shadow:
 		0 8px 25px rgba(158, 92, 40, 0.5),
 		0 4px 15px rgba(0, 0, 0, 0.4),
 		0 0 20px rgba(234, 176, 0, 0.2),
@@ -450,7 +449,7 @@
 /* Active state enhancement for search button */
 .btn-5:active {
 	transform: translateY(-1px) scale(0.98);
-	box-shadow: 
+	box-shadow:
 		0 2px 10px rgba(158, 92, 40, 0.6),
 		0 1px 5px rgba(0, 0, 0, 0.5),
 		inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -461,6 +460,7 @@
 	.button-container {
 		width: 100%;
 	}
+
 	.baseButton {
 		width: 100%;
 		max-width: 320px;
@@ -474,6 +474,7 @@
 		height: 45px !important;
 		min-width: 100px !important;
 	}
+
 	.btn-2-inner {
 		font-size: 14px !important;
 		letter-spacing: 1.5px !important;
@@ -486,6 +487,7 @@
 		height: 36px !important;
 		min-width: 80px !important;
 	}
+
 	.btn-2-inner {
 		font-size: 12px !important;
 		letter-spacing: 1px !important;
@@ -497,13 +499,11 @@
 	position: relative;
 	padding: 3px;
 	border-radius: 50px;
-	background: linear-gradient(
-		135deg,
-		var(--gold-300),
-		var(--orange-500),
-		var(--brown-600),
-		var(--gold-400)
-	);
+	background: linear-gradient(135deg,
+			var(--gold-300),
+			var(--orange-500),
+			var(--brown-600),
+			var(--gold-400));
 	background-size: 300% 300%;
 	animation: smoothGradient 4s ease infinite;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
@@ -523,13 +523,11 @@
 }
 
 .headerBtnInner {
-	background: linear-gradient(
-		to bottom,
-		#392211 0%,
-		#2b1200 20%,
-		#2b1200 95%,
-		#261000 100%
-	);
+	background: linear-gradient(to bottom,
+			#392211 0%,
+			#2b1200 20%,
+			#2b1200 95%,
+			#261000 100%);
 	color: #e9af5a;
 	padding: 0;
 	border-radius: 47px;
@@ -548,26 +546,22 @@
 }
 
 .headerBtn:hover .headerBtnInner {
-	background: linear-gradient(
-		to bottom,
-		#4a2a16 0%,
-		#351800 20%,
-		#351800 95%,
-		#301500 100%
-	);
+	background: linear-gradient(to bottom,
+			#4a2a16 0%,
+			#351800 20%,
+			#351800 95%,
+			#301500 100%);
 }
 
 .headerBtnGolden {
 	position: relative;
 	padding: 3px;
 	border-radius: 50px;
-	background: linear-gradient(
-		135deg,
-		var(--gold-300),
-		var(--orange-500),
-		var(--brown-600),
-		var(--gold-400)
-	);
+	background: linear-gradient(135deg,
+			var(--gold-300),
+			var(--orange-500),
+			var(--brown-600),
+			var(--gold-400));
 	background-size: 300% 300%;
 	animation: smoothGradient 4s ease infinite;
 	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
@@ -587,11 +581,9 @@
 }
 
 .headerBtnGoldenInner {
-	background: linear-gradient(
-		to bottom,
-		#e9af5a 0%,
-		#e9af5a 100%
-	);
+	background: linear-gradient(to bottom,
+			#e9af5a 0%,
+			#e9af5a 100%);
 	color: #000000;
 	padding: 0;
 	border-radius: 47px;
@@ -610,21 +602,21 @@
 }
 
 .headerBtnGolden:hover .headerBtnGoldenInner {
-	background: linear-gradient(
-		to bottom,
-		#f2c071 0%,
-		#f2c071 100%
-	);
+	background: linear-gradient(to bottom,
+			#f2c071 0%,
+			#f2c071 100%);
 }
 
 /* Desktop scaling for 100% zoom appearance */
 @media (min-width: 1024px) {
+
 	.headerBtn,
 	.headerBtnGolden {
 		width: 120px !important;
 		height: 34px !important;
 		min-width: 80px !important;
 	}
+
 	.headerBtnInner,
 	.headerBtnGoldenInner {
 		font-size: 10px !important;
@@ -634,16 +626,19 @@
 
 /* Responsive styles for header buttons */
 @media (max-width: 768px) {
+
 	.headerBtn,
 	.headerBtnGolden {
 		width: 150px !important;
 		height: 45px !important;
 		min-width: 100px !important;
 	}
+
 	.headerBtnInner {
 		font-size: 12px !important;
 		letter-spacing: 1.5px !important;
 	}
+
 	.headerBtnGoldenInner {
 		font-size: 12px !important;
 		letter-spacing: 1.2px !important;
@@ -651,21 +646,24 @@
 }
 
 @media (max-width: 640px) {
+
 	.headerBtn,
 	.headerBtnGolden {
 		width: 110px !important;
 		height: 34px !important;
 		min-width: 76px !important;
 	}
+
 	.headerBtnInner {
 		font-size: 10px !important;
 		letter-spacing: 1px !important;
 	}
+
 	.headerBtnGoldenInner {
 		font-size: 10px !important;
 		letter-spacing: 0.8px !important;
 	}
-	
+
 	/* Compact network button on mobile */
 	.headerBtnNetwork {
 		width: 50px !important;
@@ -673,10 +671,11 @@
 		min-width: 50px !important;
 		padding: 2px !important;
 	}
+
 	.headerBtnNetwork .headerBtnInner {
 		padding: 0 6px !important;
 	}
-	
+
 	/* Mobile styles for filter buttons */
 	.btn-3 {
 		padding: 8px 12px !important;
@@ -685,7 +684,7 @@
 		width: 100px !important;
 		min-width: 100px !important;
 	}
-	
+
 	/* Mobile styles for search button */
 	.btn-5 {
 		padding: 8px 16px !important;
@@ -697,20 +696,23 @@
 /* Desktop scaling for 100% zoom appearance - buttons */
 @media (min-width: 1024px) {
 	.btn-3 {
-		padding: 10px 16px !important; /* 80% scaling */
+		padding: 10px 16px !important;
+		/* 80% scaling */
 		font-size: 12px !important;
 		border-radius: 10px !important;
 		letter-spacing: 0.8px !important;
 	}
-	
+
 	.btn-5 {
-		padding: 10px 19px !important; /* 80% scaling */
+		padding: 10px 19px !important;
+		/* 80% scaling */
 		font-size: 13px !important;
 		border-radius: 10px !important;
 		letter-spacing: 1.2px !important;
 	}
-	
+
 	.btn-5:hover {
-		padding: 10px 32px !important; /* 80% scaling */
+		padding: 10px 32px !important;
+		/* 80% scaling */
 	}
 }

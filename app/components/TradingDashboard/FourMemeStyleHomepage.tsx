@@ -165,17 +165,17 @@ export default function FourMemeStyleHomepage() {
                       </span>
                       <span className="text-lg sm:text-xl lg:text-2xl">🔥</span>
                     </h1>
-                    
+
                     {/* Action buttons */}
                     <div className="flex items-center gap-2">
-                      <button 
+                      <button
                         className="relative px-3 py-1 bg-transparent border-2 border-[#c87414] rounded-full text-[#c87414] text-xs font-medium transition-all hover:bg-[#c87414]/10"
                         onClick={() => setIsInfoModalOpen(true)}
                       >
                         <span className="absolute inset-0 border-2 border-[#c87414] rounded-full animate-pulse"></span>
                         <span className="relative">How it works?</span>
                       </button>
-                      <button 
+                      <button
                         className="px-3 py-1 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] border-2 border-[#c87414] rounded-full text-[#1a0f08] text-xs font-bold transition-all shadow-lg"
                         onClick={() => setIsCreateTokenModalOpen(true)}
                       >
@@ -206,7 +206,6 @@ export default function FourMemeStyleHomepage() {
                   <div className={`${styles["btn-5"]} ${styles.searchLike} relative flex-1 flex items-center gap-2 rounded-full border border-white/20 bg-[#1a0f08]/40 text-white/90 px-4 py-2.5`}>
                     <span className={styles.leftSteak}>🥩</span>
                     <span className={styles.rightSteak}>🥩</span>
-                    <Search size={16} className="text-white/70" />
                     <input
                       type="text"
                       value={searchQuery}
