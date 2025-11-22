@@ -12,6 +12,7 @@ import {
   Wrench,
   Smile,
   SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { TokenCard } from "./TokenCard";
 import { useTokens } from "@/app/hooks/useTokens";
@@ -19,6 +20,12 @@ import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SteakHouseInfoModal from "../Modals/SteakHouseInfoModal";
 import CreateTokenModal from "../Modals/CreateTokenModal/CreateTokenModal";
 import styles from "../UI/Botton.module.css";
+import { useNameSearch } from "@/app/hooks/useNameSearch";
+import { getFullTokenData } from "@/app/lib/api/services/tokenService";
+import { normalizeEthereumAddress } from "@/app/lib/utils/addressValidation";
+import { transformTokensToCardProps, formatNumber, calculateGraduationProgress, getTokenTag, getTokenTagColor, generateTokenDescription, getTaxInfo } from "@/app/lib/utils/tokenUtils";
+import { TokenCardProps } from "./types";
+import { FullTokenDataResponse } from "@/app/types/token";
 
 interface FilterButtonProps {
   icon: React.ReactNode;
@@ -110,11 +117,146 @@ const TypewriterFeatures: React.FC = () => {
   );
 };
 
+// Helper to map FullTokenDataResponse to TokenCardProps
+const mapFullTokenDataToCardProps = (data: FullTokenDataResponse): TokenCardProps => {
+  const { tokenInfo, marketCap, volume24h } = data;
+
+  // Calculate progress
+  const progress = calculateGraduationProgress(tokenInfo.eth_pool.toString(), tokenInfo.graduation_cap.toString());
+
+  // Determine tag
+  // We need to construct a partial Token object to use getTokenTag
+  const partialToken: any = {
+    is_super_simple: tokenInfo.is_super_simple,
+    is_zero_simple: tokenInfo.is_zero_simple,
+    is_advanced: tokenInfo.is_advanced,
+    is_stealth: tokenInfo.is_stealth,
+    token_type: tokenInfo.token_type,
+    graduated: tokenInfo.graduated,
+    name: tokenInfo.name,
+    symbol: tokenInfo.symbol
+  };
+
+  const tag = getTokenTag(partialToken);
+  const tagColor = getTokenTagColor(tag);
+
+  // Calculate liquidity
+  const ethPoolValue = tokenInfo.eth_pool;
+  const ethPriceUSD = 2000; // Consistent with utils
+  const liquidityValue = ethPoolValue * ethPriceUSD;
+
+  // Description
+  const description = tokenInfo.bio || generateTokenDescription(partialToken);
+
+  // Tax info
+  const currentTax = (tokenInfo as any).tax_rate || '0'; // tax_rate might be missing in TokenInfo type but present in response
+  const finalTax = tokenInfo.final_tax_rate?.toString() || '0';
+
+  const maxTxPercent = (tokenInfo.curve_max_tx && tokenInfo.total_supply)
+    ? `${((tokenInfo.curve_max_tx / tokenInfo.total_supply) * 100).toFixed(1)}%`
+    : undefined;
+
+  return {
+    isOneStop: tokenInfo.graduated,
+    imageUrl: tokenInfo.image_url || undefined,
+    bannerUrl: tokenInfo.banner_url || undefined,
+    name: tokenInfo.name,
+    symbol: tokenInfo.symbol,
+    tag,
+    tagColor,
+    description,
+    mcap: formatNumber(marketCap, { prefix: '$', compact: true }),
+    liquidity: formatNumber(liquidityValue, { prefix: '$', compact: true }),
+    volume: formatNumber(volume24h || 0, { prefix: '$', compact: true }),
+    currentTax,
+    finalTax,
+    maxTxPercent,
+    progress: Math.round(progress * 10) / 10,
+    circulating_supply: tokenInfo.circulating_supply.toString(),
+    graduation_cap: tokenInfo.graduation_cap.toString(),
+    category: tokenInfo.catagory,
+    token_address: tokenInfo.token_address,
+    telegram: tokenInfo.telegram,
+    twitter: tokenInfo.twitter,
+    website: tokenInfo.website,
+  };
+};
+
 export default function FourMemeStyleHomepage() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isCreateTokenModalOpen, setIsCreateTokenModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Search state
+  const [searchResults, setSearchResults] = useState<TokenCardProps[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  const normalizedAddr = normalizeEthereumAddress(searchQuery);
+  const isAddress = !!normalizedAddr;
+
+  const nameSearch = useNameSearch(searchQuery, {
+    enabled: searchQuery.trim().length >= 2 && !isAddress,
+    pageSize: 10,
+    debounceMs: 300,
+  });
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+      if (!normalizedAddr) return;
+      setIsSearching(true);
+      setSearchError(null);
+      try {
+        const res = await getFullTokenData(normalizedAddr);
+        if ((res as any)?.error) {
+          setSearchError((res as any).error);
+          setSearchResults([]);
+        } else {
+          const props = mapFullTokenDataToCardProps(res);
+          setSearchResults([props]);
+        }
+      } catch (e) {
+        setSearchError("Failed to fetch token");
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    if (isAddress) {
+      fetchAddress();
+    } else {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        setSearchError(null);
+        setIsSearching(false);
+        return;
+      }
+
+      if (nameSearch.isLoading) {
+        setIsSearching(true);
+      } else {
+        setIsSearching(false);
+        if (nameSearch.error) {
+          setSearchError(nameSearch.error.message);
+          setSearchResults([]);
+        } else if (nameSearch.data) {
+          setSearchResults(transformTokensToCardProps(nameSearch.data));
+          setSearchError(null);
+        } else {
+          setSearchResults([]);
+        }
+      }
+    }
+  }, [normalizedAddr, isAddress, nameSearch.data, nameSearch.isLoading, nameSearch.error, searchQuery]);
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchError(null);
+  };
+
   const {
     tokenCards,
     isLoading,
@@ -213,6 +355,11 @@ export default function FourMemeStyleHomepage() {
                       placeholder="Search tokens..."
                       className="flex-1 bg-transparent text-white/90 text-sm placeholder:text-white/70 focus:outline-none"
                     />
+                    {searchQuery && (
+                      <button onClick={clearSearch} className="text-white/50 hover:text-white">
+                        <X size={14} />
+                      </button>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -291,6 +438,11 @@ export default function FourMemeStyleHomepage() {
                       placeholder="Search tokens..."
                       className="flex-1 bg-transparent text-white/90 placeholder:text-white/70 focus:outline-none"
                     />
+                    {searchQuery && (
+                      <button onClick={clearSearch} className="text-white/50 hover:text-white">
+                        <X size={16} />
+                      </button>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -363,30 +515,58 @@ export default function FourMemeStyleHomepage() {
           </div>
         </section>
 
+        {/* Search Results Section */}
+
+
         {/* Token Grid Section */}
         <section className="px-4 sm:px-6 lg:px-8 pb-12">
           <div className="max-w-7xl mx-auto">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c87414] mb-4"></div>
-                <p className="text-[#f6e7b5]/70">Loading tokens...</p>
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center justify-center py-16">
-                <p className="text-red-400 mb-4">Failed to load tokens</p>
-                <button
-                  onClick={refetch}
-                  className={`${styles.headerBtn} px-6 py-3`}
-                >
-                  <div className={styles.headerBtnInner}>Try Again</div>
-                </button>
-              </div>
+            {(searchQuery.trim().length >= 2 || isSearching) ? (
+              // Search Results State
+              isSearching ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c87414] mb-4"></div>
+                  <p className="text-[#f6e7b5]/70">Searching tokens...</p>
+                </div>
+              ) : searchError ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <p className="text-red-400 mb-4">{searchError}</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {searchResults.map((token, index) => (
+                    <TokenCard key={`${token.symbol}-${index}-search`} {...token} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <p className="text-[#f6e7b5]/70">No tokens found matching "{searchQuery}"</p>
+                </div>
+              )
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {tokenCards.map((token, index) => (
-                  <TokenCard key={`${token.symbol}-${index}`} {...token} />
-                ))}
-              </div>
+              // Default Feed State
+              isLoading ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c87414] mb-4"></div>
+                  <p className="text-[#f6e7b5]/70">Loading tokens...</p>
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <p className="text-red-400 mb-4">Failed to load tokens</p>
+                  <button
+                    onClick={refetch}
+                    className={`${styles.headerBtn} px-6 py-3`}
+                  >
+                    <div className={styles.headerBtnInner}>Try Again</div>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {tokenCards.map((token, index) => (
+                    <TokenCard key={`${token.symbol}-${index}`} {...token} />
+                  ))}
+                </div>
+              )
             )}
           </div>
         </section>
