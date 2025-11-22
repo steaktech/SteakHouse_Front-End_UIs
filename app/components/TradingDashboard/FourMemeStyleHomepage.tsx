@@ -13,6 +13,13 @@ import {
   Smile,
   SlidersHorizontal,
   X,
+  MoreHorizontal,
+  ChevronDown,
+  Share2,
+  Heart,
+  PawPrint,
+  Landmark,
+  Shield,
 } from "lucide-react";
 import { TokenCard } from "./TokenCard";
 import { useTokens } from "@/app/hooks/useTokens";
@@ -46,6 +53,73 @@ const FilterButton: React.FC<FilterButtonProps> = ({ icon, label, active, onClic
     <span>{label}</span>
   </button>
 );
+
+const CategoryDropdown: React.FC<{
+  activeCategory: string;
+  onSelect: (category: any) => void;
+}> = ({ activeCategory, onSelect }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const categories = [
+    { id: 'X-post', label: 'X-post', icon: <Share2 size={14} /> },
+    { id: 'Charity', label: 'Charity', icon: <Heart size={14} /> },
+    { id: 'Animal', label: 'Animal', icon: <PawPrint size={14} /> },
+    { id: 'Governance', label: 'Governance', icon: <Landmark size={14} /> },
+    { id: 'Privacy', label: 'Privacy', icon: <Shield size={14} /> },
+  ];
+
+  const isActive = categories.some(c => c.id.toLowerCase() === activeCategory?.toLowerCase());
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${isActive || isOpen
+          ? 'bg-[#c87414] text-white shadow-lg'
+          : 'bg-[#2b1200]/60 text-[#f6e7b5]/80 hover:bg-[#2b1200]/80 border border-[#c87414]/20'
+          }`}
+      >
+        <MoreHorizontal size={14} />
+        <span>More</span>
+        <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-40 bg-[#1a0f08] border border-[#c87414]/30 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+          <div className="py-1">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  onSelect(cat.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${activeCategory?.toLowerCase() === cat.id.toLowerCase()
+                  ? 'bg-[#c87414]/20 text-[#c87414]'
+                  : 'text-[#f6e7b5]/80 hover:bg-[#c87414]/10 hover:text-[#f6e7b5]'
+                  }`}
+              >
+                {cat.icon}
+                <span>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Typewriter effect component
 const TypewriterText: React.FC<{ text: string; delay?: number }> = ({ text, delay = 0 }) => {
@@ -420,6 +494,10 @@ export default function FourMemeStyleHomepage() {
                     active={filters.category === 'ai'}
                     onClick={() => filterByCategory('ai')}
                   />
+                  <CategoryDropdown
+                    activeCategory={filters.category || ''}
+                    onSelect={filterByCategory}
+                  />
                 </div>
               </div>
 
@@ -508,6 +586,10 @@ export default function FourMemeStyleHomepage() {
                       active={filters.category === 'ai'}
                       onClick={() => filterByCategory('ai')}
                     />
+                    <CategoryDropdown
+                      activeCategory={filters.category || ''}
+                      onSelect={filterByCategory}
+                    />
                   </div>
                 </div>
               </div>
@@ -533,7 +615,7 @@ export default function FourMemeStyleHomepage() {
                   <p className="text-red-400 mb-4">{searchError}</p>
                 </div>
               ) : searchResults.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center sm:justify-items-stretch">
                   {searchResults.map((token, index) => (
                     <TokenCard key={`${token.symbol}-${index}-search`} {...token} />
                   ))}
@@ -561,7 +643,7 @@ export default function FourMemeStyleHomepage() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center sm:justify-items-stretch">
                   {tokenCards.map((token, index) => (
                     <TokenCard key={`${token.symbol}-${index}`} {...token} />
                   ))}

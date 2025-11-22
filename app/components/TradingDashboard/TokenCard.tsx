@@ -8,18 +8,18 @@ import { useToastHelpers } from '@/app/hooks/useToast';
 import { useWallet } from '@/app/hooks/useWallet';
 import styles from './TokenCard.module.css';
 
-export const TokenCard: React.FC<TokenCardProps> = ({ 
-  isOneStop, 
-  imageUrl, 
+export const TokenCard: React.FC<TokenCardProps> = ({
+  isOneStop,
+  imageUrl,
   bannerUrl,
-  name, 
-  symbol, 
-  tag, 
-  tagColor, 
-  description, 
-  mcap, 
-  liquidity, 
-  volume, 
+  name,
+  symbol,
+  tag,
+  tagColor,
+  description,
+  mcap,
+  liquidity,
+  volume,
   currentTax,
   finalTax,
   maxTxPercent,
@@ -40,7 +40,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const labelRef = useRef<HTMLDivElement>(null);
   const flamesRef = useRef<HTMLDivElement>(null);
   const sparkTimer = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Save token functionality
   const { isSaved: savedState, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken(token_address, isSaved);
   const [saveClicked, setSaveClicked] = useState(false);
@@ -62,7 +62,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     if (!url) return;
     try {
       window.open(url, '_blank', 'noopener,noreferrer');
-    } catch {}
+    } catch { }
   };
 
   // Handle save button click
@@ -106,20 +106,20 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     if (progress !== undefined && progress !== null) {
       return progress;
     }
-    
+
     // Calculate progress from circulating supply and graduation cap
     if (circulating_supply && graduation_cap) {
       const circulatingSupplyNum = parseFloat(circulating_supply);
       const graduationCapNum = parseFloat(graduation_cap);
-      
+
       // Handle edge cases
       if (isNaN(circulatingSupplyNum) || isNaN(graduationCapNum) || graduationCapNum === 0) {
         return 0;
       }
-      
+
       return (circulatingSupplyNum / graduationCapNum) * 100;
     }
-    
+
     // Default to 0 if no data available
     return 0;
   };
@@ -127,11 +127,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Seed flames along current fill width
   const seedFlames = () => {
     if (!flamesRef.current || !fillRef.current) return;
-    
+
     flamesRef.current.innerHTML = '';
     const w = fillRef.current.clientWidth || 1;
     const FLAME_COUNT = 16;
-    
+
     for (let i = 0; i < FLAME_COUNT; i++) {
       const flame = document.createElement('span');
       flame.className = styles.flame;
@@ -150,7 +150,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     sparkTimer.current = setInterval(() => {
       if (!fillRef.current) return;
       if (document.querySelectorAll(`.${styles.spark}`).length > 40) return;
-      
+
       const spark = document.createElement('span');
       spark.className = styles.spark;
       const w = fillRef.current.clientWidth;
@@ -184,7 +184,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Set progress bar
   const setProgress = (percent: number) => {
     if (!fillRef.current || !trackRef.current || !labelRef.current) return;
-    
+
     const clamped = Math.max(0, Math.min(100, percent));
     fillRef.current.style.width = `${clamped}%`;
     trackRef.current.setAttribute('aria-valuenow', clamped.toFixed(1));
@@ -197,10 +197,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Animate progress bar
   const animateTo = (target: number, ms = 1600) => {
     if (!fillRef.current) return;
-    
+
     const startWidth = parseFloat(fillRef.current.style.width) || 0;
     const t0 = performance.now();
-    
+
     const frame = (t: number) => {
       const k = Math.min(1, (t - t0) / ms);
       const eased = 1 - Math.pow(1 - k, 3);
@@ -218,7 +218,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Parallax effect
   const enableParallax = (elem: HTMLElement, { maxTilt = 5, perspective = 800 } = {}) => {
     elem.style.transform = `perspective(${perspective}px)`;
-    
+
     const onMove = (e: MouseEvent) => {
       const r = elem.getBoundingClientRect();
       const cx = r.left + r.width / 2;
@@ -229,14 +229,14 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
       elem.style.transform = `perspective(${perspective}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
     };
-    
+
     const reset = () => {
       elem.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
     };
-    
+
     //elem.addEventListener('mousemove', onMove);
     //elem.addEventListener('mouseleave', reset);
-    
+
     return () => {
       //elem.removeEventListener('mousemove', onMove);
       //elem.removeEventListener('mouseleave', reset);
@@ -264,10 +264,10 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
   useEffect(() => {
     let cleanupParallax: (() => void) | undefined;
-    
+
     // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
+
     if (!prefersReducedMotion && cardRef.current) {
       cleanupParallax = enableParallax(cardRef.current, { maxTilt: 6, perspective: 900 });
     }
@@ -275,7 +275,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     // Initialize progress bar
     setProgress(0);
     seedFlames();
-    
+
     if (!prefersReducedMotion) {
       startSparks();
     }
@@ -295,7 +295,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   }, [progress, circulating_supply, graduation_cap]);
 
   return (
-    <article 
+    <article
       ref={cardRef}
       className={styles.tokenCard}
       role="article"
@@ -304,8 +304,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       style={{ cursor: 'pointer' }}
     >
       {/* Token banner */}
-      <div 
-        className={`${styles.tokenBanner} ${bannerUrl ? styles.tokenBannerHasImage : ''}`} 
+      <div
+        className={`${styles.tokenBanner} ${bannerUrl ? styles.tokenBannerHasImage : ''}`}
         aria-hidden="true"
         style={bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : undefined}
       >
@@ -319,25 +319,25 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       <header className={styles.header}>
         <div className={styles.identity}>
           <div className={styles.avatar}>
-            <img 
-              src={imageUrl} 
-              alt={name} 
-              className={styles.avatarImage} 
+            <img
+              src={imageUrl}
+              alt={name}
+              className={styles.avatarImage}
             />
           </div>
           <div className={styles.nameBlock}>
             <div className={styles.nameRow}>
-            <h1 className={styles.name}>{name}</h1>
+              <h1 className={`${styles.name} font-satoshi`}>{name}</h1>
               <div className={styles.rightSection}>
-                <div className={styles.badge}>{category || "N/A"}</div>
-                <button 
+                <div className={`${styles.badge} font-satoshi`}>{category || "N/A"}</div>
+                <button
                   className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''} ${saveClicked ? styles.clicked : ''}`}
                   aria-label={savedState ? "Remove from saved" : "Save token"}
                   title={savedState ? "Remove from saved" : "Save token"}
                   onClick={handleSaveClick}
                   disabled={isSaveLoading || !token_address}
-                  
-                  style={{ 
+
+                  style={{
                     opacity: isSaveLoading ? 0.6 : 1,
                     color: savedState ? '#ffdd00' : '#fff1dc'
                   }}
@@ -349,27 +349,27 @@ export const TokenCard: React.FC<TokenCardProps> = ({
             <div className={styles.symbolRow}>
               <div className={styles.ticker}>{symbol}</div>
               <nav className={styles.socials} aria-label="Social links">
-                <button 
-                  className={`${styles.socialBtn} ${styles.tg}`} 
-                  aria-label="Telegram" 
+                <button
+                  className={`${styles.socialBtn} ${styles.tg}`}
+                  aria-label="Telegram"
                   title="Telegram"
                   onClick={(e) => handleSocialClick(e, () => openLink(telegram))}
                   disabled={!telegram}
                 >
                   <Send size={12} />
                 </button>
-                <button 
-                  className={`${styles.socialBtn} ${styles.x}`} 
-                  aria-label="X (Twitter)" 
+                <button
+                  className={`${styles.socialBtn} ${styles.x}`}
+                  aria-label="X (Twitter)"
                   title="X"
                   onClick={(e) => handleSocialClick(e, () => openLink(twitter))}
                   disabled={!twitter}
                 >
                   <TwitterIcon />
                 </button>
-                <button 
-                  className={`${styles.socialBtn} ${styles.web}`} 
-                  aria-label="Website" 
+                <button
+                  className={`${styles.socialBtn} ${styles.web}`}
+                  aria-label="Website"
                   title="Website"
                   onClick={(e) => handleSocialClick(e, () => openLink(website))}
                   disabled={!website}
@@ -385,8 +385,8 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       <section className={styles.taxLine}>
         <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
         <div className={styles.taxChips}>
-          <span className={styles.chip}>Current Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</span>
-          <span className={styles.chip}>MaxTX: {formatMaxTxPercent(maxTxPercent)}</span>
+          <span className={`${styles.chip} font-satoshi`}>Current Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</span>
+          <span className={`${styles.chip} font-satoshi`}>MaxTX: {formatMaxTxPercent(maxTxPercent)}</span>
         </div>
       </section>
 
@@ -398,15 +398,15 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       <section className={styles.score}>
         <div className={styles.scoreStats} aria-label="Token stats">
           <div className={styles.stat}>
-            <div className={styles.statLabel}>MCAP</div>
+            <div className={`${styles.statLabel} font-satoshi`}>MCAP</div>
             <div className={styles.statValue}>{mcap}</div>
           </div>
           <div className={styles.stat}>
-            <div className={styles.statLabel}>VOLUME</div>
+            <div className={`${styles.statLabel} font-satoshi`}>VOLUME</div>
             <div className={styles.statValue}>{volume}</div>
           </div>
           <div className={styles.stat}>
-            <div className={styles.statLabel}>LP</div>
+            <div className={`${styles.statLabel} font-satoshi`}>LP</div>
             <div className={styles.statValue}>{liquidity}</div>
           </div>
         </div>

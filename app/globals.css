@@ -52,6 +52,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -67,7 +68,8 @@ body[style*="--dragging-pointer-events"] canvas {
 }
 
 /* Global background fix to prevent seams and repeating */
-html, body {
+html,
+body {
   background: #1a0f08;
   background-attachment: fixed;
   background-repeat: no-repeat;
@@ -122,7 +124,8 @@ html, body {
   width: max-content;
   /* Smooth animation performance optimizations */
   will-change: transform;
-  transform: translateZ(0); /* Force hardware acceleration */
+  transform: translateZ(0);
+  /* Force hardware acceleration */
 }
 
 /* TradingView Widget Styling */
@@ -250,6 +253,7 @@ html, body {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -288,27 +292,23 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   /*
    * We combine:
    * 1) A radial gradient for the lighter glow around the right corner
    * 2) A linear gradient for the dark brown interior
    */
   background:
-    /* (a) Glow on the right side */ 
-    radial-gradient(
-      circle at 100% -40%,
+    /* (a) Glow on the right side */
+    radial-gradient(circle at 100% -40%,
       rgba(255, 255, 255, 0.2),
-      rgba(255, 255, 255, 0) 22%
-    ),
+      rgba(255, 255, 255, 0) 22%),
     /* (b) Dark interior gradient */
-    linear-gradient(
-      to bottom,
+    linear-gradient(to bottom,
       #392211 0%,
       #2b1200 20%,
       #2b1200 95%,
-      #261000 100%
-    );
+      #261000 100%);
 
   /*
    * Multiple inset shadows for a stronger Inner Bevel:
@@ -319,17 +319,17 @@ html, body {
    * - darker left edge
    */
   box-shadow:
-    /* highlight top-left */ 
+    /* highlight top-left */
     inset 2px 2px 3px rgba(255, 255, 255, 0.1),
-    /* vertical strip on right */ 
+    /* vertical strip on right */
     inset -4px 0px 4px rgba(255, 255, 255, 0.153),
-    /* heavier shading near bottom */ 
+    /* heavier shading near bottom */
     inset 0 3px 15px rgba(96, 41, 7, 0.7),
-    /* subtle reflection on top edge */ 
+    /* subtle reflection on top edge */
     inset 0 -5px 6px rgba(35, 20, 0, 0.846),
-    /* darker left edge */ 
+    /* darker left edge */
     inset 3px 0 5px rgb(52, 24, 2),
-    /* a bit of shadow on the right edge */ 
+    /* a bit of shadow on the right edge */
     inset -3px 0 5px rgba(0, 0, 0, 0.15);
 }
 
@@ -340,29 +340,35 @@ html, body {
   min-width: 120px;
 }
 
-.box-shadow-1{
+.box-shadow-1 {
   box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -5px 0px 6px rgba(255, 255, 255, 0.153), inset 0 3px 2px rgba(96, 41, 7, 0.7), inset 0 -3px 5px rgba(35, 20, 0, 0.846), inset 1px 0px 2px rgb(47 24 5), inset 2px 0 3px rgba(0, 0, 0, 0.15);
 
 }
-.box-shadow-2{
-  box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -5px 0px 6px rgba(255, 255, 255, 0.153), inset -1px 1px 1px rgb(171 171 171 / 70%), inset 0 -3px 5px rgba(35, 20, 0, 0.846), inset 1px 0px 2px rgb(47 24 5), inset 2px 0 3px rgba(0, 0, 0, 0.15); 
+
+.box-shadow-2 {
+  box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.1), inset -5px 0px 6px rgba(255, 255, 255, 0.153), inset -1px 1px 1px rgb(171 171 171 / 70%), inset 0 -3px 5px rgba(35, 20, 0, 0.846), inset 1px 0px 2px rgb(47 24 5), inset 2px 0 3px rgba(0, 0, 0, 0.15);
 }
 
-.box-shadow-3{
+.box-shadow-3 {
   box-shadow: inset 2px 2px 5px rgb(0 0 0 / 10%), inset -5px 0px 6px rgb(255 255 255 / 17%), inset -1px 1px 1px rgb(171 171 171 / 70%), inset 0 -3px 5px rgb(8 6 2 / 85%), inset 1px 0px 2px rgb(57 43 32), inset 2px 0 3px rgba(0, 0, 0, 0.15);
 }
+
 .font-1rem {
   font-size: 1rem;
 }
+
 .font-1\.2rem {
   font-size: 1.2rem;
 }
+
 .font-1\.3rem {
   font-size: 1.3rem;
 }
+
 .font-1\.4rem {
   font-size: 1.4rem;
 }
+
 .font-1\.5rem {
   font-size: 1.5rem;
 }
@@ -389,45 +395,51 @@ html, body {
     "Liberation Mono", "Courier New", monospace;
 }
 
-.height-45{
+.height-45 {
   height: 45px;
 }
-.buy-btn-active{
+
+.buy-btn-active {
   border: 3px solid #93eca8;
   color: #93eca8;
   background: #0a8834;
 }
-.sell-btn-active{
+
+.sell-btn-active {
   border: 3px solid #ff3b3b;
   color: #ff3b3b;
   background: #a71c1c;
 }
+
 .text-\[\#fff4da\] {
   color: #fff4da;
 }
+
 @media (max-width: 640px) {
   .header-button {
     height: 36px;
     min-width: 80px;
   }
-  
+
   /* Stretch background to cover entire mobile viewport */
-  html, body {
+  html,
+  body {
     min-height: 100vh !important;
-    min-height: 100dvh !important; /* Dynamic viewport height for mobile */
+    min-height: 100dvh !important;
+    /* Dynamic viewport height for mobile */
     background-size: cover !important;
     background-position: center center !important;
     background-attachment: fixed !important;
     background-repeat: no-repeat !important;
     overflow-x: hidden;
   }
-  
+
   body {
     /* Ensure background is truly fixed and doesn't repeat */
     background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed !important;
     min-height: max(100vh, 100%) !important;
   }
-  
+
   /* Ensure main content doesn't interfere with background */
   main {
     flex: 1 !important;
@@ -444,17 +456,13 @@ html, body {
 
 .inner-button.golden {
   background:
-    radial-gradient(
-      circle at 100% -40%,
+    radial-gradient(circle at 100% -40%,
       rgba(255, 255, 255, 0.3),
-      rgba(255, 255, 255, 0) 22%
-    ),
-    linear-gradient(
-      to bottom,
+      rgba(255, 255, 255, 0) 22%),
+    linear-gradient(to bottom,
       #e9af5a 0%,
-      #e9af5a 100%
-    );
-    
+      #e9af5a 100%);
+
   box-shadow:
     inset 2px 2px 3px rgba(255, 255, 255, 0.2),
     inset -4px 0px 4px rgba(255, 255, 255, 0.2),
@@ -514,8 +522,7 @@ html, body {
 }
 
 .steakhouse-image:hover {
-  filter: drop-shadow(8px 8px 20px rgba(0, 0, 0, 0.3)) 
-          drop-shadow(0 0 15px rgba(217, 133, 58, 0.3));
+  filter: drop-shadow(8px 8px 20px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 15px rgba(217, 133, 58, 0.3));
 }
 
 .steakhouse-loading-text {
@@ -527,19 +534,24 @@ html, body {
   0% {
     transform: rotateX(0deg);
   }
+
   50% {
     transform: rotateX(180deg);
   }
+
   100% {
     transform: rotateX(360deg);
   }
 }
 
 @keyframes steakhouse-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(1);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.05);
@@ -552,13 +564,17 @@ html, body {
     width: 150px;
     height: 150px;
   }
-  
+
   .steakhouse-image {
     width: 150px !important;
     height: 150px !important;
   }
-  
+
   .steakhouse-loading-text {
     font-size: 1.2rem;
   }
+}
+
+.font-satoshi {
+  font-family: 'Satoshi', sans-serif;
 }
