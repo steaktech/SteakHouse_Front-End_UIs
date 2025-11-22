@@ -197,6 +197,7 @@ export const TradingView: React.FC<TradingViewProps> = ({
         theme: 'Dark',
         locale: 'en',
         fullscreen: false,
+        toolbar_bg: '#07030c',
         // Use our own fullscreen implementation instead of TradingView's built-in one
         enabled_features: [],
         disabled_features: [
@@ -211,12 +212,12 @@ export const TradingView: React.FC<TradingViewProps> = ({
           'header_fullscreen_button',
         ],
         overrides: {
-          'paneProperties.background': '#07040b',
+          'paneProperties.background': '#07030c',
           'paneProperties.backgroundType': 'solid',
           'paneProperties.vertGridProperties.color': '#1f2937',
           'paneProperties.horzGridProperties.color': '#1f2937',
           'scalesProperties.textColor': '#94a3b8',
-'scalesProperties.lineColor': '#374151',
+          'scalesProperties.lineColor': '#374151',
 
           // Improve readability and margins
           'paneProperties.topMargin': 15,
@@ -284,6 +285,30 @@ export const TradingView: React.FC<TradingViewProps> = ({
             try { chart.createStudy?.('Volume@tv-basicstudies', false, false); }
             catch { try { chart.createStudy?.('Volume', false, false); } catch {}
             }
+          }
+        } catch {}
+
+        // Apply deep dark background to platform, panes, toolbars, and side areas via CSS custom properties
+        try {
+          const w: any = widgetRef.current;
+          if (w?.setCSSCustomProperty) {
+            const bg = '#07030c';
+
+            // Newer TV embed variables (if present)
+            w.setCSSCustomProperty('--tv-color-platform-background', bg);
+            w.setCSSCustomProperty('--tv-color-pane-background', bg);
+            w.setCSSCustomProperty('--tv-color-toolbar-background', bg);
+
+            // Charting Library theme variables (dark theme)
+            w.setCSSCustomProperty('--color-header-bg', bg);
+            w.setCSSCustomProperty('--color-body-bg', bg);
+            w.setCSSCustomProperty('--color-background-primary', bg);
+            w.setCSSCustomProperty('--color-background-secondary', bg);
+            w.setCSSCustomProperty('--color-background-tertiary', bg);
+            w.setCSSCustomProperty('--color-background-page-platform', bg);
+            w.setCSSCustomProperty('--color-background-dialog-fullscreen', bg);
+            w.setCSSCustomProperty('--color-pane-bg', bg);
+            w.setCSSCustomProperty('--color-pane-secondary-bg', bg);
           }
         } catch {}
 
@@ -369,13 +394,13 @@ export const TradingView: React.FC<TradingViewProps> = ({
           right: 0,
           bottom: 0,
           zIndex: 9999,
-          background: '#07040b'
+          background: '#07030c'
         } : {}}
       >
         <div className="flex-grow flex flex-col h-full">
           {/* Top Toolbar (custom React header) - disabled in favor of TradingView's own header */}
           {false && (
-            <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07040b] border-b border-[#1f1a24]">
+            <div className="h-10 sm:h-11 lg:h-12 px-2 sm:px-3 flex items-center gap-2 bg-[#07030c] border-b border-[#1f1a24]">
               {/* ...custom header content removed... */}
             </div>
           )}
@@ -385,7 +410,7 @@ export const TradingView: React.FC<TradingViewProps> = ({
             <div
               ref={containerRef}
               className="absolute inset-0"
-              style={{ background: '#07040b', borderRadius: 8 }}
+              style={{ background: '#07030c', borderRadius: 8 }}
             />
           </div>
         </div>

@@ -2,6 +2,6 @@
 
 /* Target the main toolbar wrapper */
 .header-widget-wrapper {
-    background-color: #000000 !important; /* Set background to black */
+    background-color: #07030c !important; /* Match app chart background */
     border-bottom: none !important;      /* Hide the border */
   }
