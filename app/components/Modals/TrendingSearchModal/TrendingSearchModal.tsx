@@ -68,17 +68,17 @@ const createStepperUtils = (value: string, step: string, onChange: (value: strin
         const stepValue = Number(step) > 0 ? Number(step) : 1;
         const current = value === '' ? 0 : Number(value);
         const sign = direction === 'up' ? 1 : -1;
-        
+
         if ((current <= 0 || Math.abs(current) < 1e-12) && sign < 0) {
             return formatValue(0, stepValue);
         }
-        
+
         let target = current + sign * stepValue * multiplier;
         target = snapToStep(target, stepValue, 0);
-        
+
         // Clamp to minimum 0
         if (target < 0) target = 0;
-        
+
         return formatValue(target, stepValue);
     };
 
@@ -95,47 +95,47 @@ const createStepperUtils = (value: string, step: string, onChange: (value: strin
  */
 const validateInput = (value: string, min?: string, max?: string): ValidationResult => {
     const numValue = Number(value);
-    
+
     if (value.trim() === '') {
         return { isValid: true, sanitizedValue: '' };
     }
-    
+
     if (isNaN(numValue)) {
-        return { 
-            isValid: false, 
+        return {
+            isValid: false,
             errorMessage: 'Please enter a valid number',
             sanitizedValue: ''
         };
     }
-    
+
     if (min !== undefined && numValue < Number(min)) {
-        return { 
-            isValid: false, 
+        return {
+            isValid: false,
             errorMessage: `Value must be at least ${min}`,
             sanitizedValue: min
         };
     }
-    
+
     if (max !== undefined && numValue > Number(max)) {
-        return { 
-            isValid: false, 
+        return {
+            isValid: false,
             errorMessage: `Value must be at most ${max}`,
             sanitizedValue: max
         };
     }
-    
+
     return { isValid: true, sanitizedValue: value };
 };
 
 /**
  * Number input field with steppers
  */
-const NumberInputField: FC<NumberInputFieldProps> = ({ 
-    value, 
-    onChange, 
-    placeholder, 
-    unit, 
-    step, 
+const NumberInputField: FC<NumberInputFieldProps> = ({
+    value,
+    onChange,
+    placeholder,
+    unit,
+    step,
     ariaLabel,
     min = "0",
     max,
@@ -160,10 +160,10 @@ const NumberInputField: FC<NumberInputFieldProps> = ({
     const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
         const key = e.key as StepperKeyEvent;
         if (key !== 'ArrowUp' && key !== 'ArrowDown') return;
-        
+
         e.preventDefault();
         if (disabled) return;
-        
+
         const direction = key === 'ArrowUp' ? 'up' : 'down';
         const multiplier = e.shiftKey ? MODAL_CONSTANTS.SHIFT_MULTIPLIER : 1;
         const newValue = stepperUtils.computeNext(direction, multiplier);
@@ -172,11 +172,11 @@ const NumberInputField: FC<NumberInputFieldProps> = ({
 
     const pressStart = useCallback((direction: 'up' | 'down') => {
         if (isPressing.current || disabled) return;
-        
+
         isPressing.current = true;
         const newValue = stepperUtils.computeNext(direction, 1);
         handleInputChange(newValue);
-        
+
         timerRef.current = setInterval(() => {
             const nextValue = stepperUtils.computeNext(direction, 1);
             handleInputChange(nextValue);
@@ -185,7 +185,7 @@ const NumberInputField: FC<NumberInputFieldProps> = ({
 
     const pressEnd = useCallback(() => {
         if (!isPressing.current) return;
-        
+
         isPressing.current = false;
         if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -203,7 +203,7 @@ const NumberInputField: FC<NumberInputFieldProps> = ({
 
     return (
         <div className={styles.field}>
-        <input
+            <input
                 ref={inputRef}
                 className={styles.input}
                 type="number"
@@ -232,8 +232,8 @@ const NumberInputField: FC<NumberInputFieldProps> = ({
                     onPointerEnd={pressEnd}
                 />
             </div>
-    </div>
-);
+        </div>
+    );
 };
 
 /**
@@ -247,14 +247,14 @@ const StepperButton: FC<{
 }> = ({ direction, onPress, onPointerEnd, disabled = false }) => {
     const handlePointerDown = useCallback((e: React.PointerEvent) => {
         if (disabled) return;
-        
+
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
         onPress(direction);
     }, [direction, onPress, disabled]);
 
-    const iconPath = direction === 'up' 
-        ? "M6 14l6-6 6 6" 
+    const iconPath = direction === 'up'
+        ? "M6 14l6-6 6 6"
         : "M6 10l6 6 6-6";
 
     return (
@@ -273,9 +273,9 @@ const StepperButton: FC<{
                     strokeWidth="2"
                     fill="none"
                 />
-    </svg>
+            </svg>
         </div>
-);
+    );
 };
 
 /**
@@ -309,7 +309,7 @@ const useModalState = (onClose: () => void, onClearAll?: () => void): SearchModa
 
     const handleApply = useCallback(() => {
         const payload: FilterValues = {};
-        
+
         // Convert filter values to the format expected by the API
         Object.entries(filters).forEach(([key, value]) => {
             if (value.trim()) {
@@ -327,7 +327,7 @@ const useModalState = (onClose: () => void, onClearAll?: () => void): SearchModa
                 }
             }
         });
-        
+
         console.log('Apply filters:', payload);
         return payload;
     }, [filters]);
@@ -364,7 +364,7 @@ const useFilteredFields = (searchTerm: string): FilterField[] => {
         if (!searchTerm.trim()) {
             return filterFields;
         }
-        
+
         return filterFields.filter(field =>
             field.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
             field.id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -525,8 +525,8 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                     <div className={styles.title} id="modal-title">
                         <span className={styles.dot}></span>
                         Customize Filters
-                            </div>
-                    <div role="tablist" aria-label="Search mode" style={{ display: 'flex', gap: 6, marginRight: 8 }}>
+                    </div>
+                    {/* <div role="tablist" aria-label="Search mode" style={{ display: 'flex', gap: 6, marginRight: 8 }}>
                         <button
                             onClick={() => handleModeChange('token')}
                             aria-pressed={searchMode === 'token'}
@@ -559,8 +559,8 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                         >
                             <Type size={14} />
                         </button>
-                    </div>
-                    <div className={styles.search} role="search">
+                    </div> */}
+                    {/* <div className={styles.search} role="search">
                         <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -581,7 +581,7 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                             ref={headerInputRef}
                         />
 
-                    </div>
+                    </div> */}
                     <button
                         className={styles.iconBtn}
                         type="button"
@@ -598,7 +598,7 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                         >
                             <path d="M18 6L6 18M6 6l12 12"></path>
                         </svg>
-                        </button>
+                    </button>
                 </header>
 
                 <div className={styles.content}>
@@ -630,22 +630,22 @@ const TrendingSearchModal: FC<TrendingSearchModalProps> = ({ isOpen, onClose, on
                 </div>
 
                 <div className={styles.footer}>
-                    <button 
-                        className={`${styles.btn} ${styles.btnGhost}`} 
-                        type="button" 
+                    <button
+                        className={`${styles.btn} ${styles.btnGhost}`}
+                        type="button"
                         onClick={handleClearFilters}
                     >
                         Clear All
                     </button>
                     <div className="flex gap-2">
-                        <button 
-                            className={`${styles.btn} ${styles.btnGhost}`} 
-                            type="button" 
+                        <button
+                            className={`${styles.btn} ${styles.btnGhost}`}
+                            type="button"
                             onClick={handleCancel}
                         >
                             Cancel
                         </button>
-                        <button 
+                        <button
                             className={`${styles.btn} ${styles.btnPrimary}`}
                             type="button"
                             onClick={onApplyWithCallback}

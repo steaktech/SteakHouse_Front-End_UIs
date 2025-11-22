@@ -302,23 +302,23 @@ export default function FourMemeStyleHomepage() {
                   <div className="flex flex-col items-center justify-center text-center border-b lg:border-b-0 lg:border-r border-[#c87414]/30 pb-2.5 lg:pb-0 lg:pr-5.5">
                     <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-1.5 flex items-center justify-center gap-2">
                       <span className="text-lg sm:text-xl lg:text-2xl">🔥</span>
-                      <span className="bg-gradient-to-r from-[#f3cc76] via-[#e8b35c] to-[#c87414] bg-clip-text text-transparent">
+                      <span className="text-3xl sm:text-4xl lg:text-5xl bg-gradient-to-r from-[#f3cc76] via-[#e8b35c] to-[#c87414] bg-clip-text text-transparent pb-2 leading-tight">
                         Let's cook something
                       </span>
                       <span className="text-lg sm:text-xl lg:text-2xl">🔥</span>
                     </h1>
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <button
-                        className="relative px-3 py-1 bg-transparent border-2 border-[#c87414] rounded-full text-[#c87414] text-xs font-medium transition-all hover:bg-[#c87414]/10"
+                        className="relative px-6 py-2 bg-transparent border-2 border-[#c87414] rounded-full text-[#c87414] text-sm font-bold transition-all hover:bg-[#c87414]/10"
                         onClick={() => setIsInfoModalOpen(true)}
                       >
                         <span className="absolute inset-0 border-2 border-[#c87414] rounded-full animate-pulse"></span>
                         <span className="relative">How it works?</span>
                       </button>
                       <button
-                        className="px-3 py-1 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] border-2 border-[#c87414] rounded-full text-[#1a0f08] text-xs font-bold transition-all shadow-lg"
+                        className="px-6 py-2 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] border-2 border-[#c87414] rounded-full text-[#1a0f08] text-sm font-bold transition-all shadow-lg"
                         onClick={() => setIsCreateTokenModalOpen(true)}
                       >
                         Create a token
