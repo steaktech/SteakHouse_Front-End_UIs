@@ -21,6 +21,7 @@ export interface TokenCardProps {
   finalTax?: string;
   maxTxPercent?: string;
   progress?: number;
+  priceChange24h?: number;
   circulating_supply?: string;
   graduation_cap?: string;
   category?: string | null;
@@ -37,4 +38,4 @@ export interface FilterButtonProps {
   label: string;
   active?: boolean;
   onClick?: () => void;
-} 
+}

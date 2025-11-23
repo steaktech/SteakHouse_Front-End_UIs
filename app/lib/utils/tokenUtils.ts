@@ -6,22 +6,22 @@ import { DEFAULT_TOKEN_IMAGE, TOKEN_TYPE_LABELS, TOKEN_TAG_COLORS } from '../con
 /**
  * Formats a number to a human-readable string with appropriate suffixes
  */
-export function formatNumber(value: number | string, options: { 
-  prefix?: string; 
-  decimals?: number; 
-  compact?: boolean 
+export function formatNumber(value: number | string, options: {
+  prefix?: string;
+  decimals?: number;
+  compact?: boolean
 } = {}): string {
   const { prefix = '', decimals = 2, compact = true } = options;
   const numValue = typeof value === 'string' ? parseFloat(value) : value;
-  
+
   if (isNaN(numValue) || numValue === 0) {
     return `${prefix}0`;
   }
 
   if (!compact) {
-    return `${prefix}${numValue.toLocaleString(undefined, { 
-      minimumFractionDigits: 0, 
-      maximumFractionDigits: decimals 
+    return `${prefix}${numValue.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: decimals
     })}`;
   }
 
@@ -35,7 +35,7 @@ export function formatNumber(value: number | string, options: {
   if (numValue >= 1e3) {
     return `${prefix}${(numValue / 1e3).toFixed(decimals)}K`;
   }
-  
+
   return `${prefix}${numValue.toFixed(decimals)}`;
 }
 
@@ -65,15 +65,15 @@ export function getMarketCap(token: Token): number {
 export function calculateGraduationProgress(ethPool: string, graduationCap: string): number {
   const currentPool = parseFloat(ethPool);
   const graduationCapValue = parseFloat(graduationCap);
-  
+
   if (isNaN(currentPool) || isNaN(graduationCapValue) || graduationCapValue === 0) {
     return 0;
   }
-  
+
   // Convert from wei to ETH (assuming values are in wei)
   const currentPoolETH = currentPool / 1e18;
   const graduationCapETH = graduationCapValue / 1e18;
-  
+
   const progress = (currentPoolETH / graduationCapETH) * 100;
   return Math.min(progress, 100);
 }
@@ -86,12 +86,12 @@ export function getTokenTag(token: Token): string {
   if (token.is_zero_simple) return 'Zero Simple';
   if (token.is_advanced) return 'Advanced';
   if (token.is_stealth) return 'Stealth';
-  
+
   if (token.token_type !== null) {
     const typeLabel = TOKEN_TYPE_LABELS[token.token_type as keyof typeof TOKEN_TYPE_LABELS];
     if (typeLabel) return typeLabel;
   }
-  
+
   return 'Basic';
 }
 
@@ -108,7 +108,7 @@ export function getTokenTagColor(tag: string): string {
 export function generateTokenDescription(token: Token): string {
   const tag = getTokenTag(token);
   const graduated = token.graduated ? 'graduated' : 'pre-graduation';
-  
+
   return `${token.name} (${token.symbol}) is a ${tag.toLowerCase()} token currently in ${graduated} phase. Join the community and trade with confidence.`;
 }
 
@@ -126,7 +126,7 @@ export function getTokenAge(token: Token): number {
 export function getTaxInfo(token: Token): { current: string; final: string } {
   const currentTax = token.tax_rate || '0';
   const finalTax = token.final_tax_rate || '0';
-  
+
   return {
     current: currentTax,
     final: finalTax
@@ -182,6 +182,7 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
     finalTax,
     maxTxPercent,
     progress: Math.round(progress * 10) / 10, // Round to 1 decimal place
+    priceChange24h: token.price_change_24h || 0,
     circulating_supply: token.circulating_supply,
     graduation_cap: token.graduation_cap,
     category: token.catagory,

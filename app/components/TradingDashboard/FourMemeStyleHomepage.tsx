@@ -250,6 +250,7 @@ const mapFullTokenDataToCardProps = (data: FullTokenDataResponse): TokenCardProp
     finalTax,
     maxTxPercent,
     progress: Math.round(progress * 10) / 10,
+    priceChange24h: data.priceChange24h || 0,
     circulating_supply: tokenInfo.circulating_supply.toString(),
     graduation_cap: tokenInfo.graduation_cap.toString(),
     category: tokenInfo.catagory,
