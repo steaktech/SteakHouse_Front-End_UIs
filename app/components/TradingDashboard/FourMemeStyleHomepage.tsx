@@ -161,10 +161,14 @@ const TypewriterFeatures: React.FC = () => {
   const [key, setKey] = useState(0);
 
   const features = [
-    "Ready to cook? Steakhouse lets you",
-    "Launch for $3",
-    "Launch on ETH, ARB, BSC, BASE",
-    "Launch with tax, no tax, wallet limits, etc"
+    "Creators: Launch for $3",
+    "Creators: Multichain Support",
+    "Investors: Anti-Snipe Protected",
+    "Investors: Access Safe Tokens",
+    "Creators: Tax, MaxTx, MaxWallet",
+    "Creators: Stealth Deploys",
+    "Investors: Manipulation-Free Coins",
+    "Investors: Cheap Virtual Trading"
   ];
 
   useEffect(() => {
