@@ -28,6 +28,7 @@ import SteakHouseInfoModal from "../Modals/SteakHouseInfoModal";
 import CreateTokenModal from "../Modals/CreateTokenModal/CreateTokenModal";
 import styles from "../UI/Botton.module.css";
 import { useNameSearch } from "@/app/hooks/useNameSearch";
+import { useStablePriceData } from "@/app/hooks/useStablePriceData";
 import { getFullTokenData } from "@/app/lib/api/services/tokenService";
 import { normalizeEthereumAddress } from "@/app/lib/utils/addressValidation";
 import { transformTokensToCardProps, formatNumber, calculateGraduationProgress, getTokenTag, getTokenTagColor, generateTokenDescription, getTaxInfo } from "@/app/lib/utils/tokenUtils";
@@ -364,6 +365,8 @@ export default function FourMemeStyleHomepage() {
     applySearchFilters(numericFilters);
   };
 
+  const { ethPriceUsd } = useStablePriceData(true);
+
   return (
     <>
       <div className="min-h-screen bg-[#1a0f08]">
@@ -622,7 +625,7 @@ export default function FourMemeStyleHomepage() {
               ) : searchResults.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center sm:justify-items-stretch">
                   {searchResults.map((token, index) => (
-                    <TokenCard key={`${token.symbol}-${index}-search`} {...token} />
+                    <TokenCard key={`${token.symbol}-${index}-search`} {...token} ethPriceUsd={ethPriceUsd} />
                   ))}
                 </div>
               ) : (
@@ -650,7 +653,7 @@ export default function FourMemeStyleHomepage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center sm:justify-items-stretch">
                   {tokenCards.map((token, index) => (
-                    <TokenCard key={`${token.symbol}-${index}`} {...token} />
+                    <TokenCard key={`${token.symbol}-${index}`} {...token} ethPriceUsd={ethPriceUsd} />
                   ))}
                 </div>
               )

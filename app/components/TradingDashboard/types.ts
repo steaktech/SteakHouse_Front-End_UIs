@@ -31,6 +31,7 @@ export interface TokenCardProps {
   twitter?: string | null;
   website?: string | null;
   isSaved?: boolean;
+  ethPriceUsd?: number | null;
 }
 
 export interface FilterButtonProps {

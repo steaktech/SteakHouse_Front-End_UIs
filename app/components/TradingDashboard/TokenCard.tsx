@@ -6,10 +6,10 @@ import { TwitterIcon } from './TwitterIcon';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import { useWallet } from '@/app/hooks/useWallet';
-import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 import styles from './TokenCard.module.css';
+import Image from 'next/image';
 
-export const TokenCard: React.FC<TokenCardProps> = ({
+export const TokenCardComponent: React.FC<TokenCardProps> = ({
   isOneStop,
   imageUrl,
   bannerUrl,
@@ -33,14 +33,13 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   telegram,
   twitter,
   website,
-  isSaved = false
+  isSaved = false,
+  ethPriceUsd
 }) => {
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  const flamesRef = useRef<HTMLDivElement>(null);
-  const sparkTimer = useRef<NodeJS.Timeout | null>(null);
 
   const { isSaved: savedState, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken(token_address, isSaved);
   const [saveClicked, setSaveClicked] = useState(false);
@@ -48,9 +47,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   const { showError, showSuccess } = useToastHelpers();
   const { isConnected } = useWallet();
 
-  const { ethPriceUsd } = useStablePriceData(true);
-
-  const volume24hUsd = (() => {
+  const volume24hUsd = React.useMemo(() => {
     if (volume == null) return undefined;
     const volNum = typeof volume === 'string' ? parseFloat(volume.replace(/[^0-9.-]+/g, "")) : volume;
     if (isNaN(volNum)) return undefined;
@@ -58,7 +55,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       return volNum * ethPriceUsd;
     }
     return volNum;
-  })();
+  }, [volume, ethPriceUsd]);
 
   const WEI_1E18 = BigInt(10) ** BigInt(18);
 
@@ -95,7 +92,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     }
   }
 
-  const gcapValue = (() => {
+  const gcapValue = React.useMemo(() => {
     let totalSupply: number | undefined;
     if (typeof circulating_supply === 'string') {
       totalSupply = parseFloat(circulating_supply.replace(/[^0-9.-]+/g, ""));
@@ -117,7 +114,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     const mcapCalc = computeMcapUsdFromSupplySync({
       totalSupply,
       supplyToCirculate,
-      ethPriceUsd,
+      ethPriceUsd: ethPriceUsd || null,
     });
 
     if (mcapCalc != null && !isNaN(mcapCalc) && mcapCalc > 0) return mcapCalc;
@@ -125,20 +122,20 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       return supplyToCirculate;
     }
     return undefined;
-  })();
+  }, [circulating_supply, graduation_cap, ethPriceUsd]);
 
-  const currentMcapValue = (() => {
+  const currentMcapValue = React.useMemo(() => {
     if (!mcap) return undefined;
     const parsed = typeof mcap === 'string' ? parseFloat(mcap.replace(/[^0-9.-]+/g, "")) : mcap;
     return isNaN(parsed) ? undefined : parsed;
-  })();
+  }, [mcap]);
 
-  const gcapProgressPercent = (() => {
+  const gcapProgressPercent = React.useMemo(() => {
     if (gcapValue && currentMcapValue && gcapValue > 0) {
       return (currentMcapValue / gcapValue) * 100;
     }
     return 0;
-  })();
+  }, [gcapValue, currentMcapValue]);
 
   const formatCurrency = (value: number | undefined) => {
     if (value == null || isNaN(value)) return '$0';
@@ -215,81 +212,15 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     return 0;
   };
 
-  const seedFlames = () => {
-    if (!flamesRef.current || !fillRef.current) return;
-    flamesRef.current.innerHTML = '';
-    const w = fillRef.current.clientWidth || 1;
-    const FLAME_COUNT = 16;
-    for (let i = 0; i < FLAME_COUNT; i++) {
-      const flame = document.createElement('span');
-      flame.className = styles.flame;
-      const left = (i / (FLAME_COUNT - 1)) * Math.max(0, w - 26);
-      flame.style.left = `${left}px`;
-      flame.style.animationDuration = `${900 + Math.random() * 700}ms`;
-      flame.style.animationDelay = `${-Math.random() * 900}ms`;
-      flame.style.transform = `translateY(${Math.random() * 2}px) scale(${0.9 + Math.random() * 0.35})`;
-      flamesRef.current.appendChild(flame);
-    }
-  };
-
-  const startSparks = () => {
-    stopSparks();
-    sparkTimer.current = setInterval(() => {
-      if (!fillRef.current) return;
-      if (document.querySelectorAll(`.${styles.spark}`).length > 40) return;
-      const spark = document.createElement('span');
-      spark.className = styles.spark;
-      const w = fillRef.current.clientWidth;
-      const maxLeft = Math.max(0, w - 8);
-      const tipStrength = parseFloat(fillRef.current.style.getPropertyValue('--tip') || '0');
-      let x;
-      if (tipStrength > 0) {
-        const zone = Math.min(120, w);
-        const start = Math.max(0, w - zone);
-        x = start + Math.random() * zone;
-      } else {
-        x = Math.random() * maxLeft;
-      }
-      const drift = (Math.random() * 24 - 8).toFixed(1);
-      spark.style.left = `${x}px`;
-      spark.style.setProperty('--drift', `${drift}px`);
-      spark.style.animationDuration = `${1100 + Math.random() * 900}ms`;
-      fillRef.current.appendChild(spark);
-      spark.addEventListener('animationend', () => spark.remove(), { once: true });
-    }, 150);
-  };
-
-  const stopSparks = () => {
-    if (sparkTimer.current) clearInterval(sparkTimer.current);
-    sparkTimer.current = null;
-  };
-
   const setProgress = (percent: number) => {
     if (!fillRef.current || !trackRef.current || !labelRef.current) return;
     const clamped = Math.max(0, Math.min(100, percent));
+    // Use CSS transition instead of requestAnimationFrame
     fillRef.current.style.width = `${clamped}%`;
     trackRef.current.setAttribute('aria-valuenow', clamped.toFixed(1));
     labelRef.current.textContent = formatPercent(clamped);
     const tipStrength = Math.max(0, (clamped - 90) / 10);
     fillRef.current.style.setProperty('--tip', tipStrength.toFixed(3));
-  };
-
-  const animateTo = (target: number, ms = 1600) => {
-    if (!fillRef.current) return;
-    const startWidth = parseFloat(fillRef.current.style.width) || 0;
-    const t0 = performance.now();
-    const frame = (t: number) => {
-      const k = Math.min(1, (t - t0) / ms);
-      const eased = 1 - Math.pow(1 - k, 3);
-      const value = startWidth + (target - startWidth) * eased;
-      setProgress(value);
-      if (k < 1) {
-        requestAnimationFrame(frame);
-      } else {
-        seedFlames();
-      }
-    };
-    requestAnimationFrame(frame);
   };
 
   useEffect(() => {
@@ -310,20 +241,13 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   }, [savedState, saveClicked, showSuccess]);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setProgress(0);
-    seedFlames();
-    if (!prefersReducedMotion) {
-      startSparks();
-    }
     const calculatedProgress = calculateProgress();
     const normalizedProgress = normalizePercent(calculatedProgress);
-    setTimeout(() => {
-      animateTo(normalizedProgress, 1800);
+    // Simple timeout to allow initial render before animating width
+    const timer = setTimeout(() => {
+      setProgress(normalizedProgress);
     }, 100);
-    return () => {
-      stopSparks();
-    };
+    return () => clearTimeout(timer);
   }, [progress, circulating_supply, graduation_cap, gcapProgressPercent]);
 
   return (
@@ -346,9 +270,15 @@ export const TokenCard: React.FC<TokenCardProps> = ({
       <div className="relative">
         <div className="flex justify-between items-end mb-4 -mt-14 relative z-10 px-2">
           <div className="relative">
-            <div className="w-17 h-17 rounded-xl bg-[#0f0f0f] border-2 border-[#ffd088] p-1 shadow-lg shadow-[#3a1b0c]/50">
+            <div className="w-17 h-17 rounded-xl bg-[#0f0f0f] border-2 border-[#ffd088] p-1 shadow-lg shadow-[#3a1b0c]/50 relative overflow-hidden">
               {imageUrl ? (
-                <img src={imageUrl} alt={name} className="w-full h-full rounded-lg object-cover bg-[#1a1a1a]" />
+                <Image
+                  src={imageUrl}
+                  alt={name || 'Token'}
+                  fill
+                  className="rounded-lg object-cover bg-[#1a1a1a]"
+                  sizes="68px"
+                />
               ) : (
                 <div className="w-full h-full bg-[#3a1b0c]/20 rounded-lg flex items-center justify-center text-[#ffd088] font-bold text-2xl">
                   {name?.charAt(0) || 'T'}
@@ -441,9 +371,9 @@ export const TokenCard: React.FC<TokenCardProps> = ({
           </div>
 
           <div ref={trackRef} className={styles.track} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0}>
-            <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
+            <div ref={fillRef} className={styles.fill} style={{ width: '0%', transition: 'width 1s ease-out' }}>
               <div ref={labelRef} className={styles.label}>0%</div>
-              <div ref={flamesRef} className={styles.flames}></div>
+              {/* Removed heavy JS flames, can be replaced with CSS if needed */}
               <div className={styles.heat} aria-hidden="true"></div>
             </div>
           </div>
@@ -452,3 +382,5 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     </div>
   );
 };
+
+export const TokenCard = React.memo(TokenCardComponent);
