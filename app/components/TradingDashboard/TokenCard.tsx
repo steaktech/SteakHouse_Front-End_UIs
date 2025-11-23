@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Globe, Send, Bookmark } from 'lucide-react';
+import { Share2, Bookmark, Globe, Send, Copy, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
@@ -34,7 +34,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   isSaved = false
 }) => {
   const router = useRouter();
-  const cardRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -44,6 +43,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
   // Save token functionality
   const { isSaved: savedState, isLoading: isSaveLoading, toggleSave, error: saveError, clearError } = useSaveToken(token_address, isSaved);
   const [saveClicked, setSaveClicked] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { showError, showSuccess } = useToastHelpers();
   const { isConnected } = useWallet();
 
@@ -76,6 +76,16 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     await toggleSave();
   };
 
+  // Handle copy address
+  const handleCopyAddress = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!token_address) return;
+    navigator.clipboard.writeText(token_address);
+    setCopied(true);
+    showSuccess('Address copied to clipboard', 'Copied');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   // Normalize percentage (0-1 or 0-100 to 0-100)
   const normalizePercent = (val: number) => {
     if (val == null || isNaN(val)) return 0;
@@ -90,37 +100,19 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     }) + '%';
   };
 
-  // Format MaxTX percentage string to exactly 2 decimals and clamp to 0-100
-  const formatMaxTxPercent = (raw?: string) => {
-    if (!raw) return '2.10%';
-    const normalized = raw.toString().replace(/,/g, '').replace(/%/g, '').trim();
-    const num = parseFloat(normalized);
-    if (!isFinite(num)) return '2.10%';
-    const clamped = Math.max(0, Math.min(100, num));
-    return `${clamped.toFixed(2)}%`;
-  };
-
   // Calculate progress percentage
   const calculateProgress = (): number => {
-    // If progress is explicitly provided, use it
     if (progress !== undefined && progress !== null) {
       return progress;
     }
-
-    // Calculate progress from circulating supply and graduation cap
     if (circulating_supply && graduation_cap) {
       const circulatingSupplyNum = parseFloat(circulating_supply);
       const graduationCapNum = parseFloat(graduation_cap);
-
-      // Handle edge cases
       if (isNaN(circulatingSupplyNum) || isNaN(graduationCapNum) || graduationCapNum === 0) {
         return 0;
       }
-
       return (circulatingSupplyNum / graduationCapNum) * 100;
     }
-
-    // Default to 0 if no data available
     return 0;
   };
 
@@ -215,34 +207,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     requestAnimationFrame(frame);
   };
 
-  // Parallax effect
-  const enableParallax = (elem: HTMLElement, { maxTilt = 5, perspective = 800 } = {}) => {
-    elem.style.transform = `perspective(${perspective}px)`;
-
-    const onMove = (e: MouseEvent) => {
-      const r = elem.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const dx = (e.clientX - cx) / (r.width / 2);
-      const dy = (e.clientY - cy) / (r.height / 2);
-      const rx = Math.max(-maxTilt, Math.min(maxTilt, -dy * maxTilt));
-      const ry = Math.max(-maxTilt, Math.min(maxTilt, dx * maxTilt));
-      elem.style.transform = `perspective(${perspective}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-    };
-
-    const reset = () => {
-      elem.style.transform = `perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
-    };
-
-    //elem.addEventListener('mousemove', onMove);
-    //elem.addEventListener('mouseleave', reset);
-
-    return () => {
-      //elem.removeEventListener('mousemove', onMove);
-      //elem.removeEventListener('mouseleave', reset);
-    };
-  };
-
   // Show error toast when hook surfaces an error
   useEffect(() => {
     if (saveError) {
@@ -262,15 +226,9 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     prevSavedRef.current = savedState;
   }, [savedState, saveClicked, showSuccess]);
 
+  // Initialize animations
   useEffect(() => {
-    let cleanupParallax: (() => void) | undefined;
-
-    // Check for reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (!prefersReducedMotion && cardRef.current) {
-      cleanupParallax = enableParallax(cardRef.current, { maxTilt: 6, perspective: 900 });
-    }
 
     // Initialize progress bar
     setProgress(0);
@@ -290,157 +248,158 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     // Cleanup
     return () => {
       stopSparks();
-      if (cleanupParallax) cleanupParallax();
     };
   }, [progress, circulating_supply, graduation_cap]);
 
   return (
-    <article
-      ref={cardRef}
-      className={styles.tokenCard}
-      role="article"
-      aria-label={`${name} token card`}
+    <div
+      className={`${styles.tokenCard} group cursor-pointer`}
       onClick={handleCardClick}
-      style={{ cursor: 'pointer' }}
     >
-      {/* Token banner */}
-      <div
-        className={`${styles.tokenBanner} ${bannerUrl ? styles.tokenBannerHasImage : ''}`}
-        aria-hidden="true"
-        style={bannerUrl ? ({ ['--banner-image' as any]: `url(${bannerUrl})` } as React.CSSProperties) : undefined}
-      >
-        <div className={`${styles.bannerLayer} ${styles.gradient}`}></div>
-        <div className={`${styles.bannerLayer} ${styles.texture}`}></div>
-        <div className={`${styles.bannerLayer} ${styles.innerBevel}`}></div>
-        <div className={`${styles.bannerLayer} ${styles.rimGlow}`}></div>
+
+      {/* Header Image Area - Negative margins to counteract card padding */}
+      <div className="h-32 w-[calc(100%+32px)] -mx-4 -mt-4 bg-gradient-to-b from-[#3a1b0c]/60 to-[#0f0f0f] relative overflow-hidden mb-4">
+        {/* Banner Image if available */}
+        {bannerUrl && (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-500"
+            style={{ backgroundImage: `url(${bannerUrl})` }}
+          />
+        )}
+
+        {/* Abstract Pattern Overlay (if no banner or on top) */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 pointer-events-none"></div>
+
+        {/* Top Actions */}
+        <div className="absolute top-4 right-4 flex gap-2 z-10">
+          <button
+            className="p-2 bg-black/50 backdrop-blur-md rounded-lg text-[#ffd088] hover:text-white border border-[#ffd088]/30 hover:border-[#ffd088] transition-colors"
+            onClick={(e) => { e.stopPropagation(); /* Share logic if needed */ }}
+          >
+            <Share2 size={16} />
+          </button>
+          <button
+            className={`p-2 bg-black/50 backdrop-blur-md rounded-lg border transition-colors ${savedState ? 'text-[#ffd088] border-[#ffd088]' : 'text-[#ffd088]/70 border-[#ffd088]/30 hover:text-white hover:border-[#ffd088]'}`}
+            onClick={handleSaveClick}
+            disabled={isSaveLoading}
+          >
+            <Bookmark size={16} fill={savedState ? "currentColor" : "none"} />
+          </button>
+        </div>
       </div>
 
-      {/* Identity row */}
-      <header className={styles.header}>
-        <div className="flex gap-3 items-start w-full">
-          {/* Token Icon - MobileStats style */}
-          <div className="flex-shrink-0">
-            <img
-              src={imageUrl}
-              alt={name}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          </div>
+      {/* Content Body */}
+      <div className="relative">
 
-          {/* Name and Symbol Column */}
-          <div className="flex flex-col gap-0 flex-1 min-w-0">
-            {/* Top Row: Name + Badge + Save */}
-            <div className="flex items-center justify-between gap-2">
-              <h1 className="text-white text-lg font-bold truncate leading-none font-satoshi">
-                {name}
-              </h1>
-
-              <div className={styles.rightSection}>
-                <div className={`${styles.badge} font-satoshi`}>{category || "N/A"}</div>
-                <button
-                  className={`${styles.socialBtn} ${styles.save} ${savedState ? styles.saved : ''} ${saveClicked ? styles.clicked : ''}`}
-                  aria-label={savedState ? "Remove from saved" : "Save token"}
-                  title={savedState ? "Remove from saved" : "Save token"}
-                  onClick={handleSaveClick}
-                  disabled={isSaveLoading || !token_address}
-                  style={{
-                    opacity: isSaveLoading ? 0.6 : 1,
-                    color: savedState ? '#ffdd00' : '#fff1dc'
-                  }}
-                >
-                  <Bookmark size={12} fill={savedState ? 'currentColor' : 'none'} />
-                </button>
-              </div>
+        {/* Avatar & Socials Row */}
+        <div className="flex justify-between items-end mb-4 -mt-14 relative z-10 px-2">
+          <div className="relative">
+            <div className="w-17 h-17 rounded-xl bg-[#0f0f0f] border-2 border-[#ffd088] p-1 shadow-lg shadow-[#3a1b0c]/50">
+              {imageUrl ? (
+                <img src={imageUrl} alt={name} className="w-full h-full rounded-lg object-cover bg-[#1a1a1a]" />
+              ) : (
+                <div className="w-full h-full bg-[#3a1b0c]/20 rounded-lg flex items-center justify-center text-[#ffd088] font-bold text-2xl">
+                  {name?.charAt(0) || 'T'}
+                </div>
+              )}
             </div>
-
-            {/* Bottom Row: Symbol + Socials */}
-            <div className="flex items-center justify-between gap-2 -mt-0.5">
-              <div className="flex items-center gap-2">
-                <span className="text-[#9ca3af] text-[10px] font-semibold uppercase tracking-[0.18em] font-satoshi">
-                  / {symbol}
-                </span>
-              </div>
-
-              <nav className={styles.socials} aria-label="Social links">
-                <button
-                  className={`${styles.socialBtn} ${styles.tg}`}
-                  aria-label="Telegram"
-                  title="Telegram"
-                  onClick={(e) => handleSocialClick(e, () => openLink(telegram))}
-                  disabled={!telegram}
-                >
-                  <Send size={12} />
-                </button>
-                <button
-                  className={`${styles.socialBtn} ${styles.x}`}
-                  aria-label="X (Twitter)"
-                  title="X"
-                  onClick={(e) => handleSocialClick(e, () => openLink(twitter))}
-                  disabled={!twitter}
-                >
-                  <TwitterIcon />
-                </button>
-                <button
-                  className={`${styles.socialBtn} ${styles.web}`}
-                  aria-label="Website"
-                  title="Website"
-                  onClick={(e) => handleSocialClick(e, () => openLink(website))}
-                  disabled={!website}
-                >
-                  <Globe size={12} />
-                </button>
-              </nav>
+            <div className="absolute -bottom-2 -right-2 bg-[#ffd088] text-black text-[10px] font-bold px-2 py-0.5 rounded-full border border-black uppercase">
+              {category || 'Meme'}
             </div>
           </div>
-        </div>
-      </header>
-
-      <section className={styles.taxLine}>
-        <div className={styles.taxStrong}>Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</div>
-        <div className={styles.taxChips}>
-          <span className={`${styles.chip} font-satoshi`}>Current Tax: {currentTax ?? '3'}/{finalTax ?? '3'}</span>
-          <span className={`${styles.chip} font-satoshi`}>MaxTX: {formatMaxTxPercent(maxTxPercent)}</span>
-        </div>
-      </section>
-
-      <p className={styles.desc}>
-        {description}
-      </p>
-
-      {/* Bottom panel: stats row + searing progress bar */}
-      <section className={styles.score}>
-        <div className={styles.scoreStats} aria-label="Token stats">
-          <div className={styles.stat}>
-            <div className={`${styles.statLabel} font-satoshi`}>MCAP</div>
-            <div className={styles.statValue}>{mcap}</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={`${styles.statLabel} font-satoshi`}>VOLUME</div>
-            <div className={styles.statValue}>{volume}</div>
-          </div>
-          <div className={styles.stat}>
-            <div className={`${styles.statLabel} font-satoshi`}>LP</div>
-            <div className={styles.statValue}>{liquidity}</div>
-          </div>
-        </div>
-
-        {/* Searing progress bar */}
-        <div
-          ref={trackRef}
-          className={styles.track}
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={0}
-        >
-          <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
-            <div ref={labelRef} className={styles.label}>0%</div>
-
-            <div ref={flamesRef} className={styles.flames}></div>
-            <div className={styles.heat} aria-hidden="true"></div>
+          <div className="flex gap-1 mt-3">
+            <button
+              className={`${styles.socialBtn} ${styles.tg}`}
+              aria-label="Telegram"
+              title="Telegram"
+              onClick={(e) => handleSocialClick(e, () => openLink(telegram))}
+              disabled={!telegram}
+            >
+              <Send size={12} />
+            </button>
+            <button
+              className={`${styles.socialBtn} ${styles.x}`}
+              aria-label="X (Twitter)"
+              title="X"
+              onClick={(e) => handleSocialClick(e, () => openLink(twitter))}
+              disabled={!twitter}
+            >
+              <TwitterIcon />
+            </button>
+            <button
+              className={`${styles.socialBtn} ${styles.web}`}
+              aria-label="Website"
+              title="Website"
+              onClick={(e) => handleSocialClick(e, () => openLink(website))}
+              disabled={!website}
+            >
+              <Globe size={12} />
+            </button>
           </div>
         </div>
-      </section>
-    </article>
+
+        {/* Title & Description */}
+        <div className="mb-4 px-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-2xl font-bold text-white tracking-wider font-satoshi truncate max-w-[200px]">{name}</h2>
+            <span className="text-[#ffd088]/60 text-sm font-bold font-satoshi">/ {symbol}</span>
+          </div>
+
+          {/* Token Address Copy */}
+          <div
+            className="inline-flex items-center gap-2 px-2 py-1 bg-[#ffd088]/5 border border-[#ffd088]/20 rounded-md cursor-pointer hover:bg-[#ffd088]/10 transition-colors mb-3 group/copy"
+            onClick={handleCopyAddress}
+          >
+            <span className="text-[#ffd088]/60 text-[10px] font-mono font-bold group-hover/copy:text-[#ffd088] transition-colors">
+              {token_address ? `${token_address.slice(0, 6)}...${token_address.slice(-4)}` : 'Address'}
+            </span>
+            {copied ? (
+              <Check size={10} className="text-green-400" />
+            ) : (
+              <Copy size={10} className="text-[#ffd088]/40 group-hover/copy:text-[#ffd088] transition-colors" />
+            )}
+          </div>
+
+          <p className="text-gray-400 text-xs leading-relaxed border-l-2 border-[#ffd088]/30 pl-3 line-clamp-2 min-h-[2.5em]">
+            {description || 'No description available.'}
+          </p>
+        </div>
+
+        {/* Bottom panel: stats row + searing progress bar */}
+        <section className={styles.score}>
+          <div className={styles.scoreStats} aria-label="Token stats">
+            <div className={styles.stat}>
+              <div className={`${styles.statLabel} font-satoshi`}>MCAP</div>
+              <div className={styles.statValue}>{mcap}</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={`${styles.statLabel} font-satoshi`}>VOLUME</div>
+              <div className={styles.statValue}>{volume}</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={`${styles.statLabel} font-satoshi`}>LP</div>
+              <div className={styles.statValue}>{liquidity}</div>
+            </div>
+          </div>
+
+          {/* Searing progress bar */}
+          <div
+            ref={trackRef}
+            className={styles.track}
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={0}
+          >
+            <div ref={fillRef} className={styles.fill} style={{ width: '0%' }}>
+              <div ref={labelRef} className={styles.label}>0%</div>
+
+              <div ref={flamesRef} className={styles.flames}></div>
+              <div className={styles.heat} aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
   );
 };
