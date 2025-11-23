@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Share2, Bookmark, Globe, Send, Copy, Check } from 'lucide-react';
+import { Share2, Bookmark, Globe, MessageCircle, Twitter, Zap, Activity, Copy, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { TokenCardProps } from './types';
 import { TwitterIcon } from './TwitterIcon';
@@ -212,16 +212,7 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
     return 0;
   };
 
-  const setProgress = (percent: number) => {
-    if (!fillRef.current || !trackRef.current || !labelRef.current) return;
-    const clamped = Math.max(0, Math.min(100, percent));
-    // Use CSS transition instead of requestAnimationFrame
-    fillRef.current.style.width = `${clamped}%`;
-    trackRef.current.setAttribute('aria-valuenow', clamped.toFixed(1));
-    labelRef.current.textContent = formatPercent(clamped);
-    const tipStrength = Math.max(0, (clamped - 90) / 10);
-    fillRef.current.style.setProperty('--tip', tipStrength.toFixed(3));
-  };
+  const progressValue = normalizePercent(calculateProgress());
 
   useEffect(() => {
     if (saveError) {
@@ -240,147 +231,150 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
     prevSavedRef.current = savedState;
   }, [savedState, saveClicked, showSuccess]);
 
-  useEffect(() => {
-    const calculatedProgress = calculateProgress();
-    const normalizedProgress = normalizePercent(calculatedProgress);
-    // Simple timeout to allow initial render before animating width
-    const timer = setTimeout(() => {
-      setProgress(normalizedProgress);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [progress, circulating_supply, graduation_cap, gcapProgressPercent]);
-
   return (
-    <div className={`${styles.tokenCard} group cursor-pointer`} onClick={handleCardClick}>
-      <div className="h-32 w-[calc(100%+32px)] -mx-4 -mt-4 bg-gradient-to-b from-[#3a1b0c]/60 to-[#0f0f0f] relative overflow-hidden mb-4">
+    <div className="w-full max-w-sm bg-[#1a0f08] border border-[#c87414]/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(200,116,20,0.15)] relative group hover:shadow-[0_0_30px_rgba(200,116,20,0.3)] transition-all duration-300 flex flex-col h-full" onClick={handleCardClick}>
+
+      {/* Header Image Area */}
+      <div className="h-32 w-full bg-gradient-to-b from-[#2b1200]/80 to-[#1a0f08] relative">
+        {/* Banner Image if available */}
         {bannerUrl && (
           <div className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-500" style={{ backgroundImage: `url(${bannerUrl})` }} />
         )}
+        {/* Abstract Pattern Overlay */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 pointer-events-none"></div>
+
+        {/* Top Actions */}
         <div className="absolute top-4 right-4 flex gap-2 z-10">
-          <button className="p-2 bg-black/50 backdrop-blur-md rounded-lg text-[#ffd088] hover:text-white border border-[#ffd088]/30 hover:border-[#ffd088] transition-colors" onClick={(e) => { e.stopPropagation(); }}>
+          <button
+            className="p-2 bg-[#1a0f08]/50 backdrop-blur-md rounded-lg text-[#f6e7b5] hover:text-white border border-[#c87414]/30 hover:border-[#c87414] transition-colors"
+            onClick={(e) => { e.stopPropagation(); }}
+          >
             <Share2 size={16} />
           </button>
-          <button className={`p-2 bg-black/50 backdrop-blur-md rounded-lg border transition-colors ${savedState ? 'text-[#ffd088] border-[#ffd088]' : 'text-[#ffd088]/70 border-[#ffd088]/30 hover:text-white hover:border-[#ffd088]'}`} onClick={handleSaveClick} disabled={isSaveLoading}>
+          <button
+            className={`p-2 bg-[#1a0f08]/50 backdrop-blur-md rounded-lg border transition-colors ${savedState ? 'text-[#c87414] border-[#c87414]' : 'text-[#f6e7b5] hover:text-white border-[#c87414]/30 hover:border-[#c87414]'}`}
+            onClick={handleSaveClick}
+            disabled={isSaveLoading}
+          >
             <Bookmark size={16} fill={savedState ? "currentColor" : "none"} />
           </button>
         </div>
       </div>
 
-      <div className="relative">
-        <div className="flex justify-between items-end mb-4 -mt-14 relative z-10 px-2">
+      {/* Content Body */}
+      <div className="px-5 pb-6 relative -mt-10 flex-1 flex flex-col">
+
+        {/* Avatar & Socials Row */}
+        <div className="flex justify-between items-end mb-4">
           <div className="relative">
-            <div className="w-17 h-17 rounded-xl bg-[#0f0f0f] border-2 border-[#ffd088] p-1 shadow-lg shadow-[#3a1b0c]/50 relative overflow-hidden">
+            <div className="w-20 h-20 rounded-xl bg-[#1a0f08] border-2 border-[#c87414] p-1 shadow-lg shadow-[#2b1200]/50 relative overflow-hidden">
               {imageUrl ? (
                 <Image
                   src={imageUrl}
                   alt={name || 'Token'}
                   fill
-                  className="rounded-lg object-cover bg-[#1a1a1a]"
-                  sizes="68px"
+                  className="rounded-lg object-cover bg-[#2b1200]/20"
+                  sizes="80px"
                 />
               ) : (
-                <div className="w-full h-full bg-[#3a1b0c]/20 rounded-lg flex items-center justify-center text-[#ffd088] font-bold text-2xl">
+                <div className="w-full h-full bg-[#2b1200]/20 rounded-lg flex items-center justify-center text-[#c87414] font-bold text-2xl">
                   {name?.charAt(0) || 'T'}
                 </div>
               )}
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-[#ffd088] text-black text-[10px] font-bold px-2 py-0.5 rounded-full border border-black uppercase">
-              {category || 'Meme'}
+            <div className="absolute -bottom-2 -right-2 bg-[#c87414] text-white text-xs font-bold px-2 py-0.5 rounded-full border border-[#1a0f08]">
+              LIVE
             </div>
           </div>
-          <div className="flex gap-1 mt-3">
-            <button className={`${styles.socialBtn} ${styles.tg}`} aria-label="Telegram" title="Telegram" onClick={(e) => handleSocialClick(e, () => openLink(telegram))} disabled={!telegram}>
-              <Send size={12} />
-            </button>
-            <button className={`${styles.socialBtn} ${styles.x}`} aria-label="X (Twitter)" title="X" onClick={(e) => handleSocialClick(e, () => openLink(twitter))} disabled={!twitter}>
-              <TwitterIcon />
-            </button>
-            <button className={`${styles.socialBtn} ${styles.web}`} aria-label="Website" title="Website" onClick={(e) => handleSocialClick(e, () => openLink(website))} disabled={!website}>
-              <Globe size={12} />
-            </button>
+          <div className="flex gap-2 mb-1">
+            <SocialIcon icon={<MessageCircle size={14} />} onClick={(e) => handleSocialClick(e, () => openLink(telegram))} disabled={!telegram} />
+            <SocialIcon icon={<Twitter size={14} />} onClick={(e) => handleSocialClick(e, () => openLink(twitter))} disabled={!twitter} />
+            <SocialIcon icon={<Globe size={14} />} onClick={(e) => handleSocialClick(e, () => openLink(website))} disabled={!website} />
           </div>
         </div>
 
-        <div className="mb-4 px-1">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold text-white tracking-wider font-satoshi mb-1">{name}</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-[#ffd088]/60 text-xs font-bold font-satoshi whitespace-nowrap">/{symbol}</span>
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#ffd088]/5 border border-[#ffd088]/20 rounded-md cursor-pointer hover:bg-[#ffd088]/10 transition-colors group/copy whitespace-nowrap" onClick={handleCopyAddress}>
-                  <span className="text-[#ffd088]/60 text-[10px] font-mono font-bold group-hover/copy:text-[#ffd088] transition-colors">
-                    {token_address ? `${token_address.slice(0, 6)}...${token_address.slice(-4)}` : 'Address'}
-                  </span>
-                  {copied ? (
-                    <Check size={8} className="text-green-400" />
-                  ) : (
-                    <Copy size={8} className="text-[#ffd088]/40 group-hover/copy:text-[#ffd088] transition-colors" />
-                  )}
-                </div>
-                {(currentTax !== undefined || finalTax !== undefined) && (
-                  <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-md whitespace-nowrap">
-                    <span className="text-green-400 text-[10px] font-bold font-satoshi">Tax:</span>
-                    <span className="text-green-400 text-[10px] font-bold">
-                      {currentTax !== undefined ? `${currentTax}` : finalTax !== undefined ? `${finalTax}` : '0'}/{finalTax !== undefined ? finalTax : '0'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {gcapValue && gcapValue > 0 && (
-              <div className="text-right flex-shrink-0 -mt-2">
-                <div className="flex items-center justify-end gap-1 mb-0.5">
-                  <svg className="w-3 h-3 text-[#ffd088]" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                  </svg>
-                  <span className="text-[#ffd088] text-[10px] font-bold font-satoshi uppercase tracking-wide whitespace-nowrap">GRAD. CAP</span>
-                </div>
-                <div className="flex items-baseline justify-end gap-1">
-                  <span className="text-white text-sm font-bold whitespace-nowrap">{formatCurrency(gcapValue)}</span>
-                  {gcapProgressPercent > 0 && (
-                    <span className="text-green-400 text-[10px] font-semibold whitespace-nowrap">+{gcapProgressPercent.toFixed(0)}%</span>
-                  )}
-                </div>
-              </div>
-            )}
+        {/* Title & Description */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h2 className="text-2xl font-bold text-[#f6e7b5] tracking-wider truncate max-w-[180px]">{name}</h2>
+            <span className="text-[#c87414] text-sm font-bold whitespace-nowrap">/ {symbol}</span>
           </div>
 
-          <p className="text-[#fff6e6] text-xs leading-relaxed border-l-2 border-[#ffd088]/30 pl-3 line-clamp-2 min-h-[2.5em]">
+          <div className="flex gap-2 mb-3 flex-wrap">
+            <span className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider">
+              {category || 'Meme'}
+            </span>
+            {isOneStop && (
+              <span className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider">
+                Utility
+              </span>
+            )}
+            <div
+              className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider flex items-center gap-1 cursor-pointer hover:bg-[#c87414]/20 transition-colors"
+              onClick={handleCopyAddress}
+            >
+              <span>{token_address ? `${token_address.slice(0, 4)}...${token_address.slice(-4)}` : 'Address'}</span>
+              {copied ? <Check size={10} /> : <Copy size={10} />}
+            </div>
+          </div>
+
+          <p className="text-[#f6e7b5]/80 text-xs leading-relaxed border-l-2 border-[#c87414]/30 pl-3 line-clamp-2 min-h-[2.5em]">
             {description || 'No description available.'}
           </p>
         </div>
 
-        <section className={styles.score}>
-          <div className={styles.scoreStats} aria-label="Token stats">
-            <div className={styles.stat}>
-              <div className={`${styles.statLabel} font-satoshi`}>MCAP</div>
-              <div className={styles.statValue}>{mcap}</div>
-            </div>
-            <div className={styles.stat}>
-              <div className={`${styles.statLabel} font-satoshi`}>24H VOL</div>
-              <div className={styles.statValue}>{formatCurrency(volume24hUsd)}</div>
-            </div>
-            <div className={styles.stat}>
-              <div className={`${styles.statLabel} font-satoshi`}>24H ^</div>
-              <div className={`${styles.statValue} ${priceChange24h && priceChange24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {priceChange24h ? `${priceChange24h.toFixed(2)}%` : '0.00%'}
-              </div>
-            </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <StatBox label="24H VOL" value={formatCurrency(volume24hUsd)} />
+          <StatBox
+            label="24H ^"
+            value={priceChange24h ? `${priceChange24h.toFixed(2)}%` : '0.00%'}
+            valueClassName={priceChange24h && priceChange24h >= 0 ? 'text-green-400' : 'text-red-400'}
+          />
+          <StatBox label="TAX" value={`${currentTax || 0}/${finalTax || 0}`} highlight />
+        </div>
+
+        {/* Progress & Button */}
+        <div className="space-y-2 mt-auto">
+          <div className="flex justify-between text-xs text-[#c87414] font-bold uppercase">
+            <span>Bonding Curve</span>
+            <span>{formatPercent(progressValue)}</span>
           </div>
 
-          <div ref={trackRef} className={styles.track} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0}>
-            <div ref={fillRef} className={styles.fill} style={{ width: '0%', transition: 'width 1s ease-out' }}>
-              <div ref={labelRef} className={styles.label}>0%</div>
-              {/* Removed heavy JS flames, can be replaced with CSS if needed */}
-              <div className={styles.heat} aria-hidden="true"></div>
-            </div>
+          {/* Glowing Progress Bar */}
+          <div className="h-3 bg-[#2b1200] rounded-full overflow-hidden border border-[#c87414]/20 relative">
+            <div
+              className="h-full bg-gradient-to-r from-[#f3cc76] via-[#e8b35c] to-[#c87414] shadow-[0_0_15px_rgba(200,116,20,0.6)] transition-all duration-1000 ease-out"
+              style={{ width: `${progressValue}%` }}
+            ></div>
           </div>
-        </section>
+
+          <button className="w-full mt-4 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] text-[#1a0f08] font-bold py-3 rounded-lg uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(200,116,20,0.4)] hover:shadow-[0_0_25px_rgba(200,116,20,0.6)] flex items-center justify-center gap-2 group-hover:scale-[1.02] duration-200 border border-[#c87414]">
+            Trade {symbol} <Zap size={16} fill="currentColor" />
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+
+// --- Helper Components ---
+
+const StatBox = ({ label, value, highlight, valueClassName }: { label: string, value: string | number, highlight?: boolean, valueClassName?: string }) => (
+  <div className={`bg-[#2b1200]/60 p-2 rounded border ${highlight ? 'border-[#c87414]/30 text-[#c87414]' : 'border-[#c87414]/10 text-[#f6e7b5]'} text-center`}>
+    <div className="text-[10px] text-[#f6e7b5]/60 uppercase font-bold mb-1">{label}</div>
+    <div className={`text-sm font-bold truncate ${valueClassName || ''}`}>{value}</div>
+  </div>
+);
+
+const SocialIcon = ({ icon, onClick, disabled }: { icon: React.ReactNode, onClick?: (e: React.MouseEvent) => void, disabled?: boolean }) => (
+  <button
+    className="p-2 bg-[#2b1200]/60 text-[#f6e7b5]/60 hover:text-[#f6e7b5] hover:bg-[#2b1200] rounded-lg transition-colors border border-[#c87414]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+    onClick={onClick}
+    disabled={disabled}
+  >
+    {icon}
+  </button>
+);
 
 export const TokenCard = React.memo(TokenCardComponent);

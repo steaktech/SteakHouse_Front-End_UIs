@@ -372,7 +372,7 @@ export default function FourMemeStyleHomepage() {
       <div className="min-h-screen bg-[#1a0f08]">
         {/* Hero Banner Section */}
         <section className="relative w-full px-4 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-4 sm:pb-6">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1500px] mx-auto">
             {/* Create Token Banner */}
             <div className="relative bg-gradient-to-r from-[#2b1200]/80 via-[#3d1e01]/80 to-[#2b1200]/80 backdrop-blur-sm rounded-xl overflow-hidden border border-[#c87414]/50 shadow-xl">
               {/* Subtle glow effect */}
@@ -420,7 +420,7 @@ export default function FourMemeStyleHomepage() {
 
         {/* Search and Filters Section */}
         <section className="px-4 sm:px-6 lg:px-8 pb-6">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1500px] mx-auto">
             {/* Filter Bar with Search in Middle */}
             <div className="bg-gradient-to-b from-[#532301]/80 to-[#1a0f08] p-3 sm:p-4 rounded-xl mb-6 shadow-[0_10px_20px_rgba(43,18,1,0.5)]">
               {/* Mobile Layout */}
@@ -610,7 +610,7 @@ export default function FourMemeStyleHomepage() {
 
         {/* Token Grid Section */}
         <section className="px-4 sm:px-6 lg:px-8 pb-12">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1500px] mx-auto">
             {(searchQuery.trim().length >= 2 || isSearching) ? (
               // Search Results State
               isSearching ? (
