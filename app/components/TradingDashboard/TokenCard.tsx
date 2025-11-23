@@ -317,17 +317,24 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 
       {/* Identity row */}
       <header className={styles.header}>
-        <div className={styles.identity}>
-          <div className={styles.avatar}>
+        <div className="flex gap-3 items-start w-full">
+          {/* Token Icon - MobileStats style */}
+          <div className="flex-shrink-0">
             <img
               src={imageUrl}
               alt={name}
-              className={styles.avatarImage}
+              className="w-12 h-12 rounded-full object-cover"
             />
           </div>
-          <div className={styles.nameBlock}>
-            <div className={styles.nameRow}>
-              <h1 className={`${styles.name} font-satoshi`}>{name}</h1>
+
+          {/* Name and Symbol Column */}
+          <div className="flex flex-col gap-0 flex-1 min-w-0">
+            {/* Top Row: Name + Badge + Save */}
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="text-white text-lg font-bold truncate leading-none font-satoshi">
+                {name}
+              </h1>
+
               <div className={styles.rightSection}>
                 <div className={`${styles.badge} font-satoshi`}>{category || "N/A"}</div>
                 <button
@@ -336,7 +343,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                   title={savedState ? "Remove from saved" : "Save token"}
                   onClick={handleSaveClick}
                   disabled={isSaveLoading || !token_address}
-
                   style={{
                     opacity: isSaveLoading ? 0.6 : 1,
                     color: savedState ? '#ffdd00' : '#fff1dc'
@@ -346,8 +352,15 @@ export const TokenCard: React.FC<TokenCardProps> = ({
                 </button>
               </div>
             </div>
-            <div className={styles.symbolRow}>
-              <div className={styles.ticker}>{symbol}</div>
+
+            {/* Bottom Row: Symbol + Socials */}
+            <div className="flex items-center justify-between gap-2 -mt-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[#9ca3af] text-[10px] font-semibold uppercase tracking-[0.18em] font-satoshi">
+                  / {symbol}
+                </span>
+              </div>
+
               <nav className={styles.socials} aria-label="Social links">
                 <button
                   className={`${styles.socialBtn} ${styles.tg}`}
