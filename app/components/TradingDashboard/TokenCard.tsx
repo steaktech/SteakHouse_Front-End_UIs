@@ -337,19 +337,31 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
         {/* Progress & Button */}
         <div className="space-y-2 mt-auto">
           <div className="flex justify-between text-xs text-[#c87414] font-bold uppercase">
-            <span>Bonding Curve</span>
-            <span>{formatPercent(progressValue)}</span>
+            <span>MCAP: {mcap || '$0'}</span>
+            <span>GCAP: {formatCurrency(gcapValue)}</span>
           </div>
 
           {/* Glowing Progress Bar */}
-          <div className="h-3 bg-[#2b1200] rounded-full overflow-hidden border border-[#c87414]/20 relative">
+          <div className="h-7 bg-[#2b1200] rounded-full overflow-hidden border border-[#c87414]/20 relative">
+            <style dangerouslySetInnerHTML={{
+              __html: `
+              @keyframes shimmer {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+              }
+            `}} />
             <div
-              className="h-full bg-gradient-to-r from-[#f3cc76] via-[#e8b35c] to-[#c87414] shadow-[0_0_15px_rgba(200,116,20,0.6)] transition-all duration-1000 ease-out"
+              className="h-full bg-gradient-to-r from-[#f3cc76] via-[#e8b35c] to-[#c87414] shadow-[0_0_15px_rgba(200,116,20,0.6)] transition-all duration-1000 ease-out relative overflow-hidden"
               style={{ width: `${progressValue}%` }}
-            ></div>
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/90 to-transparent -skew-x-12" style={{ animation: 'shimmer 1.5s infinite linear' }}></div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <span className="text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{formatPercent(progressValue)}</span>
+            </div>
           </div>
 
-          <button className="w-full mt-4 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] text-[#1a0f08] font-bold py-3 rounded-lg uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(200,116,20,0.4)] hover:shadow-[0_0_25px_rgba(200,116,20,0.6)] flex items-center justify-center gap-2 group-hover:scale-[1.02] duration-200 border border-[#c87414]">
+          <button className="w-full mt-3 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] text-[#1a0f08] font-bold py-2 rounded-lg uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(200,116,20,0.4)] hover:shadow-[0_0_25px_rgba(200,116,20,0.6)] flex items-center justify-center gap-2 group-hover:scale-[1.02] duration-200 border border-[#c87414]">
             Trade {symbol} <Zap size={16} fill="currentColor" />
           </button>
         </div>
