@@ -234,7 +234,7 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
   }, [savedState, saveClicked, showSuccess]);
 
   return (
-    <div className="w-full max-w-sm bg-[#1a0f08] border border-[#c87414]/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(200,116,20,0.15)] relative group hover:shadow-[0_0_30px_rgba(200,116,20,0.3)] transition-all duration-300 flex flex-col h-full animate-in fade-in duration-500" onClick={handleCardClick}>
+    <div className="w-full max-w-sm bg-[#1a0f08] border border-[#c87414]/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(200,116,20,0.15)] relative hover:shadow-[0_0_30px_rgba(200,116,20,0.3)] transition-all duration-300 flex flex-col h-full animate-in fade-in duration-500" onClick={handleCardClick}>
 
       {/* Header Image Area */}
       <div className="h-32 w-full bg-gradient-to-b from-[#2b1200]/80 to-[#1a0f08] relative">
