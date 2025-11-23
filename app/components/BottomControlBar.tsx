@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // --- PAGINATION COMPONENTS ---
 
@@ -13,39 +13,54 @@ interface PaginationProps {
   onPreviousPage?: () => void;
 }
 
-// Pagination Button matching footer's exact golden styling
-const PaginationButton: React.FC<{
+// Helper to generate page numbers based on available data
+const getPageNumbers = (current: number, hasMore: boolean) => {
+  const pages: (number | string)[] = [1];
+
+  // If current is far from 1, add dots
+  if (current > 3) {
+    pages.push('...');
+  }
+
+  // Add previous page if it's not 1 (and not covered by the gap)
+  if (current > 2) {
+    pages.push(current - 1);
+  }
+
+  // Add current page if it's not 1
+  if (current !== 1) {
+    pages.push(current);
+  }
+
+  // Add next page if available
+  if (hasMore) {
+    pages.push(current + 1);
+    // Add dots to indicate more pages exist beyond the immediate next
+    pages.push('...');
+  }
+
+  return pages;
+};
+
+// Unified Button Component for Pagination (Arrows and Numbers)
+const PageButton: React.FC<{
   onClick: () => void;
-  disabled: boolean;
+  disabled?: boolean;
+  active?: boolean;
   children: React.ReactNode;
   className?: string;
-}> = ({ onClick, disabled, children, className = '' }) => {
+}> = ({ onClick, disabled, active, children, className = '' }) => {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       className={`
-        appearance-none inline-flex items-center justify-center gap-2
-px-4 py-2.5 font-bold text-sm whitespace-nowrap
-        rounded-full border transition-all duration-150 ease-out
-        
-        /* Exact footer button styling - primary variant */
-        bg-gradient-to-b from-[#ffd99c] to-[#ffb457]
-        border-[rgba(255,171,77,0.45)] text-[#5b2d05]
-        shadow-[0_12px_28px_rgba(255,140,40,0.25),0_0_0_2px_rgba(255,188,100,0.12)_inset]
-        
-        /* Hover state matching footer */
-        hover:-translate-y-0.5 hover:bg-gradient-to-b hover:from-[#ffe4a8] hover:to-[#ffc366]
-        hover:border-[rgba(255,171,77,0.6)] hover:shadow-[0_14px_32px_rgba(255,140,40,0.35),0_0_0_2px_rgba(255,188,100,0.18)_inset]
-        
-        /* Active state */
-        active:translate-y-0 active:shadow-[0_6px_20px_rgba(255,140,40,0.2),0_0_0_2px_rgba(255,188,100,0.08)_inset]
-        
-        /* Disabled state */
-        disabled:from-[#8a7a6a] disabled:to-[#6b5b47] disabled:border-[rgba(139,69,19,0.3)]
-        disabled:text-[rgba(255,255,255,0.5)] disabled:opacity-60 disabled:cursor-not-allowed
-        disabled:shadow-[0_2px_4px_rgba(0,0,0,0.3)] disabled:transform-none
-        
+        min-w-[40px] h-[40px] flex items-center justify-center rounded-lg font-bold text-sm transition-all duration-200
+        ${active
+          ? 'bg-gradient-to-b from-[#ffd99c] to-[#ffb457] text-[#5b2d05] shadow-[0_0_10px_rgba(255,180,87,0.4)] scale-105 border border-[#ffb457]'
+          : 'bg-[#1a1108] border border-[#572401] text-[#ffb457] hover:border-[#ffb457] hover:bg-[#2a1d10] hover:text-[#ffd99c]'
+        }
+        ${disabled ? 'opacity-50 cursor-not-allowed hover:border-[#572401] hover:bg-[#1a1108] hover:text-[#ffb457]' : ''}
         ${className}
       `}
     >
@@ -55,14 +70,14 @@ px-4 py-2.5 font-bold text-sm whitespace-nowrap
 };
 
 // The main Pagination logic and UI component
-const Pagination: React.FC<PaginationProps> = ({ 
-  currentPage, 
-  hasMore, 
-  nextPage, 
-  prevPage, 
-  onPageChange, 
-  onNextPage, 
-  onPreviousPage 
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  hasMore,
+  nextPage,
+  prevPage,
+  onPageChange,
+  onNextPage,
+  onPreviousPage
 }) => {
   const handlePrevious = () => {
     if (onPreviousPage) {
@@ -80,76 +95,47 @@ const Pagination: React.FC<PaginationProps> = ({
     }
   };
 
-  // Create an array for the decorative dots
-  const dots = Array.from({ length: 5 });
+  const pages = getPageNumbers(currentPage, hasMore);
 
   return (
-    <div className="flex items-center justify-center space-x-4">
+    <div className="flex items-center justify-center gap-2">
       {/* Previous Button */}
-      <PaginationButton onClick={handlePrevious} disabled={!prevPage}>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+      <PageButton onClick={handlePrevious} disabled={!prevPage}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        <span className="font-black text-base">Prev</span>
-      </PaginationButton>
+      </PageButton>
 
-      {/* Page Info and Dots */}
-      <div className="flex flex-col items-center mx-6">
-        {/* Page info styled like footer social icons with smooth animation */}
-        <div
-          className="
-            px-6 py-3 rounded-full font-bold text-sm
-            bg-gradient-to-b from-[#ffdca1] to-[#ffb95b]
-            border border-[rgba(255,171,77,0.45)] text-[#5b2d05]
-            shadow-[0_6px_16px_rgba(0,0,0,0.35),0_0_0_2px_rgba(255,188,100,0.1)_inset]
-            transition-all duration-300 ease-in-out
-          "
-        >
-          <span className="inline-block transition-all duration-300 ease-in-out font-black">
-            Page {currentPage}
-          </span>
-        </div>
+      {/* Page Numbers */}
+      {pages.map((page, index) => {
+        if (page === '...') {
+          return (
+            <span key={`dots-${index}`} className="text-[#ffb457] font-bold px-1 select-none">
+              ...
+            </span>
+          );
+        }
 
-        {/* Indicator dots styled like mini social icons */}
-        <div className="flex space-x-2 mt-3">
-          {dots.map((_, index) => {
-            const isActive = index === Math.floor((currentPage - 1) % 5);
-            return (
-              <div
-                key={index}
-                className={`
-                  w-2.5 h-2.5 rounded-lg transition-all duration-200 ease-out cursor-pointer
-                  bg-gradient-to-b border border-[rgba(255,171,77,0.45)]
-                  shadow-[0_3px_8px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,188,100,0.1)_inset]
-                  hover:-translate-y-0.5 hover:shadow-[0_5px_12px_rgba(255,140,40,0.28),0_0_0_1px_rgba(255,188,100,0.16)_inset]
-                  ${isActive
-                    ? 'from-[#ffdca1] to-[#ffb95b] scale-125 shadow-[0_4px_10px_rgba(255,140,40,0.4),0_0_0_1px_rgba(255,188,100,0.2)_inset]'
-                    : 'from-[#ffcf88] to-[#ffab50]'
-                  }
-                `}
-              />
-            );
-          })}
-        </div>
-      </div>
+        return (
+          <PageButton
+            key={page}
+            active={page === currentPage}
+            onClick={() => onPageChange(page as number)}
+          >
+            {page}
+          </PageButton>
+        );
+      })}
 
       {/* Next Button */}
-      <PaginationButton onClick={handleNext} disabled={!hasMore || !nextPage}>
-        <span className="font-black text-base">Next</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+      <PageButton onClick={handleNext} disabled={!hasMore || !nextPage}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
-      </PaginationButton>
+      </PageButton>
     </div>
   );
 };
-
-// Define the type for our SVG icon props
-type IconProps = {
-  className?: string;
-};
-
-
 
 // Define the props for the BottomControlBar component
 interface BottomControlBarProps {
@@ -174,30 +160,16 @@ export default function BottomControlBar({
 }: BottomControlBarProps) {
 
   return (
-    <div className="w-full relative" style={{marginTop: '0', paddingTop: '0'}}>
-      {/* Control buttons section with gradient background */}
-      <div className="bg-gradient-to-b from-[#843b04] to-[#572401] p-4 flex items-center justify-between border-b border-white/20" style={{marginTop: '0'}}>
-        {/* Left section - Social Icons */}
-        <div className="flex-1 flex items-center justify-start space-x-4 pl-4">
-        </div>
-
-        {/* Center section - PAGINATION CONTROLS */}
-        <div className="flex justify-center items-center">
-          <Pagination
-            currentPage={currentPage}
-            hasMore={hasMore}
-            nextPage={nextPage}
-            prevPage={prevPage}
-            onPageChange={onPageChange}
-            onNextPage={onNextPage}
-            onPreviousPage={onPreviousPage}
-          />
-        </div>
-
-        {/* Right section - Footer Links */}
-        <div className="flex-1 flex items-center justify-end space-x-6 pr-4">
-        </div>
-      </div>
+    <div className="w-full flex justify-center items-center py-4">
+      <Pagination
+        currentPage={currentPage}
+        hasMore={hasMore}
+        nextPage={nextPage}
+        prevPage={prevPage}
+        onPageChange={onPageChange}
+        onNextPage={onNextPage}
+        onPreviousPage={onPreviousPage}
+      />
     </div>
   );
 }
