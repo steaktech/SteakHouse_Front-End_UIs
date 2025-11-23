@@ -133,7 +133,6 @@ export const TokenCard: React.FC<TokenCardProps> = ({
     return isNaN(parsed) ? undefined : parsed;
   })();
 
-  // Fixed: Calculate percentage as (Current MCAP / GCAP) * 100
   const gcapProgressPercent = (() => {
     if (gcapValue && currentMcapValue && gcapValue > 0) {
       return (currentMcapValue / gcapValue) * 100;
@@ -374,38 +373,47 @@ export const TokenCard: React.FC<TokenCardProps> = ({
         </div>
 
         <div className="mb-4 px-1">
-          <div className="flex items-start justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-white tracking-wider font-satoshi truncate max-w-[200px]">{name}</h2>
-              <span className="text-[#ffd088]/60 text-sm font-bold font-satoshi">/ {symbol}</span>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold text-white tracking-wider font-satoshi mb-1">{name}</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-[#ffd088]/60 text-xs font-bold font-satoshi whitespace-nowrap">/{symbol}</span>
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#ffd088]/5 border border-[#ffd088]/20 rounded-md cursor-pointer hover:bg-[#ffd088]/10 transition-colors group/copy whitespace-nowrap" onClick={handleCopyAddress}>
+                  <span className="text-[#ffd088]/60 text-[10px] font-mono font-bold group-hover/copy:text-[#ffd088] transition-colors">
+                    {token_address ? `${token_address.slice(0, 6)}...${token_address.slice(-4)}` : 'Address'}
+                  </span>
+                  {copied ? (
+                    <Check size={8} className="text-green-400" />
+                  ) : (
+                    <Copy size={8} className="text-[#ffd088]/40 group-hover/copy:text-[#ffd088] transition-colors" />
+                  )}
+                </div>
+                {(currentTax !== undefined || finalTax !== undefined) && (
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/10 border border-green-500/30 rounded-md whitespace-nowrap">
+                    <span className="text-green-400 text-[10px] font-bold font-satoshi">Tax:</span>
+                    <span className="text-green-400 text-[10px] font-bold">
+                      {currentTax !== undefined ? `${currentTax}` : finalTax !== undefined ? `${finalTax}` : '0'}/{finalTax !== undefined ? finalTax : '0'}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {gcapValue && gcapValue > 0 && (
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1">
+              <div className="text-right flex-shrink-0 -mt-2">
+                <div className="flex items-center justify-end gap-1 mb-0.5">
                   <svg className="w-3 h-3 text-[#ffd088]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
                   </svg>
-                  <span className="text-[#ffd088] text-[10px] font-bold font-satoshi uppercase tracking-wide">GRAD. CAP</span>
+                  <span className="text-[#ffd088] text-[10px] font-bold font-satoshi uppercase tracking-wide whitespace-nowrap">GRAD. CAP</span>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-white text-sm font-bold">{formatCurrency(gcapValue)}</span>
+                <div className="flex items-baseline justify-end gap-1">
+                  <span className="text-white text-sm font-bold whitespace-nowrap">{formatCurrency(gcapValue)}</span>
                   {gcapProgressPercent > 0 && (
-                    <span className="text-green-400 text-[10px] font-semibold">+{gcapProgressPercent.toFixed(0)}%</span>
+                    <span className="text-green-400 text-[10px] font-semibold whitespace-nowrap">+{gcapProgressPercent.toFixed(0)}%</span>
                   )}
                 </div>
               </div>
-            )}
-          </div>
-
-          <div className="inline-flex items-center gap-2 px-2 py-1 bg-[#ffd088]/5 border border-[#ffd088]/20 rounded-md cursor-pointer hover:bg-[#ffd088]/10 transition-colors mb-3 group/copy" onClick={handleCopyAddress}>
-            <span className="text-[#ffd088]/60 text-[10px] font-mono font-bold group-hover/copy:text-[#ffd088] transition-colors">
-              {token_address ? `${token_address.slice(0, 6)}...${token_address.slice(-4)}` : 'Address'}
-            </span>
-            {copied ? (
-              <Check size={10} className="text-green-400" />
-            ) : (
-              <Copy size={10} className="text-[#ffd088]/40 group-hover/copy:text-[#ffd088] transition-colors" />
             )}
           </div>
 
