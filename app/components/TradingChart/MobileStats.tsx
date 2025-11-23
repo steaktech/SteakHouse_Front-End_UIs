@@ -206,7 +206,7 @@ export default function MobileStats({
   return (
     <>
       <div className="px-3 py-3 border-b" style={{
-        background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+        background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         borderColor: 'rgba(255, 215, 165, 0.2)'
       }}>
         <div className="flex items-start justify-between gap-2 relative">
@@ -232,14 +232,14 @@ export default function MobileStats({
               {/* Token Name and Symbol Column */}
               <div className="flex flex-col gap-1 flex-1 min-w-0 justify-center">
                 {/* Token Name */}
-                <span className="text-white text-xl font-bold truncate leading-tight font-pump-display tracking-tight">
+                <span className="text-xl font-bold truncate leading-tight font-pump-display tracking-tight" style={{ color: '#feea88' }}>
                   {tokenName}
                 </span>
 
                 {/* Token Symbol */}
                 <div className="flex items-center gap-2">
                   {tokenSymbol && (
-                    <span className="text-[#9ca3af] text-xs font-semibold uppercase tracking-[0.18em] font-degen">
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] font-degen" style={{ color: '#fff7ea', opacity: 0.8 }}>
                       / {tokenSymbol}
                     </span>
                   )}
@@ -255,7 +255,7 @@ export default function MobileStats({
                   borderColor: 'rgba(255, 210, 160, 0.25)',
                   boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
                 }}>
-                  <span className="text-white text-3xl font-semibold font-degen tabular-nums">
+                  <span className="text-3xl font-semibold font-degen tabular-nums" style={{ color: '#fff7ea' }}>
                     {renderFormattedPrice(currentPrice)}
                   </span>
                 </div>
@@ -397,7 +397,7 @@ export default function MobileStats({
 
           {/* 24h Price Change Badge - Absolute Position Bottom Right */}
           <div className="absolute right-0 bottom-12 text-right">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#9ca3af] font-degen mb-0.5">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#9ca3af] font-degen -mb-0.5">
               24h Change
             </div>
             <div

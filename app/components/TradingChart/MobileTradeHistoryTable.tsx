@@ -319,9 +319,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
       height: disableScroll ? 'auto' : '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: transparent ? 'transparent' : '#07040b',
+      background: transparent ? 'transparent' : 'linear-gradient(180deg, #572501, #572501 50%, #4a2001 100%)',
       borderRadius: transparent ? '0' : '12px',
-      overflow: disableScroll ? 'visible' : 'hidden'
+      overflow: disableScroll ? 'visible' : 'hidden',
+      padding: transparent ? '0' : '12px 0'
     }}>
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
@@ -355,10 +356,12 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(0, 1fr))',
           gap: 'clamp(3px, 1vw, 4px)',
-          padding: 'clamp(6px, 2vw, 8px)',
-          background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3))',
-          borderBottom: '1px solid rgba(255, 215, 165, 0.25)',
-          width: '100%',
+          padding: 'clamp(8px, 2.5vw, 10px)',
+          margin: '0 12px 12px 12px',
+          background: 'linear-gradient(180deg, #572501, #4a2001)',
+          border: '1px solid rgba(255, 215, 165, 0.25)',
+          borderRadius: '12px',
+          width: 'calc(100% - 24px)',
           boxSizing: 'border-box'
         }}>
           {tabs.map(tab => (
@@ -372,10 +375,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 fontWeight: 800,
                 color: activeTab === tab.id ? '#1f2937' : '#feea88',
                 background: activeTab === tab.id
-                  ? 'linear-gradient(180deg, #feea88, #feea88)'
-                  : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
+                  ? 'linear-gradient(180deg, #feea88, #daa20b)'
+                  : 'linear-gradient(180deg, #7f4108, #6f3906)',
                 border: '1px solid',
-                borderColor: activeTab === tab.id ? '#feea88' : 'rgba(255, 215, 165, 0.3)',
+                borderColor: activeTab === tab.id ? '#daa20b' : 'rgba(255, 215, 165, 0.3)',
                 borderRadius: 'clamp(6px, 2vw, 8px)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -450,8 +453,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       gridTemplateColumns: '1fr 1fr 1.2fr 1fr 1.2fr',
                       gap: 'clamp(4px, 1.5vw, 6px)',
                       padding: 'clamp(6px, 2vw, 8px)',
-                      background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
-                      border: '2px solid rgba(255, 215, 165, 0.4)',
+                      background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                      border: '1px solid rgba(255, 215, 165, 0.4)',
                       borderRadius: 'clamp(6px, 2vw, 8px)',
                       marginBottom: 'clamp(6px, 2vw, 8px)',
                       fontSize: 'clamp(8px, 2.2vw, 10px)',
@@ -460,7 +463,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       position: 'sticky',
                       top: 0,
                       zIndex: 1,
-                      width: '100%'
+                      width: '100%',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                     }}>
                       <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Date</div>
                       <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Type</div>
@@ -487,13 +491,14 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                               gridTemplateColumns: '1fr 1fr 1.2fr 1fr 1.2fr',
                               gap: 'clamp(4px, 1.5vw, 6px)',
                               padding: 'clamp(8px, 2.5vw, 10px) clamp(6px, 2vw, 8px)',
-                              background: 'rgba(87, 37, 1, 0.6)',
-                              border: '2px solid rgba(255, 215, 165, 0.4)',
+                              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                              border: '1px solid rgba(255, 215, 165, 0.4)',
                               borderRadius: 'clamp(6px, 2vw, 8px)',
                               marginBottom: 'clamp(5px, 1.5vw, 6px)',
                               fontSize: 'clamp(9px, 2.8vw, 11px)',
                               alignItems: 'center',
-                              width: '100%'
+                              width: '100%',
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
                             }}>
                             {/* Date */}
                             <div style={{
@@ -782,8 +787,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       gridTemplateColumns: '0.6fr 2fr 1.2fr 1fr 1.2fr',
                       gap: 'clamp(4px, 1.5vw, 6px)',
                       padding: 'clamp(6px, 2vw, 8px)',
-                      background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
-                      border: '2px solid rgba(255, 215, 165, 0.4)',
+                      background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                      border: '1px solid rgba(255, 215, 165, 0.4)',
                       borderRadius: 'clamp(6px, 2vw, 8px)',
                       marginBottom: 'clamp(6px, 2vw, 8px)',
                       fontSize: 'clamp(8px, 2.2vw, 10px)',
@@ -792,7 +797,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       position: 'sticky',
                       top: 0,
                       zIndex: 1,
-                      width: '100%'
+                      width: '100%',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                     }}>
                       <div style={{ wordBreak: 'break-word' }}>#</div>
                       <div style={{ wordBreak: 'break-word' }}>Address</div>
@@ -818,13 +824,14 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                               gridTemplateColumns: '0.6fr 2fr 1.2fr 1fr 1.2fr',
                               gap: 'clamp(4px, 1.5vw, 6px)',
                               padding: 'clamp(8px, 2.5vw, 10px) clamp(6px, 2vw, 8px)',
-                              background: 'rgba(87, 37, 1, 0.6)',
-                              border: '2px solid rgba(255, 215, 165, 0.4)',
+                              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+                              border: '1px solid rgba(255, 215, 165, 0.4)',
                               borderRadius: 'clamp(6px, 2vw, 8px)',
                               marginBottom: 'clamp(5px, 1.5vw, 6px)',
                               fontSize: 'clamp(9px, 2.8vw, 11px)',
                               alignItems: 'center',
-                              width: '100%'
+                              width: '100%',
+                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
                             }}
                           >
                             {/* Rank */}
