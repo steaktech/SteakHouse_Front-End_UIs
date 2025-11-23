@@ -187,6 +187,7 @@ export function transformTokenToCardProps(token: Token): TokenCardProps {
     graduation_cap: token.graduation_cap,
     category: token.catagory,
     token_address: token.token_address,
+    chain_id: token.chain_id,
     telegram: token.telegram,
     twitter: token.twitter,
     website: token.website,

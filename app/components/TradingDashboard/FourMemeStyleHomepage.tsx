@@ -22,6 +22,7 @@ import {
   Shield,
 } from "lucide-react";
 import { TokenCard } from "./TokenCard";
+import { TokenCardSkeleton } from "./TokenCardSkeleton";
 import { useTokens } from "@/app/hooks/useTokens";
 import TrendingSearchModal from "../Modals/TrendingSearchModal";
 import SteakHouseInfoModal from "../Modals/SteakHouseInfoModal";
@@ -636,9 +637,10 @@ export default function FourMemeStyleHomepage() {
             ) : (
               // Default Feed State
               isLoading ? (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c87414] mb-4"></div>
-                  <p className="text-[#f6e7b5]/70">Loading tokens...</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center sm:justify-items-stretch">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <TokenCardSkeleton key={`skeleton-${index}`} />
+                  ))}
                 </div>
               ) : error ? (
                 <div className="flex flex-col items-center justify-center py-16">

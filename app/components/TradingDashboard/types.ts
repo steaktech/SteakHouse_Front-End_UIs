@@ -26,6 +26,7 @@ export interface TokenCardProps {
   graduation_cap?: string;
   category?: string | null;
   token_address: string;
+  chain_id?: number;
   // Social links (optional)
   telegram?: string | null;
   twitter?: string | null;

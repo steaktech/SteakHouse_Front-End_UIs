@@ -8,6 +8,7 @@ import { useToastHelpers } from '@/app/hooks/useToast';
 import { useWallet } from '@/app/hooks/useWallet';
 import styles from './TokenCard.module.css';
 import Image from 'next/image';
+import { getChainIconPath, getChainName, getChainShortName } from '@/app/lib/utils/chainUtils';
 
 export const TokenCardComponent: React.FC<TokenCardProps> = ({
   isOneStop,
@@ -30,6 +31,7 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
   graduation_cap,
   category,
   token_address,
+  chain_id,
   telegram,
   twitter,
   website,
@@ -232,7 +234,7 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
   }, [savedState, saveClicked, showSuccess]);
 
   return (
-    <div className="w-full max-w-sm bg-[#1a0f08] border border-[#c87414]/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(200,116,20,0.15)] relative group hover:shadow-[0_0_30px_rgba(200,116,20,0.3)] transition-all duration-300 flex flex-col h-full" onClick={handleCardClick}>
+    <div className="w-full max-w-sm bg-[#1a0f08] border border-[#c87414]/30 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(200,116,20,0.15)] relative group hover:shadow-[0_0_30px_rgba(200,116,20,0.3)] transition-all duration-300 flex flex-col h-full animate-in fade-in duration-500" onClick={handleCardClick}>
 
       {/* Header Image Area */}
       <div className="h-32 w-full bg-gradient-to-b from-[#2b1200]/80 to-[#1a0f08] relative">
@@ -282,8 +284,8 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
                 </div>
               )}
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-[#c87414] text-white text-xs font-bold px-2 py-0.5 rounded-full border border-[#1a0f08]">
-              LIVE
+            <div className="absolute -bottom-2 -right-2 bg-[#c87414] text-white text-xs font-bold px-2 py-0.5 rounded-full border border-[#1a0f08] uppercase">
+              {category || 'Meme'}
             </div>
           </div>
           <div className="flex gap-2 mb-1">
@@ -301,20 +303,44 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
           </div>
 
           <div className="flex gap-2 mb-3 flex-wrap">
-            <span className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider">
-              {category || 'Meme'}
-            </span>
+            {/* Chain Badge */}
+            {chain_id && getChainIconPath(chain_id) && (
+              <div
+                className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded flex items-center justify-center cursor-pointer hover:bg-[#c87414]/20 transition-colors group relative"
+                title={getChainName(chain_id)}
+              >
+                <Image
+                  src={getChainIconPath(chain_id)!}
+                  alt={getChainName(chain_id)}
+                  width={16}
+                  height={16}
+                  className="object-contain"
+                />
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-[#1a0f08] border border-[#c87414]/30 rounded text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {getChainName(chain_id)}
+                </div>
+              </div>
+            )}
+
             {isOneStop && (
               <span className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider">
                 Utility
               </span>
             )}
+
+            {/* Token Address Badge */}
             <div
-              className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider flex items-center gap-1 cursor-pointer hover:bg-[#c87414]/20 transition-colors"
+              className="px-2 py-1 bg-[#c87414]/10 border border-[#c87414]/20 text-[#c87414] text-xs rounded uppercase tracking-wider flex items-center gap-1 cursor-pointer hover:bg-[#c87414]/20 transition-colors group relative"
               onClick={handleCopyAddress}
+              title="Click to copy address"
             >
-              <span>{token_address ? `${token_address.slice(0, 4)}...${token_address.slice(-4)}` : 'Address'}</span>
+              <span>{token_address ? `${token_address.slice(0, 6)}...${token_address.slice(-4)}` : 'Address'}</span>
               {copied ? <Check size={10} /> : <Copy size={10} />}
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-[#1a0f08] border border-[#c87414]/30 rounded text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                {copied ? 'Copied!' : 'Copy address'}
+              </div>
             </div>
           </div>
 
@@ -329,7 +355,7 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
           <StatBox
             label="24H ^"
             value={priceChange24h ? `${priceChange24h.toFixed(2)}%` : '0.00%'}
-            valueClassName={priceChange24h && priceChange24h >= 0 ? 'text-green-400' : 'text-red-400'}
+            valueClassName={priceChange24h && priceChange24h >= 0 ? 'text-green-400' : 'text-[#FF4D4D]'}
           />
           <StatBox label="TAX" value={`${currentTax || 0}/${finalTax || 0}`} highlight />
         </div>
@@ -341,24 +367,78 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
             <span>GCAP: {formatCurrency(gcapValue)}</span>
           </div>
 
-          {/* Glowing Progress Bar */}
-          <div className="h-7 bg-[#2b1200] rounded-full overflow-hidden border border-[#c87414]/20 relative">
+          {/* Golden Progress Bar */}
+          <div className="relative w-full h-8 rounded-full shadow-[0_4px_10px_-2px_rgba(0,0,0,0.5)] border-2 border-[#2a1a08] ring-1 ring-[#4a3210] transform translate-z-0 mt-1">
+            {/* Background Track Depth */}
+            <div className="absolute inset-0 rounded-full bg-[#1a1205] shadow-[inset_0_2px_5px_rgba(0,0,0,0.8)] overflow-hidden">
+              <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/5 to-transparent" />
+            </div>
+
+            {/* LAYER 1: Empty State Text (Bright/Glowing) */}
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <span
+                className="text-xs font-black tracking-wider text-yellow-100/90 drop-shadow-[0_0_5px_rgba(255,215,0,0.3)]"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
+                {formatPercent(progressValue)}
+              </span>
+            </div>
+
+            {/* The Fill Container */}
+            <div
+              className="absolute inset-[2px] rounded-full overflow-hidden z-20 will-change-[width]"
+              style={{
+                width: `calc(${progressValue}% - 4px)`,
+                transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {/* Base Gold Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-b from-[#ffedad] via-[#ffb300] to-[#e65100]" />
+
+              {/* Shine/Gloss Overlay */}
+              <div className="absolute inset-x-0 top-0 h-[45%] bg-gradient-to-b from-white/70 to-white/10 opacity-90" />
+
+              {/* Bottom Shadow */}
+              <div className="absolute inset-x-0 bottom-0 h-[25%] bg-black/20 blur-[1px]" />
+
+              {/* OPTIMIZED SHIMMER */}
+              <div className="absolute inset-0 w-[150%] h-full animate-gpu-shimmer will-change-transform"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)',
+                  transform: 'skewX(-20deg) translateX(-150%)',
+                }}
+              />
+            </div>
+
+            {/* LAYER 2: Filled State Text (Dark/Engraved) */}
+            <div
+              className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none will-change-[clip-path]"
+              style={{
+                clipPath: `inset(0 ${100 - progressValue}% 0 0)`,
+                transition: 'clip-path 1s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <span
+                className="text-xs font-black tracking-wider text-[#3e1c00] drop-shadow-[0_1px_0_rgba(255,255,255,0.3)]"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
+                {formatPercent(progressValue)}
+              </span>
+            </div>
+
+            {/* Inner Highlight Ring */}
+            <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-white/20 pointer-events-none z-40" />
+
             <style dangerouslySetInnerHTML={{
               __html: `
-              @keyframes shimmer {
-                0% { transform: translateX(-100%); }
-                100% { transform: translateX(100%); }
+              @keyframes gpu-shimmer {
+                0% { transform: skewX(-20deg) translateX(-150%); }
+                100% { transform: skewX(-20deg) translateX(250%); }
+              }
+              .animate-gpu-shimmer {
+                animation: gpu-shimmer 2.5s infinite linear;
               }
             `}} />
-            <div
-              className="h-full bg-gradient-to-r from-[#f3cc76] via-[#e8b35c] to-[#c87414] shadow-[0_0_15px_rgba(200,116,20,0.6)] transition-all duration-1000 ease-out relative overflow-hidden"
-              style={{ width: `${progressValue}%` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/90 to-transparent -skew-x-12" style={{ animation: 'shimmer 1.5s infinite linear' }}></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <span className="text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{formatPercent(progressValue)}</span>
-            </div>
           </div>
 
           <button className="w-full mt-3 bg-gradient-to-r from-[#efb95e] to-[#c87414] hover:from-[#f3cc76] hover:to-[#e8b35c] text-[#1a0f08] font-bold py-2 rounded-lg uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(200,116,20,0.4)] hover:shadow-[0_0_25px_rgba(200,116,20,0.6)] flex items-center justify-center gap-2 group-hover:scale-[1.02] duration-200 border border-[#c87414]">
@@ -366,7 +446,7 @@ export const TokenCardComponent: React.FC<TokenCardProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
