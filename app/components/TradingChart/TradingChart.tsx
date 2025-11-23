@@ -1316,13 +1316,13 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           {/* Content row: Left chart area + Right token card panel */}
           <div className="flex flex-1 gap-[8px] overflow-hidden">
             {/* Left Column - Chart and Recent Transactions */}
-            <div className="flex-1 flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden scrollbar-custom">
+            <div className="flex-1 flex flex-col gap-[8px] overflow-hidden">
               {/* Top trending bar (desktop only) within left column only */}
               <div className="hidden md:block">
                 <TopTrendingTicker />
               </div>
               {/* Trading Chart flanked by vertical trending tickers */}
-              <div className="flex-1 min-h-[500px] overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <div className="h-full w-full flex items-stretch gap-0">
                   {/* Left vertical ticker (temporarily disabled)
                   <div className="hidden lg:flex flex-none">
@@ -1353,48 +1353,88 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 </div>
               </div>
 
-              {/* Recent Transactions Panel (desktop only) */}
+            {/* Recent Transactions Panel (desktop only) */}
+            <div 
+              className="hidden lg:block" 
+              style={{ 
+                height: `${desktopTransactionsHeight}px`,
+                position: 'relative',
+                flexShrink: 0
+              }}>
+              {/* Drag Handle */}
               <div
-                className="hidden lg:block"
+                onMouseDown={handleDesktopMouseDown}
                 style={{
-                  flexShrink: 0
-                }}>
-                <div style={{
-                  width: '100%',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '8px',
+                  cursor: 'row-resize',
+                  zIndex: 10,
                   display: 'flex',
-                  flexDirection: 'column',
-                  boxSizing: 'border-box'
-                }}>
-                  {/* Content Area */}
-                  <div style={{ flex: 1 }}>
-                    {showLimitOrders ? (
-                      <CompactLimitOrderBook
-                        orders={orderManagement.orders}
-                        tokenAddress={tokenAddress ?? undefined}
-                        onCancelOrder={handleOrderCancel}
-                        onModifyOrder={handleOrderModify}
-                        loading={orderManagement.loading}
-                        error={orderManagement.error ?? undefined}
-                        showToggle={true}
-                        showLimitOrders={showLimitOrders}
-                        onToggleChange={setShowLimitOrders}
-                        isMobile={false}
-                      />
-                    ) : (
-                      <TradeHistory
-                        tokenAddress={tokenAddress}
-                        tokenData={apiTokenData}
-                        trades={trades}
-                        isLoading={isLoading}
-                        error={error}
-                        showToggle={true}
-                        showLimitOrders={showLimitOrders}
-                        onToggleChange={setShowLimitOrders}
-                      />
-                    )}
-                  </div>
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.1)' : 'transparent',
+                  transition: 'background 200ms ease'
+                }}
+              >
+                <div
+                  style={{
+                    width: '48px',
+                    height: '4px',
+                    borderRadius: '2px',
+                    background: isDraggingDesktop ? 'rgba(254, 234, 136, 0.8)' : 'rgba(255, 215, 165, 0.4)',
+                    transition: 'background 200ms ease'
+                  }}
+                />
+              </div>
+              <div style={{
+                width: '100%',
+                height: '100%',
+                position: 'relative',
+                borderRadius: 'clamp(14px, 2vw, 20px)',
+                background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+                padding: 'clamp(12px, 2.5vh, 16px)',
+                paddingTop: '20px',
+                border: '1px solid rgba(255, 215, 165, 0.4)',
+                overflow: 'hidden',
+                color: '#fff7ea',
+                display: 'flex',
+                flexDirection: 'column',
+                boxSizing: 'border-box'
+              }}>
+                {/* Content Area */}
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  {showLimitOrders ? (
+                    <CompactLimitOrderBook 
+                      orders={orderManagement.orders}
+                      tokenAddress={tokenAddress ?? undefined}
+                      onCancelOrder={handleOrderCancel}
+                      onModifyOrder={handleOrderModify}
+                      loading={orderManagement.loading}
+                      error={orderManagement.error ?? undefined}
+                      showToggle={true}
+                      showLimitOrders={showLimitOrders}
+                      onToggleChange={setShowLimitOrders}
+                      isMobile={false}
+                    />
+                  ) : (
+                    <TradeHistory 
+                      tokenAddress={tokenAddress}
+                      tokenData={apiTokenData}
+                      trades={trades}
+                      isLoading={isLoading}
+                      error={error}
+                      showToggle={true}
+                      showLimitOrders={showLimitOrders}
+                      onToggleChange={setShowLimitOrders}
+                    />
+                  )}
                 </div>
               </div>
+            </div>
             </div>
 
             {/* Right Column - Token Card and Trade Panel (desktop only) */}

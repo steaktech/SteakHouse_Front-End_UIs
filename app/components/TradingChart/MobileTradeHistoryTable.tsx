@@ -257,18 +257,18 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
-        padding: '12px',
+        gap: 'clamp(6px, 2vw, 8px)',
+        padding: 'clamp(10px, 3vw, 12px)',
         borderTop: '1px solid rgba(255, 215, 165, 0.2)'
       }}>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           style={{
-            padding: '6px 12px',
-            fontSize: '11px',
+            padding: 'clamp(5px, 1.5vw, 6px) clamp(10px, 3vw, 12px)',
+            fontSize: 'clamp(9px, 2.8vw, 11px)',
             fontWeight: 700,
-            color: currentPage === 1 ? '#666' : '#e9af5a',
+            color: currentPage === 1 ? '#666' : '#feea88',
             background: currentPage === 1
               ? 'rgba(87, 37, 1, 0.1)'
               : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
@@ -282,10 +282,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         </button>
 
         <div style={{
-          fontSize: '11px',
+          fontSize: 'clamp(9px, 2.8vw, 11px)',
           fontWeight: 700,
-          color: '#e9af5a',
-          padding: '0 8px'
+          color: '#feea88',
+          padding: '0 clamp(6px, 2vw, 8px)'
         }}>
           Page {currentPage} of {totalPages}
         </div>
@@ -294,10 +294,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           style={{
-            padding: '6px 12px',
-            fontSize: '11px',
+            padding: 'clamp(5px, 1.5vw, 6px) clamp(10px, 3vw, 12px)',
+            fontSize: 'clamp(9px, 2.8vw, 11px)',
             fontWeight: 700,
-            color: currentPage === totalPages ? '#666' : '#e9af5a',
+            color: currentPage === totalPages ? '#666' : '#feea88',
             background: currentPage === totalPages
               ? 'rgba(87, 37, 1, 0.1)'
               : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
@@ -333,7 +333,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
           border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(180deg, #e9af5a, #e9af5a);
+          background: linear-gradient(180deg, #feea88, #feea88);
           border-radius: 4px;
           border: 1px solid rgba(255, 215, 165, 0.3);
         }
@@ -342,7 +342,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         }
         .custom-scrollbar {
           scrollbar-width: thin;
-          scrollbar-color: #e9af5a rgba(87, 37, 1, 0.2);
+          scrollbar-color: #feea88 rgba(87, 37, 1, 0.2);
         }
         .table-container {
           overflow-x: auto;
@@ -352,16 +352,14 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
       {/* Tab Navigation */}
       {!hideTabs && (
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          padding: '8px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(0, 1fr))',
+          gap: 'clamp(3px, 1vw, 4px)',
+          padding: 'clamp(6px, 2vw, 8px)',
           background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3))',
-          borderBottom: '1px solid rgba(255, 215, 165, 0.2)',
-          overflowX: 'auto',
-          overflowY: 'hidden',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none'
+          borderBottom: '1px solid rgba(255, 215, 165, 0.25)',
+          width: '100%',
+          boxSizing: 'border-box'
         }}>
           {tabs.map(tab => (
             <button
@@ -369,36 +367,41 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
               onClick={() => setActiveTab(tab.id)}
               style={{
                 position: 'relative',
-                padding: '6px 12px',
-                fontSize: '11px',
+                padding: 'clamp(4px, 1.5vw, 6px) clamp(4px, 2vw, 8px)',
+                fontSize: 'clamp(8px, 2.2vw, 10px)',
                 fontWeight: 800,
-                color: activeTab === tab.id ? '#2b1b14' : '#e9af5a',
+                color: activeTab === tab.id ? '#1f2937' : '#feea88',
                 background: activeTab === tab.id
-                  ? 'linear-gradient(180deg, #e9af5a, #e9af5a)'
+                  ? 'linear-gradient(180deg, #feea88, #feea88)'
                   : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
                 border: '1px solid',
-                borderColor: activeTab === tab.id ? '#e9af5a' : 'rgba(255, 215, 165, 0.3)',
-                borderRadius: '8px',
+                borderColor: activeTab === tab.id ? '#feea88' : 'rgba(255, 215, 165, 0.3)',
+                borderRadius: 'clamp(6px, 2vw, 8px)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
                 whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
                 boxShadow: activeTab === tab.id
                   ? 'inset 0 2px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)'
                   : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              {tab.label}
+                justifyContent: 'center',
+                gap: 'clamp(2px, 1vw, 4px)',
+                minWidth: 0,
+                textAlign: 'center'
+              }}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tab.label}</span>
               {tab.badge && (
                 <span style={{
-                  padding: '2px 6px',
-                  fontSize: '9px',
+                  padding: 'clamp(1px, 0.5vw, 2px) clamp(4px, 1.5vw, 6px)',
+                  fontSize: 'clamp(7px, 2vw, 9px)',
                   fontWeight: 700,
-                  borderRadius: '10px',
-                  background: activeTab === tab.id ? '#2b1b14' : '#e9af5a',
-                  color: activeTab === tab.id ? '#e9af5a' : '#2b1b14'
+                  borderRadius: 'clamp(8px, 2.5vw, 10px)',
+                  background: activeTab === tab.id ? '#1f2937' : '#feea88',
+                  color: activeTab === tab.id ? '#feea88' : '#1f2937',
+                  flexShrink: 0
                 }}>
                   {tab.badge}
                 </span>
@@ -419,7 +422,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         {activeTab === 'history' && (
           <div style={{ flex: disableScroll ? 'none' : 1, overflow: disableScroll ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
             {isLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a' }}>
+              <div style={{ padding: '20px', textAlign: 'center', color: '#feea88' }}>
                 Loading trades...
               </div>
             ) : error ? (
@@ -427,7 +430,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 {error}
               </div>
             ) : trades.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a' }}>
+              <div style={{ padding: '20px', textAlign: 'center', color: '#feea88' }}>
                 No trades yet
               </div>
             ) : (
@@ -435,32 +438,35 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div className={disableScroll ? "" : "custom-scrollbar"} style={{
                   flex: disableScroll ? 'none' : 1,
                   overflowY: disableScroll ? 'visible' : 'auto',
-                  padding: '8px'
+                  overflowX: 'hidden',
+                  padding: 'clamp(6px, 2vw, 8px)',
+                  width: '100%',
+                  boxSizing: 'border-box'
                 }}>
-                  <div className="table-container custom-scrollbar">
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                     {/* Table Header */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: '70px 80px 120px 100px 110px',
-                      minWidth: '490px',
-                      gap: '8px',
-                      padding: '8px',
+                      gridTemplateColumns: '1fr 1fr 1.2fr 1fr 1.2fr',
+                      gap: 'clamp(4px, 1.5vw, 6px)',
+                      padding: 'clamp(6px, 2vw, 8px)',
                       background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
                       border: '2px solid rgba(255, 215, 165, 0.4)',
-                      borderRadius: '8px',
-                      marginBottom: '8px',
-                      fontSize: '10px',
+                      borderRadius: 'clamp(6px, 2vw, 8px)',
+                      marginBottom: 'clamp(6px, 2vw, 8px)',
+                      fontSize: 'clamp(8px, 2.2vw, 10px)',
                       fontWeight: 800,
-                      color: '#e9af5a',
+                      color: '#feea88',
                       position: 'sticky',
                       top: 0,
-                      zIndex: 1
+                      zIndex: 1,
+                      width: '100%'
                     }}>
-                      <div>Date</div>
-                      <div>Type</div>
-                      <div>Price</div>
-                      <div>Total</div>
-                      <div>Price ${tokenData?.tokenInfo?.symbol || 'Token'}</div>
+                      <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Date</div>
+                      <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Type</div>
+                      <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Price</div>
+                      <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Total</div>
+                      <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: 'clamp(7px, 2vw, 9px)' }}>Price ${tokenData?.tokenInfo?.symbol || 'Token'}</div>
                     </div>
 
                     {/* Trade Rows - Paginated */}
@@ -478,23 +484,25 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             key={tradeId}
                             style={{
                               display: 'grid',
-                              gridTemplateColumns: '70px 80px 120px 100px 110px',
-                              minWidth: '490px',
-                              gap: '8px',
-                              padding: '10px 8px',
+                              gridTemplateColumns: '1fr 1fr 1.2fr 1fr 1.2fr',
+                              gap: 'clamp(4px, 1.5vw, 6px)',
+                              padding: 'clamp(8px, 2.5vw, 10px) clamp(6px, 2vw, 8px)',
                               background: 'rgba(87, 37, 1, 0.6)',
                               border: '2px solid rgba(255, 215, 165, 0.4)',
-                              borderRadius: '8px',
-                              marginBottom: '6px',
-                              fontSize: '11px',
-                              alignItems: 'center'
-                            }}
-                          >
+                              borderRadius: 'clamp(6px, 2vw, 8px)',
+                              marginBottom: 'clamp(5px, 1.5vw, 6px)',
+                              fontSize: 'clamp(9px, 2.8vw, 11px)',
+                              alignItems: 'center',
+                              width: '100%'
+                            }}>
                             {/* Date */}
                             <div style={{
                               color: '#fff7ea',
-                              fontSize: '10px',
-                              fontWeight: 600
+                              fontSize: 'clamp(8px, 2.2vw, 10px)',
+                              fontWeight: 600,
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.2'
                             }}>
                               {formatDate(trade.timestamp)}
                             </div>
@@ -503,26 +511,29 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '4px'
+                              gap: 'clamp(2px, 1vw, 3px)',
+                              flexWrap: 'nowrap'
                             }}>
                               <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '6px',
+                                width: 'clamp(16px, 4.5vw, 20px)',
+                                height: 'clamp(16px, 4.5vw, 20px)',
+                                borderRadius: 'clamp(4px, 1.5vw, 6px)',
                                 background: isBuy
                                   ? 'linear-gradient(180deg, #4ade80, #22c55e)'
                                   : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
-                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                                flexShrink: 0
                               }}>
-                                {isBuy ? <BuyArrow size={10} /> : <SellArrow size={10} />}
+                                {isBuy ? <BuyArrow size={8} /> : <SellArrow size={8} />}
                               </div>
                               <span style={{
                                 fontWeight: 800,
                                 color: isBuy ? '#4ade80' : '#ff7a6f',
-                                fontSize: '10px'
+                                fontSize: 'clamp(8px, 2.2vw, 10px)',
+                                whiteSpace: 'nowrap'
                               }}>
                                 {isBuy ? 'buy' : 'sell'}
                               </span>
@@ -532,24 +543,30 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             <div style={{
                               color: '#fff7ea',
                               fontWeight: 700,
-                              fontSize: '11px',
+                              fontSize: 'clamp(8px, 2.5vw, 10px)',
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '4px'
+                              gap: 'clamp(2px, 1vw, 3px)',
+                              flexWrap: 'nowrap',
+                              wordBreak: 'break-all',
+                              lineHeight: '1.2'
                             }}>
                               <img
                                 src="https://cryptologos.cc/logos/ethereum-eth-logo.png"
                                 alt="ETH"
-                                style={{ width: '12px', height: '12px' }}
+                                style={{ width: 'clamp(10px, 2.8vw, 12px)', height: 'clamp(10px, 2.8vw, 12px)', flexShrink: 0 }}
                               />
-                              {formatNumber(trade.amountEth)}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{formatNumber(trade.amountEth)}</span>
                             </div>
 
                             {/* Total (USD) */}
                             <div style={{
-                              color: '#e9af5a',
+                              color: '#feea88',
                               fontWeight: 800,
-                              fontSize: '11px'
+                              fontSize: 'clamp(8px, 2.5vw, 10px)',
+                              wordBreak: 'break-all',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.2'
                             }}>
                               {formatUSD(trade.usdValue)}
                             </div>
@@ -558,7 +575,10 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             <div style={{
                               color: '#fff7ea',
                               fontWeight: 700,
-                              fontSize: '10px'
+                              fontSize: 'clamp(7px, 2.2vw, 9px)',
+                              wordBreak: 'break-all',
+                              overflowWrap: 'break-word',
+                              lineHeight: '1.2'
                             }}>
                               {formatNumber(trade.price)}
                             </div>
@@ -585,13 +605,13 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
               <div style={{
                 padding: '20px',
                 textAlign: 'center',
-                color: '#e9af5a',
+                color: '#feea88',
                 fontSize: '12px'
               }}>
                 Connect your wallet to view your positions
               </div>
             ) : ordersLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a' }}>
+              <div style={{ padding: '20px', textAlign: 'center', color: '#feea88' }}>
                 Loading positions...
               </div>
             ) : ordersError ? (
@@ -599,7 +619,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 {ordersError}
               </div>
             ) : limitOrders.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a', fontSize: '12px' }}>
+              <div style={{ padding: '20px', textAlign: 'center', color: '#feea88', fontSize: '12px' }}>
                 No open positions
               </div>
             ) : (
@@ -607,23 +627,25 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div className={disableScroll ? "" : "custom-scrollbar"} style={{
                   flex: disableScroll ? 'none' : 1,
                   overflowY: disableScroll ? 'visible' : 'auto',
-                  padding: '8px'
+                  overflowX: 'hidden',
+                  padding: 'clamp(6px, 2vw, 8px)',
+                  width: '100%',
+                  boxSizing: 'border-box'
                 }}>
-                  <div className="table-container custom-scrollbar">
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                     {/* Orders Table Header */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: '60px 80px 90px 90px 70px',
-                      minWidth: '390px',
-                      gap: '8px',
-                      padding: '8px',
+                      gridTemplateColumns: 'minmax(55px, 1fr) minmax(70px, 1.2fr) minmax(80px, 1.2fr) minmax(80px, 1.2fr) minmax(65px, 1fr)',
+                      gap: 'clamp(4px, 2vw, 8px)',
+                      padding: 'clamp(6px, 2vw, 8px)',
                       background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
                       border: '2px solid rgba(255, 215, 165, 0.4)',
-                      borderRadius: '8px',
-                      marginBottom: '8px',
-                      fontSize: '10px',
+                      borderRadius: 'clamp(6px, 2vw, 8px)',
+                      marginBottom: 'clamp(6px, 2vw, 8px)',
+                      fontSize: 'clamp(8px, 2.5vw, 10px)',
                       fontWeight: 800,
-                      color: '#e9af5a',
+                      color: '#feea88',
                       position: 'sticky',
                       top: 0,
                       zIndex: 1
@@ -647,7 +669,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                           order.status === 'filled' ? '#4ade80' :
                             order.status === 'cancelled' ? '#ff5b58' :
                               order.status === 'failed' ? '#ef4444' :
-                                '#e9af5a';
+                                '#feea88';
 
                         return (
                           <div
@@ -697,7 +719,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             </div>
 
                             {/* Price */}
-                            <div style={{ color: '#e9af5a', fontWeight: 700, fontSize: '10px' }}>
+                            <div style={{ color: '#feea88', fontWeight: 700, fontSize: '10px' }}>
                               ${order.price.toFixed(4)}
                             </div>
 
@@ -740,7 +762,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         {activeTab === 'topTraders' && (
           <div style={{ flex: disableScroll ? 'none' : 1, overflow: disableScroll ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
             {topTraders.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#e9af5a', fontSize: '12px' }}>
+              <div style={{ padding: '20px', textAlign: 'center', color: '#feea88', fontSize: '12px' }}>
                 No trader data available
               </div>
             ) : (
@@ -748,32 +770,35 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div className={disableScroll ? "" : "custom-scrollbar"} style={{
                   flex: disableScroll ? 'none' : 1,
                   overflowY: disableScroll ? 'visible' : 'auto',
-                  padding: '8px'
+                  overflowX: 'hidden',
+                  padding: 'clamp(6px, 2vw, 8px)',
+                  width: '100%',
+                  boxSizing: 'border-box'
                 }}>
-                  <div className="table-container custom-scrollbar">
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                     {/* Traders Table Header */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: '30px 120px 80px 60px 80px',
-                      minWidth: '370px',
-                      gap: '8px',
-                      padding: '8px',
+                      gridTemplateColumns: '0.6fr 2fr 1.2fr 1fr 1.2fr',
+                      gap: 'clamp(4px, 1.5vw, 6px)',
+                      padding: 'clamp(6px, 2vw, 8px)',
                       background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.3), rgba(87, 37, 1, 0.2))',
                       border: '2px solid rgba(255, 215, 165, 0.4)',
-                      borderRadius: '8px',
-                      marginBottom: '8px',
-                      fontSize: '10px',
+                      borderRadius: 'clamp(6px, 2vw, 8px)',
+                      marginBottom: 'clamp(6px, 2vw, 8px)',
+                      fontSize: 'clamp(8px, 2.2vw, 10px)',
                       fontWeight: 800,
-                      color: '#e9af5a',
+                      color: '#feea88',
                       position: 'sticky',
                       top: 0,
-                      zIndex: 1
+                      zIndex: 1,
+                      width: '100%'
                     }}>
-                      <div>#</div>
-                      <div>Address</div>
-                      <div>Volume</div>
-                      <div>Trades</div>
-                      <div>Profit</div>
+                      <div style={{ wordBreak: 'break-word' }}>#</div>
+                      <div style={{ wordBreak: 'break-word' }}>Address</div>
+                      <div style={{ wordBreak: 'break-word' }}>Volume</div>
+                      <div style={{ wordBreak: 'break-word' }}>Trades</div>
+                      <div style={{ wordBreak: 'break-word' }}>Profit</div>
                     </div>
 
                     {/* Trader Rows - Paginated */}
@@ -790,23 +815,23 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             key={trader.address}
                             style={{
                               display: 'grid',
-                              gridTemplateColumns: '30px 120px 80px 60px 80px',
-                              minWidth: '370px',
-                              gap: '8px',
-                              padding: '10px 8px',
+                              gridTemplateColumns: '0.6fr 2fr 1.2fr 1fr 1.2fr',
+                              gap: 'clamp(4px, 1.5vw, 6px)',
+                              padding: 'clamp(8px, 2.5vw, 10px) clamp(6px, 2vw, 8px)',
                               background: 'rgba(87, 37, 1, 0.6)',
                               border: '2px solid rgba(255, 215, 165, 0.4)',
-                              borderRadius: '8px',
-                              marginBottom: '6px',
-                              fontSize: '11px',
-                              alignItems: 'center'
+                              borderRadius: 'clamp(6px, 2vw, 8px)',
+                              marginBottom: 'clamp(5px, 1.5vw, 6px)',
+                              fontSize: 'clamp(9px, 2.8vw, 11px)',
+                              alignItems: 'center',
+                              width: '100%'
                             }}
                           >
                             {/* Rank */}
                             <div style={{
-                              color: actualRank <= 3 ? '#e9af5a' : '#e9af5a',
+                              color: actualRank <= 3 ? '#feea88' : '#feea88',
                               fontWeight: 800,
-                              fontSize: '11px'
+                              fontSize: 'clamp(9px, 2.8vw, 11px)'
                             }}>
                               {actualRank}
                             </div>
@@ -816,29 +841,31 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                               style={{
                                 color: '#fff7ea',
                                 fontWeight: 600,
-                                fontSize: '11px',
+                                fontSize: 'clamp(9px, 2.5vw, 11px)',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '4px'
+                                gap: 'clamp(2px, 1vw, 4px)',
+                                wordBreak: 'break-all',
+                                lineHeight: '1.2'
                               }}
                               onClick={() => copyToClipboard(trader.address, `trader-${actualRank}`)}
                             >
-                              {shortenAddress(trader.address)}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{shortenAddress(trader.address)}</span>
                               {copiedItem === `trader-${actualRank}` ? (
-                                <span style={{ color: '#4ade80', fontSize: '9px' }}>✓</span>
+                                <span style={{ color: '#4ade80', fontSize: 'clamp(7px, 2vw, 9px)', flexShrink: 0 }}>✓</span>
                               ) : (
-                                <span style={{ color: '#e9af5a', fontSize: '9px' }}>📋</span>
+                                <span style={{ color: '#feea88', fontSize: 'clamp(7px, 2vw, 9px)', flexShrink: 0 }}>📋</span>
                               )}
                             </div>
 
                             {/* Volume */}
-                            <div style={{ color: '#e9af5a', fontWeight: 700, fontSize: '11px' }}>
+                            <div style={{ color: '#feea88', fontWeight: 700, fontSize: 'clamp(8px, 2.5vw, 10px)', wordBreak: 'break-all', lineHeight: '1.2' }}>
                               {formatUSD(trader.totalVolume)}
                             </div>
 
                             {/* Trades */}
-                            <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: '11px' }}>
+                            <div style={{ color: '#fff7ea', fontWeight: 600, fontSize: 'clamp(8px, 2.5vw, 10px)' }}>
                               {trader.trades}
                             </div>
 
@@ -846,7 +873,9 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             <div style={{
                               color: trader.profit >= 0 ? '#4ade80' : '#ff7a6f',
                               fontWeight: 800,
-                              fontSize: '11px'
+                              fontSize: 'clamp(8px, 2.5vw, 10px)',
+                              wordBreak: 'break-all',
+                              lineHeight: '1.2'
                             }}>
                               {trader.profit >= 0 ? '+' : ''}{formatUSD(trader.profit)}
                             </div>
@@ -890,7 +919,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div style={{
                   fontSize: '11px',
                   fontWeight: 800,
-                  color: '#e9af5a',
+                  color: '#feea88',
                   marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
@@ -924,7 +953,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div style={{
                   fontSize: '11px',
                   fontWeight: 800,
-                  color: '#e9af5a',
+                  color: '#feea88',
                   marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
@@ -950,7 +979,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div style={{
                   fontSize: '11px',
                   fontWeight: 800,
-                  color: '#e9af5a',
+                  color: '#feea88',
                   marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
@@ -967,7 +996,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div style={{
                   fontSize: '11px',
                   fontWeight: 600,
-                  color: '#e9af5a',
+                  color: '#feea88',
                   marginTop: '4px'
                 }}>
                   {priceStats.trades24h} trades
@@ -989,7 +1018,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                   <div style={{
                     fontSize: '10px',
                     fontWeight: 800,
-                    color: '#e9af5a',
+                    color: '#feea88',
                     marginBottom: '6px'
                   }}>
                     TOTAL TRADES
