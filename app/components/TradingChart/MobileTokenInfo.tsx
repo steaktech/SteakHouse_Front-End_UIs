@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
-import { useTheme } from '@/app/contexts/ThemeContext';
 
 interface TokenInfoData {
   tokenAddress?: string;
@@ -70,8 +69,6 @@ function computeMcapUsdFromSupplySync(params: {
 
 export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
   const { ethPriceUsd } = useStablePriceData(true);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   // Calculate bonding progress if not provided
   const calculatedBondingProgress = (() => {
@@ -158,39 +155,30 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
   const valueClass = "text-sm sm:text-base font-bold";
 
   return (
-    <div className="w-full" style={{
-      background: isLight
-        ? 'var(--theme-grad-card)'
-        : 'linear-gradient(180deg, #572501, #572501 50%, #4a2001 100%)',
-      padding: '16px 0',
-      color: isLight ? 'var(--theme-text-primary)' : '#fff7ea'
+    <div className="w-full border-b" style={{
+      background: 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+      borderColor: 'rgba(255, 215, 165, 0.2)'
     }}>
       <div className="px-4 py-3">
         {/* Token Address Row */}
         <div className="flex items-center justify-between mb-4 rounded-lg px-3 py-2" style={{
-          background: isLight
-            ? 'var(--theme-grad-card)'
-            : 'linear-gradient(180deg, #7f4108, #6f3906)',
-          border: isLight
-            ? '1px solid var(--theme-border)'
-            : '1px solid rgba(255, 215, 165, 0.25)',
-          boxShadow: isLight
-            ? '0 2px 4px rgba(62, 39, 35, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-            : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+          background: 'linear-gradient(180deg, #1A0F08, #241207)',
+          border: '1px solid rgba(255, 210, 160, 0.25)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
         }}>
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? 'var(--theme-text-highlight)' : '#d29900' }}>
+            <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>
               {data.tokenSymbol || 'TOKEN'}:
             </span>
-            <span className="text-xs font-mono" style={{ color: isLight ? 'var(--theme-text-secondary)' : '#e6d4a3' }}>
+            <span className="text-xs font-mono" style={{ color: '#e6d4a3' }}>
               {data.tokenAddress ? `${data.tokenAddress.slice(0, 6)}...${data.tokenAddress.slice(-4)}` : '-'}
             </span>
           </div>
           <button
             className="transition-colors"
-            style={{ color: isLight ? 'var(--theme-accent)' : '#d29900' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = isLight ? '#b45309' : '#e6d4a3'}
-            onMouseLeave={(e) => e.currentTarget.style.color = isLight ? 'var(--theme-accent)' : '#d29900'}
+            style={{ color: '#d29900' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#e6d4a3'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#d29900'}
             onClick={() => {
               if (data.tokenAddress) {
                 navigator.clipboard.writeText(data.tokenAddress);
@@ -207,62 +195,62 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         <div className="grid grid-cols-2 gap-3 mb-3">
           {/* Market Cap */}
           <div className={gridItemClass} style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: isLight ? 'var(--theme-text-muted)' : '#feea88' }}>MARKET CAP</span>
-            <span className={valueClass} style={{ color: isLight ? 'var(--theme-text-primary)' : '#fff7ea' }}>{formatCurrency(data.marketCap)}</span>
+            <span className={labelClass} style={{ color: '#d29900' }}>MARKET CAP</span>
+            <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(data.marketCap)}</span>
           </div>
 
           {/* Liquidity (ETH → USD) */}
           <div className={gridItemClass} style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: isLight ? 'var(--theme-text-muted)' : '#feea88' }}>LIQUIDITY</span>
-            <span className={valueClass} style={{ color: isLight ? 'var(--theme-text-primary)' : '#fff7ea' }}>{formatCurrency(liquidityUsd)}</span>
+            <span className={labelClass} style={{ color: '#d29900' }}>LIQUIDITY</span>
+            <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(liquidityUsd)}</span>
           </div>
 
           {/* Circulating Supply */}
           <div className={gridItemClass} style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: isLight ? 'var(--theme-text-muted)' : '#feea88' }}>CIRC. SUPPLY</span>
-            <span className={valueClass} style={{ color: isLight ? 'var(--theme-text-primary)' : '#fff7ea' }}>{formatNumber(data.circulatingSupply)}</span>
+            <span className={labelClass} style={{ color: '#d29900' }}>CIRC. SUPPLY</span>
+            <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatNumber(data.circulatingSupply)}</span>
           </div>
 
           {/* Total Supply */}
           <div className={gridItemClass} style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: isLight ? 'var(--theme-text-muted)' : '#feea88' }}>TOTAL SUPPLY</span>
-            <span className={valueClass} style={{ color: isLight ? 'var(--theme-text-primary)' : '#fff7ea' }}>{formatNumber(data.totalSupply)}</span>
+            <span className={labelClass} style={{ color: '#d29900' }}>TOTAL SUPPLY</span>
+            <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatNumber(data.totalSupply)}</span>
           </div>
 
           {/* 24H Volume (ETH → USD) */}
           <div className={gridItemClass} style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: isLight ? 'var(--theme-text-muted)' : '#feea88' }}>24H VOLUME</span>
-            <span className={valueClass} style={{ color: isLight ? 'var(--theme-text-primary)' : '#fff7ea' }}>{formatCurrency(volume24hUsd)}</span>
+            <span className={labelClass} style={{ color: '#d29900' }}>24H VOLUME</span>
+            <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(volume24hUsd)}</span>
           </div>
 
           {/* Graduation Cap (formatted via bonding-curve MCAP when possible) */}
           <div className={gridItemClass} style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: isLight ? 'var(--theme-text-muted)' : '#feea88' }}>GRAD. CAP</span>
-            <span className={valueClass} style={{ color: isLight ? 'var(--theme-text-primary)' : '#fff7ea' }}>{formatCurrency(graduationCapMcapUsd)}</span>
+            <span className={labelClass} style={{ color: '#d29900' }}>GRAD. CAP</span>
+            <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(graduationCapMcapUsd)}</span>
           </div>
         </div>
 
@@ -271,13 +259,13 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
           onClick={() => setShowMoreInfo(!showMoreInfo)}
           className="w-full py-2 text-xs transition-colors flex items-center justify-center gap-1 mt-1 rounded-lg border"
           style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? 'var(--theme-border)' : 'rgba(255, 215, 165, 0.4)',
-            color: isLight ? 'var(--theme-text-highlight)' : '#feea88',
-            boxShadow: isLight ? '0 2px 4px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.4)',
+            color: '#d29900',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.color = isLight ? '#b45309' : '#ffd493'}
-          onMouseLeave={(e) => e.currentTarget.style.color = isLight ? 'var(--theme-text-highlight)' : '#feea88'}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#e6d4a3'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#d29900'}
         >
           {showMoreInfo ? 'Less Info' : 'More Info'}
           <svg
@@ -293,16 +281,16 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         {/* Expandable More Info Section */}
         {showMoreInfo && (
           <div className="mt-3 space-y-2 rounded-lg border p-3" style={{
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
-            borderColor: isLight ? '#c9a875' : 'rgba(255, 215, 165, 0.25)',
-            boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+            background: 'linear-gradient(180deg, #1A0F08, #241207)',
+            borderColor: 'rgba(255, 210, 160, 0.25)',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
             {/* Status */}
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Status</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Status</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.graduated ? (
-                  <span className="text-green-600 flex items-center gap-1">
+                  <span className="text-green-400 flex items-center gap-1">
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
@@ -310,10 +298,10 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
                   </span>
                 ) : (
                   <div className="flex flex-col items-end gap-1 min-w-[120px]">
-                    <span className="text-yellow-600 text-[10px]">
+                    <span className="text-yellow-400 text-[10px]">
                       Bonding {calculatedBondingProgress ? `${calculatedBondingProgress.toFixed(0)}%` : ''}
                     </span>
-                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: isLight ? 'rgba(93, 58, 26, 0.1)' : 'rgba(60, 32, 18, 0.5)' }}>
+                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(60, 32, 18, 0.5)' }}>
                       <div
                         className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(calculatedBondingProgress || 0, 100)}%` }}
@@ -325,17 +313,17 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             </div>
 
             {/* Description */}
-            <div className="flex justify-between items-start py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider mr-4" style={{ color: isLight ? '#b45309' : '#feea88' }}>Description</span>
-              <span className="text-xs font-semibold text-right max-w-[60%] break-words" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-start py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider mr-4" style={{ color: '#d29900' }}>Description</span>
+              <span className="text-xs font-semibold text-right max-w-[60%] break-words" style={{ color: '#e6d4a3' }}>
                 {data.description && data.description.trim().length > 0 ? data.description : '-'}
               </span>
             </div>
 
             {/* Token Type */}
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Token Type</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Token Type</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.tokenType === 0 ? 'ZERO' :
                   data.tokenType === 1 ? 'SUPER SIMPLE' :
                     data.tokenType === 2 ? 'BASIC' :
@@ -346,9 +334,9 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             </div>
 
             {/* Supply percentage */}
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Supply %</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Supply %</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.circulatingSupply && data.totalSupply
                   ? `${((data.circulatingSupply / data.totalSupply) * 100).toFixed(2)}%`
                   : '-'
@@ -357,51 +345,51 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
             </div>
 
             {/* Current / Final Max Tx */}
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Current MaxTx</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Current MaxTx</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.currentMaxTx != null ? formatPercent(data.currentMaxTx) : '-'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Final MaxTx</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Final MaxTx</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.finalMaxTx != null ? formatPercent(data.finalMaxTx) : '-'}
               </span>
             </div>
 
             {/* Current / Final Max Wallet */}
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Current MaxWallet</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Current MaxWallet</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.currentMaxWallet != null ? formatPercent(data.currentMaxWallet) : '-'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Final MaxWallet</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Final MaxWallet</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.finalMaxWallet != null ? formatPercent(data.finalMaxWallet) : '-'}
               </span>
             </div>
 
             {/* Current / Final Tax */}
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Current Tax</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Current Tax</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.currentTax != null ? `${data.currentTax.toFixed(2)}%` : '-'}
               </span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Final Tax</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Final Tax</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.finalTax != null ? `${data.finalTax.toFixed(2)}%` : '-'}
               </span>
             </div>
 
             {/* Created at */}
             <div className="flex justify-between items-center py-2">
-              <span className="text-xs uppercase tracking-wider" style={{ color: isLight ? '#b45309' : '#feea88' }}>Created At</span>
-              <span className="text-xs font-semibold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#e6d4a3' }}>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Created At</span>
+              <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',

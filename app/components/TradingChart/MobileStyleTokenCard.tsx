@@ -147,15 +147,12 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({
 
   return (
     <div className="flex flex-col w-full rounded-xl overflow-hidden" style={{
-      background: isLight
-        ? 'var(--theme-grad-card)'
-        : 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
       border: isLight
         ? '1px solid var(--theme-border)'
-        : '1px solid rgba(255, 215, 165, 0.4)',
+        : '1px solid rgba(255, 152, 0, 0.3)',
       boxShadow: isLight
         ? '0 4px 12px rgba(62, 39, 35, 0.08)'
-        : '0 4px 12px rgba(0, 0, 0, 0.2)'
+        : '0 4px 12px rgba(0, 0, 0, 0.5)'
     }}>
       <MobileStats {...statsProps} />
       <MobileBanner {...bannerProps} />

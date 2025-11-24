@@ -365,7 +365,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
         borderRadius: 'clamp(14px, 2vw, 20px)',
         background: isLight 
           ? 'var(--theme-grad-card)'
-          : 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+          : 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         boxShadow: isLight 
           ? '0 4px 12px rgba(62, 39, 35, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)'
           : '0 3px 8px rgba(0, 0, 0, 0.2)',
@@ -388,7 +388,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
           borderRadius: '16px',
           background: isLight 
             ? '#ffffff' 
-            : 'linear-gradient(180deg, #7f4108, #6f3906)',
+            : 'linear-gradient(180deg, #1A0F08, #241207)',
           border: isLight
             ? '1px solid #e8dcc8'
             : '1px solid rgba(255, 215, 165, 0.4)',
@@ -513,7 +513,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             style={{
               background: isLight
                 ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
-                : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                : 'linear-gradient(180deg, #1A0F08, #241207)',
               border: isLight
                 ? '1px solid #e8dcc8'
                 : '1px solid rgba(255, 210, 160, 0.4)',
@@ -540,7 +540,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             style={{
             background: isLight
               ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
-              : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+              : 'linear-gradient(180deg, #1A0F08, #241207)',
             border: isLight
               ? '1px solid #e8dcc8'
               : '1px solid rgba(255, 210, 160, 0.4)',
@@ -589,7 +589,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             position: 'relative',
             background: isLight
               ? '#ffffff'
-              : 'linear-gradient(180deg, #7f4108, #6f3906)',
+              : 'linear-gradient(180deg, #1A0F08, #241207)',
             border: isLight
               ? '1px solid #e8dcc8'
               : '1px solid rgba(255, 215, 165, 0.4)',
@@ -674,7 +674,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
               style={{
                 background: isLight
                   ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
-                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                  : 'linear-gradient(180deg, #1A0F08, #241207)',
                 border: isLight
                   ? '1px solid #e8dcc8'
                   : '1px solid rgba(255, 210, 160, 0.4)',
@@ -778,7 +778,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                       width: '100%',
                       background: isLight
                         ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
-                        : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                        : 'linear-gradient(180deg, #1A0F08, #241207)',
                       border: isLight
                         ? '1px solid #e8dcc8'
                         : '1px solid rgba(255, 210, 160, 0.4)',
@@ -814,7 +814,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
                 background: isLight
                   ? 'rgba(255, 255, 255, 0.6)'
-                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                  : 'linear-gradient(180deg, #1A0F08, #241207)',
                 border: isLight
                   ? '1px solid #e8dcc8'
                   : '1px solid rgba(255, 210, 160, 0.25)',
@@ -842,7 +842,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
                 background: isLight
                   ? 'rgba(255, 255, 255, 0.6)'
-                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                  : 'linear-gradient(180deg, #1A0F08, #241207)',
                 border: isLight
                   ? '1px solid #e8dcc8'
                   : '1px solid rgba(255, 210, 160, 0.25)',
@@ -870,7 +870,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 padding: 'clamp(6px, 1.2vh, 8px) clamp(8px, 1.6vw, 12px)',
                 background: isLight
                   ? 'rgba(255, 255, 255, 0.6)'
-                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                  : 'linear-gradient(180deg, #1A0F08, #241207)',
                 border: isLight
                   ? '1px solid #e8dcc8'
                   : '1px solid rgba(255, 210, 160, 0.25)',
@@ -998,7 +998,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
               width: '100%',
               height: 'clamp(32px, 5vh, 36px)',
               borderRadius: 'clamp(12px, 2.5vw, 16px)',
-              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
+              background: 'linear-gradient(180deg, #1A0F08, #241207)',
               border: '1px solid rgba(255, 215, 165, 0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
               marginBottom: 'clamp(5px, 1vh, 7px)',

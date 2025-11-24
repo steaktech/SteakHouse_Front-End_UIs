@@ -214,7 +214,7 @@ export default function MobileStats({
       <div className="px-3 py-3 border-b" style={{
         background: isLight
           ? 'var(--theme-grad-card)'
-          : 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+          : 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, #1A0F08 58%, #241207 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         borderColor: isLight ? '#c9a875' : 'rgba(255, 215, 165, 0.2)'
       }}>
         <div className="flex items-start justify-between gap-2 relative">

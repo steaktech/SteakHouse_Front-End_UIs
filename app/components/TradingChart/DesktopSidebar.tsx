@@ -338,7 +338,7 @@ const handleUserProfileClose = () => {
           ${expanded ? '' : 'lg:w-[70px]'}
         `}
         style={{
-          background: isLight ? 'var(--theme-grad-sidebar)' : 'linear-gradient(180deg, #572501 0%, var(--ab-bg-500) 65%, var(--ab-bg-400) 100%)',
+          background: isLight ? 'var(--theme-grad-sidebar)' : 'linear-gradient(180deg, #1A0F08 0%, #241207 100%)',
           boxShadow: isLight ? '0 4px 12px rgba(62, 39, 35, 0.08), inset -1px 0 0 rgba(255,255,255,0.5)' : '0 3px 8px rgba(0, 0, 0, 0.2)',
           borderRight: isLight ? '1px solid var(--theme-border)' : 'none',
           width: expanded ? `${sidebarWidth}px` : undefined,

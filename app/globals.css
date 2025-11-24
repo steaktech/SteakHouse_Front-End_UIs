@@ -21,7 +21,7 @@
   --ab-accent: #f6e7b5;
   --ab-bg-200: #7f4108;
   --ab-bg-300: #6f3906;
-  --ab-bg-400: #7d3802;
+  --ab-bg-400: #241207;
   --ab-bg-500: #572501;
   --ab-desc: #fff1df;
   --ab-text-200: #feea88bf;
@@ -71,7 +71,7 @@ body[style*="--dragging-pointer-events"] canvas {
 :root,
 [data-theme="dark"] {
   /* Backgrounds */
-  --theme-bg-primary: #1a0f08;
+  --theme-bg-primary: #1A0F08;
   --theme-bg-secondary: #07030c;
   --theme-bg-tertiary: #2b1200;
   --theme-bg-card: #140b06;
