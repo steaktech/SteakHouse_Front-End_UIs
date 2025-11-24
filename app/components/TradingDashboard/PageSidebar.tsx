@@ -41,8 +41,8 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
   const state = greyedOut
     ? "opacity-45 saturate-0 cursor-not-allowed bg-transparent border-white/5"
     : active
-    ? "bg-white/15 border-white/25 shadow-[inset_0_0_6px_2px_rgba(255,255,255,0.08)] cursor-pointer"
-    : "hover:bg-white/10 border-white/10 cursor-pointer";
+      ? "bg-white/15 border-white/25 shadow-[inset_0_0_6px_2px_rgba(255,255,255,0.08)] cursor-pointer"
+      : "hover:bg-white/10 border-white/10 cursor-pointer";
 
   return (
     <div className={`${base} ${state}`} onClick={greyedOut ? undefined : onClick}>
@@ -60,9 +60,8 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
         {label}
       </span>
       <div
-        className={`flex items-center justify-center w-4 h-4 transition-opacity duration-300 ${
-          expanded && !greyedOut ? "opacity-100" : "opacity-0"
-        }`}
+        className={`flex items-center justify-center w-4 h-4 transition-opacity duration-300 ${expanded && !greyedOut ? "opacity-100" : "opacity-0"
+          }`}
       >
         <Plus size={12} className="text-[#e0940a]" />
       </div>
@@ -85,14 +84,14 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
   // Use the same price data hook as the token creation wizard
   const { ethPrice, formattedGasPrice, loading: priceLoading } = useStablePriceData(true);
-  
+
   // Get trading state for airdrop modal
   const { tradingState } = useTrading();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const EXTRA_SPACING_TOP = 24; // keep a small gap below the top bars
+    const EXTRA_SPACING_TOP = 0; // no gap - sidebar should fit flush with trending bar
     let animationFrame = 0;
 
     const measureOffsets = () => {
@@ -138,7 +137,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
     "--sidebar-max-height"?: string;
   }) = {
     "--sidebar-top-offset": desktopTopOffset,
-    "--sidebar-max-height": "calc(100vh - var(--sidebar-top-offset) - 1.5rem)",
+    "--sidebar-max-height": "calc(100vh - var(--sidebar-top-offset))",
   };
 
   // Parse GWEI from formatted gas price (e.g., "25 gwei" -> 25)
@@ -203,8 +202,8 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
       )}
 
       <aside
-    style={sidebarStyle}
-    className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
+        style={sidebarStyle}
+        className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-[10px] pt-[12px] pb-[14px] relative">
@@ -300,7 +299,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
           {/* ETH Price and GWEI Display */}
           <div className="mx-2.5 mt-2 mb-1.5">
             {/* ETH Price */}
-            <div 
+            <div
               className="mb-1.5 px-2 py-1.5"
               style={{
                 display: 'flex',
@@ -331,7 +330,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             </div>
 
             {/* GWEI */}
-            <div 
+            <div
               className="px-2 py-1.5"
               style={{
                 display: 'flex',
@@ -409,12 +408,11 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               onClick={handleCertikClick}
               onMouseEnter={() => setIsCertikHovered(true)}
               onMouseLeave={() => setIsCertikHovered(false)}
-              className={`p-1.5 bg-black/30 hover:bg-black/50 border border-white/40 rounded-md transition-all duration-200 flex items-center justify-center w-full relative ${
-                isCertikHovered ? 'certik-wrapper-animated-sidebar' : ''
-              }`}
+              className={`p-1.5 bg-black/30 hover:bg-black/50 border border-white/40 rounded-md transition-all duration-200 flex items-center justify-center w-full relative ${isCertikHovered ? 'certik-wrapper-animated-sidebar' : ''
+                }`}
               title="View CertiK Certificate"
               style={{
-                transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)', 
+                transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)',
                 transition: 'transform 0.3s ease, filter 0.3s ease'
               }}
             >
@@ -510,7 +508,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
           >
             <ChevronRight size={16} className="text-amber-200" />
             <div className="w-[2px] h-4 bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)]" />
-            <h2 
+            <h2
               className="text-[#daa20b] text-[11px] font-semibold tracking-[1px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]"
               style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
             >
