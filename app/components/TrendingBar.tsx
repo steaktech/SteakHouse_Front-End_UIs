@@ -24,11 +24,11 @@ export default function TrendingBar() {
   });
 
   // WebSocket hook for real trending data
-  const { 
-    isConnected, 
-    connectionError, 
-    trendingTokens: wsTrendingTokens, 
-    lastUpdate 
+  const {
+    isConnected,
+    connectionError,
+    trendingTokens: wsTrendingTokens,
+    lastUpdate
   } = useTrendingWebSocket({
     onTrendingUpdate: useCallback((tokens: TrendingToken[]) => {
       console.log('[TrendingBar] Received WebSocket update:', tokens.length, 'tokens');
@@ -53,7 +53,7 @@ export default function TrendingBar() {
 
   // Determine if we have data to display
   const hasData = trendingTokens.length > 0;
-  
+
   // Show loading state only during initial API load
   const isLoading = isInitialLoading && !hasData;
 
@@ -75,17 +75,17 @@ export default function TrendingBar() {
 
   // Log trending data availability
   useEffect(() => {
-    const dataSource = isConnected && wsTrendingTokens.length > 0 ? 'WebSocket' : 
-                      apiTrendingTokens.length > 0 ? 'API' : 'None';
+    const dataSource = isConnected && wsTrendingTokens.length > 0 ? 'WebSocket' :
+      apiTrendingTokens.length > 0 ? 'API' : 'None';
     console.log('[TrendingBar] 📊 Data source:', dataSource, '| Tokens:', trendingTokens.length);
   }, [isConnected, wsTrendingTokens, apiTrendingTokens, trendingTokens]);
 
   return (
-    <div>
+    <div data-trending-bar>
       {/* --- Desktop Layout (Hidden on Mobile) --- */}
       <div className="hidden md:flex h-16 relative">
         {/* "TRENDING" title section */}
-        <div className="flex-none w-50 h-17 -mt-1 flex items-center z-15 justify-start pl-4 relative" style={{backgroundImage: 'url(/images/bull-bar.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        <div className="flex-none w-50 h-17 -mt-1 flex items-center z-15 justify-start pl-4 relative" style={{ backgroundImage: 'url(/images/bull-bar.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <h2 className="text-[#F7F0D4] font-bold text-lg">
             TRENDING
           </h2>
@@ -117,10 +117,10 @@ export default function TrendingBar() {
               <>
                 {/* Left fade overlay */}
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
-                
+
                 {/* Show trending data */}
                 <TrendingProfileMarquee tokens={trendingTokens} />
-                
+
                 {/* Right fade overlay */}
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
               </>

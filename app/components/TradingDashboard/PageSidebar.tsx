@@ -71,8 +71,6 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
 
 export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   const [expanded, setExpanded] = useState(false);
-  const DEFAULT_TOP_OFFSET = "calc(4rem + 4rem + 1.5rem)";
-  const [desktopTopOffset, setDesktopTopOffset] = useState<string>(DEFAULT_TOP_OFFSET);
   const [isCertikHovered, setIsCertikHovered] = useState(false);
 
   // Widget open states
@@ -88,57 +86,9 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
   // Get trading state for airdrop modal
   const { tradingState } = useTrading();
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const EXTRA_SPACING_TOP = 0; // no gap - sidebar should fit flush with trending bar
-    let animationFrame = 0;
-
-    const measureOffsets = () => {
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-
-      animationFrame = window.requestAnimationFrame(() => {
-        const headerEl = document.querySelector<HTMLElement>("[data-app-header]");
-        const trendingEl = document.querySelector<HTMLElement>("[data-trending-bar]");
-
-        const headerHeight = headerEl?.getBoundingClientRect().height ?? 0;
-        const trendingHeight = trendingEl?.getBoundingClientRect().height ?? 0;
-
-        if (headerHeight || trendingHeight) {
-          const total = headerHeight + trendingHeight + EXTRA_SPACING_TOP;
-          setDesktopTopOffset((prev) => {
-            const next = `${total}px`;
-            return prev === next ? prev : next;
-          });
-        } else {
-          setDesktopTopOffset((prev) => (prev === DEFAULT_TOP_OFFSET ? prev : DEFAULT_TOP_OFFSET));
-        }
-      });
-    };
-
-    measureOffsets();
-
-    window.addEventListener("resize", measureOffsets);
-    window.addEventListener("orientationchange", measureOffsets);
-
-    return () => {
-      window.removeEventListener("resize", measureOffsets);
-      window.removeEventListener("orientationchange", measureOffsets);
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, []);
-
-  const sidebarStyle: (React.CSSProperties & {
-    "--sidebar-top-offset"?: string;
-    "--sidebar-max-height"?: string;
-  }) = {
-    "--sidebar-top-offset": desktopTopOffset,
-    "--sidebar-max-height": "calc(100vh - var(--sidebar-top-offset))",
-  };
+  // Simpler CSS-based approach: Header is 4rem (64px), Trending bar is 4rem (64px) on desktop, 8rem (128px) on mobile
+  // We'll position the sidebar right below the trending bar using CSS calc
+  const sidebarStyle: React.CSSProperties = {}; // No custom style needed, we'll use Tailwind classes
 
   // Parse GWEI from formatted gas price (e.g., "25 gwei" -> 25)
   const gwei = formattedGasPrice ? parseFloat(formattedGasPrice.replace(/[^0-9.]/g, '')) : null;
@@ -203,7 +153,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
       <aside
         style={sidebarStyle}
-        className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
+        className={`fixed inset-x-0 bottom-0 md:fixed md:top-28 md:bottom-0 md:left-0 md:right-auto md:h-auto z-40 flex flex-col overflow-hidden select-none h-[55vh] w-full rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-[10px] pt-[12px] pb-[14px] relative">
