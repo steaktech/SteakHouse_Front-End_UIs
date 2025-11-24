@@ -607,6 +607,83 @@
 			#f2c071 100%);
 }
 
+/* Theme Toggle - Circular Button */
+.themeToggle {
+	position: relative;
+	padding: 3px;
+	border-radius: 50%;
+	background: linear-gradient(135deg,
+			var(--gold-300),
+			var(--orange-500),
+			var(--brown-600),
+			var(--gold-400));
+	background-size: 300% 300%;
+	animation: smoothGradient 4s ease infinite;
+	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
+	transition: transform 0.4s ease, box-shadow 0.4s ease;
+	overflow: hidden;
+	width: 42px;
+	height: 42px;
+	border: none;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.themeToggle:hover {
+	transform: scale(1.05);
+	box-shadow: 0 10px 28px rgba(158, 92, 40, 0.35);
+	animation-duration: 1.5s;
+}
+
+.themeToggleInner {
+	background: linear-gradient(to bottom,
+			#392211 0%,
+			#2b1200 20%,
+			#2b1200 95%,
+			#261000 100%);
+	color: #e9af5a;
+	padding: 0;
+	border-radius: 50%;
+	transition: background 0.3s ease;
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.themeToggle:hover .themeToggleInner {
+	background: linear-gradient(to bottom,
+			#4a2a16 0%,
+			#351800 20%,
+			#351800 95%,
+			#301500 100%);
+}
+
+/* Desktop scaling for theme toggle */
+@media (min-width: 1024px) {
+	.themeToggle {
+		width: 34px;
+		height: 34px;
+	}
+}
+
+@media (max-width: 768px) {
+	.themeToggle {
+		width: 36px;
+		height: 36px;
+	}
+}
+
+@media (max-width: 640px) {
+	.themeToggle {
+		width: 32px;
+		height: 32px;
+	}
+}
+
 /* Desktop scaling for 100% zoom appearance */
 @media (min-width: 1024px) {
 
@@ -715,4 +792,87 @@
 		padding: 10px 32px !important;
 		/* 80% scaling */
 	}
+}
+
+/* =========================================
+   Light Mode Professional Overrides - Premium Update
+   ========================================= */
+
+/* Header Buttons (Create Token, Connect Wallet) */
+:global([data-theme="light"]) .headerBtn,
+:global([data-theme="light"]) .headerBtnGolden {
+	background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%);
+	box-shadow: 
+		0 4px 12px rgba(212, 175, 55, 0.3),
+		inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+:global([data-theme="light"]) .headerBtnInner {
+	background: linear-gradient(to bottom, #ffffff 0%, #fff8e1 100%);
+	color: #5d4037;
+	box-shadow: inset 0 1px 2px rgba(255, 255, 255, 1);
+	text-shadow: none;
+}
+
+:global([data-theme="light"]) .headerBtn:hover .headerBtnInner {
+	background: linear-gradient(to bottom, #fff8e1 0%, #ffecb3 100%);
+	color: #3e2723;
+}
+
+:global([data-theme="light"]) .headerBtnGoldenInner {
+	background: linear-gradient(to bottom, #fffde7 0%, #fff9c4 100%);
+	color: #5d4037;
+	box-shadow: inset 0 1px 2px rgba(255, 255, 255, 1);
+}
+
+:global([data-theme="light"]) .headerBtnGolden:hover .headerBtnGoldenInner {
+	background: linear-gradient(to bottom, #fff9c4 0%, #fff59d 100%);
+	color: #3e2723;
+}
+
+/* Filter Buttons (btn-3) - Used in Sidebar/Filters */
+:global([data-theme="light"]) .btn-3 {
+	background: linear-gradient(145deg, #ffffff, #f5f5f5);
+	border: 1px solid #d7ccc8;
+	color: #5d4037;
+	box-shadow: 0 2px 5px rgba(62, 39, 35, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+:global([data-theme="light"]) .btn-3:hover {
+	background: linear-gradient(145deg, #fff8e1, #ffecb3);
+	color: #3e2723;
+	border-color: #ffb300;
+	box-shadow: 0 4px 10px rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Search Button (btn-5) */
+:global([data-theme="light"]) .btn-5 {
+	background: linear-gradient(145deg, #ffffff, #f5f5f5);
+	border: 1px solid #d7ccc8;
+	color: #5d4037;
+	box-shadow: 0 2px 5px rgba(62, 39, 35, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+:global([data-theme="light"]) .btn-5:hover {
+	background: linear-gradient(145deg, #fff8e1, #ffecb3);
+	color: #3e2723;
+	border-color: #ffb300;
+	box-shadow: 0 6px 12px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Theme Toggle Button */
+:global([data-theme="light"]) .themeToggle {
+	background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%);
+	box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+:global([data-theme="light"]) .themeToggleInner {
+	background: linear-gradient(to bottom, #ffffff 0%, #fff8e1 100%);
+	color: #ffa000;
+	box-shadow: inset 0 1px 2px rgba(255, 255, 255, 1);
+}
+
+:global([data-theme="light"]) .themeToggle:hover .themeToggleInner {
+	background: linear-gradient(to bottom, #fff8e1 0%, #ffecb3 100%);
+	color: #ff6f00;
 }

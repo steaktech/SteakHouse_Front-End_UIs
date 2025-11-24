@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Trade, FullTokenDataResponse } from '@/app/types/token';
 import { useLimitOrders } from '@/app/hooks/useLimitOrders';
 import { useWallet } from '@/app/hooks/useWallet';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 // Custom SVG Arrow Icons
 const BuyArrow = ({ size = 12 }: { size?: number }) => (
@@ -69,6 +70,8 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
   hideTabs = false,
   disableScroll = false,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [activeTab, setActiveTab] = useState<TabType>('history');
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const { address: walletAddress, isConnected } = useWallet();
@@ -268,11 +271,11 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
             padding: 'clamp(5px, 1.5vw, 6px) clamp(10px, 3vw, 12px)',
             fontSize: 'clamp(9px, 2.8vw, 11px)',
             fontWeight: 700,
-            color: currentPage === 1 ? '#666' : '#feea88',
+            color: currentPage === 1 ? '#666' : (isLight ? '#b45309' : '#feea88'),
             background: currentPage === 1
-              ? 'rgba(87, 37, 1, 0.1)'
-              : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-            border: '1px solid rgba(255, 215, 165, 0.3)',
+              ? (isLight ? 'rgba(62, 39, 35, 0.05)' : 'rgba(87, 37, 1, 0.1)')
+              : (isLight ? 'linear-gradient(180deg, #fdfbf7, #fff8f1)' : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'),
+            border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.3)',
             borderRadius: '6px',
             cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
             opacity: currentPage === 1 ? 0.5 : 1
@@ -284,7 +287,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
         <div style={{
           fontSize: 'clamp(9px, 2.8vw, 11px)',
           fontWeight: 700,
-          color: '#feea88',
+          color: isLight ? '#5d4037' : '#feea88',
           padding: '0 clamp(6px, 2vw, 8px)'
         }}>
           Page {currentPage} of {totalPages}
@@ -297,11 +300,11 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
             padding: 'clamp(5px, 1.5vw, 6px) clamp(10px, 3vw, 12px)',
             fontSize: 'clamp(9px, 2.8vw, 11px)',
             fontWeight: 700,
-            color: currentPage === totalPages ? '#666' : '#feea88',
+            color: currentPage === totalPages ? '#666' : (isLight ? '#b45309' : '#feea88'),
             background: currentPage === totalPages
-              ? 'rgba(87, 37, 1, 0.1)'
-              : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))',
-            border: '1px solid rgba(255, 215, 165, 0.3)',
+              ? (isLight ? 'rgba(62, 39, 35, 0.05)' : 'rgba(87, 37, 1, 0.1)')
+              : (isLight ? 'linear-gradient(180deg, #fdfbf7, #fff8f1)' : 'linear-gradient(180deg, rgba(255, 178, 32, 0.14), rgba(255, 178, 32, 0.06))'),
+            border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.3)',
             borderRadius: '6px',
             cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
             opacity: currentPage === totalPages ? 0.5 : 1
@@ -453,18 +456,18 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       gridTemplateColumns: '1fr 1fr 1.2fr 1fr 1.2fr',
                       gap: 'clamp(4px, 1.5vw, 6px)',
                       padding: 'clamp(6px, 2vw, 8px)',
-                      background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-                      border: '1px solid rgba(255, 215, 165, 0.4)',
+                      background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
+                      border: isLight ? '1px solid var(--theme-border)' : '1px solid rgba(255, 215, 165, 0.4)',
                       borderRadius: 'clamp(6px, 2vw, 8px)',
                       marginBottom: 'clamp(6px, 2vw, 8px)',
                       fontSize: 'clamp(8px, 2.2vw, 10px)',
                       fontWeight: 800,
-                      color: '#feea88',
+                      color: isLight ? '#5d4037' : '#feea88',
                       position: 'sticky',
                       top: 0,
                       zIndex: 1,
                       width: '100%',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                      boxShadow: isLight ? '0 1px 2px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.2)'
                     }}>
                       <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Date</div>
                       <div style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>Type</div>
@@ -491,18 +494,18 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                               gridTemplateColumns: '1fr 1fr 1.2fr 1fr 1.2fr',
                               gap: 'clamp(4px, 1.5vw, 6px)',
                               padding: 'clamp(8px, 2.5vw, 10px) clamp(6px, 2vw, 8px)',
-                              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-                              border: '1px solid rgba(255, 215, 165, 0.4)',
+                              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
+                              border: isLight ? '1px solid var(--theme-border)' : '1px solid rgba(255, 215, 165, 0.4)',
                               borderRadius: 'clamp(6px, 2vw, 8px)',
                               marginBottom: 'clamp(5px, 1.5vw, 6px)',
                               fontSize: 'clamp(9px, 2.8vw, 11px)',
                               alignItems: 'center',
                               width: '100%',
-                              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+                              boxShadow: isLight ? '0 1px 2px rgba(62,39,35,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
                             }}>
                             {/* Date */}
                             <div style={{
-                              color: '#fff7ea',
+                              color: isLight ? 'var(--theme-text-primary)' : '#fff7ea',
                               fontSize: 'clamp(8px, 2.2vw, 10px)',
                               fontWeight: 600,
                               wordBreak: 'break-word',
@@ -546,7 +549,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
                             {/* Price (ETH amount) */}
                             <div style={{
-                              color: '#fff7ea',
+                              color: isLight ? 'var(--theme-text-primary)' : '#fff7ea',
                               fontWeight: 700,
                               fontSize: 'clamp(8px, 2.5vw, 10px)',
                               display: 'flex',
@@ -566,7 +569,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
                             {/* Total (USD) */}
                             <div style={{
-                              color: '#feea88',
+                              color: isLight ? '#b45309' : '#feea88',
                               fontWeight: 800,
                               fontSize: 'clamp(8px, 2.5vw, 10px)',
                               wordBreak: 'break-all',
@@ -578,7 +581,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
                             {/* Token Price */}
                             <div style={{
-                              color: '#fff7ea',
+                              color: isLight ? 'var(--theme-text-secondary)' : '#fff7ea',
                               fontWeight: 700,
                               fontSize: 'clamp(7px, 2.2vw, 9px)',
                               wordBreak: 'break-all',

@@ -11,6 +11,7 @@ import { useUserTokenPosition } from '@/app/hooks/useUserTokenPosition';
 import type { FullTokenDataResponse } from '@/app/types/token';
 import { useToastHelpers } from '@/app/hooks/useToast';
 import WalletTopUpModal from '@/app/components/Modals/WalletTopUpModal/WalletTopUpModal';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 // EthereumIcon component
 const EthereumIcon = () => (
@@ -49,6 +50,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
   apiTokenData = null,
   onClose
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [tradeType, setTradeType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('0');
   const [limitPrice, setLimitPrice] = useState('');
@@ -376,11 +379,17 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
             height: 'fit-content',
             position: 'relative',
             borderRadius: '20px',
-            background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 165, 0.1)',
+            background: isLight
+              ? '#ffffff'
+              : 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+            boxShadow: isLight
+              ? '0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+              : '0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 165, 0.1)',
             padding: '10px',
-            border: '1px solid rgba(255, 215, 165, 0.4)',
-            color: '#fff7ea',
+            border: isLight
+              ? '1px solid #e8dcc8'
+              : '1px solid rgba(255, 215, 165, 0.4)',
+            color: isLight ? 'var(--theme-text-primary)' : '#fff7ea',
             display: 'flex',
             flexDirection: 'column',
             boxSizing: 'border-box'
@@ -393,10 +402,10 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
             alignItems: 'center',
             padding: '0 4px 10px 4px',
             marginBottom: '6px',
-            borderBottom: '1px solid rgba(255, 215, 165, 0.1)'
+            borderBottom: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.1)'
           }}>
             <h2 style={{
-              color: '#feea88',
+              color: isLight ? 'var(--theme-text-primary)' : '#feea88',
               fontSize: '18px',
               fontWeight: 'bold',
               textTransform: 'uppercase',
@@ -410,7 +419,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#feea88',
+                color: isLight ? '#b45309' : '#feea88',
                 cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
@@ -429,9 +438,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
             width: '100%',
             height: '40px',
             borderRadius: '16px',
-            background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-            border: '1px solid rgba(255, 215, 165, 0.4)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            background: isLight
+              ? '#ffffff'
+              : 'linear-gradient(180deg, #7f4108, #6f3906)',
+            border: isLight
+              ? '1px solid #e8dcc8'
+              : '1px solid rgba(255, 215, 165, 0.4)',
+            boxShadow: isLight
+              ? 'inset 0 1px 0 rgba(0,0,0,0.05)'
+              : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             marginBottom: '12px',
             padding: '4px',
             flexShrink: 0
@@ -459,7 +474,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 justifyContent: 'center',
                 fontSize: '12px',
                 fontWeight: 800,
-                color: tradeType === 'market' ? '#1f2937' : '#feea88',
+                color: tradeType === 'market' ? '#1f2937' : (isLight ? '#b45309' : '#feea88'),
                 background: 'transparent',
                 border: 'none',
                 borderRadius: '12px',
@@ -482,7 +497,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 justifyContent: 'center',
                 fontSize: '12px',
                 fontWeight: 800,
-                color: tradeType === 'limit' ? '#1f2937' : '#feea88',
+                color: tradeType === 'limit' ? '#1f2937' : (isLight ? '#b45309' : '#feea88'),
                 background: 'transparent',
                 border: 'none',
                 borderRadius: '12px',
@@ -507,11 +522,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               disabled={isLoadingMaxTx}
               style={{
                 flex: 1,
-                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-                border: '1px solid rgba(255, 210, 160, 0.4)',
+                background: isLight
+                  ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
+                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                border: isLight
+                  ? '1px solid #e8dcc8'
+                  : '1px solid rgba(255, 210, 160, 0.4)',
                 borderRadius: '8px',
                 padding: '6px 4px',
-                color: '#feea88',
+                color: isLight ? '#d97706' : '#feea88',
                 fontSize: '10px',
                 fontWeight: 800,
                 cursor: isLoadingMaxTx ? 'not-allowed' : 'pointer',
@@ -520,7 +539,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 opacity: isLoadingMaxTx ? 0.5 : 1,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                textOverflow: 'ellipsis',
+                boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
               }}
             >
               {isLoadingMaxTx ? 'Loading...' : 'Buy Max TX'}
@@ -530,11 +550,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               disabled={isLoadingMaxWallet}
               style={{
                 flex: 1,
-                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-                border: '1px solid rgba(255, 210, 160, 0.4)',
+                background: isLight
+                  ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
+                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                border: isLight
+                  ? '1px solid #e8dcc8'
+                  : '1px solid rgba(255, 210, 160, 0.4)',
                 borderRadius: '8px',
                 padding: '6px 4px',
-                color: '#feea88',
+                color: isLight ? '#d97706' : '#feea88',
                 fontSize: '10px',
                 fontWeight: 800,
                 cursor: isLoadingMaxWallet ? 'not-allowed' : 'pointer',
@@ -543,7 +567,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 opacity: isLoadingMaxWallet ? 0.5 : 1,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                textOverflow: 'ellipsis',
+                boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
               }}
             >
               {isLoadingMaxWallet ? 'Loading...' : 'Buy Max Wallet'}
@@ -556,7 +581,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               <label style={{ 
                 fontSize: '12px', 
                 fontWeight: 'bold', 
-                color: '#feea88', 
+                color: isLight ? '#5c4033' : '#feea88', 
                 textTransform: 'uppercase', 
                 letterSpacing: '0.05em',
                 marginBottom: '6px',
@@ -574,15 +599,21 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                    pointerEvents: 'none',
                    zIndex: 10
                  }}>
-                  <span style={{ color: '#feea88', fontSize: '14px', fontWeight: 'bold' }}>Price $</span>
+                  <span style={{ color: isLight ? '#b45309' : '#feea88', fontSize: '14px', fontWeight: 'bold' }}>Price $</span>
                 </div>
                 <div style={{
                   position: 'relative',
-                  background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-                  border: '1px solid rgba(255, 215, 165, 0.4)',
+                  background: isLight
+                    ? '#ffffff'
+                    : 'linear-gradient(180deg, #7f4108, #6f3906)',
+                  border: isLight
+                    ? '1px solid #e8dcc8'
+                    : '1px solid rgba(255, 215, 165, 0.4)',
                   borderRadius: '14px',
                   padding: '3px',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+                  boxShadow: isLight
+                    ? 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                    : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
                 }}>
                   <input
                     type="number"
@@ -591,13 +622,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                     onChange={(e) => setLimitPrice(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
-                      color: '#feea88',
+                      background: isLight
+                        ? 'rgba(255, 255, 255, 0.8)'
+                        : 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
+                      color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                       fontSize: '20px',
                       fontWeight: 800,
                       padding: '8px 16px 8px 80px',
                       borderRadius: '10px',
-                      border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                      border: `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`,
                       outline: 'none',
                       textAlign: 'right',
                       fontFamily: '"Sora", "Inter", sans-serif',
@@ -615,7 +648,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
           <label style={{ 
             fontSize: '12px', 
             fontWeight: 'bold', 
-            color: '#feea88', 
+            color: isLight ? '#5c4033' : '#feea88', 
             textTransform: 'uppercase', 
             letterSpacing: '0.05em',
             marginBottom: '6px',
@@ -638,15 +671,21 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                pointerEvents: 'none',
                zIndex: 10
              }}>
-              <span style={{ color: '#feea88', fontSize: '24px', fontWeight: 'bold' }}>$</span>
+              <span style={{ color: isLight ? '#b45309' : '#feea88', fontSize: '24px', fontWeight: 'bold' }}>$</span>
             </div>
             <div style={{
               position: 'relative',
-              background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-              border: '1px solid rgba(255, 215, 165, 0.4)',
+              background: isLight
+                ? '#ffffff'
+                : 'linear-gradient(180deg, #7f4108, #6f3906)',
+              border: isLight
+                ? '1px solid #e8dcc8'
+                : '1px solid rgba(255, 215, 165, 0.4)',
               borderRadius: '14px',
               padding: '3px',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
+              boxShadow: isLight
+                ? 'inset 0 1px 2px rgba(0,0,0,0.05)'
+                : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)'
             }}>
               <input
                 type="number"
@@ -655,13 +694,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 onChange={(e) => setAmount(e.target.value)}
                   style={{
                     width: '100%',
-                    background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
-                    color: '#feea88',
+                    background: isLight
+                      ? 'rgba(255, 255, 255, 0.8)'
+                      : 'linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2))',
+                    color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                     fontSize: '28px',
                     fontWeight: 800,
                     padding: '8px 60px 8px 40px',
                     borderRadius: '10px',
-                    border: `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                    border: `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`,
                     outline: 'none',
                   textAlign: 'right',
                   fontFamily: '"Sora", "Inter", sans-serif',
@@ -671,10 +712,10 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 placeholder="0.0"
                 onFocus={(e) => {
                   e.target.style.border = `2px solid ${orderType === 'buy' ? '#4ade80' : '#f87171'}`;
-                  e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+                  e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? (isLight ? 'rgba(74, 222, 128, 0.4)' : 'rgba(74, 222, 128, 0.2)') : (isLight ? 'rgba(248, 113, 113, 0.4)' : 'rgba(248, 113, 113, 0.2)')}`;
                 }}
                 onBlur={(e) => {
-                  e.target.style.border = `2px solid ${orderType === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
+                  e.target.style.border = `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`;
                   e.target.style.boxShadow = 'none';
                 }}
               />
@@ -710,7 +751,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
               <label style={{ 
                 fontSize: '12px', 
                 fontWeight: 'bold', 
-                color: '#feea88', 
+                color: isLight ? '#5c4033' : '#feea88', 
                 textTransform: 'uppercase', 
                 letterSpacing: '0.05em' 
               }}>
@@ -727,10 +768,14 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                   style={{
                     width: '100%',
                     height: '40px',
-                    background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-                    border: '1px solid rgba(255, 215, 165, 0.4)',
+                    background: isLight
+                      ? 'linear-gradient(180deg, #fdfbf7, #fff8f1)'
+                      : 'linear-gradient(180deg, #7f4108, #6f3906)',
+                    border: isLight
+                      ? '1px solid #e8dcc8'
+                      : '1px solid rgba(255, 215, 165, 0.4)',
                     borderRadius: '8px',
-                    color: '#feea88',
+                    color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                     fontWeight: 'bold',
                     textAlign: 'center',
                     outline: 'none'
@@ -748,9 +793,15 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                       borderRadius: '8px',
                       fontSize: '12px',
                       fontWeight: 'bold',
-                      border: slippagePct === val ? '1px solid #fbbf24' : '1px solid rgba(255, 210, 160, 0.4)',
-                      background: slippagePct === val ? 'rgba(251, 191, 36, 0.2)' : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-                      color: '#feea88',
+                      border: slippagePct === val 
+                        ? '1px solid #fbbf24' 
+                        : (isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 210, 160, 0.4)'),
+                      background: slippagePct === val 
+                        ? 'rgba(251, 191, 36, 0.2)' 
+                        : (isLight 
+                            ? 'linear-gradient(180deg, #ffffff, #fdfbf7)' 
+                            : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))'),
+                      color: isLight ? '#d97706' : '#feea88',
                       cursor: 'pointer',
                       transition: 'all 0.2s'
                     }}
@@ -780,12 +831,18 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                   onClick={() => handleQuickAmount(label)}
                   className="amount-button"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
-                    border: '1px solid rgba(255, 210, 160, 0.4)',
+                    background: isLight
+                      ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
+                      : 'linear-gradient(180deg, rgba(255, 224, 185, 0.2), rgba(60, 32, 18, 0.32))',
+                    border: isLight
+                      ? '1px solid #e8dcc8'
+                      : '1px solid rgba(255, 210, 160, 0.4)',
                     borderRadius: '12px',
                     padding: '8px',
-                    boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                    color: '#feea88',
+                    boxShadow: isLight
+                      ? '0 1px 2px rgba(0,0,0,0.05)'
+                      : 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                    color: isLight ? '#d97706' : '#feea88',
                     fontSize: '16px',
                     fontWeight: 800,
                     cursor: 'pointer',

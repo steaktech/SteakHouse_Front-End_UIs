@@ -21,6 +21,7 @@ import { LockerWidget } from "../Widgets/LockerWidget";
 import AirDropModal from "../Modals/AirDropModal";
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 import { useTrading } from '@/app/hooks/useTrading';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 interface PageSidebarProps {
   className?: string;
@@ -36,13 +37,16 @@ interface ItemProps {
 }
 
 const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, onClick }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
   const base =
     "flex items-center h-[34px] py-1.5 px-2.5 mx-1.5 mb-[6px] rounded-[10px] transition-all duration-300 ease-in-out border";
   const state = greyedOut
-    ? "opacity-45 saturate-0 cursor-not-allowed bg-transparent border-white/5"
+    ? `opacity-45 saturate-0 cursor-not-allowed bg-transparent ${isLight ? 'border-black/5' : 'border-white/5'}`
     : active
-    ? "bg-white/15 border-white/25 shadow-[inset_0_0_6px_2px_rgba(255,255,255,0.08)] cursor-pointer"
-    : "hover:bg-white/10 border-white/10 cursor-pointer";
+    ? `${isLight ? 'bg-[#d97706]/15 border-[#d97706]/25 shadow-[inset_0_0_6px_2px_rgba(217,119,6,0.08)]' : 'bg-white/15 border-white/25 shadow-[inset_0_0_6px_2px_rgba(255,255,255,0.08)]'} cursor-pointer`
+    : `${isLight ? 'hover:bg-black/5 border-black/10' : 'hover:bg-white/10 border-white/10'} cursor-pointer`;
 
   return (
     <div className={`${base} ${state}`} onClick={greyedOut ? undefined : onClick}>
@@ -55,7 +59,7 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
           transition-all duration-300 ml-2
           ${expanded ? "opacity-100" : "opacity-0 w-0 overflow-hidden ml-0"}
         `}
-        style={{ color: active ? "#ffe6a8" : "#e6d4a3" }}
+        style={{ color: isLight ? (active ? "#78350f" : "#5d3a1a") : (active ? "#ffe6a8" : "#e6d4a3") }}
       >
         {label}
       </span>
@@ -64,13 +68,15 @@ const Item: React.FC<ItemProps> = ({ icon, label, active, expanded, greyedOut, o
           expanded && !greyedOut ? "opacity-100" : "opacity-0"
         }`}
       >
-        <Plus size={12} className="text-[#e0940a]" />
+        <Plus size={12} className={isLight ? "text-[#d97706]" : "text-[#e0940a]"} />
       </div>
     </div>
   );
 };
 
 export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [expanded, setExpanded] = useState(false);
   const DEFAULT_TOP_OFFSET = "calc(4rem + 4rem + 1.5rem)";
   const [desktopTopOffset, setDesktopTopOffset] = useState<string>(DEFAULT_TOP_OFFSET);
@@ -204,12 +210,14 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
       <aside
     style={sidebarStyle}
-    className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border border-white/15 bg-[#1b0a03]/35 backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
+    className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 
+    ${isLight ? 'bg-white/85 border-[#e6ccb2]' : 'bg-[#1b0a03]/35 border-white/15'} 
+    ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-center px-[10px] pt-[12px] pb-[14px] relative">
           <div className={`transition-opacity duration-300 ${expanded ? "opacity-100" : "opacity-0"}`}>
-            <h2 className="text-[#daa20b] text-[15px] font-semibold tracking-[0.15px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+            <h2 className={`text-[15px] font-semibold tracking-[0.15px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] ${isLight ? 'text-[#78350f]' : 'text-[#daa20b]'}`}>
               Widgets
             </h2>
           </div>
@@ -220,11 +228,11 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               type="button"
               aria-label="Collapse sidebar"
               onClick={() => setExpanded(false)}
-              className="absolute right-2 top-2 p-1.5 rounded-full border border-white/20 bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 backdrop-blur-xl shadow-sm transition-colors"
+              className={`absolute right-2 top-2 p-1.5 rounded-full border backdrop-blur-xl shadow-sm transition-colors ${isLight ? 'bg-white border-[#e6ccb2] hover:bg-[#fff8f1]' : 'border-white/20 bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65'}`}
             >
               {/* Mobile: down arrow, Desktop: left arrow */}
-              <ChevronDown size={16} className="text-amber-200 md:hidden" />
-              <ChevronLeft size={16} className="text-amber-200 hidden md:block" />
+              <ChevronDown size={16} className={`${isLight ? 'text-[#78350f]' : 'text-amber-200'} md:hidden`} />
+              <ChevronLeft size={16} className={`${isLight ? 'text-[#78350f]' : 'text-amber-200'} hidden md:block`} />
             </button>
           )}
         </div>
@@ -248,7 +256,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
         <div className="flex-shrink-0 border-t border-white/20 pt-3 pb-3">
           {/* SteakTech Bot */}
           <Item
-            icon={<Bot size={16} className="text-[#d29900]" />}
+            icon={<Bot size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />}
             label="SteakTech Bot"
             expanded={expanded}
             greyedOut={false}
@@ -257,7 +265,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
 
           {/* Links */}
           <Item
-            icon={<Link size={16} className="text-[#d29900]" />}
+            icon={<Link size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />}
             label="Links"
             expanded={expanded}
             greyedOut={false}
@@ -307,25 +315,25 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '6px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: isLight ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.08)',
+                border: isLight ? '1px solid #e6ccb2' : '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '8px',
                 backdropFilter: 'blur(8px)',
                 transition: 'all 0.2s ease'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
-                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className="text-[#d29900] flex-shrink-0">
+                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className={`${isLight ? 'text-[#d97706]' : 'text-[#d29900]'} flex-shrink-0`}>
                   <path d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z" fill="#8C8C8C" />
                   <path d="M127.962 0L0 212.32l127.962 75.639V154.158z" fill="#6C6C6C" />
                   <path d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z" fill="#8C8C8C" />
                   <path d="M127.962 416.905v-104.72L0 236.585z" fill="#6C6C6C" />
                 </svg>
                 {expanded && (
-                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">ETH</span>
+                  <span className={`text-[10px] font-semibold tracking-wide ${isLight ? 'text-[#5d3a1a]' : 'text-[#e6d4a3]'}`}>ETH</span>
                 )}
               </div>
-              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+              <span className={`text-[11px] font-bold tabular-nums ${isLight ? 'text-[#78350f]' : 'text-[#feea88]'}`}>
                 {priceLoading ? '...' : ethPrice ? `$${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '---'}
               </span>
             </div>
@@ -338,8 +346,8 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '6px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: isLight ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.08)',
+                border: isLight ? '1px solid #e6ccb2' : '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '8px',
                 backdropFilter: 'blur(8px)',
                 transition: 'all 0.2s ease'
@@ -348,10 +356,10 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
                 <span className="flex-shrink-0" style={{ fontSize: '12px', lineHeight: 1 }}>⛽️</span>
                 {expanded && (
-                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">GWEI</span>
+                  <span className={`text-[10px] font-semibold tracking-wide ${isLight ? 'text-[#5d3a1a]' : 'text-[#e6d4a3]'}`}>GWEI</span>
                 )}
               </div>
-              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+              <span className={`text-[11px] font-bold tabular-nums ${isLight ? 'text-[#78350f]' : 'text-[#feea88]'}`}>
                 {priceLoading ? '...' : gwei ? gwei.toFixed(1) : '---'}
               </span>
             </div>
@@ -409,9 +417,9 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               onClick={handleCertikClick}
               onMouseEnter={() => setIsCertikHovered(true)}
               onMouseLeave={() => setIsCertikHovered(false)}
-              className={`p-1.5 bg-black/30 hover:bg-black/50 border border-white/40 rounded-md transition-all duration-200 flex items-center justify-center w-full relative ${
+              className={`p-1.5 border rounded-md transition-all duration-200 flex items-center justify-center w-full relative ${
                 isCertikHovered ? 'certik-wrapper-animated-sidebar' : ''
-              }`}
+              } ${isLight ? 'bg-white hover:bg-[#fff8f1] border-[#e6ccb2]' : 'bg-black/30 hover:bg-black/50 border-white/40'}`}
               title="View CertiK Certificate"
               style={{
                 transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)', 
@@ -506,17 +514,17 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             onClick={() => setExpanded(true)}
             type="button"
             aria-label="Expand sidebar"
-            className="expand-btn-desktop hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 px-2 py-3 rounded-xl transition-all duration-200 shadow-lg bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 hover:scale-105 backdrop-blur-xl border border-white/20"
+            className={`expand-btn-desktop hidden md:flex fixed left-2 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 px-2 py-3 rounded-xl transition-all duration-200 shadow-lg backdrop-blur-xl border ${isLight ? 'bg-white/85 hover:bg-white border-[#e6ccb2]' : 'bg-[#1b0a03]/50 hover:bg-[#1b0a03]/65 border-white/20'}`}
           >
-            <ChevronRight size={16} className="text-amber-200" />
-            <div className="w-[2px] h-4 bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)]" />
+            <ChevronRight size={16} className={isLight ? "text-[#78350f]" : "text-amber-200"} />
+            <div className={`w-[2px] h-4 rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)] ${isLight ? 'bg-gradient-to-b from-transparent via-[#d97706]/40 to-transparent' : 'bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent'}`} />
             <h2 
-              className="text-[#daa20b] text-[11px] font-semibold tracking-[1px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]"
+              className={`text-[11px] font-semibold tracking-[1px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] ${isLight ? 'text-[#78350f]' : 'text-[#daa20b]'}`}
               style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
             >
               WIDGETS
             </h2>
-            <div className="w-[2px] h-4 bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)]" />
+            <div className={`w-[2px] h-4 rounded-full shadow-[0_0_6px_rgba(218,162,11,0.25)] ${isLight ? 'bg-gradient-to-b from-transparent via-[#d97706]/40 to-transparent' : 'bg-gradient-to-b from-transparent via-[#daa20b]/40 to-transparent'}`} />
           </button>
         </>
       )}

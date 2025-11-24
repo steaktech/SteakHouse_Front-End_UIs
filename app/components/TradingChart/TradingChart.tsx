@@ -42,7 +42,11 @@ interface TradingChartProps {
   tokenAddress?: string;
 }
 
+import { useTheme } from '@/app/contexts/ThemeContext';
+
 export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aABf03F58506B538e6Db" }: TradingChartProps) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const searchParams = useSearchParams();
   const tokenSymbol = searchParams.get('symbol');
 
@@ -1190,7 +1194,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#07040b]">
+    <div className="flex flex-col h-screen" style={{ background: isLight ? 'var(--theme-grad-body)' : '#07040b' }}>
       {/* Header */}
       <Header />
 
@@ -1200,12 +1204,19 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         <TopTrendingTicker />
 
         {/* Progress Bar - Mobile Only */}
-        <div className="bg-[#07040b] px-4 py-2 border-b border-[#daa20b]/20">
+        <div className="px-4 py-2 border-b" style={{
+          background: isLight ? 'var(--theme-grad-card)' : '#07040b',
+          borderColor: isLight ? 'var(--theme-border)' : 'rgba(218, 162, 11, 0.2)'
+        }}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[#daa20b] text-xs font-semibold tracking-wide">BONDING CURVE</span>
-            <span className="text-[#feea88] text-xs font-bold">{tokenData.progress}%</span>
+            <span className="text-xs font-semibold tracking-wide" style={{ color: isLight ? 'var(--theme-text-highlight)' : '#daa20b' }}>BONDING CURVE</span>
+            <span className="text-xs font-bold" style={{ color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>{tokenData.progress}%</span>
           </div>
-          <div className="relative h-1.5 rounded-full bg-gradient-to-r from-[#472303] to-[#5a2d04] border border-[#daa20b]/30 overflow-hidden">
+          <div className="relative h-1.5 rounded-full overflow-hidden" style={{
+            background: isLight ? 'rgba(93, 58, 26, 0.1)' : 'linear-gradient(to right, #472303, #5a2d04)',
+            borderColor: isLight ? 'var(--theme-border)' : 'rgba(218, 162, 11, 0.3)',
+            borderWidth: '1px'
+          }}>
             <div
               className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#ffd700] to-[#daa20b] shadow-lg transition-all duration-700 ease-out"
               style={{
@@ -1267,7 +1278,11 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         />
 
         {/* Mobile Chart Section - Full height for visibility */}
-        <div className="w-full bg-[#0a0612] px-2 py-3" style={{ minHeight: '500px', height: '70vh' }}>
+        <div className="w-full px-2 py-3" style={{ 
+          minHeight: '500px', 
+          height: '70vh',
+          background: isLight ? 'var(--theme-grad-card)' : '#0a0612'
+        }}>
           <TradingView
             title={apiTokenData?.tokenInfo?.name}
             symbol={apiTokenData?.tokenInfo?.symbol}
@@ -1282,7 +1297,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
         </div>
 
         {/* Mobile Trade History Table - Below Chart */}
-        <div className="w-full bg-[#07040b] px-3 py-4 pb-32">
+        <div className="w-full px-3 py-4 pb-32" style={{
+          background: isLight ? 'var(--theme-grad-body)' : '#07040b'
+        }}>
           <MobileTradeHistoryTable
             tokenAddress={tokenAddress}
             tokenData={apiTokenData}
@@ -1375,7 +1392,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: isDraggingDesktop ? 'rgba(255, 215, 165, 0.1)' : 'transparent',
+                  background: isDraggingDesktop 
+                    ? (isLight ? 'rgba(217, 119, 6, 0.1)' : 'rgba(255, 215, 165, 0.1)') 
+                    : 'transparent',
                   transition: 'background 200ms ease'
                 }}
               >
@@ -1384,7 +1403,9 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                     width: '48px',
                     height: '4px',
                     borderRadius: '2px',
-                    background: isDraggingDesktop ? 'rgba(254, 234, 136, 0.8)' : 'rgba(255, 215, 165, 0.4)',
+                    background: isDraggingDesktop 
+                      ? (isLight ? 'rgba(217, 119, 6, 0.8)' : 'rgba(254, 234, 136, 0.8)') 
+                      : (isLight ? 'rgba(217, 119, 6, 0.4)' : 'rgba(255, 215, 165, 0.4)'),
                     transition: 'background 200ms ease'
                   }}
                 />
@@ -1394,13 +1415,19 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 height: '100%',
                 position: 'relative',
                 borderRadius: 'clamp(14px, 2vw, 20px)',
-                background: 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-                boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+                background: isLight
+                  ? 'var(--theme-grad-card)'
+                  : 'linear-gradient(180deg, #572501, #572501 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                boxShadow: isLight 
+                  ? '0 4px 12px rgba(62, 39, 35, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)' 
+                  : '0 3px 8px rgba(0, 0, 0, 0.2)',
                 padding: 'clamp(12px, 2.5vh, 16px)',
                 paddingTop: '20px',
-                border: '1px solid rgba(255, 215, 165, 0.4)',
+                border: isLight 
+                  ? '1px solid var(--theme-border)' 
+                  : '1px solid rgba(255, 215, 165, 0.4)',
                 overflow: 'hidden',
-                color: '#fff7ea',
+                color: isLight ? 'var(--theme-text-primary)' : '#fff7ea',
                 display: 'flex',
                 flexDirection: 'column',
                 boxSizing: 'border-box'

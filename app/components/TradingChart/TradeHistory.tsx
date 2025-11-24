@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { FullTokenDataResponse, Trade } from '@/app/types/token';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 // Custom SVG Arrow Icons
 const BuyArrow = ({ size = 12 }: { size?: number }) => (
@@ -64,6 +65,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
   onToggleChange,
   isMobile = false
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'buy' | 'sell'>('all');
   const [sortBy, setSortBy] = useState<'time' | 'size-desc' | 'size-asc' | 'address'>('time');
@@ -173,7 +176,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      color: '#fff7ea'
+      color: isLight ? 'var(--theme-text-primary)' : '#fff7ea'
     }}>
       {/* Header with optional toggle */}
       <div style={{
@@ -183,13 +186,13 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         marginBottom: 'clamp(6px, 1vh, 8px)'
       }}>
         <h3 style={{
-          color: '#feea88',
+          color: isLight ? '#b45309' : '#feea88',
           fontFamily: '"Sora", "Inter", sans-serif',
           fontWeight: 800,
           fontSize: isMobile ? '12px' : 'clamp(12px, 2vw, 14px)',
           lineHeight: 1,
           margin: 0,
-          textShadow: '0 1px 0 rgba(0, 0, 0, 0.18)'
+          textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.18)'
         }}>
           Recent Transactions
         </h3>
@@ -199,11 +202,11 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           <div style={{
             position: 'relative',
             display: 'flex',
-            background: 'linear-gradient(180deg, #7f4108, #6f3906)',
-            border: '1px solid rgba(255, 215, 165, 0.4)',
+            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
+            border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.4)',
             borderRadius: '16px',
             padding: '2px',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            boxShadow: isLight ? '0 1px 3px rgba(0,0,0,0.05)' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             flexShrink: 0,
             width: '120px',
             height: '26px'
@@ -217,8 +220,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               borderRadius: '13px',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               background: showLimitOrders 
-                ? 'linear-gradient(180deg, #ffd700, #daa20b)'
-                : 'linear-gradient(180deg, #4ade80, #22c55e)',
+                ? (isLight ? 'linear-gradient(180deg, #d97706, #b45309)' : 'linear-gradient(180deg, #ffd700, #daa20b)')
+                : (isLight ? 'linear-gradient(180deg, #22c55e, #15803d)' : 'linear-gradient(180deg, #4ade80, #22c55e)'),
               boxShadow: '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }} />
             <button
@@ -231,7 +234,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 justifyContent: 'center',
                 fontSize: '8px',
                 fontWeight: 700,
-                color: !showLimitOrders ? '#1f2937' : '#feea88',
+                color: !showLimitOrders ? (isLight ? 'var(--theme-grad-card)' : '#1f2937') : (isLight ? '#5c4033' : '#feea88'),
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
@@ -254,7 +257,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                 justifyContent: 'center',
                 fontSize: '8px',
                 fontWeight: 700,
-                color: showLimitOrders ? '#1f2937' : '#feea88',
+                color: showLimitOrders ? (isLight ? 'var(--theme-grad-card)' : '#1f2937') : (isLight ? '#5c4033' : '#feea88'),
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
@@ -280,41 +283,43 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           marginBottom: 'clamp(8px, 1.5vh, 12px)',
           flexWrap: 'wrap',
           padding: 'clamp(8px, 1.5vh, 10px) clamp(10px, 2.5vh, 14px)',
-          background: 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
-          border: '1px solid rgba(255, 215, 165, 0.25)',
+          background: isLight 
+            ? '#ffffff' 
+            : 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
+          border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.25)',
           borderRadius: 'clamp(8px, 1.6vw, 12px)',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
+          boxShadow: isLight ? '0 2px 6px rgba(0,0,0,0.05)' : '0 2px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
         }}>
         {/* Type Filter */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
             fontSize: 'clamp(9px, 1.6vw, 11px)', 
-            color: '#feea88', 
+            color: isLight ? '#856d57' : '#feea88', 
             fontWeight: 800,
-            textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
+            textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.4)',
             letterSpacing: '0.2px'
           }}>TYPE</span>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as 'all' | 'buy' | 'sell')}
             style={{
-              background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
-              border: '1px solid rgba(255, 215, 165, 0.4)',
+              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.4)',
               borderRadius: 'clamp(5px, 1.2vw, 6px)',
               padding: 'clamp(3px, 1vh, 5px) clamp(6px, 1.6vw, 8px)',
               fontSize: 'clamp(8px, 1.4vw, 10px)',
               fontWeight: 700,
-              color: '#feea88',
+              color: isLight ? 'var(--theme-text-primary)' : '#feea88',
               outline: 'none',
               cursor: 'pointer',
               minWidth: '50px',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.2)',
-              textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
+              boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.2)',
+              textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.3)'
             }}
           >
-            <option value="all" style={{ background: '#2d1506', color: '#feea88' }}>All</option>
-            <option value="buy" style={{ background: '#2d1506', color: '#feea88' }}>Buy</option>
-            <option value="sell" style={{ background: '#2d1506', color: '#feea88' }}>Sell</option>
+            <option value="all" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>All</option>
+            <option value="buy" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>Buy</option>
+            <option value="sell" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>Sell</option>
           </select>
         </div>
         
@@ -322,33 +327,33 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
             fontSize: 'clamp(9px, 1.6vw, 11px)', 
-            color: '#feea88', 
+            color: isLight ? '#856d57' : '#feea88', 
             fontWeight: 800,
-            textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
+            textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.4)',
             letterSpacing: '0.2px'
           }}>SORT</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'time' | 'size-desc' | 'size-asc' | 'address')}
             style={{
-              background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
-              border: '1px solid rgba(255, 215, 165, 0.4)',
+              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.4)',
               borderRadius: 'clamp(6px, 1.5vw, 8px)',
               padding: 'clamp(5px, 1.2vh, 7px) clamp(8px, 2vw, 12px)',
               fontSize: 'clamp(10px, 1.8vw, 12px)',
               fontWeight: 700,
-              color: '#feea88',
+              color: isLight ? 'var(--theme-text-primary)' : '#feea88',
               outline: 'none',
               cursor: 'pointer',
               minWidth: '85px',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.2)',
-              textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
+              boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.2)',
+              textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.3)'
             }}
           >
-            <option value="time" style={{ background: '#2d1506', color: '#feea88' }}>Time</option>
-            <option value="size-desc" style={{ background: '#2d1506', color: '#feea88' }}>Size ↓</option>
-            <option value="size-asc" style={{ background: '#2d1506', color: '#feea88' }}>Size ↑</option>
-            <option value="address" style={{ background: '#2d1506', color: '#feea88' }}>Address</option>
+            <option value="time" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>Time</option>
+            <option value="size-desc" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>Size ↓</option>
+            <option value="size-asc" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>Size ↑</option>
+            <option value="address" style={{ background: isLight ? 'var(--theme-grad-card)' : '#2d1506', color: isLight ? 'var(--theme-text-primary)' : '#feea88' }}>Address</option>
           </select>
         </div>
         
@@ -356,9 +361,9 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
             fontSize: 'clamp(9px, 1.6vw, 11px)', 
-            color: '#feea88', 
+            color: isLight ? '#856d57' : '#feea88', 
             fontWeight: 800,
-            textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
+            textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.4)',
             letterSpacing: '0.2px'
           }}>ADDRESS</span>
           <input
@@ -367,17 +372,17 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
             value={addressFilter}
             onChange={(e) => setAddressFilter(e.target.value)}
             style={{
-              background: 'linear-gradient(180deg, #3a1c08, #2d1506)',
-              border: '1px solid rgba(255, 215, 165, 0.4)',
+              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.4)',
               borderRadius: 'clamp(6px, 1.5vw, 8px)',
               padding: 'clamp(5px, 1.2vh, 7px) clamp(8px, 2vw, 12px)',
               fontSize: 'clamp(10px, 1.8vw, 12px)',
               fontWeight: 600,
-              color: '#feea88',
+              color: isLight ? 'var(--theme-text-primary)' : '#feea88',
               outline: 'none',
               width: 'clamp(120px, 15vw, 160px)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.2)',
-              textShadow: '0 1px 0 rgba(0, 0, 0, 0.3)'
+              boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.2)',
+              textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.3)'
             }}
           />
         </div>
@@ -421,9 +426,9 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         <span style={{ 
           marginLeft: 'auto',
           fontSize: 'clamp(11px, 2vw, 13px)', 
-          color: '#feea88', 
+          color: isLight ? '#856d57' : '#feea88', 
           fontWeight: 800,
-          textShadow: '0 1px 0 rgba(0, 0, 0, 0.4)',
+          textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.4)',
           letterSpacing: '0.3px'
         }}>
           {getFilteredAndSortedTransactions().length} TRANSACTIONS
@@ -451,16 +456,16 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           {getFilteredAndSortedTransactions().map((tx, index) => (
             <div key={index} style={{
               background: isMobile 
-                ? 'rgba(87, 37, 1, 0.6)' 
-                : 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))',
+                ? (isLight ? 'var(--theme-grad-card)' : 'rgba(87, 37, 1, 0.6)')
+                : (isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))'),
               border: isMobile 
-                ? '2px solid rgba(255, 215, 165, 0.4)' 
-                : '1px solid rgba(255, 215, 165, 0.25)',
+                ? (isLight ? '1px solid #e8dcc8' : '2px solid rgba(255, 215, 165, 0.4)')
+                : (isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.25)'),
               borderRadius: isMobile ? '14px' : 'clamp(8px, 1.6vw, 12px)',
               padding: isMobile ? '10px 12px' : 'clamp(8px, 1.5vh, 10px) clamp(10px, 2.5vh, 14px)',
               boxShadow: isMobile 
-                ? '0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                : '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
+                ? (isLight ? '0 2px 6px rgba(0,0,0,0.05)' : '0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)')
+                : (isLight ? '0 1px 3px rgba(0,0,0,0.05)' : '0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)'),
               transition: 'all 0.2s ease',
               display: 'flex',
               flexDirection: isMobile ? 'column' : 'row',
@@ -509,7 +514,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     <span style={{
                       fontSize: '11px',
                       fontWeight: 700,
-                      color: '#feea88',
+                      color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                       flex: 1,
                       minWidth: 0,
                       overflow: 'hidden',
@@ -521,7 +526,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     
                     <span style={{
                       fontSize: '9px',
-                      color: '#feea88',
+                      color: isLight ? '#5c4033' : '#feea88',
                       opacity: 0.8,
                       flexShrink: 1,
                       minWidth: 0,
@@ -534,7 +539,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     
                     <span style={{
                       fontSize: '9px',
-                      color: '#feea88',
+                      color: isLight ? '#5c4033' : '#feea88',
                       opacity: 0.7,
                       flexShrink: 1,
                       minWidth: 0,
@@ -548,7 +553,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     <span style={{
                       fontSize: '12px',
                       fontWeight: 400,
-                      color: '#feea88',
+                      color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                       marginLeft: 'auto',
                       flexShrink: 0,
                       minWidth: '40px',
@@ -567,7 +572,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   }}>
                     <span style={{
                       fontSize: '10px',
-                      color: '#ffe0b6',
+                      color: isLight ? '#856d57' : '#ffe0b6',
                       fontWeight: 600,
                       flexShrink: 0
                     }}>
@@ -579,7 +584,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: copiedItem === `address-${index}` ? '#86efac' : '#feea88',
+                        color: copiedItem === `address-${index}` ? (isLight ? '#16a34a' : '#86efac') : (isLight ? '#5c4033' : '#feea88'),
                         fontSize: '12px',
                         fontFamily: 'monospace',
                         cursor: 'pointer',
@@ -614,7 +619,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                       <span style={{
                         fontSize: '10px',
                         fontWeight: 700,
-                        color: '#feea88',
+                        color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                         opacity: 0.8
                       }}>
                         TX
@@ -661,7 +666,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   <span style={{
                     fontSize: 'clamp(11px, 2vw, 13px)',
                     fontWeight: 700,
-                    color: '#feea88',
+                    color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                     flexShrink: 0
                   }}>
                     {tx.amount}
@@ -669,7 +674,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   
                   <span style={{
                     fontSize: 'clamp(9px, 1.8vw, 11px)',
-                    color: '#feea88',
+                    color: isLight ? '#5c4033' : '#feea88',
                     opacity: 0.8,
                     flexShrink: 0
                   }}>
@@ -678,7 +683,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   
                   <span style={{
                     fontSize: 'clamp(9px, 1.8vw, 11px)',
-                    color: '#feea88',
+                    color: isLight ? '#5c4033' : '#feea88',
                     opacity: 0.7,
                     flexShrink: 0
                   }}>
@@ -687,7 +692,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   
                   <span style={{
                     fontSize: 'clamp(9px, 1.8vw, 11px)',
-                    color: '#ffe0b6',
+                    color: isLight ? '#856d57' : '#ffe0b6',
                     fontWeight: 600,
                     flexShrink: 0
                   }}>
@@ -699,7 +704,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: copiedItem === `address-${index}` ? '#86efac' : '#feea88',
+                      color: copiedItem === `address-${index}` ? (isLight ? '#16a34a' : '#86efac') : (isLight ? '#5c4033' : '#feea88'),
                       fontSize: 'clamp(9px, 1.8vw, 11px)',
                       fontFamily: 'monospace',
                       cursor: 'pointer',
@@ -715,7 +720,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   <span style={{
                     fontSize: 'clamp(12px, 2.2vw, 14px)',
                     fontWeight: 400,
-                    color: '#feea88',
+                    color: isLight ? 'var(--theme-text-primary)' : '#feea88',
                     marginLeft: 'auto',
                     flexShrink: 0
                   }}>

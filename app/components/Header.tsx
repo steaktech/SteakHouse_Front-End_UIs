@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import styles from "./UI/Botton.module.css";
 import { useWallet } from "@/app/hooks/useWallet";
 import { useSwitchChain } from "wagmi";
+import { useTheme } from "@/app/contexts/ThemeContext";
 
 const CreateTokenModal = dynamic(
   () => import("./Modals/CreateTokenModal/CreateTokenModal"),
@@ -39,6 +40,7 @@ export default function Header() {
   };
 
   const { switchChain } = useSwitchChain();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -107,7 +109,14 @@ export default function Header() {
   return (
     <>
       {/* <header className="relative w-full h-20 bg-gradient-to-b from-[#4c2001] to-[#723203] shadow-md"> */}
-      <header className="relative z-50 w-full h-16 lg:h-12 bg-gradient-to-b from-[#4c2001] to-transparent shadow-md">
+      <header 
+        className="relative z-50 w-full h-16 lg:h-12 shadow-md transition-colors duration-300"
+        style={{
+          background: theme === 'dark' 
+            ? 'linear-gradient(to bottom, #4c2001, transparent)' 
+            : 'linear-gradient(to bottom, #fef9f3, #ffffff)'
+        }}
+      >
         {/* Header Content */}
         <div className="relative z-10 flex items-center justify-between h-full px-2 sm:px-4 md:px-6 lg:px-8">
           {/* Logo & Socials Section */}
@@ -220,7 +229,7 @@ export default function Header() {
           </div>
 
           {/* Buttons Section (using the most compact version) */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 lg:space-x-2 mb-2 lg:mb-1">
+          <div className="flex items-center space-x-1 sm:space-x-1.5 md:space-x-2 lg:space-x-1.5 mb-2 lg:mb-1">
             {/* Create Token Button */}
             <button
               className={`${styles.headerBtn}`}
@@ -328,6 +337,26 @@ export default function Header() {
                 </div>
               )}
             </div>
+
+            {/* Theme Toggle Button - Circular, positioned at the end */}
+            <button
+              className={styles.themeToggle}
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label="Toggle theme"
+            >
+              <div className={styles.themeToggleInner}>
+                {theme === 'dark' ? (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </div>
+            </button>
           </div>
         </div>
       </header>

@@ -4,6 +4,7 @@ import React from 'react';
 import MobileStats from './MobileStats';
 import MobileBanner from './MobileBanner';
 import MobileTokenInfo from './MobileTokenInfo';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export interface TokenData {
   // Core identity
@@ -87,6 +88,9 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({
   onToggleAudio
 }) => {
 
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   // Map TokenData to MobileStatsProps
   const statsProps = {
     tokenAddress: tokenData.tokenAddress || tokenData.address || '',
@@ -135,17 +139,23 @@ export const MobileStyleTokenCard: React.FC<MobileStyleTokenCardProps> = ({
 
   if (isLoading) {
     return (
-      <div className="w-full bg-[#0a0612] rounded-xl overflow-hidden border border-[#1f1a24] animate-pulse h-[400px]">
-        <div className="h-full w-full bg-[#13101a]/50" />
+      <div className={`w-full rounded-xl overflow-hidden border animate-pulse h-[400px] ${isLight ? 'bg-white border-[#e8dcc8]' : 'bg-[#0a0612] border-[#1f1a24]'}`}>
+        <div className={`h-full w-full ${isLight ? 'bg-gray-100/50' : 'bg-[#13101a]/50'}`} />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col w-full rounded-xl overflow-hidden" style={{
-      background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-      border: '1px solid rgba(255, 215, 165, 0.4)',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+      background: isLight
+        ? 'var(--theme-grad-card)'
+        : 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+      border: isLight
+        ? '1px solid var(--theme-border)'
+        : '1px solid rgba(255, 215, 165, 0.4)',
+      boxShadow: isLight
+        ? '0 4px 12px rgba(62, 39, 35, 0.08)'
+        : '0 4px 12px rgba(0, 0, 0, 0.2)'
     }}>
       <MobileStats {...statsProps} />
       <MobileBanner {...bannerProps} />

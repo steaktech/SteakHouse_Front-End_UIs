@@ -5,8 +5,12 @@ import TrendingProfileMarquee from './Widgets/TrendingWidget/TrendingProfileMarq
 import { useTrendingWebSocket } from '@/app/hooks/useTrendingWebSocket';
 import { useTrendingApi } from '@/app/hooks/useTrendingApi';
 import type { TrendingToken } from '@/app/types/token';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 export default function TrendingBar() {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   // API hook for initial trending data
   const {
     data: apiTrendingTokens,
@@ -85,14 +89,20 @@ export default function TrendingBar() {
       {/* --- Desktop Layout (Hidden on Mobile) --- */}
       <div className="hidden md:flex h-16 relative">
         {/* "TRENDING" title section */}
-        <div className="flex-none w-50 h-17 -mt-1 flex items-center z-15 justify-start pl-4 relative" style={{backgroundImage: 'url(/images/bull-bar.png)', backgroundSize: 'cover', backgroundPosition: 'center'}}>
-          <h2 className="text-[#F7F0D4] font-bold text-lg">
+        <div className="flex-none w-50 h-17 -mt-1 flex items-center z-15 justify-start pl-4 relative" 
+             style={{
+               backgroundImage: 'url(/images/bull-bar.png)', 
+               backgroundSize: 'cover', 
+               backgroundPosition: 'center',
+               filter: isLight ? 'brightness(1.1) sepia(0.2)' : 'none'
+             }}>
+          <h2 className={`font-bold text-lg ${isLight ? 'text-[#2b1200]' : 'text-[#F7F0D4]'}`}>
             TRENDING
           </h2>
         </div>
 
         {/* Main bar with bull image and scrolling profiles */}
-        <div className="flex-grow bg-black/20 backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center">
+        <div className={`flex-grow backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center ${isLight ? 'bg-white/60 border-b border-[#e6ccb2]' : 'bg-black/20'}`}>
           {/* <Image
             src="/images/bull.png"
             alt="Bull"
@@ -116,13 +126,13 @@ export default function TrendingBar() {
             ) : hasData ? (
               <>
                 {/* Left fade overlay */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
+                <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 pointer-events-none ${isLight ? 'bg-gradient-to-r from-[#f3eadd] to-transparent' : 'bg-gradient-to-r from-[#1c0a00] to-transparent'}`} />
                 
                 {/* Show trending data */}
                 <TrendingProfileMarquee tokens={trendingTokens} />
                 
                 {/* Right fade overlay */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
+                <div className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 pointer-events-none ${isLight ? 'bg-gradient-to-l from-[#f3eadd] to-transparent' : 'bg-gradient-to-l from-[#120a01] to-transparent'}`} />
               </>
             ) : (
               /* Empty state - no tokens to display */
@@ -139,14 +149,14 @@ export default function TrendingBar() {
       {/* --- Mobile Layout (Visible ONLY on Mobile) --- */}
       <div className="md:hidden">
         {/* "TRENDING" title section (full width) */}
-        <div className="h-16 bg-[#3d1e01] flex items-center justify-center">
-          <h2 className="text-[#F7F0D4] font-bold text-lg">
+        <div className={`h-16 flex items-center justify-center ${isLight ? 'bg-[#f3eadd] border-b border-[#e6ccb2]' : 'bg-[#3d1e01]'}`}>
+          <h2 className={`font-bold text-lg ${isLight ? 'text-[#2b1200]' : 'text-[#F7F0D4]'}`}>
             TRENDING
           </h2>
         </div>
 
         {/* Marquee section (full width, below title) */}
-        <div className="h-16 bg-black/20 backdrop-blur-lg relative flex items-center overflow-hidden">
+        <div className={`h-16 backdrop-blur-lg relative flex items-center overflow-hidden ${isLight ? 'bg-white/80' : 'bg-black/20'}`}>
           {isLoading ? (
             /* Loading state */
             <div className="flex-1 flex items-center justify-center">
@@ -160,13 +170,13 @@ export default function TrendingBar() {
           ) : hasData ? (
             <>
               {/* Left fade overlay (full height) */}
-              <div className="absolute left-0 top-0 z-10 w-24 h-full bg-gradient-to-r from-[#1c0a00] to-transparent pointer-events-none" />
+              <div className={`absolute left-0 top-0 z-10 w-24 h-full pointer-events-none ${isLight ? 'bg-gradient-to-r from-[#f3eadd] to-transparent' : 'bg-gradient-to-r from-[#1c0a00] to-transparent'}`} />
 
               {/* Show trending data */}
               <TrendingProfileMarquee tokens={trendingTokens} />
 
               {/* Right fade overlay (full height) */}
-              <div className="absolute right-0 top-0 z-10 w-24 h-full bg-gradient-to-l from-[#120a01] to-transparent pointer-events-none" />
+              <div className={`absolute right-0 top-0 z-10 w-24 h-full pointer-events-none ${isLight ? 'bg-gradient-to-l from-[#f3eadd] to-transparent' : 'bg-gradient-to-l from-[#120a01] to-transparent'}`} />
             </>
           ) : (
             /* Empty state - no tokens to display */

@@ -13,6 +13,7 @@ import WagmiProviderWrapper from "./lib/providers/WagmiProvider";
 import { ToastProvider } from "./lib/providers/ToastProvider";
 import { ToastContainer } from "./components/UI/ToastContainer";
 import ReferralHandler from "./components/ReferralHandler";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,17 +73,20 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#1a0f08] flex flex-col min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        style={{ backgroundColor: 'var(--theme-bg-primary)' }}
       >
-        <WagmiProviderWrapper>
-          <ToastProvider>
-            <ReferralHandler />
-            <LoadingWrapper>
-              {children}
-            </LoadingWrapper>
-            <ToastContainer />
-          </ToastProvider>
-        </WagmiProviderWrapper>
+        <ThemeProvider>
+          <WagmiProviderWrapper>
+            <ToastProvider>
+              <ReferralHandler />
+              <LoadingWrapper>
+                {children}
+              </LoadingWrapper>
+              <ToastContainer />
+            </ToastProvider>
+          </WagmiProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

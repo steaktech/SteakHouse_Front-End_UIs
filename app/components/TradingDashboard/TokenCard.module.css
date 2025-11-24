@@ -63,13 +63,111 @@
   isolation: isolate;
   transform-style: preserve-3d;
   transition: transform 0.18s ease, box-shadow 0.25s ease,
-    border-color 0.25s ease, background-color 0.25s ease;
+    border-color 0.25s ease, background-color 0.25s ease, color 0.2s ease;
   color: var(--text);
   height: auto;
   min-height: 360px;
 
   /* OPTIMIZATION: Prepare the card for transform changes on hover */
   will-change: transform, box-shadow;
+}
+
+/* Light Mode Overrides for TokenCard - Premium Depth */
+:global([data-theme="light"]) .tokenCard {
+  /* Professional Light Mode Palette - Warm & Expensive */
+  --bg-0: #ffffff;
+  --bg-1: #fffaf0; /* Floral White */
+  --bg-2: #f3e6d5; /* Champagne */
+
+  --text: #3e2723; /* Espresso */
+  --muted: #5d4037; /* Mocha */
+  --chip: #fdfbf7;
+  --chip-border: #d7ccc8;
+
+  /* Deep, luxurious shadow stack */
+  --shadow: 
+    0 16px 32px -8px rgba(62, 39, 35, 0.12),
+    0 4px 12px -2px rgba(62, 39, 35, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glow: 0 8px 24px rgba(212, 175, 55, 0.15); /* Gold Glow */
+
+  /* Track colors */
+  --track-top: #e8dcc8;
+  --track-bot: #bcaaa4;
+
+  /* Card Gradient - Subtle Vertical Texture */
+  background: var(--theme-grad-card);
+  
+  /* Refined Border */
+  border: 1px solid rgba(215, 204, 200, 0.6);
+  box-shadow: var(--shadow);
+    
+  color: var(--text);
+}
+
+/* Update text elements in Light Mode */
+:global([data-theme="light"]) .tokenCard .nameBlock .name {
+  color: #3e2723;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+:global([data-theme="light"]) .tokenCard .nameBlock .ticker {
+  color: #8d6e63;
+}
+
+:global([data-theme="light"]) .tokenCard .desc {
+  color: #5d4037;
+  font-weight: 500;
+}
+
+:global([data-theme="light"]) .tokenCard .taxStrong {
+  color: #b45309;
+  text-shadow: none;
+}
+
+:global([data-theme="light"]) .tokenCard .taxChips .chip {
+  background: #fffaf0;
+  border-color: #d7ccc8;
+  color: #8d6e63;
+  box-shadow: 0 2px 4px rgba(62,39,35,0.05);
+}
+
+:global([data-theme="light"]) .tokenCard .score {
+  background: linear-gradient(180deg, #ffffff, #f3e6d5);
+  border: 1px solid #d7ccc8;
+  box-shadow: 
+    inset 0 1px 0 #ffffff,
+    0 4px 12px rgba(62, 39, 35, 0.06);
+}
+
+:global([data-theme="light"]) .tokenCard .scoreStats .stat {
+  background: #ffffff;
+  border: 1px solid #efebe9;
+  box-shadow: 0 2px 4px rgba(62,39,35,0.04);
+}
+
+:global([data-theme="light"]) .tokenCard .scoreStats .statLabel {
+  color: #8d6e63;
+}
+
+:global([data-theme="light"]) .tokenCard .scoreStats .statValue {
+  color: #3e2723;
+  text-shadow: none;
+}
+
+/* Light Mode Social Buttons - Neumorphic-ish */
+:global([data-theme="light"]) .tokenCard .socialBtn {
+  background: linear-gradient(145deg, #ffffff, #f5f5f5);
+  border: 1px solid #d7ccc8;
+  color: #b45309;
+  box-shadow: 0 2px 5px rgba(62,39,35,0.08);
+}
+
+:global([data-theme="light"]) .tokenCard .socialBtn:hover {
+  background: linear-gradient(145deg, #fffaf0, #f3e6d5);
+  border-color: #d4af37;
+  color: #d4af37;
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.25);
 }
 
 /* Subtle edge lights + slow sheen */

@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import { useRouter } from 'next/navigation';
 import SmartVideo from "../../UI/SmartVideo";
 import type { TrendingToken } from "@/app/types/token";
+import { useTheme } from "@/app/contexts/ThemeContext";
 
 // Define the types for the component props for type safety
 export interface ProfileWidgetProps {
@@ -22,6 +23,9 @@ export interface TrendingProfileWidgetProps {
 
 const ProfileWidget: React.FC<ProfileWidgetProps> = memo(
   ({ imageUrl, name, percentage, showArrow = true, arrowDirection = "up" }) => {
+    const { theme } = useTheme();
+    const isLight = theme === 'light';
+
     // Memoize the error handler to prevent recreation on each render
     const handleImageError = useCallback(
       (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -58,7 +62,14 @@ const ProfileWidget: React.FC<ProfileWidgetProps> = memo(
 
     return (
       /* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */
-      <div className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans">
+      <div 
+        className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans rounded-3xl"
+        style={{
+          background: isLight 
+            ? 'linear-gradient(to right, #e6ccb2, #d4b896)' 
+            : 'linear-gradient(to right, #4a4a4a, #1a1a1a)'
+        }}
+      >
         <span className="-mt-3">
           {showArrow && (
             <SmartVideo
@@ -105,6 +116,8 @@ ProfileWidget.displayName = "ProfileWidget";
 const TrendingProfileWidget: React.FC<TrendingProfileWidgetProps> = memo(
   ({ token, showArrow = true }) => {
     const router = useRouter();
+    const { theme } = useTheme();
+    const isLight = theme === 'light';
     
     // Determine arrow direction based on price change (treat null as 0)
     const arrowDirection = (token.price_change_24h ?? 0) >= 0 ? "up" : "down";
@@ -158,7 +171,12 @@ const TrendingProfileWidget: React.FC<TrendingProfileWidgetProps> = memo(
     return (
       /* 'flex-shrink-0' is important to prevent items from shrinking in the marquee */
       <div 
-        className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans cursor-pointer hover:scale-105 transition-transform duration-200 ease-out"
+        className="flex flex-shrink-0 items-center justify-center p-4 space-x-2 font-sans cursor-pointer hover:scale-105 transition-transform duration-200 ease-out rounded-3xl"
+        style={{
+          background: isLight 
+            ? 'linear-gradient(to right, #e6ccb2, #d4b896)' 
+            : 'linear-gradient(to right, #4a4a4a, #1a1a1a)'
+        }}
         onClick={handleClick}
         role="button"
         tabIndex={0}

@@ -67,13 +67,140 @@ body[style*="--dragging-pointer-events"] canvas {
   pointer-events: var(--dragging-pointer-events, auto) !important;
 }
 
+/* Theme-aware CSS variables */
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --theme-bg-primary: #1a0f08;
+  --theme-bg-secondary: #07030c;
+  --theme-bg-tertiary: #2b1200;
+  --theme-bg-card: #140b06;
+  --theme-bg-hover: #3a2211;
+  
+  /* Text */
+  --theme-text-primary: #f6e7b5;
+  --theme-text-secondary: #feea88;
+  --theme-text-muted: #9ca3af;
+  --theme-text-highlight: #ffedd5;
+  
+  /* Borders & Accents */
+  --theme-border: #d97706;
+  --theme-border-subtle: #4a2a16;
+  --theme-accent: #d9853a;
+  --theme-shadow: rgba(0, 0, 0, 0.5);
+  
+  /* Chart specific (Dark) */
+  --theme-chart-bg: #07030c;
+  --theme-chart-grid: #1f2937;
+  --theme-chart-text: #94a3b8;
+  --theme-candle-up: #4ade80;
+  --theme-candle-down: #f87171;
+}
+
+[data-theme="light"] {
+  /* Backgrounds - Premium "SteakHouse" Light Mode */
+  /* Warm, rich textures: Champagne, Cream, Soft Gold */
+  --theme-bg-primary: #f3e6d5;      /* Warm base */
+  --theme-bg-secondary: #e8dcc8;    /* Sidebar/panels */
+  --theme-bg-tertiary: #dccbb5;     /* Inputs */
+  --theme-bg-card: #ffffff;         /* Fallback */
+  --theme-bg-hover: #fff9f0;
+  
+  /* Gradients for depth */
+  --theme-grad-body: linear-gradient(135deg, #fdfbf7 0%, #f3e6d5 100%);
+  --theme-grad-card: linear-gradient(180deg, #fdfbf7 0%, #e8dcc8 100%);
+  --theme-grad-sidebar: linear-gradient(180deg, #fdfbf7 0%, #e8dcc8 100%);
+  
+  /* Text - Sharp Coffee Tones */
+  --theme-text-primary: #3e2723;    /* Deep Espresso */
+  --theme-text-secondary: #5d4037;  /* Mocha */
+  --theme-text-muted: #8d6e63;      /* Latte */
+  --theme-text-highlight: #b45309;  /* Caramel accent */
+  
+  /* Borders & Accents */
+  --theme-border: #d7ccc8;          /* Soft brown-grey */
+  --theme-border-subtle: #efebe9;
+  --theme-accent: #ffa000;          /* Rich Gold */
+  --theme-shadow: rgba(62, 39, 35, 0.08);
+
+  /* Chart specific */
+  --theme-chart-bg: #fdfbf7;
+  --theme-chart-grid: #ece0d1;
+  --theme-chart-text: #5d4037;
+  
+  /* Brand Colors Adapted */
+  --ab-primary: #d4af37;            /* Metallic Gold */
+  --ab-secondary: #bcaaa4;
+  --ab-accent: #fff3e0;
+  --ab-bg-200: #e8dcc8;
+  --ab-bg-300: #fdfbf7;
+  --ab-bg-400: #d7ccc8;
+  --ab-bg-500: #a1887f;
+  --ab-desc: #3e2723;
+  --ab-text-200: #5d4037;
+  --ab-text-400: #3e2723;
+  --ab-modal-title: #3e2723;
+  --ab-modal-bg: #fffcf9;
+  --ab-modal-header: #f5e6d3;
+  
+  --cream: #3e2723;
+}
+
+/* Global transitions for smooth switching */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+}
+
+/* Global text reset for theme compliance */
+body {
+  color: var(--theme-text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--theme-text-primary) !important;
+}
+
+p, span, div {
+  color: inherit; /* Allow cascading, but default to primary */
+}
+
+/* Force specific utility overrides for Light Mode */
+[data-theme="light"] .text-white {
+  color: var(--theme-text-primary) !important;
+}
+
+[data-theme="light"] .bg-\[\#1a0f08\] {
+  background-color: var(--theme-bg-primary) !important;
+}
+
+[data-theme="light"] .bg-\[\#07030c\] {
+  background-color: var(--theme-bg-secondary) !important;
+}
+
+[data-theme="light"] .border-\[\#d97706\] {
+  border-color: var(--theme-border) !important;
+}
+
+/* Card & Container Shadows in Light Mode - Premium Depth */
+[data-theme="light"] .shadow-md, 
+[data-theme="light"] .shadow-lg {
+  box-shadow: 
+    0 4px 8px -2px rgba(62, 39, 35, 0.1),
+    0 10px 15px -3px rgba(62, 39, 35, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(215, 204, 200, 0.5) !important;
+}
+
 /* Global background fix to prevent seams and repeating */
 html,
 body {
-  background: #1a0f08;
+  background: var(--theme-bg-primary);
   background-attachment: fixed;
   background-repeat: no-repeat;
   min-height: 100vh;
+  transition: background-color 0.3s ease;
 }
 
 /* Ensure no elements override the background */
@@ -208,6 +335,20 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
+}
+
+/* Light Mode Scrollbar Overrides */
+[data-theme="light"] .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(43, 22, 8, 0.05);
+}
+
+[data-theme="light"] .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #a68b6c;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="light"] .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8c7355;
 }
 
 /* Firefox scrollbar support */
@@ -434,9 +575,15 @@ body {
     overflow-x: hidden;
   }
 
-  body {
+  [data-theme="dark"] body {
     /* Ensure background is truly fixed and doesn't repeat */
     background: url('/images/homepage-bg.webp') center -50px / cover no-repeat fixed !important;
+    min-height: max(100vh, 100%) !important;
+  }
+  
+  [data-theme="light"] body {
+    /* Premium Gradient Background */
+    background: var(--theme-grad-body) !important;
     min-height: max(100vh, 100%) !important;
   }
 

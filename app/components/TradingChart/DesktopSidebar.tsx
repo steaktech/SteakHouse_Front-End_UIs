@@ -13,6 +13,7 @@ import { ChartUserProfileWidget } from '../Widgets/ChartUserProfile';
 import { useStablePriceData } from '@/app/hooks/useStablePriceData';
 import { useTrading } from '@/app/hooks/useTrading';
 import AirDropModal from '../Modals/AirDropModal';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 // Props for each widget item
 interface WidgetItemProps {
@@ -25,13 +26,22 @@ interface WidgetItemProps {
 }
 
 const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, greyedOut, onClick }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   // Base classes for all items
   const baseClasses = "flex items-center h-[30px] py-1.5 px-2.5 mx-1.5 mb-[4px] rounded-[8px] transition-all duration-200 ease-in-out relative";
 
   // Conditional classes based on the state
-  const activeClasses = "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] cursor-pointer";
+  const activeClasses = isLight 
+    ? "bg-[#e8dcc8] shadow-inner cursor-pointer text-[#2b1608]"
+    : "bg-[#a3580f] shadow-[inset_0_0_4px_3px_rgba(255,255,255,0.1)] cursor-pointer";
+    
   const greyedOutClasses = "opacity-45 cursor-not-allowed bg-[rgba(0,0,0,0.2)] saturate-0";
-  const inactiveClasses = "hover:bg-[rgba(0,0,0,0.178)] cursor-pointer";
+  
+  const inactiveClasses = isLight
+    ? "hover:bg-black/5 cursor-pointer text-[#5c4033]"
+    : "hover:bg-[rgba(0,0,0,0.178)] cursor-pointer";
 
   // Determine which classes to apply
   const getStateClasses = () => {
@@ -51,7 +61,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
         : active
           ? '[filter:brightness(1.2)_drop-shadow(0_1px_2px_rgba(0,0,0,0.3))]'
           : 'opacity-80'
-        }`}>
+        } ${isLight ? 'text-[#b45309]' : ''}`}>
         {icon}
       </div>
 
@@ -59,7 +69,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
       <span className={`
         flex-1 text-[11px] font-medium tracking-[0.08px]
         transition-all duration-200
-        ${greyedOut ? 'text-[#777] opacity-55' : 'text-[#e6d4a3]'}
+        ${greyedOut ? 'text-[#777] opacity-55' : (isLight ? (active ? 'text-[#2b1608]' : 'text-[#5c4033]') : 'text-[#e6d4a3]')}
         ${active ? '[text-shadow:0_1px_2px_rgba(0,0,0,0.4)]' : ''}
         ${expanded ? 'ml-1.5 opacity-100' : 'ml-0 opacity-0 w-0 overflow-hidden'}
       `}>
@@ -70,7 +80,7 @@ const WidgetItem: React.FC<WidgetItemProps> = ({ icon, text, expanded, active, g
       <div className={`
         flex flex-shrink-0 items-center justify-center w-3.5 h-3.5 text-sm
         transition-all duration-200
-        ${greyedOut ? 'text-[#777] opacity-35 grayscale' : 'text-[#e0940a] opacity-90'}
+        ${greyedOut ? 'text-[#777] opacity-35 grayscale' : (isLight ? 'text-[#d97706] opacity-90' : 'text-[#e0940a] opacity-90')}
         ${active ? 'font-medium [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]' : 'font-normal'}
         ${expanded ? 'opacity-inherit' : 'opacity-0'}
       `}>
@@ -88,6 +98,8 @@ export const DesktopSidebar: React.FC<SidebarProps> = ({
   apiTokenData = null,
   isLoading = false,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [isHoldersWidgetOpen, setIsHoldersWidgetOpen] = useState(false);
   const [isChatWidgetOpen, setIsChatWidgetOpen] = useState(false);
   const [isSavedTokenWidgetOpen, setIsSavedTokenWidgetOpen] = useState(false);
@@ -259,21 +271,21 @@ const handleUserProfileClose = () => {
     // },
     // Holders, Chat, Saved: normal behavior
     {
-      icon: <Users size={16} className="text-[#d29900]" />,
+      icon: <Users size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />,
       text: 'Holders',
       active: isHoldersWidgetOpen,
       greyedOut: false,
       onClick: handleHoldersClick
     },
     {
-      icon: <MessageCircle size={16} className="text-[#d29900]" />,
+      icon: <MessageCircle size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />,
       text: 'Chat',
       active: isChatWidgetOpen,
       greyedOut: false,
       onClick: handleChatClick
     },
     {
-      icon: <Bookmark size={16} className="text-[#d29900]" />,
+      icon: <Bookmark size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />,
       text: 'Saved',
       active: isSavedTokenWidgetOpen,
       greyedOut: false,
@@ -281,21 +293,21 @@ const handleUserProfileClose = () => {
     },
     // New widgets (UI only; underlying components may be added later)
     {
-      icon: <Lock size={16} className="text-[#d29900]" />,
+      icon: <Lock size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />,
       text: 'Locker',
       active: isLockerWidgetOpen,
       greyedOut: false,
       onClick: handleLockerClick
     },
     {
-      icon: <ExternalLink size={16} className="text-[#d29900]" />,
+      icon: <ExternalLink size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />,
       text: 'Explorer',
       active: isExplorerWidgetOpen,
       greyedOut: false,
       onClick: handleExplorerClick
     },
     {
-      icon: <User size={16} className="text-[#d29900]" />,
+      icon: <User size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />,
       text: 'User',
       active: isUserProfileWidgetOpen,
       greyedOut: false,
@@ -326,8 +338,9 @@ const handleUserProfileClose = () => {
           ${expanded ? '' : 'lg:w-[70px]'}
         `}
         style={{
-          background: 'linear-gradient(180deg, #572501 0%, var(--ab-bg-500) 65%, var(--ab-bg-400) 100%)',
-          boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2)',
+          background: isLight ? 'var(--theme-grad-sidebar)' : 'linear-gradient(180deg, #572501 0%, var(--ab-bg-500) 65%, var(--ab-bg-400) 100%)',
+          boxShadow: isLight ? '0 4px 12px rgba(62, 39, 35, 0.08), inset -1px 0 0 rgba(255,255,255,0.5)' : '0 3px 8px rgba(0, 0, 0, 0.2)',
+          borderRight: isLight ? '1px solid var(--theme-border)' : 'none',
           width: expanded ? `${sidebarWidth}px` : undefined,
           transition: isResizing ? 'none' : 'all 300ms ease-in-out'
         }}
@@ -335,7 +348,7 @@ const handleUserProfileClose = () => {
         {/* Header */}
         <div className="flex-shrink-0 relative flex items-center justify-center px-[10px] pt-[12px] pb-[16px]">
           <div className={`transition-opacity duration-200 ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <h2 className="text-[#daa20b] text-base font-semibold tracking-[0.15px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)]">
+            <h2 className={`text-base font-semibold tracking-[0.15px] [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] ${isLight ? 'text-[#2b1608]' : 'text-[#daa20b]'}`}>
               Widgets
             </h2>
           </div>
@@ -343,10 +356,10 @@ const handleUserProfileClose = () => {
           {/* Desktop Toggle Button */}
           <button
             onClick={() => setExpanded(!expanded)}
-            className="p-1 rounded-full bg-black/30 hover:bg-black/50 absolute -right-3 top-[26px] hidden lg:block z-10"
+            className={`p-1 rounded-full absolute -right-3 top-[26px] hidden lg:block z-10 ${isLight ? 'bg-white border border-[#e8dcc8] shadow-sm hover:bg-[#fff8f1]' : 'bg-black/30 hover:bg-black/50'}`}
             type="button"
           >
-            {expanded ? <ChevronLeft size={16} className="text-amber-200" /> : <ChevronRight size={16} className="text-amber-200" />}
+            {expanded ? <ChevronLeft size={16} className={isLight ? "text-[#b45309]" : "text-amber-200"} /> : <ChevronRight size={16} className={isLight ? "text-[#b45309]" : "text-amber-200"} />}
           </button>
         </div>
 
@@ -366,10 +379,10 @@ const handleUserProfileClose = () => {
         </nav>
 
         {/* Bottom Section - Fixed at bottom, outside scrollable area */}
-        <div className="flex-shrink-0 border-t border-[rgba(255,215,165,0.3)] pt-3 pb-3">
+        <div className={`flex-shrink-0 border-t pt-3 pb-3 ${isLight ? 'border-[#e8dcc8]' : 'border-[rgba(255,215,165,0.3)]'}`}>
           {/* SteakTech Bot */}
           <WidgetItem
-            icon={<Bot size={16} className="text-[#d29900]" />}
+            icon={<Bot size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />}
             text="SteakTech Bot"
             expanded={expanded}
             active={false}
@@ -379,7 +392,7 @@ const handleUserProfileClose = () => {
 
           {/* Links */}
           <WidgetItem
-            icon={<Link size={16} className="text-[#d29900]" />}
+            icon={<Link size={16} className={isLight ? "text-[#d97706]" : "text-[#d29900]"} />}
             text="Links"
             expanded={expanded}
             active={false}
@@ -430,25 +443,25 @@ const handleUserProfileClose = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '6px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: isLight ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.08)',
+                border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '8px',
                 backdropFilter: 'blur(8px)',
                 transition: 'all 0.2s ease'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
-                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className="text-[#d29900] flex-shrink-0">
+                <svg width="12" height="12" viewBox="0 0 256 417" fill="currentColor" className={`${isLight ? 'text-[#d97706]' : 'text-[#d29900]'} flex-shrink-0`}>
                   <path d="M127.961 0l-2.795 9.5v275.668l2.795 2.79 127.962-75.638z" fill="#8C8C8C" />
                   <path d="M127.962 0L0 212.32l127.962 75.639V154.158z" fill="#6C6C6C" />
                   <path d="M127.961 312.187l-1.575 1.92v98.199l1.575 4.6L256 236.587z" fill="#8C8C8C" />
                   <path d="M127.962 416.905v-104.72L0 236.585z" fill="#6C6C6C" />
                 </svg>
                 {expanded && (
-                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">ETH</span>
+                  <span className={`text-[10px] font-semibold text-[#e6d4a3] tracking-wide ${isLight ? 'text-[#5c4033]' : 'text-[#e6d4a3]'}`}>ETH</span>
                 )}
               </div>
-              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+              <span className={`text-[11px] font-bold text-[#feea88] tabular-nums ${isLight ? 'text-[#b45309]' : 'text-[#feea88]'}`}>
                 {priceLoading ? '...' : ethPrice ? `$${ethPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '---'}
               </span>
             </div>
@@ -461,8 +474,8 @@ const handleUserProfileClose = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '6px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: isLight ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.08)',
+                border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '8px',
                 backdropFilter: 'blur(8px)',
                 transition: 'all 0.2s ease'
@@ -471,10 +484,10 @@ const handleUserProfileClose = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
                 <span className="flex-shrink-0" style={{ fontSize: '12px', lineHeight: 1 }}>⛽️</span>
                 {expanded && (
-                  <span className="text-[10px] font-semibold text-[#e6d4a3] tracking-wide">GWEI</span>
+                  <span className={`text-[10px] font-semibold text-[#e6d4a3] tracking-wide ${isLight ? 'text-[#5c4033]' : 'text-[#e6d4a3]'}`}>GWEI</span>
                 )}
               </div>
-              <span className="text-[11px] font-bold text-[#feea88] tabular-nums">
+              <span className={`text-[11px] font-bold text-[#feea88] tabular-nums ${isLight ? 'text-[#b45309]' : 'text-[#feea88]'}`}>
                 {priceLoading ? '...' : gwei ? gwei.toFixed(1) : '---'}
               </span>
             </div>
@@ -532,9 +545,9 @@ const handleUserProfileClose = () => {
               onClick={handleCertikClick}
               onMouseEnter={() => setIsCertikHovered(true)}
               onMouseLeave={() => setIsCertikHovered(false)}
-              className={`p-1.5 bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border border-[rgba(255,215,165,0.4)] rounded-md transition-all duration-200 flex items-center justify-center relative ${
+              className={`p-1.5 border rounded-md transition-all duration-200 flex items-center justify-center relative ${
                 isCertikHovered ? 'certik-wrapper-animated-desktop' : ''
-              }`}
+              } ${isLight ? 'bg-white hover:bg-[#fff8f1] border-[#e8dcc8]' : 'bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border-[rgba(255,215,165,0.4)]'}`}
               title="View CertiK Certificate"
               style={{
                 width: expanded ? 'auto' : '100%',
@@ -564,9 +577,9 @@ const handleUserProfileClose = () => {
         {expanded && (
           <div
             onMouseDown={handleResizeMouseDown}
-            className="hidden lg:block absolute top-0 right-0 bottom-0 w-1 cursor-col-resize hover:bg-[rgba(255,215,165,0.3)] transition-colors z-50"
+            className={`hidden lg:block absolute top-0 right-0 bottom-0 w-1 cursor-col-resize transition-colors z-50 ${isLight ? 'hover:bg-[#e8dcc8]' : 'hover:bg-[rgba(255,215,165,0.3)]'}`}
             style={{
-              background: isResizing ? 'rgba(255, 215, 165, 0.5)' : 'transparent'
+              background: isResizing ? (isLight ? '#c9a875' : 'rgba(255, 215, 165, 0.5)') : 'transparent'
             }}
           />
         )}

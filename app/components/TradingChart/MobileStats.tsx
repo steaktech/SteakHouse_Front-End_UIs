@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Bookmark, Share2, Globe, Send, ExternalLink } from 'lucide-react';
 import { useSaveToken } from '@/app/hooks/useSaveToken';
 import { SharePopup } from '../Widgets/ChatWidget/SharePopup';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 interface MobileStatsProps {
   tokenAddress: string;
@@ -42,7 +43,7 @@ const ICONS = {
   )
 };
 
-const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: string, label: string }) => {
+const SocialButton = ({ icon, href, label, isLight }: { icon: React.ReactNode, href: string, label: string, isLight: boolean }) => {
   return (
     <a
       href={href}
@@ -52,7 +53,7 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
       className="group relative flex items-center justify-center"
     >
       {/* Glow Effect (Behind) */}
-      <div className="absolute inset-0 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'rgba(254, 234, 136, 0.2)' }} />
+      <div className="absolute inset-0 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: isLight ? 'rgba(120, 53, 15, 0.2)' : 'rgba(254, 234, 136, 0.2)' }} />
 
       {/* Main Container */}
       <div className="
@@ -60,13 +61,16 @@ const SocialButton = ({ icon, href, label }: { icon: React.ReactNode, href: stri
         w-7 h-7
         flex items-center justify-center 
         rounded-md
-        border group-hover:border-[#feea88]/60
-        text-[#feea88] group-hover:text-[#ffdca3]
+        border
         transition-all duration-300 ease-out
-        group-hover:-translate-y-0.5 group-hover:shadow-[0_0_10px_rgba(254,234,136,0.2)]
+        group-hover:-translate-y-0.5
       " style={{
-          background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-          borderColor: 'rgba(255, 210, 160, 0.3)'
+          background: isLight 
+            ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)' 
+            : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+          borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)',
+          color: isLight ? '#2b1608' : '#feea88',
+          boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
         }}>
         <svg
           viewBox="0 0 24 24"
@@ -95,6 +99,8 @@ export default function MobileStats({
   isAudioAvailable,
   onToggleAudio,
 }: MobileStatsProps) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [showSharePopup, setShowSharePopup] = useState(false);
   const { isSaved, isLoading: isSaveLoading, toggleSave } = useSaveToken(
     tokenAddress.toLowerCase(),
@@ -206,8 +212,10 @@ export default function MobileStats({
   return (
     <>
       <div className="px-3 py-3 border-b" style={{
-        background: 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-        borderColor: 'rgba(255, 215, 165, 0.2)'
+        background: isLight
+          ? 'var(--theme-grad-card)'
+          : 'linear-gradient(180deg, #572501, #572501 10%, #572501 58%, #7d3802 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+        borderColor: isLight ? '#c9a875' : 'rgba(255, 215, 165, 0.2)'
       }}>
         <div className="flex items-start justify-between gap-2 relative">
           {/* Left Side: Token Info */}
@@ -232,14 +240,14 @@ export default function MobileStats({
               {/* Token Name and Symbol Column */}
               <div className="flex flex-col gap-1 flex-1 min-w-0 justify-center">
                 {/* Token Name */}
-                <span className="text-xl font-bold truncate leading-tight font-pump-display tracking-tight" style={{ color: '#feea88' }}>
+                <span className="text-xl font-bold truncate leading-tight font-pump-display tracking-tight" style={{ color: isLight ? '#2b1608' : '#feea88' }}>
                   {tokenName}
                 </span>
 
                 {/* Token Symbol */}
                 <div className="flex items-center gap-2">
                   {tokenSymbol && (
-                    <span className="text-xs font-semibold uppercase tracking-[0.18em] font-degen" style={{ color: '#fff7ea', opacity: 0.8 }}>
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] font-degen" style={{ color: isLight ? '#b45309' : '#fff7ea', opacity: 0.8 }}>
                       / {tokenSymbol}
                     </span>
                   )}
@@ -251,11 +259,13 @@ export default function MobileStats({
             <div className="flex items-center justify-between gap-2">
               {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md border" style={{
-                  background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
-                  borderColor: 'rgba(255, 210, 160, 0.25)',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+                  background: isLight
+                    ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
+                    : 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
+                  borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.25)',
+                  boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
                 }}>
-                  <span className="text-3xl font-semibold font-degen tabular-nums" style={{ color: '#fff7ea' }}>
+                  <span className="text-3xl font-semibold font-degen tabular-nums" style={{ color: isLight ? '#2b1608' : '#fff7ea' }}>
                     {renderFormattedPrice(currentPrice)}
                   </span>
                 </div>
@@ -268,26 +278,31 @@ export default function MobileStats({
                 icon={ICONS.discord}
                 label="Discord"
                 href="/coming-soon"
+                isLight={isLight}
               />
               <SocialButton
                 icon={ICONS.telegram}
                 label="Telegram"
                 href={telegramUrl || "https://t.me/steakhouse"}
+                isLight={isLight}
               />
               <SocialButton
                 icon={ICONS.x}
                 label="X (Twitter)"
                 href={twitterUrl || "https://x.com/steak_tech"}
+                isLight={isLight}
               />
               <SocialButton
                 icon={ICONS.github}
                 label="GitHub"
                 href="https://github.com/steaktech"
+                isLight={isLight}
               />
               <SocialButton
                 icon={ICONS.medium}
                 label="Medium"
                 href="https://medium.com/@steakhousefinance"
+                isLight={isLight}
               />
             </div>
           </div>
@@ -303,11 +318,13 @@ export default function MobileStats({
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-1.5 rounded-md transition-all duration-200 hover:bg-[#1f1a24] hover:scale-110 active:scale-95"
+                  className="p-1.5 rounded-md transition-all duration-200 hover:scale-110 active:scale-95"
                   title={link.label}
                   style={{
-                    background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                    borderColor: 'rgba(255, 210, 160, 0.3)'
+                    background: isLight
+                      ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                      : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                    borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
                   }}
                 >
                   <Icon size={16} style={{ color: link.color }} />
@@ -317,7 +334,7 @@ export default function MobileStats({
 
             {/* Divider */}
             {socialLinks.length > 0 && (
-              <div className="w-px h-5 mx-0.5" style={{ background: 'rgba(255, 210, 160, 0.3)' }}></div>
+              <div className="w-px h-5 mx-0.5" style={{ background: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)' }}></div>
             )}
 
             {/* Audio Button (moved from TradingView header) */}
@@ -327,8 +344,10 @@ export default function MobileStats({
                 onClick={onToggleAudio}
                 className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
                 style={{
-                  background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                  borderColor: 'rgba(255, 210, 160, 0.3)'
+                  background: isLight
+                    ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                    : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                  borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
                 }}
                 title={isAudioPlaying ? 'Mute Audio' : 'Play Audio'}
               >
@@ -338,7 +357,7 @@ export default function MobileStats({
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#feea88"
+                  stroke={isLight ? '#2b1608' : '#feea88'}
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -368,14 +387,16 @@ export default function MobileStats({
               disabled={isSaveLoading}
               className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
-                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                borderColor: 'rgba(255, 210, 160, 0.3)'
+                background: isLight
+                  ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
               }}
               title={isSaved ? 'Saved' : 'Save token'}
             >
               <Bookmark
                 size={16}
-                className="text-[#feea88]"
+                style={{ color: isLight ? '#2b1608' : '#feea88' }}
                 fill={isSaved ? 'currentColor' : 'none'}
               />
             </button>
@@ -386,18 +407,20 @@ export default function MobileStats({
               onClick={handleShareClick}
               className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
-                background: 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                borderColor: 'rgba(255, 210, 160, 0.3)'
+                background: isLight
+                  ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
+                borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
               }}
               title="Share"
             >
-              <Share2 size={16} className="text-[#feea88]" />
+              <Share2 size={16} style={{ color: isLight ? '#2b1608' : '#feea88' }} />
             </button>
           </div>
 
           {/* 24h Price Change Badge - Absolute Position Bottom Right */}
           <div className="absolute right-0 bottom-12 text-right">
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#9ca3af] font-degen -mb-0.5">
+            <div className="text-[10px] uppercase tracking-[0.2em] font-degen -mb-0.5" style={{ color: isLight ? '#b45309' : '#9ca3af' }}>
               24h Change
             </div>
             <div
