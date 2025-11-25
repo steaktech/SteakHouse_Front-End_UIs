@@ -24,8 +24,8 @@
   --ab-bg-400: #241207;
   --ab-bg-500: #572501;
   --ab-desc: #fff1df;
-  --ab-text-200: #feea88bf;
-  --ab-text-400: #feea88;
+  --ab-text-200: #C97413bf;
+  --ab-text-400: #C97413;
   --ab-modal-title: #f5e6d3;
   --ab-modal-bg: #1a0f08;
   --ab-modal-header: #20140d;
@@ -328,13 +328,13 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: #C97413;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: #D97706;
 }
 
 /* Light Mode Scrollbar Overrides */
@@ -354,7 +354,7 @@ body {
 /* Firefox scrollbar support */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #374151 rgba(255, 255, 255, 0.1);
+  scrollbar-color: #C97413 rgba(255, 255, 255, 0.1);
 }
 
 /* Themed scrollbar for mobile trading view */
@@ -630,19 +630,19 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #efb95e;
+  background-color: #C97413;
   border-radius: 20px;
   border: 2px solid rgb(49 25 0);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #fce1a8;
+  background-color: #D97706;
 }
 
 /* For Firefox */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #efb95e rgb(49 25 0 / 0.8);
+  scrollbar-color: #C97413 rgb(49 25 0 / 0.8);
 }
 
 /* Steakhouse Loading Animation Styles */

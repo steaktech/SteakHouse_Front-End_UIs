@@ -1425,7 +1425,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 paddingTop: '20px',
                 border: isLight 
                   ? '1px solid var(--theme-border)' 
-                  : '1px solid rgba(255, 215, 165, 0.4)',
+                  : '1px solid #4F2D0C',
                 overflow: 'hidden',
                 color: isLight ? 'var(--theme-text-primary)' : '#fff7ea',
                 display: 'flex',
@@ -1520,7 +1520,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
           bottom: '68px',
           height: `${transactionsHeight}px`,
           background: 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
-          borderTop: '1px solid rgba(255, 215, 165, 0.4)',
+          borderTop: '1px solid #4F2D0C',
           boxShadow: isDragging
             ? '0 -8px 24px rgba(0, 0, 0, 0.3), 0 -2px 8px rgba(254, 234, 136, 0.2)'
             : '0 -4px 12px rgba(0, 0, 0, 0.2)',

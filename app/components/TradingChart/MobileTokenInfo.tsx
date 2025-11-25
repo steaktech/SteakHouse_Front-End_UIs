@@ -167,7 +167,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
           boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
         }}>
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>
+            <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>
               {data.tokenSymbol || 'TOKEN'}:
             </span>
             <span className="text-xs font-mono" style={{ color: '#e6d4a3' }}>
@@ -176,9 +176,9 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
           </div>
           <button
             className="transition-colors"
-            style={{ color: '#d29900' }}
+            style={{ color: '#C97413' }}
             onMouseEnter={(e) => e.currentTarget.style.color = '#e6d4a3'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#d29900'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#C97413'}
             onClick={() => {
               if (data.tokenAddress) {
                 navigator.clipboard.writeText(data.tokenAddress);
@@ -195,61 +195,61 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         <div className="grid grid-cols-2 gap-3 mb-3">
           {/* Market Cap */}
           <div className={gridItemClass} style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: '#d29900' }}>MARKET CAP</span>
+            <span className={labelClass} style={{ color: '#C97413' }}>MARKET CAP</span>
             <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(data.marketCap)}</span>
           </div>
 
           {/* Liquidity (ETH → USD) */}
           <div className={gridItemClass} style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: '#d29900' }}>LIQUIDITY</span>
+            <span className={labelClass} style={{ color: '#C97413' }}>LIQUIDITY</span>
             <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(liquidityUsd)}</span>
           </div>
 
           {/* Circulating Supply */}
           <div className={gridItemClass} style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: '#d29900' }}>CIRC. SUPPLY</span>
+            <span className={labelClass} style={{ color: '#C97413' }}>CIRC. SUPPLY</span>
             <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatNumber(data.circulatingSupply)}</span>
           </div>
 
           {/* Total Supply */}
           <div className={gridItemClass} style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: '#d29900' }}>TOTAL SUPPLY</span>
+            <span className={labelClass} style={{ color: '#C97413' }}>TOTAL SUPPLY</span>
             <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatNumber(data.totalSupply)}</span>
           </div>
 
           {/* 24H Volume (ETH → USD) */}
           <div className={gridItemClass} style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: '#d29900' }}>24H VOLUME</span>
+            <span className={labelClass} style={{ color: '#C97413' }}>24H VOLUME</span>
             <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(volume24hUsd)}</span>
           </div>
 
           {/* Graduation Cap (formatted via bonding-curve MCAP when possible) */}
           <div className={gridItemClass} style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
-            <span className={labelClass} style={{ color: '#d29900' }}>GRAD. CAP</span>
+            <span className={labelClass} style={{ color: '#C97413' }}>GRAD. CAP</span>
             <span className={valueClass} style={{ color: '#e6d4a3' }}>{formatCurrency(graduationCapMcapUsd)}</span>
           </div>
         </div>
@@ -259,13 +259,13 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
           onClick={() => setShowMoreInfo(!showMoreInfo)}
           className="w-full py-2 text-xs transition-colors flex items-center justify-center gap-1 mt-1 rounded-lg border"
           style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.4)',
-            color: '#d29900',
+            background: '#241103',
+            borderColor: '#4F2D0C',
+            color: '#C97413',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}
           onMouseEnter={(e) => e.currentTarget.style.color = '#e6d4a3'}
-          onMouseLeave={(e) => e.currentTarget.style.color = '#d29900'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#C97413'}
         >
           {showMoreInfo ? 'Less Info' : 'More Info'}
           <svg
@@ -281,13 +281,13 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
         {/* Expandable More Info Section */}
         {showMoreInfo && (
           <div className="mt-3 space-y-2 rounded-lg border p-3" style={{
-            background: 'linear-gradient(180deg, #1A0F08, #241207)',
-            borderColor: 'rgba(255, 210, 160, 0.25)',
+            background: '#241103',
+            borderColor: '#4F2D0C',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
           }}>
             {/* Status */}
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Status</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Status</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.graduated ? (
                   <span className="text-green-400 flex items-center gap-1">
@@ -314,7 +314,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Description */}
             <div className="flex justify-between items-start py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider mr-4" style={{ color: '#d29900' }}>Description</span>
+              <span className="text-xs uppercase tracking-wider mr-4" style={{ color: '#C97413' }}>Description</span>
               <span className="text-xs font-semibold text-right max-w-[60%] break-words" style={{ color: '#e6d4a3' }}>
                 {data.description && data.description.trim().length > 0 ? data.description : '-'}
               </span>
@@ -322,7 +322,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Token Type */}
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Token Type</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Token Type</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.tokenType === 0 ? 'ZERO' :
                   data.tokenType === 1 ? 'SUPER SIMPLE' :
@@ -335,7 +335,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Supply percentage */}
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Supply %</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Supply %</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.circulatingSupply && data.totalSupply
                   ? `${((data.circulatingSupply / data.totalSupply) * 100).toFixed(2)}%`
@@ -346,13 +346,13 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Current / Final Max Tx */}
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Current MaxTx</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Current MaxTx</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.currentMaxTx != null ? formatPercent(data.currentMaxTx) : '-'}
               </span>
             </div>
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Final MaxTx</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Final MaxTx</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.finalMaxTx != null ? formatPercent(data.finalMaxTx) : '-'}
               </span>
@@ -360,13 +360,13 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Current / Final Max Wallet */}
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Current MaxWallet</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Current MaxWallet</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.currentMaxWallet != null ? formatPercent(data.currentMaxWallet) : '-'}
               </span>
             </div>
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Final MaxWallet</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Final MaxWallet</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.finalMaxWallet != null ? formatPercent(data.finalMaxWallet) : '-'}
               </span>
@@ -374,13 +374,13 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Current / Final Tax */}
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Current Tax</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Current Tax</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.currentTax != null ? `${data.currentTax.toFixed(2)}%` : '-'}
               </span>
             </div>
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255, 210, 160, 0.15)' }}>
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Final Tax</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Final Tax</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.finalTax != null ? `${data.finalTax.toFixed(2)}%` : '-'}
               </span>
@@ -388,7 +388,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
             {/* Created at */}
             <div className="flex justify-between items-center py-2">
-              <span className="text-xs uppercase tracking-wider" style={{ color: '#d29900' }}>Created At</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: '#C97413' }}>Created At</span>
               <span className="text-xs font-semibold" style={{ color: '#e6d4a3' }}>
                 {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
                   month: 'short',
