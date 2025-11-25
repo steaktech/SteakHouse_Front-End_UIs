@@ -1417,7 +1417,7 @@ export default function TradingChart({ tokenAddress = "0xc139475820067e2A9a09aAB
                 borderRadius: 'clamp(14px, 2vw, 20px)',
                 background: isLight
                   ? 'var(--theme-grad-card)'
-                  : 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+                  : 'linear-gradient(180deg, #1A0F08, #241207)',
                 boxShadow: isLight 
                   ? '0 4px 12px rgba(62, 39, 35, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)' 
                   : '0 3px 8px rgba(0, 0, 0, 0.2)',

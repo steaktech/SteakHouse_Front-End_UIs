@@ -156,7 +156,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
 
   return (
     <div className="w-full border-b" style={{
-      background: 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, var(--ab-bg-500) 58%, var(--ab-bg-400) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
+      background: 'linear-gradient(180deg, #1A0F08, #241207)',
       borderColor: 'rgba(255, 215, 165, 0.2)'
     }}>
       <div className="px-4 py-3">

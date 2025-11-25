@@ -206,7 +206,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
           <div style={{
             position: 'relative',
             display: 'flex',
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #7f4108, #6f3906)',
+            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #1A0F08, #241207)',
             border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.4)',
             borderRadius: '16px',
             padding: '2px',
