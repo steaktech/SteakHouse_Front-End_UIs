@@ -65,11 +65,11 @@ const SocialButton = ({ icon, href, label, isLight }: { icon: React.ReactNode, h
         transition-all duration-300 ease-out
         group-hover:-translate-y-0.5
       " style={{
-          background: isLight 
-            ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)' 
-            : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-          borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)',
-          color: isLight ? '#2b1608' : '#feea88',
+        background: isLight 
+          ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)' 
+          : '#241103',
+        borderColor: isLight ? '#c9a875' : '#4F2D0C',
+          color: isLight ? '#2b1608' : '#F6E6B6',
           boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
         }}>
         <svg
@@ -261,8 +261,8 @@ export default function MobileStats({
                 <div className="px-3 py-1.5 rounded-md border" style={{
                   background: isLight
                     ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
-                    : 'linear-gradient(180deg, rgba(255, 224, 185, 0.08), rgba(60, 32, 18, 0.15))',
-                  borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.25)',
+                    : '#241103',
+                  borderColor: isLight ? '#c9a875' : '#4F2D0C',
                   boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
                 }}>
                   <span className="text-3xl font-semibold font-degen tabular-nums" style={{ color: isLight ? '#2b1608' : '#fff7ea' }}>
@@ -323,8 +323,8 @@ export default function MobileStats({
                   style={{
                     background: isLight
                       ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
-                      : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                    borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
+                      : '#241103',
+                    borderColor: isLight ? '#c9a875' : '#4F2D0C'
                   }}
                 >
                   <Icon size={16} style={{ color: link.color }} />
@@ -334,7 +334,7 @@ export default function MobileStats({
 
             {/* Divider */}
             {socialLinks.length > 0 && (
-              <div className="w-px h-5 mx-0.5" style={{ background: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)' }}></div>
+              <div className="w-px h-5 mx-0.5" style={{ background: isLight ? '#c9a875' : '#4F2D0C' }}></div>
             )}
 
             {/* Audio Button (moved from TradingView header) */}
@@ -346,8 +346,8 @@ export default function MobileStats({
                 style={{
                   background: isLight
                     ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
-                    : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                  borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
+                    : '#241103',
+                  borderColor: isLight ? '#c9a875' : '#4F2D0C'
                 }}
                 title={isAudioPlaying ? 'Mute Audio' : 'Play Audio'}
               >
@@ -357,7 +357,7 @@ export default function MobileStats({
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke={isLight ? '#2b1608' : '#feea88'}
+                  stroke={isLight ? '#2b1608' : '#F6E6B6'}
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -389,14 +389,14 @@ export default function MobileStats({
               style={{
                 background: isLight
                   ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
-                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
+                  : '#241103',
+                borderColor: isLight ? '#c9a875' : '#4F2D0C'
               }}
               title={isSaved ? 'Saved' : 'Save token'}
             >
               <Bookmark
                 size={16}
-                style={{ color: isLight ? '#2b1608' : '#feea88' }}
+                style={{ color: isLight ? '#2b1608' : '#F6E6B6' }}
                 fill={isSaved ? 'currentColor' : 'none'}
               />
             </button>
@@ -409,12 +409,12 @@ export default function MobileStats({
               style={{
                 background: isLight
                   ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
-                  : 'linear-gradient(180deg, rgba(255, 224, 185, 0.15), rgba(60, 32, 18, 0.25))',
-                borderColor: isLight ? '#c9a875' : 'rgba(255, 210, 160, 0.3)'
+                  : '#241103',
+                borderColor: isLight ? '#c9a875' : '#4F2D0C'
               }}
               title="Share"
             >
-              <Share2 size={16} style={{ color: isLight ? '#2b1608' : '#feea88' }} />
+              <Share2 size={16} style={{ color: isLight ? '#2b1608' : '#F6E6B6' }} />
             </button>
           </div>
 
@@ -426,9 +426,9 @@ export default function MobileStats({
             <div
               className={`text-2xl font-semibold flex items-center justify-end gap-0.5 font-degen tabular-nums ${typeof priceChange24h === 'number'
                 ? priceChange24h > 0
-                  ? 'text-[#10b981]'
+                  ? 'text-[#00D08A]'
                   : priceChange24h < 0
-                    ? 'text-[#ef4444]'
+                    ? 'text-[#FF4D4D]'
                     : 'text-[#9ca3af]'
                 : 'text-[#9ca3af]'
                 }`}

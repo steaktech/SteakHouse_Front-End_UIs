@@ -413,10 +413,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({
             borderRadius: '12px',
             transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             background: activeTab === 'buy'
-              ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+              ? 'linear-gradient(180deg, #00D08A, #00D08A)'
               : activeTab === 'sell'
-                ? 'linear-gradient(180deg, #f87171, #ef4444)'
-                : 'linear-gradient(180deg, #ffd700, #daa20b)',
+                ? 'linear-gradient(180deg, #FF4D4D, #FF4D4D)'
+                : 'linear-gradient(180deg, #F0B401, #F2B905)',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
           }} />
           <button
@@ -620,7 +620,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 fontWeight: 800,
                 padding: 'clamp(8px, 1.5vh, 10px) clamp(40px, 8vw, 48px) clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vh, 16px)',
                 borderRadius: 'clamp(8px, 2vw, 12px)',
-                border: `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`,
+                border: `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? (isLight ? 'rgba(0, 208, 138, 0.5)' : 'rgba(0, 208, 138, 0.3)') : (isLight ? 'rgba(255, 77, 77, 0.5)' : 'rgba(255, 77, 77, 0.3)')}`,
                 outline: 'none',
                 textAlign: 'left',
                 fontFamily: '"Sora", "Inter", sans-serif',
@@ -630,11 +630,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0.00"
               onFocus={(e) => {
-                e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '#4ade80' : '#f87171'}`;
-                e.target.style.boxShadow = `0 0 0 2px ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+                e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? '#00D08A' : '#FF4D4D'}`;
+                e.target.style.boxShadow = `0 0 0 2px ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? 'rgba(0, 208, 138, 0.2)' : 'rgba(255, 77, 77, 0.2)'}`;
               }}
               onBlur={(e) => {
-                e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`;
+                e.target.style.border = `2px solid ${(activeTab === 'buy' || (activeTab === 'limit' && limitSide === 'buy')) ? (isLight ? 'rgba(0, 208, 138, 0.5)' : 'rgba(0, 208, 138, 0.3)') : (isLight ? 'rgba(255, 77, 77, 0.5)' : 'rgba(255, 77, 77, 0.3)')}`;
                 e.target.style.boxShadow = 'none';
               }}
             />
@@ -643,7 +643,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
               right: 'clamp(6px, 1.2vw, 8px)',
               top: '50%',
               transform: 'translateY(-50%)',
-              background: 'linear-gradient(180deg, #ffe49c, #ffc96a)',
+              background: 'linear-gradient(180deg, #F0B401, #F2B905)',
               borderRadius: '50%',
               padding: 'clamp(6px, 1.2vw, 8px)',
               color: '#3a200f',
@@ -757,18 +757,18 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                       textAlign: 'center',
                       lineHeight: 'clamp(32px, 6vh, 36px)',
                       boxSizing: 'border-box',
-                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(255,210,160,0.2)',
+                      boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(201, 116, 19, 0.2)',
                       caretColor: '#7d4f12',
                       cursor: 'text',
                     }}
                     onFocus={(e) => {
-                      e.target.style.border = '2px solid #ffd493';
-                      e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,212,147,0.35)';
+                      e.target.style.border = '2px solid #C97413';
+                      e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 3px rgba(201, 116, 19, 0.35)';
                       e.target.style.background = isLight ? 'linear-gradient(180deg, rgba(255, 251, 229, 0.75), rgba(255, 231, 178, 0.5))' : '#5c3923';
                     }}
                     onBlur={(e) => {
                       e.target.style.border = isLight ? '2px solid #e8dcc8' : '2px solid #4F2D0C';
-                      e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(255,210,160,0.2)';
+                      e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.25), 0 0 0 2px rgba(201, 116, 19, 0.2)';
                       e.target.style.background = isLight ? 'linear-gradient(180deg, #fdfbf7, #fff8f1)' : '#5c3923';
                     }}
                   />
@@ -779,9 +779,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                       background: isLight
                         ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
                         : 'linear-gradient(180deg, #1A0F08, #241207)',
-                      border: isLight
-                        ? '1px solid #e8dcc8'
-                        : '1px solid #4F2D0C',
+                      border: (slippagePct === p)
+                        ? (isLight ? '2px solid #C97413' : '2px solid #C97413')
+                        : (isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C'),
                       borderRadius: 'clamp(8px, 1.6vw, 12px)',
                       padding: '0 8px',
                       minHeight: 'clamp(32px, 6vh, 36px)',
@@ -792,6 +792,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                       fontSize: 'clamp(8px, 1.4vw, 11px)',
                       fontWeight: 800,
                       cursor: 'pointer',
+                      boxShadow: (slippagePct === p)
+                        ? '0 0 0 3px rgba(201, 116, 19, 0.35)'
+                        : 'none',
+                      transition: 'all 200ms ease'
                     }}>{p}%</button>
                   ))}
                 </div>
@@ -909,7 +913,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 <span style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
                   fontWeight: 800,
-                  color: (position && (position.openPnlUsd + position.realizedPnlUsd) < 0) ? '#f87171' : '#4ade80',
+                  color: (position && (position.openPnlUsd + position.realizedPnlUsd) < 0) ? '#FF4D4D' : '#00D08A',
                   letterSpacing: '0.2px'
                 }}>{loadingPosition ? 'Loading…' : (position ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format((position.openPnlUsd || 0) + (position.realizedPnlUsd || 0)) : (positionError ? '—' : '$0.00'))}</span>
               </div> */}
@@ -945,10 +949,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({
               style={{
                 width: '100%',
                 background: !isConnected 
-                  ? 'linear-gradient(180deg, #d4af37, #b8941f 60%, #a0821a)'
+                  ? 'linear-gradient(180deg, #F0B401, #F2B905)'
                   : activeTab === 'buy'
-                    ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                    : 'linear-gradient(180deg, #f87171, #ef4444)',
+                    ? 'linear-gradient(180deg, #00D08A, #00D08A)'
+                    : 'linear-gradient(180deg, #FF4D4D, #FF4D4D)',
                 color: '#1f2937',
                 fontWeight: 800,
                 fontSize: 'clamp(10px, 2vw, 13px)',
@@ -1015,8 +1019,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 transition: 'all 300ms ease-in-out',
                 transform: limitSide === 'buy' ? 'translateX(0)' : 'translateX(calc(100% + 3px))',
                 background: limitSide === 'buy'
-                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                  : 'linear-gradient(180deg, #f87171, #ef4444)',
+                  ? 'linear-gradient(180deg, #00D08A, #00D08A)'
+                  : 'linear-gradient(180deg, #FF4D4D, #FF4D4D)',
                 boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15)'
               }} />
               <button
@@ -1104,7 +1108,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                     fontWeight: 800,
                     padding: 'clamp(8px, 1.5vh, 10px) clamp(12px, 2.5vh, 16px)',
                     borderRadius: 'clamp(10px, 2.5vw, 16px)',
-                    border: `2px solid ${limitSide === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+                    border: `2px solid ${limitSide === 'buy' ? 'rgba(0, 208, 138, 0.3)' : 'rgba(255, 77, 77, 0.3)'}`,
                     outline: 'none',
                     textAlign: 'left',
                     fontFamily: '"Sora", "Inter", sans-serif',
@@ -1113,11 +1117,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                   }}
                   placeholder="0.00"
                   onFocus={(e) => {
-                    e.target.style.border = `2px solid ${limitSide === 'buy' ? '#4ade80' : '#f87171'}`;
-                    e.target.style.boxShadow = `0 0 0 2px ${limitSide === 'buy' ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`;
+                    e.target.style.border = `2px solid ${limitSide === 'buy' ? '#00D08A' : '#FF4D4D'}`;
+                    e.target.style.boxShadow = `0 0 0 2px ${limitSide === 'buy' ? 'rgba(0, 208, 138, 0.2)' : 'rgba(255, 77, 77, 0.2)'}`;
                   }}
                   onBlur={(e) => {
-                    e.target.style.border = `2px solid ${limitSide === 'buy' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`;
+                    e.target.style.border = `2px solid ${limitSide === 'buy' ? 'rgba(0, 208, 138, 0.3)' : 'rgba(255, 77, 77, 0.3)'}`;
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -1213,8 +1217,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({
                 width: '100%',
                 background: limitPrice
                   ? (limitSide === 'buy'
-                    ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                    : 'linear-gradient(180deg, #f87171, #ef4444)')
+                    ? 'linear-gradient(180deg, #00D08A, #00D08A)'
+                    : 'linear-gradient(180deg, #FF4D4D, #FF4D4D)')
                   : 'linear-gradient(180deg, #6b7280, #4b5563)',
                 color: limitPrice ? '#1f2937' : '#9ca3af',
                 fontWeight: 800,

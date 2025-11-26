@@ -38,18 +38,18 @@ export const OrderNotification: React.FC<OrderNotificationProps> = ({ notificati
     switch (type) {
       case 'success':
         return {
-          bg: 'linear-gradient(180deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15))',
-          border: 'rgba(34, 197, 94, 0.4)',
-          icon: '#22c55e',
-          title: '#16a34a',
+          bg: 'linear-gradient(180deg, rgba(0, 208, 138, 0.15), rgba(0, 208, 138, 0.15))',
+          border: 'rgba(0, 208, 138, 0.4)',
+          icon: '#00D08A',
+          title: '#00D08A',
           text: '#bbf7d0'
         };
       case 'error':
         return {
-          bg: 'linear-gradient(180deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15))',
-          border: 'rgba(239, 68, 68, 0.4)',
-          icon: '#ef4444',
-          title: '#dc2626',
+          bg: 'linear-gradient(180deg, rgba(255, 77, 77, 0.15), rgba(255, 77, 77, 0.15))',
+          border: 'rgba(255, 77, 77, 0.4)',
+          icon: '#FF4D4D',
+          title: '#FF4D4D',
           text: '#fecaca'
         };
       case 'warning':

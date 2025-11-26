@@ -541,15 +541,15 @@ body {
 }
 
 .buy-btn-active {
-  border: 3px solid #93eca8;
-  color: #93eca8;
-  background: #0a8834;
+  border: 3px solid #00D08A;
+  color: #00D08A;
+  background: #00D08A;
 }
 
 .sell-btn-active {
-  border: 3px solid #ff3b3b;
-  color: #ff3b3b;
-  background: #a71c1c;
+  border: 3px solid #FF4D4D;
+  color: #FF4D4D;
+  background: #FF4D4D;
 }
 
 .text-\[\#fff4da\] {

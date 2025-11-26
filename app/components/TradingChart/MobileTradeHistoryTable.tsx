@@ -530,7 +530,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                                 height: 'clamp(16px, 4.5vw, 20px)',
                                 borderRadius: 'clamp(4px, 1.5vw, 6px)',
                                 background: isBuy
-                                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
+                                  ? 'linear-gradient(180deg, #00D08A, #00D08A)'
                                   : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
                                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                                 flexShrink: 0
@@ -539,7 +539,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                               </div>
                               <span style={{
                                 fontWeight: 800,
-                                color: isBuy ? '#4ade80' : '#ff7a6f',
+                                color: isBuy ? '#00D08A' : '#ff7a6f',
                                 fontSize: 'clamp(8px, 2.2vw, 10px)',
                                 whiteSpace: 'nowrap'
                               }}>
@@ -674,9 +674,9 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                       .map((order) => {
                         const isBuy = order.side === 'buy';
                         const statusColor =
-                          order.status === 'filled' ? '#4ade80' :
-                            order.status === 'cancelled' ? '#ff5b58' :
-                              order.status === 'failed' ? '#ef4444' :
+                          order.status === 'filled' ? '#00D08A' :
+                            order.status === 'cancelled' ? '#FF4D4D' :
+                              order.status === 'failed' ? '#FF4D4D' :
                                 '#feea88';
 
                         return (
@@ -710,15 +710,15 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                                 height: '18px',
                                 borderRadius: '6px',
                                 background: isBuy
-                                  ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-                                  : 'linear-gradient(180deg, #ff7a6f, #ff5b58)',
+                                  ? 'linear-gradient(180deg, #00D08A, #00D08A)'
+                                  : 'linear-gradient(180deg, #FF4D4D, #FF4D4D)',
                                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                               }}>
                                 {isBuy ? <BuyArrow size={9} /> : <SellArrow size={9} />}
                               </div>
                               <span style={{
                                 fontWeight: 800,
-                                color: isBuy ? '#4ade80' : '#ff7a6f',
+                                color: isBuy ? '#00D08A' : '#FF4D4D',
                                 fontSize: '9px',
                                 textTransform: 'uppercase'
                               }}>
@@ -863,7 +863,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                             >
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{shortenAddress(trader.address)}</span>
                               {copiedItem === `trader-${actualRank}` ? (
-                                <span style={{ color: '#4ade80', fontSize: 'clamp(7px, 2vw, 9px)', flexShrink: 0 }}>✓</span>
+                                <span style={{ color: '#00D08A', fontSize: 'clamp(7px, 2vw, 9px)', flexShrink: 0 }}>✓</span>
                               ) : (
                                 <span style={{ color: '#feea88', fontSize: 'clamp(7px, 2vw, 9px)', flexShrink: 0 }}>📋</span>
                               )}
@@ -881,7 +881,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
 
                             {/* Profit */}
                             <div style={{
-                              color: trader.profit >= 0 ? '#4ade80' : '#ff7a6f',
+                              color: trader.profit >= 0 ? '#00D08A' : '#ff7a6f',
                               fontWeight: 800,
                               fontSize: 'clamp(8px, 2.5vw, 10px)',
                               wordBreak: 'break-all',
@@ -946,7 +946,7 @@ export const MobileTradeHistoryTable: React.FC<MobileTradeHistoryTableProps> = (
                 <div style={{
                   fontSize: '12px',
                   fontWeight: 700,
-                  color: priceStats.priceChange24h >= 0 ? '#4ade80' : '#ff7a6f',
+                  color: priceStats.priceChange24h >= 0 ? '#00D08A' : '#ff7a6f',
                   marginTop: '4px'
                 }}>
                   {priceStats.priceChange24h >= 0 ? '+' : ''}{priceStats.priceChange24h.toFixed(2)}% (24h)

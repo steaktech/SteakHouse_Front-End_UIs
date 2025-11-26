@@ -245,8 +245,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               borderRadius: '13px',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               background: showLimitOrders 
-                ? (isLight ? 'linear-gradient(180deg, #d97706, #b45309)' : 'linear-gradient(180deg, #ffd700, #daa20b)')
-                : (isLight ? 'linear-gradient(180deg, #22c55e, #15803d)' : 'linear-gradient(180deg, #4ade80, #22c55e)'),
+                ? (isLight ? 'linear-gradient(180deg, #F0B401, #F2B905)' : 'linear-gradient(180deg, #F0B401, #F2B905)')
+                : (isLight ? 'linear-gradient(180deg, #00D08A, #00D08A)' : 'linear-gradient(180deg, #00D08A, #00D08A)'),
               boxShadow: '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }} />
             <button
@@ -421,7 +421,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               setAddressFilter('');
             }}
             style={{
-              background: 'linear-gradient(180deg, #f87171, #ef4444)',
+              background: 'linear-gradient(180deg, #FF4D4D, #FF4D4D)',
               border: 'none',
               borderRadius: 'clamp(6px, 1.5vw, 8px)',
               padding: 'clamp(5px, 1.2vh, 7px) clamp(10px, 2.5vw, 14px)',
@@ -516,7 +516,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: tx.positive ? '#22c55e' : '#ef4444',
+                      background: tx.positive ? '#00D08A' : '#FF4D4D',
                       color: 'white',
                       fontSize: '10px',
                       fontWeight: 'bold',
@@ -528,7 +528,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     <span style={{
                       fontSize: '12px',
                       fontWeight: 800,
-                      color: tx.positive ? '#22c55e' : '#ef4444',
+                      color: tx.positive ? '#00D08A' : '#FF4D4D',
                       textTransform: 'uppercase',
                       minWidth: '30px',
                       flexShrink: 0
@@ -668,7 +668,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: tx.positive ? '#22c55e' : '#ef4444',
+                    background: tx.positive ? '#00D08A' : '#FF4D4D',
                     color: 'white',
                     fontSize: '9px',
                     fontWeight: 'bold',
@@ -680,7 +680,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                   <span style={{
                     fontSize: 'clamp(11px, 2vw, 13px)',
                     fontWeight: 800,
-                    color: tx.positive ? '#22c55e' : '#ef4444',
+                    color: tx.positive ? '#00D08A' : '#FF4D4D',
                     textTransform: 'uppercase',
                     minWidth: '28px',
                     flexShrink: 0
@@ -729,7 +729,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: copiedItem === `address-${index}` ? (isLight ? '#16a34a' : '#86efac') : (isLight ? '#5c4033' : '#C97413'),
+                      color: copiedItem === `address-${index}` ? (isLight ? '#00D08A' : '#00D08A') : (isLight ? '#5c4033' : '#C97413'),
                       fontSize: 'clamp(9px, 1.8vw, 11px)',
                       fontFamily: 'monospace',
                       cursor: 'pointer',

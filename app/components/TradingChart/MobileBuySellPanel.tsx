@@ -277,8 +277,8 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
 
   // Colors based on Buy/Sell for active states in the new theme
   const activeGradient = orderType === 'buy'
-    ? 'linear-gradient(180deg, #4ade80, #22c55e)'
-    : 'linear-gradient(180deg, #f87171, #ef4444)';
+    ? 'linear-gradient(180deg, #00D08A, #00D08A)'
+    : 'linear-gradient(180deg, #FF4D4D, #FF4D4D)';
 
   return (
     <>
@@ -630,7 +630,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                       fontWeight: 800,
                       padding: '8px 16px 8px 80px',
                       borderRadius: '10px',
-                      border: `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`,
+                      border: `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(0, 208, 138, 0.5)' : 'rgba(0, 208, 138, 0.3)') : (isLight ? 'rgba(255, 77, 77, 0.5)' : 'rgba(255, 77, 77, 0.3)')}`,
                       outline: 'none',
                       textAlign: 'right',
                       fontFamily: '"Sora", "Inter", sans-serif',
@@ -702,7 +702,7 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                     fontWeight: 800,
                     padding: '8px 60px 8px 40px',
                     borderRadius: '10px',
-                    border: `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`,
+                    border: `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(0, 208, 138, 0.5)' : 'rgba(0, 208, 138, 0.3)') : (isLight ? 'rgba(255, 77, 77, 0.5)' : 'rgba(255, 77, 77, 0.3)')}`,
                     outline: 'none',
                   textAlign: 'right',
                   fontFamily: '"Sora", "Inter", sans-serif',
@@ -711,11 +711,11 @@ export const MobileBuySellPanel: React.FC<MobileBuySellPanelProps> = ({
                 }}
                 placeholder="0.0"
                 onFocus={(e) => {
-                  e.target.style.border = `2px solid ${orderType === 'buy' ? '#4ade80' : '#f87171'}`;
-                  e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? (isLight ? 'rgba(74, 222, 128, 0.4)' : 'rgba(74, 222, 128, 0.2)') : (isLight ? 'rgba(248, 113, 113, 0.4)' : 'rgba(248, 113, 113, 0.2)')}`;
+                  e.target.style.border = `2px solid ${orderType === 'buy' ? '#00D08A' : '#FF4D4D'}`;
+                  e.target.style.boxShadow = `0 0 0 2px ${orderType === 'buy' ? (isLight ? 'rgba(0, 208, 138, 0.4)' : 'rgba(0, 208, 138, 0.2)') : (isLight ? 'rgba(255, 77, 77, 0.4)' : 'rgba(255, 77, 77, 0.2)')}`;
                 }}
                 onBlur={(e) => {
-                  e.target.style.border = `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(74, 222, 128, 0.5)' : 'rgba(74, 222, 128, 0.3)') : (isLight ? 'rgba(248, 113, 113, 0.5)' : 'rgba(248, 113, 113, 0.3)')}`;
+                  e.target.style.border = `2px solid ${(orderType === 'buy') ? (isLight ? 'rgba(0, 208, 138, 0.5)' : 'rgba(0, 208, 138, 0.3)') : (isLight ? 'rgba(255, 77, 77, 0.5)' : 'rgba(255, 77, 77, 0.3)')}`;
                   e.target.style.boxShadow = 'none';
                 }}
               />
