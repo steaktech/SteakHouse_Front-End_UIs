@@ -190,10 +190,24 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         .trade-history-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #D97706 !important;
         }
+        /* Light mode overrides: use white scrollbar */
+        [data-theme="light"] .trade-history-scrollbar::-webkit-scrollbar-track {
+          background: rgba(43, 22, 8, 0.05);
+        }
+        [data-theme="light"] .trade-history-scrollbar::-webkit-scrollbar-thumb {
+          background: #ffffff !important;
+          border: 1px solid rgba(215, 204, 200, 0.8);
+        }
+        [data-theme="light"] .trade-history-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #ffffff !important;
+        }
         /* Firefox scrollbar support */
         .trade-history-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: #C97413 rgba(255, 255, 255, 0.1) !important;
+        }
+        [data-theme="light"] .trade-history-scrollbar {
+          scrollbar-color: #ffffff rgba(43, 22, 8, 0.05) !important;
         }
       `}</style>
       <div style={{
@@ -227,11 +241,11 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           <div style={{
             position: 'relative',
             display: 'flex',
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #1A0F08, #241207)',
+            background: isLight ? '#FFFFFF' : 'linear-gradient(180deg, #1A0F08, #241207)',
             border: isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C',
             borderRadius: '16px',
             padding: '2px',
-            boxShadow: isLight ? '0 1px 3px rgba(0,0,0,0.05)' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             flexShrink: 0,
             width: '120px',
             height: '26px'
@@ -245,9 +259,9 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
               borderRadius: '13px',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               background: showLimitOrders 
-                ? (isLight ? 'linear-gradient(180deg, #F0B401, #F2B905)' : 'linear-gradient(180deg, #F0B401, #F2B905)')
-                : (isLight ? 'linear-gradient(180deg, #00D08A, #00D08A)' : 'linear-gradient(180deg, #00D08A, #00D08A)'),
-              boxShadow: '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                ? (isLight ? '#F0B401' : 'linear-gradient(180deg, #F0B401, #F2B905)')
+                : (isLight ? '#00D08A' : 'linear-gradient(180deg, #00D08A, #00D08A)'),
+              boxShadow: isLight ? 'none' : '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }} />
             <button
               onClick={() => onToggleChange(false)}
@@ -328,7 +342,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as 'all' | 'buy' | 'sell')}
             style={{
-              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              background: isLight ? '#f7f1e4' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
               border: isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C',
               borderRadius: 'clamp(5px, 1.2vw, 6px)',
               padding: 'clamp(3px, 1vh, 5px) clamp(6px, 1.6vw, 8px)',
@@ -361,7 +375,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'time' | 'size-desc' | 'size-asc' | 'address')}
             style={{
-              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              background: isLight ? '#f7f1e4' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
               border: isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C',
               borderRadius: 'clamp(6px, 1.5vw, 8px)',
               padding: 'clamp(5px, 1.2vh, 7px) clamp(8px, 2vw, 12px)',
@@ -397,7 +411,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
             value={addressFilter}
             onChange={(e) => setAddressFilter(e.target.value)}
             style={{
-              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              background: isLight ? '#f7f1e4' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
               border: isLight ? '1px solid #e8dcc8' : '1px solid rgba(255, 215, 165, 0.4)',
               borderRadius: 'clamp(6px, 1.5vw, 8px)',
               padding: 'clamp(5px, 1.2vh, 7px) clamp(8px, 2vw, 12px)',
@@ -468,7 +482,7 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
         display: 'flex',
         flexDirection: 'column'
       }}>
-        <div className="trade-history-scrollbar" style={{ 
+            <div className="trade-history-scrollbar" style={{ 
           overflowY: 'auto', 
           height: '100%', 
           display: 'flex', 
@@ -481,8 +495,8 @@ export const TradeHistory: React.FC<TradeHistoryProps> = ({
           {getFilteredAndSortedTransactions().map((tx, index) => (
             <div key={index} style={{
               background: isMobile 
-                ? (isLight ? 'var(--theme-grad-card)' : 'rgba(87, 37, 1, 0.6)')
-                : (isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))'),
+                ? (isLight ? '#FFFFFF' : 'rgba(87, 37, 1, 0.6)')
+                : (isLight ? '#FFFFFF' : 'linear-gradient(180deg, rgba(87, 37, 1, 0.4), rgba(87, 37, 1, 0.3) 50%, rgba(87, 37, 1, 0.35) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0))'),
               border: isMobile 
                 ? (isLight ? '1px solid #e8dcc8' : '2px solid #4F2D0C')
                 : (isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C'),

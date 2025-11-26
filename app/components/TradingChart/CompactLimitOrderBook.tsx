@@ -206,11 +206,11 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
           <div style={{
             position: 'relative',
             display: 'flex',
-            background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #1A0F08, #241207)',
+            background: isLight ? '#FFFFFF' : 'linear-gradient(180deg, #1A0F08, #241207)',
             border: isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C',
             borderRadius: '16px',
             padding: '2px',
-            boxShadow: isLight ? 'inset 0 1px 2px rgba(0,0,0,0.05)' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             flexShrink: 0,
             width: '120px',
             height: '26px'
@@ -224,9 +224,9 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
               borderRadius: '13px',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               background: showLimitOrders 
-                ? 'linear-gradient(180deg, #ffd700, #daa20b)'
-                : 'linear-gradient(180deg, #00D08A, #00D08A)',
-              boxShadow: '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
+                ? (isLight ? '#F0B401' : 'linear-gradient(180deg, #ffd700, #daa20b)')
+                : (isLight ? '#00D08A' : 'linear-gradient(180deg, #00D08A, #00D08A)'),
+              boxShadow: isLight ? 'none' : '0 2px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
             }} />
             <button
               onClick={() => onToggleChange(false)}
@@ -297,7 +297,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ 
             fontSize: 'clamp(9px, 1.6vw, 11px)', 
-            color: isLight ? '#b45309' : '#C97413',
+            color: isLight ? '#856D57' : '#C97413',
             fontWeight: 800,
             textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.4)',
             letterSpacing: '0.2px'
@@ -306,7 +306,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
             style={{
-              background: isLight ? 'var(--theme-grad-card)' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
+              background: isLight ? '#f7f1e4' : 'linear-gradient(180deg, #3a1c08, #2d1506)',
               border: isLight ? '1px solid #e8dcc8' : '1px solid #4F2D0C',
               borderRadius: 'clamp(5px, 1.2vw, 6px)',
               padding: 'clamp(3px, 1vh, 5px) clamp(6px, 1.6vw, 8px)',
@@ -387,7 +387,7 @@ export const CompactLimitOrderBook: React.FC<CompactLimitOrderBookProps> = ({
         <span style={{ 
           marginLeft: 'auto',
           fontSize: 'clamp(11px, 2vw, 13px)', 
-          color: isLight ? '#b45309' : '#C97413',
+          color: isLight ? '#856D57' : '#C97413',
           fontWeight: 800,
           textShadow: isLight ? 'none' : '0 1px 0 rgba(0, 0, 0, 0.4)',
           letterSpacing: '0.3px'

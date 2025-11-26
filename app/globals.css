@@ -343,18 +343,22 @@ body {
 }
 
 [data-theme="light"] .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #a68b6c;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: #ffffff;
+  border: 1px solid rgba(215, 204, 200, 0.8);
 }
 
 [data-theme="light"] .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #8c7355;
+  background: #ffffff;
 }
 
 /* Firefox scrollbar support */
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #C97413 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .custom-scrollbar {
+  scrollbar-color: #ffffff rgba(43, 22, 8, 0.05);
 }
 
 /* Themed scrollbar for mobile trading view */

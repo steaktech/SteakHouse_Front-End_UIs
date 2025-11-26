@@ -211,7 +211,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
       <aside
     style={sidebarStyle}
     className={`fixed inset-x-0 bottom-0 md:fixed md:[top:var(--sidebar-top-offset)] md:left-0 md:right-auto md:max-h-[var(--sidebar-max-height)] z-40 flex flex-col overflow-hidden select-none h-[55vh] md:h-auto w-full rounded-t-2xl md:rounded-xl border backdrop-blur-xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] transform transition-transform duration-300 
-    ${isLight ? 'bg-white/85 border-[#e6ccb2]' : 'bg-[#1b0a03]/35 border-white/15'} 
+    ${isLight ? 'bg-[#EEE5D2] border-[#e6ccb2]' : 'bg-[#1b0a03]/35 border-white/15'} 
     ${expanded ? 'translate-y-0 md:translate-x-0 md:translate-y-0 md:w-[160px] pointer-events-auto' : 'translate-y-full md:translate-y-0 md:-translate-x-full md:w-0 pointer-events-none'} ${className || ''}`}
       >
         {/* Header */}
@@ -292,7 +292,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
             `}</style>
             <button
               onClick={() => setAirdropOpen(true)}
-              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
+              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-[#F1B702] text-[#1a0f08] hover:brightness-110 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
               title="View your airdrop points"
             >
               {expanded ? (
@@ -417,9 +417,9 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               onClick={handleCertikClick}
               onMouseEnter={() => setIsCertikHovered(true)}
               onMouseLeave={() => setIsCertikHovered(false)}
-              className={`p-1.5 border rounded-md transition-all duration-200 flex items-center justify-center w-full relative ${
+              className={`p-1.5 border rounded-[8px] transition-all duration-200 flex items-center justify-center w-full relative ${
                 isCertikHovered ? 'certik-wrapper-animated-sidebar' : ''
-              } ${isLight ? 'bg-white hover:bg-[#fff8f1] border-[#e6ccb2]' : 'bg-black/30 hover:bg-black/50 border-white/40'}`}
+              } ${isLight ? 'bg-white/50 hover:bg-white/70 border-[#e6ccb2] backdrop-blur' : 'bg-black/30 hover:bg-black/50 border-white/40'}`}
               title="View CertiK Certificate"
               style={{
                 transform: isCertikHovered ? 'scale(1.1)' : 'scale(1)', 
@@ -438,7 +438,7 @@ export const PageSidebar: React.FC<PageSidebarProps> = ({ className }) => {
               <img
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"
-                className="h-[14px] w-auto opacity-90"
+                className={`h-[14px] w-auto opacity-90 ${isLight ? 'invert' : ''}`}
               />
             </button>
           </div>

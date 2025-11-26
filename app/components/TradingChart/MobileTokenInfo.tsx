@@ -155,7 +155,7 @@ export default function MobileTokenInfo({ data }: MobileTokenInfoProps) {
   // Theme-aware styles
   const getContainerStyle = () => ({
     background: theme === 'light' 
-      ? 'var(--theme-grad-card)'
+      ? '#EEE5D2'
       : 'linear-gradient(180deg, #1A0F08, #241207)',
     borderColor: theme === 'light' 
       ? 'var(--theme-border-subtle)'

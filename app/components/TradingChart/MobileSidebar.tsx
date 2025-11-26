@@ -25,9 +25,9 @@ const WidgetCard: React.FC<WidgetCardProps> = ({ icon, text, active, onClick, co
   
   // Chat widget colors
   const activeStyle = {
-    background: 'linear-gradient(180deg, #ffc24b, #ffb020)',
+    background: '#F1B702',
     border: '1px solid #8b5a2b',
-    color: '#1c0f07'
+    color: '#1c0f08'
   };
   
   const inactiveStyle = {

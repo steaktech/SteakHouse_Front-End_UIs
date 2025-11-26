@@ -66,11 +66,11 @@ const SocialButton = ({ icon, href, label, isLight }: { icon: React.ReactNode, h
         group-hover:-translate-y-0.5
       " style={{
         background: isLight 
-          ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)' 
+          ? '#FFFFFF'
           : '#241103',
-        borderColor: isLight ? '#c9a875' : '#4F2D0C',
-          color: isLight ? '#2b1608' : '#F6E6B6',
-          boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
+        borderColor: isLight ? '#D7CCC9' : '#4F2D0C',
+        color: isLight ? '#2b1608' : '#F6E6B6',
+        boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'none'
         }}>
         <svg
           viewBox="0 0 24 24"
@@ -213,7 +213,7 @@ export default function MobileStats({
     <>
       <div className="px-3 py-3 border-b" style={{
         background: isLight
-          ? 'var(--theme-grad-card)'
+          ? '#EEE5D2'
           : 'linear-gradient(180deg, #1A0F08, #1A0F08 10%, #1A0F08 58%, #241207 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0))',
         borderColor: isLight ? '#c9a875' : 'rgba(255, 215, 165, 0.2)'
       }}>
@@ -260,9 +260,9 @@ export default function MobileStats({
               {currentPrice !== undefined && (
                 <div className="px-3 py-1.5 rounded-md border" style={{
                   background: isLight
-                    ? 'linear-gradient(180deg, #ffffff, #fdfbf7)'
+                    ? '#FFFFFF'
                     : '#241103',
-                  borderColor: isLight ? '#c9a875' : '#4F2D0C',
+                  borderColor: isLight ? '#D7CCC9' : '#4F2D0C',
                   boxShadow: isLight ? '0 1px 2px rgba(0,0,0,0.05)' : 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
                 }}>
                   <span className="text-3xl font-semibold font-degen tabular-nums" style={{ color: isLight ? '#2b1608' : '#fff7ea' }}>
@@ -322,9 +322,9 @@ export default function MobileStats({
                   title={link.label}
                   style={{
                     background: isLight
-                      ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                      ? '#FFFFFF'
                       : '#241103',
-                    borderColor: isLight ? '#c9a875' : '#4F2D0C'
+                    borderColor: isLight ? '#D7CCC9' : '#4F2D0C'
                   }}
                 >
                   <Icon size={16} style={{ color: link.color }} />
@@ -345,9 +345,9 @@ export default function MobileStats({
                 className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
                 style={{
                   background: isLight
-                    ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                    ? '#FFFFFF'
                     : '#241103',
-                  borderColor: isLight ? '#c9a875' : '#4F2D0C'
+                  borderColor: isLight ? '#D7CCC9' : '#4F2D0C'
                 }}
                 title={isAudioPlaying ? 'Mute Audio' : 'Play Audio'}
               >
@@ -388,9 +388,9 @@ export default function MobileStats({
               className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
                 background: isLight
-                  ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                  ? '#FFFFFF'
                   : '#241103',
-                borderColor: isLight ? '#c9a875' : '#4F2D0C'
+                borderColor: isLight ? '#D7CCC9' : '#4F2D0C'
               }}
               title={isSaved ? 'Saved' : 'Save token'}
             >
@@ -408,9 +408,9 @@ export default function MobileStats({
               className="p-1.5 rounded-md border transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
                 background: isLight
-                  ? 'linear-gradient(180deg, #fdfbf7, #f3eadd)'
+                  ? '#FFFFFF'
                   : '#241103',
-                borderColor: isLight ? '#c9a875' : '#4F2D0C'
+                borderColor: isLight ? '#D7CCC9' : '#4F2D0C'
               }}
               title="Share"
             >

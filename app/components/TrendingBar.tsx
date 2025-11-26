@@ -102,7 +102,7 @@ export default function TrendingBar() {
         </div>
 
         {/* Main bar with bull image and scrolling profiles */}
-        <div className={`flex-grow backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center ${isLight ? 'bg-white/60 border-b border-[#e6ccb2]' : 'bg-black/20'}`}>
+        <div className={`flex-grow backdrop-blur-lg rounded-l-full -ml-15 z-10 h-18 -mt-1 flex items-center ${isLight ? 'bg-white/60 border-b border-[#F9F0E6]' : 'bg-black/20'}`}>
           {/* <Image
             src="/images/bull.png"
             alt="Bull"
@@ -126,13 +126,13 @@ export default function TrendingBar() {
             ) : hasData ? (
               <>
                 {/* Left fade overlay */}
-                <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 pointer-events-none ${isLight ? 'bg-gradient-to-r from-[#f3eadd] to-transparent' : 'bg-gradient-to-r from-[#1c0a00] to-transparent'}`} />
+                <div className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 pointer-events-none ${isLight ? 'bg-gradient-to-r from-[#F9F0E6] to-transparent' : 'bg-gradient-to-r from-[#1c0a00] to-transparent'}`} />
                 
                 {/* Show trending data */}
                 <TrendingProfileMarquee tokens={trendingTokens} />
                 
                 {/* Right fade overlay */}
-                <div className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 pointer-events-none ${isLight ? 'bg-gradient-to-l from-[#f3eadd] to-transparent' : 'bg-gradient-to-l from-[#120a01] to-transparent'}`} />
+                <div className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 w-24 h-14 pointer-events-none ${isLight ? 'bg-gradient-to-l from-[#F9F0E6] to-transparent' : 'bg-gradient-to-l from-[#120a01] to-transparent'}`} />
               </>
             ) : (
               /* Empty state - no tokens to display */
@@ -149,7 +149,7 @@ export default function TrendingBar() {
       {/* --- Mobile Layout (Visible ONLY on Mobile) --- */}
       <div className="md:hidden">
         {/* "TRENDING" title section (full width) */}
-        <div className={`h-16 flex items-center justify-center ${isLight ? 'bg-[#f3eadd] border-b border-[#e6ccb2]' : 'bg-[#3d1e01]'}`}>
+        <div className={`h-16 flex items-center justify-center ${isLight ? 'bg-[#f3eadd] border-b border-[#F9F0E6]' : 'bg-[#3d1e01]'}`}>
           <h2 className={`font-bold text-lg ${isLight ? 'text-[#2b1200]' : 'text-[#F7F0D4]'}`}>
             TRENDING
           </h2>
@@ -170,13 +170,13 @@ export default function TrendingBar() {
           ) : hasData ? (
             <>
               {/* Left fade overlay (full height) */}
-              <div className={`absolute left-0 top-0 z-10 w-24 h-full pointer-events-none ${isLight ? 'bg-gradient-to-r from-[#f3eadd] to-transparent' : 'bg-gradient-to-r from-[#1c0a00] to-transparent'}`} />
+              <div className={`absolute left-0 top-0 z-10 w-24 h-full pointer-events-none ${isLight ? 'bg-gradient-to-r from-[#F9F0E6] to-transparent' : 'bg-gradient-to-r from-[#1c0a00] to-transparent'}`} />
 
               {/* Show trending data */}
               <TrendingProfileMarquee tokens={trendingTokens} />
 
               {/* Right fade overlay (full height) */}
-              <div className={`absolute right-0 top-0 z-10 w-24 h-full pointer-events-none ${isLight ? 'bg-gradient-to-l from-[#f3eadd] to-transparent' : 'bg-gradient-to-l from-[#120a01] to-transparent'}`} />
+              <div className={`absolute right-0 top-0 z-10 w-24 h-full pointer-events-none ${isLight ? 'bg-gradient-to-l from-[#F9F0E6] to-transparent' : 'bg-gradient-to-l from-[#120a01] to-transparent'}`} />
             </>
           ) : (
             /* Empty state - no tokens to display */

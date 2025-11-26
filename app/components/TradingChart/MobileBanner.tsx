@@ -34,7 +34,7 @@ export default function MobileBanner({
           priority // Banner is likely above the fold or close to it
         />
         {/* Gradient overlay for better text readability if needed */}
-        <div className={`absolute inset-0 pointer-events-none ${isLight ? 'bg-gradient-to-t from-white/20 to-transparent' : 'bg-gradient-to-t from-[#0a0612]/40 to-transparent'}`} />
+        <div className={`absolute inset-0 pointer-events-none ${isLight ? '' : 'bg-gradient-to-t from-[#0a0612]/40 to-transparent'}`} />
       </div>
     </div>
   );

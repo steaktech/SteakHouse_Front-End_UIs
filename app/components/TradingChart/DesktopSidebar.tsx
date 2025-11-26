@@ -338,7 +338,7 @@ const handleUserProfileClose = () => {
           ${expanded ? '' : 'lg:w-[70px]'}
         `}
         style={{
-          background: isLight ? 'var(--theme-grad-sidebar)' : 'linear-gradient(180deg, #1A0F08 0%, #241207 100%)',
+          background: isLight ? '#EEE5D2' : 'linear-gradient(180deg, #1A0F08 0%, #241207 100%)',
           boxShadow: isLight ? '0 4px 12px rgba(62, 39, 35, 0.08), inset -1px 0 0 rgba(255,255,255,0.5)' : '0 3px 8px rgba(0, 0, 0, 0.2)',
           borderRight: isLight ? '1px solid var(--theme-border)' : 'none',
           width: expanded ? `${sidebarWidth}px` : undefined,
@@ -420,7 +420,7 @@ const handleUserProfileClose = () => {
             `}</style>
             <button
               onClick={() => setAirdropOpen(true)}
-              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#d29900] to-[#f5b800] text-[#1a0f08] hover:from-[#e0a600] hover:to-[#ffc600] shadow-md hover:shadow-lg"
+              className="w-full px-2.5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all duration-200 bg-[#F1B702] text-[#1a0f08] hover:brightness-110 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
               title="View your airdrop points"
             >
               {expanded ? (
@@ -545,9 +545,9 @@ const handleUserProfileClose = () => {
               onClick={handleCertikClick}
               onMouseEnter={() => setIsCertikHovered(true)}
               onMouseLeave={() => setIsCertikHovered(false)}
-              className={`p-1.5 border rounded-md transition-all duration-200 flex items-center justify-center relative ${
+              className={`p-1.5 border rounded-[8px] transition-all duration-200 flex items-center justify-center relative ${
                 isCertikHovered ? 'certik-wrapper-animated-desktop' : ''
-              } ${isLight ? 'bg-white hover:bg-[#fff8f1] border-[#e8dcc8]' : 'bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border-[rgba(255,215,165,0.4)]'}`}
+              } ${isLight ? 'bg-white/50 hover:bg-white/70 border-[#e8dcc8] backdrop-blur' : 'bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.5)] border-[rgba(255,215,165,0.4)]'}`}
               title="View CertiK Certificate"
               style={{
                 width: expanded ? 'auto' : '100%',
@@ -567,7 +567,7 @@ const handleUserProfileClose = () => {
               <img
                 src="/images/certik-logo-v2.png"
                 alt="CertiK logo"
-                className="h-[14px] w-auto opacity-90"
+                className={`h-[14px] w-auto opacity-90 ${isLight ? 'invert' : ''}`}
               />
             </button>
           </div>

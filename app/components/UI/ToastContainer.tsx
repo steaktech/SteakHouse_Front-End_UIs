@@ -4,6 +4,7 @@ import React from 'react';
 import { useToast } from '@/app/lib/providers/ToastProvider';
 import type { Toast, ToastType } from '@/app/types/toast';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 // Individual toast component
 interface ToastItemProps {
@@ -12,20 +13,28 @@ interface ToastItemProps {
 }
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onClose }) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const getToastStyles = (type: ToastType): string => {
-    const baseStyles = "relative flex items-start gap-3 p-4 rounded-lg border shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out";
-    
+    const baseStyles = "relative flex items-start gap-3 p-4 rounded-xl border shadow-md backdrop-blur-sm transition-all duration-300 ease-in-out";
+
+    // Light, pastel-friendly palettes that still work in dark mode
     switch (type) {
       case 'success':
-        return `${baseStyles} bg-green-900/90 border-green-600/50 text-green-100`;
+        // Soft green on light, still readable in dark
+        return `${baseStyles} bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-900/90 dark:text-emerald-100 dark:border-emerald-600/60`;
       case 'error':
-        return `${baseStyles} bg-red-900/90 border-red-600/50 text-red-100`;
+        // Custom pastel error color for light mode
+        return `${baseStyles} bg-[#faa498] text-rose-950 border-rose-300 dark:bg-rose-900/90 dark:text-rose-100 dark:border-rose-600/60`;
       case 'warning':
-        return `${baseStyles} bg-yellow-900/90 border-yellow-600/50 text-yellow-100`;
+        // Warm amber/yellow but much softer
+        return `${baseStyles} bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-900/90 dark:text-amber-100 dark:border-amber-600/60`;
       case 'info':
-        return `${baseStyles} bg-blue-900/90 border-blue-600/50 text-blue-100`;
+        // Gentle blue info
+        return `${baseStyles} bg-sky-50 text-sky-900 border-sky-200 dark:bg-sky-900/90 dark:text-sky-100 dark:border-sky-600/60`;
       default:
-        return `${baseStyles} bg-gray-900/90 border-gray-600/50 text-gray-100`;
+        return `${baseStyles} bg-slate-50 text-slate-900 border-slate-200 dark:bg-slate-900/90 dark:text-slate-100 dark:border-slate-600/60`;
     }
   };
 
@@ -53,6 +62,19 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onClose }) => {
           ? 'translate-y-0 opacity-100 scale-100' 
           : 'translate-y-2 opacity-0 scale-95'
       }`}
+      style={toast.type === 'error'
+        ? (isLight
+            ? {
+                backgroundColor: '#faa498',
+                borderColor: '#f38e82',
+                color: '#4a1c18',
+              }
+            : {
+                backgroundColor: '#8f1301',
+                borderColor: '#590c01',
+                color: '#ffe9e4',
+              })
+        : undefined}
       role="alert"
       aria-live="polite"
     >
