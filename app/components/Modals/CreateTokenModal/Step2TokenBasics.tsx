@@ -99,7 +99,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
             className={`${styles.input} ${errors.gradCap ? styles.fieldError : ''}`}
             value={basics.gradCap}
             onChange={(e) => onBasicsChange('gradCap', e.target.value)}
-            placeholder="e.g., 100000 (for $100K market cap)"
+            placeholder="100000000"
           />
           {errors.gradCap && <div className={styles.error}>{errors.gradCap}</div>}
         </div>

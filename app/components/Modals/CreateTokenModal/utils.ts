@@ -18,7 +18,7 @@ export const initialState: TokenState = {
   basics: {
     name: "",
     symbol: "",
-    totalSupply: "100000000",
+    totalSupply: "",
     gradCap: "",
     gradCapWei: null,
     gradCapError: null,
@@ -95,14 +95,14 @@ export const initialState: TokenState = {
       ethAmount: '1.0'         // 1 ETH for stealth LP
     }
   },
-  meta: { 
-    desc: "", 
-    website: "", 
-    tg: "", 
-    tw: "", 
-    logo: "", 
+  meta: {
+    desc: "",
+    website: "",
+    tg: "",
+    tw: "",
+    logo: "",
     logoFile: null,
-    banner: "", 
+    banner: "",
     bannerFile: null,
     autoBrand: false,
     mp3: "",
@@ -216,7 +216,7 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
     if (!(maxWallet != null && maxWallet > 0 && maxWallet <= 100)) {
       errors.superMaxWallet = "Enter a value between 0.1-100%.";
     }
-    
+
     const maxTx = pct(curves.super.maxTx);
     if (!(maxTx != null && maxTx > 0 && maxTx <= 100)) {
       errors.superMaxTx = "Enter a value between 0.1-100%.";
@@ -358,7 +358,7 @@ export function validateV2Settings(v2Settings: any): { isValid: boolean; errors:
     if (!isValidPercent(v2Settings.advancedTaxConfig.taxDropStep)) {
       errors.advTaxDropStep = 'Tax drop step must be between 0-100%';
     }
-    
+
     // Validate that final tax is lower than or equal to start tax
     const startTax = Number(v2Settings.advancedTaxConfig.startTax);
     const finalTax = Number(v2Settings.advancedTaxConfig.finalTax);

@@ -26,7 +26,7 @@ export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-  
+
   const [isNetworkOpen, setIsNetworkOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState<string>("ETH");
   const networkRef = useRef<HTMLDivElement | null>(null);
@@ -89,7 +89,7 @@ export default function Header() {
       console.error('Failed to switch chain', e);
     }
   };
-  
+
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
@@ -260,7 +260,7 @@ export default function Header() {
             </button>
 
             {/* Network Dropdown */}
-            <div className="relative" ref={networkRef}>
+            {/* <div className="relative" ref={networkRef}>
               <button
                 className={`${styles.headerBtn} ${styles.headerBtnNetwork}`}
                 onClick={() => setIsNetworkOpen((v) => !v)}
@@ -327,7 +327,7 @@ export default function Header() {
                   </ul>
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </header>
