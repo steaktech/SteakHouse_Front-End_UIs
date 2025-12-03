@@ -164,9 +164,9 @@ export function validateBasics(basics: any): { isValid: boolean; errors: Record<
     errors.gradCap = "Graduation cap is required.";
   } else {
     const capValue = Number(basics.gradCap.trim());
-    const capOK = !isNaN(capValue) && capValue > 0;
+    const capOK = !isNaN(capValue) && capValue >= 36000 && capValue <= 500000;
     if (!capOK) {
-      errors.gradCap = "Graduation cap must be a positive dollar amount.";
+      errors.gradCap = "Graduation cap must be between $36,000 and $500,000.";
     }
   }
 

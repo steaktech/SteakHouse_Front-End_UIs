@@ -12,6 +12,8 @@ interface Step2TokenBasicsProps {
   onContinue: () => void;
 }
 
+import { initialState } from './utils';
+
 const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
   basics,
   deploymentMode,
@@ -20,6 +22,15 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
   onBack,
   onContinue
 }) => {
+  const calculateExtraCost = () => {
+    let cost = 0;
+    if (basics.removeHeader) cost += initialState.fees.headerless || 0;
+    if (basics.stealth) cost += initialState.fees.stealth || 0;
+    return cost;
+  };
+
+  const extraCost = calculateExtraCost();
+
   return (
     <div className={styles.panel}>
       <div className={styles.grid2} style={{ alignItems: 'start' }}>
@@ -68,13 +79,13 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
           <div className={styles.card}>
             <label className={styles.label}>
               Graduation Cap ($)
-              <HelpTooltip content="The dollar value target your token must reach before it graduates to a full exchange. This represents the market cap goal, not token quantity." />
+              <HelpTooltip content="The Market Cap of your token, in USD value for it to graduate from the Virtual enviroment to real Token trading on the decentralized exchange of choice" />
             </label>
             <input
               className={`${styles.input} ${errors.gradCap ? styles.fieldError : ''}`}
               value={basics.gradCap}
               onChange={(e) => onBasicsChange('gradCap', e.target.value)}
-              placeholder="100000000"
+              placeholder="100000"
             />
             {errors.gradCap && <div className={styles.error}>{errors.gradCap}</div>}
           </div>
@@ -89,7 +100,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
                 className={`${styles.segment} ${basics.lpMode === 'LOCK' ? styles.active : ''}`}
                 onClick={() => onBasicsChange('lpMode', 'LOCK')}
               >
-                Lock (Recommended)
+                Lock
               </div>
               <div
                 className={`${styles.segment} ${basics.lpMode === 'BURN' ? styles.active : ''}`}
@@ -180,7 +191,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
           {deploymentMode !== 'V2_LAUNCH' && (
             <div className={styles.card}>
               <div className={styles.label}>
-                Options
+                Extras
                 <HelpTooltip content="Additional features for your token launch. Most users can leave these unchecked." />
               </div>
               <div className={styles.row} style={{ gap: '16px' }}>
@@ -223,12 +234,19 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
         >
           Back
         </button>
-        <button
-          className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
-          onClick={onContinue}
-        >
-          Continue
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {extraCost > 0 && (
+            <div style={{ fontSize: '13px', color: 'var(--text-dim)', fontWeight: 500 }}>
+              Extra: <span style={{ color: 'var(--text)', fontWeight: 600 }}>{extraCost} ETH</span>
+            </div>
+          )}
+          <button
+            className={`${styles.btn} ${styles.btnPrimary} ${styles.navButton}`}
+            onClick={onContinue}
+          >
+            Continue
+          </button>
+        </div>
       </div>
     </div>
   );
