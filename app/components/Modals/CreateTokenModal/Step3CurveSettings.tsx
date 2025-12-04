@@ -104,24 +104,64 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
     <div className={`${styles.card} ${styles.profileBlock}`}>
       <div className={styles.label}>Basic (static)</div>
       <div className={styles.grid3}>
-        <div>
-          <div className={styles.label}>Starting curve tax (%)</div>
-          <input
-            className={`${styles.input} ${errors.basicStartTax ? styles.fieldError : ''}`}
-            value={curves.basic.startTax}
-            onChange={(e) => onCurveChange('basic', 'startTax', e.target.value)}
-            placeholder="0 - 100"
-          />
+        <div style={{ gridColumn: 'span 2' }}>
+          <div style={{ display: 'flex', width: '100%' }}>
+            {/* Left Side - Starting curve tax */}
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: 'block',
+                fontSize: '11px',
+                letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: '4px',
+                paddingLeft: '4px'
+              }}>
+                Starting curve tax (%)
+              </label>
+              <input
+                className={`${styles.input} ${errors.basicStartTax ? styles.fieldError : ''}`}
+                value={curves.basic.startTax}
+                onChange={(e) => onCurveChange('basic', 'startTax', e.target.value)}
+                placeholder="0 - 20"
+                style={{
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderRight: 'none'
+                }}
+              />
+            </div>
+
+            {/* Separator */}
+            <div style={{ width: '2px', background: '#f28c28', alignSelf: 'stretch', marginTop: '23px' }} />
+
+            {/* Right Side - Tax active for */}
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: 'block',
+                fontSize: '11px',
+                letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: '4px',
+                paddingLeft: '4px',
+                textAlign: 'right',
+                paddingRight: '4px'
+              }}>
+                Tax active for (seconds)
+              </label>
+              <input
+                className={`${styles.input} ${errors.basicTaxDuration ? styles.fieldError : ''}`}
+                value={curves.basic.taxDuration}
+                onChange={(e) => onCurveChange('basic', 'taxDuration', e.target.value)}
+                placeholder="10 - 1200"
+                style={{
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                  textAlign: 'right'
+                }}
+              />
+            </div>
+          </div>
           {errors.basicStartTax && <div className={styles.error}>{errors.basicStartTax}</div>}
-        </div>
-        <div>
-          <div className={styles.label}>Tax active for (seconds)</div>
-          <input
-            className={`${styles.input} ${errors.basicTaxDuration ? styles.fieldError : ''}`}
-            value={curves.basic.taxDuration}
-            onChange={(e) => onCurveChange('basic', 'taxDuration', e.target.value)}
-            placeholder="10 - 1200"
-          />
           {errors.basicTaxDuration && <div className={styles.error}>{errors.basicTaxDuration}</div>}
         </div>
         <div>
@@ -153,50 +193,135 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
         </div>
       </div>
       <div className={styles.grid3} style={{ marginTop: '8px' }}>
-        <div>
-          <div className={styles.label}>Max Wallet (tokens)</div>
-          <input
-            className={`${styles.input} ${errors.basicMaxWallet ? styles.fieldError : ''}`}
-            value={curves.basic.maxWallet}
-            onChange={(e) => onCurveChange('basic', 'maxWallet', e.target.value)}
-            placeholder="tokens"
-          />
-          <div className={styles.hint}>Active for duration (seconds)</div>
-          <input
-            className={`${styles.input} ${errors.basicMaxWalletDuration ? styles.fieldError : ''}`}
-            value={curves.basic.maxWalletDuration}
-            onChange={(e) => onCurveChange('basic', 'maxWalletDuration', e.target.value)}
-            placeholder="10 - 1200"
-            style={{ marginTop: '8px' }}
-          />
+        <div style={{ gridColumn: 'span 2' }}>
+          {/* <div className={styles.label} style={{ marginBottom: '8px' }}>Max Wallet</div> */}
+          <div style={{ display: 'flex', width: '100%' }}>
+            {/* Left Side - Limit */}
+            <div style={{ flex: 1 }}>
+              <label className={styles.label} style={{
+                display: 'block',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+                paddingLeft: '4px'
+              }}>
+                Max Wallet
+              </label>
+              <input
+                className={`${styles.input} ${errors.basicMaxWallet ? styles.fieldError : ''}`}
+                value={curves.basic.maxWallet}
+                onChange={(e) => onCurveChange('basic', 'maxWallet', e.target.value)}
+                placeholder="% of total supply"
+                style={{
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderRight: 'none'
+                }}
+              />
+            </div>
+
+
+            {/* Separator */}
+            <div style={{ width: '2px', background: '#f28c28', alignSelf: 'stretch', marginTop: '23px' }} />
+
+            {/* Right Side - Duration */}
+            <div style={{ flex: 1 }}>
+              <label className={styles.label} style={{
+                display: 'block',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+                paddingLeft: '4px',
+                textAlign: 'right',
+                paddingRight: '4px'
+              }}>
+                Duration (s)
+              </label>
+              <input
+                className={`${styles.input} ${errors.basicMaxWalletDuration ? styles.fieldError : ''}`}
+                value={curves.basic.maxWalletDuration}
+                onChange={(e) => onCurveChange('basic', 'maxWalletDuration', e.target.value)}
+                placeholder="10 - 1200"
+                style={{
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                  textAlign: 'right'
+                }}
+              />
+            </div>
+          </div>
           {errors.basicMaxWallet && <div className={styles.error}>{errors.basicMaxWallet}</div>}
           {errors.basicMaxWalletDuration && <div className={styles.error}>{errors.basicMaxWalletDuration}</div>}
         </div>
-        <div>
-          <div className={styles.label}>Max Tx (tokens)</div>
-          <input
-            className={`${styles.input} ${errors.basicMaxTx ? styles.fieldError : ''}`}
-            value={curves.basic.maxTx}
-            onChange={(e) => onCurveChange('basic', 'maxTx', e.target.value)}
-            placeholder="tokens"
-          />
-          <div className={styles.hint}>Active for duration (seconds)</div>
-          <input
-            className={`${styles.input} ${errors.basicMaxTxDuration ? styles.fieldError : ''}`}
-            value={curves.basic.maxTxDuration}
-            onChange={(e) => onCurveChange('basic', 'maxTxDuration', e.target.value)}
-            placeholder="10 - 1200"
-            style={{ marginTop: '8px' }}
-          />
+      </div>
+
+      {/* Max Tx - Full Width Row */}
+      <div className={styles.grid3} style={{ marginTop: '8px' }}>
+        <div style={{ gridColumn: 'span 2' }}>
+          {/* <div className={styles.label} style={{ marginBottom: '8px' }}>Max Tx</div> */}
+          <div style={{ display: 'flex', width: '100%' }}>
+            {/* Left Side - Limit */}
+            <div style={{ flex: 1 }}>
+              <label className={styles.label} style={{
+                display: 'block',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+                paddingLeft: '4px'
+              }}>
+                Max Tx
+              </label>
+              <input
+                className={`${styles.input} ${errors.basicMaxTx ? styles.fieldError : ''}`}
+                value={curves.basic.maxTx}
+                onChange={(e) => onCurveChange('basic', 'maxTx', e.target.value)}
+                placeholder="% of total supply"
+                style={{
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderRight: 'none'
+                }}
+              />
+            </div>
+
+
+            {/* Separator */}
+            <div style={{ width: '2px', background: '#f28c28', alignSelf: 'stretch', marginTop: '23px' }} />
+
+            {/* Right Side - Duration */}
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: 'block',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: '4px',
+                paddingLeft: '4px',
+                textAlign: 'right',
+                paddingRight: '4px'
+              }}>
+                Duration (s)
+              </label>
+              <input
+                className={`${styles.input} ${errors.basicMaxTxDuration ? styles.fieldError : ''}`}
+                value={curves.basic.maxTxDuration}
+                onChange={(e) => onCurveChange('basic', 'maxTxDuration', e.target.value)}
+                placeholder="10 - 1200"
+                style={{
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                  textAlign: 'right'
+                }}
+              />
+            </div>
+          </div>
           {errors.basicMaxTx && <div className={styles.error}>{errors.basicMaxTx}</div>}
           {errors.basicMaxTxDuration && <div className={styles.error}>{errors.basicMaxTxDuration}</div>}
         </div>
-        {/* <div className={styles.card}>
-          <div className={styles.label}>Validation</div>
-          <div className={styles.help}>
-            Final tax rate ∈ [0,5]. Numbers are uint256-safe; parsed as integers (use wei).
-          </div>
-        </div> */}
       </div>
     </div>
   );
@@ -221,7 +346,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advTaxStep ? styles.fieldError : ''}`}
             value={curves.advanced.taxStep}
             onChange={(e) => onCurveChange('advanced', 'taxStep', e.target.value)}
-            placeholder="e.g., 5"
+            placeholder="e.g., 1%"
           />
           {errors.advTaxStep && <div className={styles.error}>{errors.advTaxStep}</div>}
         </div>
@@ -244,7 +369,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advMaxWStart ? styles.fieldError : ''}`}
             value={curves.advanced.maxWStart}
             onChange={(e) => onCurveChange('advanced', 'maxWStart', e.target.value)}
-            placeholder="tokens"
+            placeholder="0.1 - 5%"
           />
           <div className={styles.hint}>Increase step (tokens)</div>
           <input
@@ -270,7 +395,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advMaxTStart ? styles.fieldError : ''}`}
             value={curves.advanced.maxTStart}
             onChange={(e) => onCurveChange('advanced', 'maxTStart', e.target.value)}
-            placeholder="tokens"
+            placeholder="0.1 - 5%"
           />
           <div className={styles.hint}>Increase step (tokens)</div>
           <input
