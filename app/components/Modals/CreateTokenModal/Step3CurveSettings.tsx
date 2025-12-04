@@ -120,12 +120,12 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.basicTaxDuration ? styles.fieldError : ''}`}
             value={curves.basic.taxDuration}
             onChange={(e) => onCurveChange('basic', 'taxDuration', e.target.value)}
-            placeholder="e.g., 3600"
+            placeholder="10 - 1200"
           />
           {errors.basicTaxDuration && <div className={styles.error}>{errors.basicTaxDuration}</div>}
         </div>
         <div>
-          <div className={styles.label}>Final Token Type</div>
+          <div className={styles.label}>Final ERC-20 Token Type</div>
           <div className={styles.segmented}>
             <div
               className={`${styles.segment} ${curves.finalType.BASIC === 'NO_TAX' ? styles.active : ''}`}
@@ -166,7 +166,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.basicMaxWalletDuration ? styles.fieldError : ''}`}
             value={curves.basic.maxWalletDuration}
             onChange={(e) => onCurveChange('basic', 'maxWalletDuration', e.target.value)}
-            placeholder="duration"
+            placeholder="10 - 1200"
             style={{ marginTop: '8px' }}
           />
           {errors.basicMaxWallet && <div className={styles.error}>{errors.basicMaxWallet}</div>}
@@ -185,18 +185,18 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.basicMaxTxDuration ? styles.fieldError : ''}`}
             value={curves.basic.maxTxDuration}
             onChange={(e) => onCurveChange('basic', 'maxTxDuration', e.target.value)}
-            placeholder="duration"
+            placeholder="10 - 1200"
             style={{ marginTop: '8px' }}
           />
           {errors.basicMaxTx && <div className={styles.error}>{errors.basicMaxTx}</div>}
           {errors.basicMaxTxDuration && <div className={styles.error}>{errors.basicMaxTxDuration}</div>}
         </div>
-        <div className={styles.card}>
+        {/* <div className={styles.card}>
           <div className={styles.label}>Validation</div>
           <div className={styles.help}>
             Final tax rate ∈ [0,5]. Numbers are uint256-safe; parsed as integers (use wei).
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -211,7 +211,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advStartTax ? styles.fieldError : ''}`}
             value={curves.advanced.startTax}
             onChange={(e) => onCurveChange('advanced', 'startTax', e.target.value)}
-            placeholder="0 - 100"
+            placeholder="0 - 20"
           />
           {errors.advStartTax && <div className={styles.error}>{errors.advStartTax}</div>}
         </div>
@@ -231,7 +231,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advTaxInterval ? styles.fieldError : ''}`}
             value={curves.advanced.taxInterval}
             onChange={(e) => onCurveChange('advanced', 'taxInterval', e.target.value)}
-            placeholder="e.g., 300"
+            placeholder="10 - 1200"
           />
           {errors.advTaxInterval && <div className={styles.error}>{errors.advTaxInterval}</div>}
         </div>
@@ -259,7 +259,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advMaxWInterval ? styles.fieldError : ''}`}
             value={curves.advanced.maxWInterval}
             onChange={(e) => onCurveChange('advanced', 'maxWInterval', e.target.value)}
-            placeholder="e.g., 300"
+            placeholder="10 - 1200"
             style={{ marginTop: '8px' }}
           />
           {errors.advMaxW && <div className={styles.error}>{errors.advMaxW}</div>}
@@ -285,7 +285,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advMaxTInterval ? styles.fieldError : ''}`}
             value={curves.advanced.maxTInterval}
             onChange={(e) => onCurveChange('advanced', 'maxTInterval', e.target.value)}
-            placeholder="e.g., 300"
+            placeholder="10 - 1200"
             style={{ marginTop: '8px' }}
           />
           {errors.advMaxT && <div className={styles.error}>{errors.advMaxT}</div>}
@@ -296,7 +296,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             className={`${styles.input} ${errors.advRemoveAfter ? styles.fieldError : ''}`}
             value={curves.advanced.removeAfter}
             onChange={(e) => onCurveChange('advanced', 'removeAfter', e.target.value)}
-            placeholder="e.g., 3600"
+            placeholder="10 - 1200"
           />
           <div className={styles.label} style={{ marginTop: '10px' }}>Tax receiver (address)</div>
           <input

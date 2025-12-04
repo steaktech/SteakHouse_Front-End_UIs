@@ -228,20 +228,20 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
     if (!(st != null && inRange(st, 0, 100))) {
       errors.basicStartTax = "Enter 0-100%.";
     }
-    if (!isInt(curves.basic.taxDuration) || Number(curves.basic.taxDuration) < 1800) {
-      errors.basicTaxDuration = "Enter seconds (>= 1800).";
+    if (!isInt(curves.basic.taxDuration) || !inRange(Number(curves.basic.taxDuration), 10, 1200)) {
+      errors.basicTaxDuration = "Enter seconds (10 - 1200).";
     }
     if (!isInt(curves.basic.maxWallet)) {
       errors.basicMaxWallet = "Enter integer tokens.";
     }
-    if (!isInt(curves.basic.maxWalletDuration) || Number(curves.basic.maxWalletDuration) < 1800) {
-      errors.basicMaxWalletDuration = "Enter seconds (>= 1800).";
+    if (!isInt(curves.basic.maxWalletDuration) || !inRange(Number(curves.basic.maxWalletDuration), 10, 1200)) {
+      errors.basicMaxWalletDuration = "Enter seconds (10 - 1200).";
     }
     if (!isInt(curves.basic.maxTx)) {
       errors.basicMaxTx = "Enter integer tokens.";
     }
-    if (!isInt(curves.basic.maxTxDuration) || Number(curves.basic.maxTxDuration) < 1800) {
-      errors.basicMaxTxDuration = "Enter seconds (>= 1800).";
+    if (!isInt(curves.basic.maxTxDuration) || !inRange(Number(curves.basic.maxTxDuration), 10, 1200)) {
+      errors.basicMaxTxDuration = "Enter seconds (10 - 1200).";
     }
     if (finalType.BASIC === "TAX") {
       const v = pct(curves.finalTax.BASIC);
@@ -259,24 +259,24 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
 
     const step = curves.advanced.taxStep === "" ? 0 : Number(curves.advanced.taxStep.replace(",", "."));
     const tint = curves.advanced.taxInterval === "" ? 0 : Number(curves.advanced.taxInterval);
-    if (step > 0 && !(tint >= 60)) {
-      errors.advTaxInterval = "If step > 0, interval must be ≥ 60s.";
+    if (step > 0 && !inRange(tint, 10, 1200)) {
+      errors.advTaxInterval = "If step > 0, interval must be 10-1200s.";
     }
 
     // Max Wallet validations
     const mwStartOk = isInt(curves.advanced.maxWStart) && Number(curves.advanced.maxWStart) > 0;
     const mwStepOk = (curves.advanced.maxWStep === "") || isInt(curves.advanced.maxWStep);
-    const mwIntOk = (curves.advanced.maxWStep === "") || (isInt(curves.advanced.maxWInterval) && Number(curves.advanced.maxWInterval) >= 60);
+    const mwIntOk = (curves.advanced.maxWStep === "") || (isInt(curves.advanced.maxWInterval) && inRange(Number(curves.advanced.maxWInterval), 10, 1200));
     if (!mwStartOk || !mwStepOk || !mwIntOk) {
-      errors.advMaxW = "Enter integer tokens; if step > 0, interval ≥ 60s.";
+      errors.advMaxW = "Enter integer tokens; if step > 0, interval 10-1200s.";
     }
 
     // Max Tx validations
     const mtStartOk = isInt(curves.advanced.maxTStart) && Number(curves.advanced.maxTStart) > 0;
     const mtStepOk = (curves.advanced.maxTStep === "") || isInt(curves.advanced.maxTStep);
-    const mtIntOk = (curves.advanced.maxTStep === "") || (isInt(curves.advanced.maxTInterval) && Number(curves.advanced.maxTInterval) >= 60);
+    const mtIntOk = (curves.advanced.maxTStep === "") || (isInt(curves.advanced.maxTInterval) && inRange(Number(curves.advanced.maxTInterval), 10, 1200));
     if (!mtStartOk || !mtStepOk || !mtIntOk) {
-      errors.advMaxT = "Enter integer tokens; if step > 0, interval ≥ 60s.";
+      errors.advMaxT = "Enter integer tokens; if step > 0, interval 10-1200s.";
     }
 
     // Relationship: maxTxStart <= maxWalletStart
@@ -284,8 +284,8 @@ export function validateCurve(profile: ProfileType, curves: any, finalType: any)
       errors.advMaxT = (errors.advMaxT ? errors.advMaxT + " " : "") + "Max Tx start must be ≤ Max Wallet start.";
     }
 
-    if (!isInt(curves.advanced.removeAfter)) {
-      errors.advRemoveAfter = "Enter seconds (integer).";
+    if (!isInt(curves.advanced.removeAfter) || !inRange(Number(curves.advanced.removeAfter), 10, 1200)) {
+      errors.advRemoveAfter = "Enter seconds (10 - 1200).";
     }
     if (!/^0x[a-fA-F0-9]{40}$/.test(curves.advanced.taxReceiver)) {
       errors.advTaxReceiver = "Enter a valid address (0x…40 hex).";
