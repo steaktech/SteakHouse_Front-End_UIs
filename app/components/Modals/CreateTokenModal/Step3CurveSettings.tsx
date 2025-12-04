@@ -132,7 +132,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             </div>
 
             {/* Separator */}
-            <div style={{ width: '2px', background: '#f28c28', alignSelf: 'stretch', marginTop: '23px' }} />
+            <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
 
             {/* Right Side - Tax active for */}
             <div style={{ flex: 1 }}>
@@ -223,7 +223,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
 
 
             {/* Separator */}
-            <div style={{ width: '2px', background: '#f28c28', alignSelf: 'stretch', marginTop: '23px' }} />
+            <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
 
             {/* Right Side - Duration */}
             <div style={{ flex: 1 }}>
@@ -289,7 +289,7 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
 
 
             {/* Separator */}
-            <div style={{ width: '2px', background: '#f28c28', alignSelf: 'stretch', marginTop: '23px' }} />
+            <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
 
             {/* Right Side - Duration */}
             <div style={{ flex: 1 }}>
@@ -329,113 +329,312 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
   const renderAdvancedProfile = () => (
     <div className={`${styles.card} ${styles.profileBlock}`}>
       <div className={styles.label}>Advanced (dynamic)</div>
-      <div className={styles.grid3}>
-        <div>
-          <div className={styles.label}>Starting curve tax (%)</div>
-          <input
-            className={`${styles.input} ${errors.advStartTax ? styles.fieldError : ''}`}
-            value={curves.advanced.startTax}
-            onChange={(e) => onCurveChange('advanced', 'startTax', e.target.value)}
-            placeholder="0 - 20"
-          />
-          {errors.advStartTax && <div className={styles.error}>{errors.advStartTax}</div>}
+
+      {/* Dynamic Tax Configuration */}
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', width: '100%' }}>
+          {/* Left - Start Tax */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              paddingLeft: '4px'
+            }}>
+              Starting Tax (%)
+            </label>
+            <input
+              className={`${styles.input} ${errors.advStartTax ? styles.fieldError : ''}`}
+              value={curves.advanced.startTax}
+              onChange={(e) => onCurveChange('advanced', 'startTax', e.target.value)}
+              placeholder="0 - 20"
+              style={{
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+                borderRight: 'none'
+              }}
+            />
+          </div>
+
+          {/* Separator */}
+          <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
+
+          {/* Middle - Drop Step */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              textAlign: 'center'
+            }}>
+              Drop Step (%)
+            </label>
+            <input
+              className={`${styles.input} ${errors.advTaxStep ? styles.fieldError : ''}`}
+              value={curves.advanced.taxStep}
+              onChange={(e) => onCurveChange('advanced', 'taxStep', e.target.value)}
+              placeholder="e.g. 1"
+              style={{
+                borderRadius: 0,
+                borderLeft: 'none',
+                borderRight: 'none',
+                textAlign: 'center'
+              }}
+            />
+          </div>
+
+          {/* Separator */}
+          <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
+
+          {/* Right - Interval */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              paddingRight: '4px',
+              textAlign: 'right'
+            }}>
+              Interval (s)
+            </label>
+            <input
+              className={`${styles.input} ${errors.advTaxInterval ? styles.fieldError : ''}`}
+              value={curves.advanced.taxInterval}
+              onChange={(e) => onCurveChange('advanced', 'taxInterval', e.target.value)}
+              placeholder="10 - 1200"
+              style={{
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderLeft: 'none',
+                textAlign: 'right'
+              }}
+            />
+          </div>
         </div>
-        <div>
-          <div className={styles.label}>Tax drop step (%)</div>
-          <input
-            className={`${styles.input} ${errors.advTaxStep ? styles.fieldError : ''}`}
-            value={curves.advanced.taxStep}
-            onChange={(e) => onCurveChange('advanced', 'taxStep', e.target.value)}
-            placeholder="e.g., 1%"
-          />
-          {errors.advTaxStep && <div className={styles.error}>{errors.advTaxStep}</div>}
-        </div>
-        <div>
-          <div className={styles.label}>Tax drop interval (seconds)</div>
-          <input
-            className={`${styles.input} ${errors.advTaxInterval ? styles.fieldError : ''}`}
-            value={curves.advanced.taxInterval}
-            onChange={(e) => onCurveChange('advanced', 'taxInterval', e.target.value)}
-            placeholder="10 - 1200"
-          />
-          {errors.advTaxInterval && <div className={styles.error}>{errors.advTaxInterval}</div>}
-        </div>
+        {/* Errors for Tax */}
+        {(errors.advStartTax || errors.advTaxStep || errors.advTaxInterval) && (
+          <div className={styles.error} style={{ marginTop: '4px' }}>
+            {[errors.advStartTax, errors.advTaxStep, errors.advTaxInterval].filter(Boolean).join(', ')}
+          </div>
+        )}
       </div>
 
-      <div className={styles.grid3} style={{ marginTop: '8px' }}>
-        <div>
-          <div className={styles.label}>Max Wallet start (tokens)</div>
-          <input
-            className={`${styles.input} ${errors.advMaxWStart ? styles.fieldError : ''}`}
-            value={curves.advanced.maxWStart}
-            onChange={(e) => onCurveChange('advanced', 'maxWStart', e.target.value)}
-            placeholder="0.1 - 5%"
-          />
-          <div className={styles.hint}>Increase step (tokens)</div>
-          <input
-            className={`${styles.input} ${errors.advMaxWStep ? styles.fieldError : ''}`}
-            value={curves.advanced.maxWStep}
-            onChange={(e) => onCurveChange('advanced', 'maxWStep', e.target.value)}
-            placeholder="tokens/step"
-            style={{ marginTop: '8px' }}
-          />
-          <div className={styles.hint}>Step interval (seconds)</div>
-          <input
-            className={`${styles.input} ${errors.advMaxWInterval ? styles.fieldError : ''}`}
-            value={curves.advanced.maxWInterval}
-            onChange={(e) => onCurveChange('advanced', 'maxWInterval', e.target.value)}
-            placeholder="10 - 1200"
-            style={{ marginTop: '8px' }}
-          />
-          {errors.advMaxW && <div className={styles.error}>{errors.advMaxW}</div>}
+      {/* Dynamic Max Wallet */}
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', width: '100%' }}>
+          {/* Left - Start */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              paddingLeft: '4px'
+            }}>
+              Max Wallet Start
+            </label>
+            <input
+              className={`${styles.input} ${errors.advMaxWStart ? styles.fieldError : ''}`}
+              value={curves.advanced.maxWStart}
+              onChange={(e) => onCurveChange('advanced', 'maxWStart', e.target.value)}
+              placeholder="0.1 - 5%"
+              style={{
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+                borderRight: 'none'
+              }}
+            />
+          </div>
+
+          <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
+
+          {/* Middle - Step */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              textAlign: 'center'
+            }}>
+              Step Amount
+            </label>
+            <input
+              className={`${styles.input} ${errors.advMaxWStep ? styles.fieldError : ''}`}
+              value={curves.advanced.maxWStep}
+              onChange={(e) => onCurveChange('advanced', 'maxWStep', e.target.value)}
+              placeholder="tokens"
+              style={{
+                borderRadius: 0,
+                borderLeft: 'none',
+                borderRight: 'none',
+                textAlign: 'center'
+              }}
+            />
+          </div>
+
+          <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
+
+          {/* Right - Interval */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              paddingRight: '4px',
+              textAlign: 'right'
+            }}>
+              Interval (s)
+            </label>
+            <input
+              className={`${styles.input} ${errors.advMaxWInterval ? styles.fieldError : ''}`}
+              value={curves.advanced.maxWInterval}
+              onChange={(e) => onCurveChange('advanced', 'maxWInterval', e.target.value)}
+              placeholder="10 - 1200"
+              style={{
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderLeft: 'none',
+                textAlign: 'right'
+              }}
+            />
+          </div>
         </div>
-        <div>
-          <div className={styles.label}>Max Tx start (tokens)</div>
-          <input
-            className={`${styles.input} ${errors.advMaxTStart ? styles.fieldError : ''}`}
-            value={curves.advanced.maxTStart}
-            onChange={(e) => onCurveChange('advanced', 'maxTStart', e.target.value)}
-            placeholder="0.1 - 5%"
-          />
-          <div className={styles.hint}>Increase step (tokens)</div>
-          <input
-            className={`${styles.input} ${errors.advMaxTStep ? styles.fieldError : ''}`}
-            value={curves.advanced.maxTStep}
-            onChange={(e) => onCurveChange('advanced', 'maxTStep', e.target.value)}
-            placeholder="tokens/step"
-            style={{ marginTop: '8px' }}
-          />
-          <div className={styles.hint}>Step interval (seconds)</div>
-          <input
-            className={`${styles.input} ${errors.advMaxTInterval ? styles.fieldError : ''}`}
-            value={curves.advanced.maxTInterval}
-            onChange={(e) => onCurveChange('advanced', 'maxTInterval', e.target.value)}
-            placeholder="10 - 1200"
-            style={{ marginTop: '8px' }}
-          />
-          {errors.advMaxT && <div className={styles.error}>{errors.advMaxT}</div>}
+        {(errors.advMaxWStart || errors.advMaxWStep || errors.advMaxWInterval || errors.advMaxW) && (
+          <div className={styles.error} style={{ marginTop: '4px' }}>
+            {[errors.advMaxWStart, errors.advMaxWStep, errors.advMaxWInterval, errors.advMaxW].filter(Boolean).join(', ')}
+          </div>
+        )}
+      </div>
+
+      {/* Dynamic Max Tx */}
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', width: '100%' }}>
+          {/* Left - Start */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              paddingLeft: '4px'
+            }}>
+              Max Tx Start
+            </label>
+            <input
+              className={`${styles.input} ${errors.advMaxTStart ? styles.fieldError : ''}`}
+              value={curves.advanced.maxTStart}
+              onChange={(e) => onCurveChange('advanced', 'maxTStart', e.target.value)}
+              placeholder="0.1 - 5%"
+              style={{
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+                borderRight: 'none'
+              }}
+            />
+          </div>
+
+          <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
+
+          {/* Middle - Step */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              textAlign: 'center'
+            }}>
+              Step Amount
+            </label>
+            <input
+              className={`${styles.input} ${errors.advMaxTStep ? styles.fieldError : ''}`}
+              value={curves.advanced.maxTStep}
+              onChange={(e) => onCurveChange('advanced', 'maxTStep', e.target.value)}
+              placeholder="tokens"
+              style={{
+                borderRadius: 0,
+                borderLeft: 'none',
+                borderRight: 'none',
+                textAlign: 'center'
+              }}
+            />
+          </div>
+
+          <div style={{ width: '1px', background: 'linear-gradient(to bottom, rgba(242, 140, 40, 0), #f28c28 20%, #f28c28 80%, rgba(242, 140, 40, 0))', alignSelf: 'stretch', marginTop: '23px' }} />
+
+          {/* Right - Interval */}
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '4px',
+              paddingRight: '4px',
+              textAlign: 'right'
+            }}>
+              Interval (s)
+            </label>
+            <input
+              className={`${styles.input} ${errors.advMaxTInterval ? styles.fieldError : ''}`}
+              value={curves.advanced.maxTInterval}
+              onChange={(e) => onCurveChange('advanced', 'maxTInterval', e.target.value)}
+              placeholder="10 - 1200"
+              style={{
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderLeft: 'none',
+                textAlign: 'right'
+              }}
+            />
+          </div>
         </div>
+        {(errors.advMaxTStart || errors.advMaxTStep || errors.advMaxTInterval || errors.advMaxT) && (
+          <div className={styles.error} style={{ marginTop: '4px' }}>
+            {[errors.advMaxTStart, errors.advMaxTStep, errors.advMaxTInterval, errors.advMaxT].filter(Boolean).join(', ')}
+          </div>
+        )}
+      </div>
+
+      {/* Other Settings */}
+      <div className={styles.grid2} style={{ marginBottom: '16px' }}>
         <div>
-          <div className={styles.label}>Remove all limits after (seconds)</div>
+          <div className={styles.label}>Remove all limits after (s)</div>
           <input
             className={`${styles.input} ${errors.advRemoveAfter ? styles.fieldError : ''}`}
             value={curves.advanced.removeAfter}
             onChange={(e) => onCurveChange('advanced', 'removeAfter', e.target.value)}
             placeholder="10 - 1200"
           />
-          <div className={styles.label} style={{ marginTop: '10px' }}>Tax receiver (address)</div>
+          {errors.advRemoveAfter && <div className={styles.error}>{errors.advRemoveAfter}</div>}
+        </div>
+        <div>
+          <div className={styles.label}>Tax receiver (address)</div>
           <input
             className={`${styles.input} ${errors.advTaxReceiver ? styles.fieldError : ''}`}
             value={curves.advanced.taxReceiver}
             onChange={(e) => onCurveChange('advanced', 'taxReceiver', e.target.value)}
             placeholder="0x..."
           />
-          {errors.advRemoveAfter && <div className={styles.error}>{errors.advRemoveAfter}</div>}
           {errors.advTaxReceiver && <div className={styles.error}>{errors.advTaxReceiver}</div>}
         </div>
       </div>
 
-      <div className={styles.grid3} style={{ marginTop: '8px' }}>
+      {/* Final Token Type */}
+      <div className={styles.grid2}>
         <div>
           <div className={styles.label}>Final Token Type</div>
           <div className={styles.segmented}>
@@ -463,14 +662,6 @@ const Step3CurveSettings: React.FC<Step3CurveSettingsProps> = ({
             disabled={curves.finalType.ADVANCED === 'NO_TAX'}
           />
           {errors.advFinalTax && <div className={styles.error}>{errors.advFinalTax}</div>}
-        </div>
-        <div className={styles.card}>
-          <div className={styles.label}>Shared validations</div>
-          <div className={styles.help}>
-            • Final tax rate ∈ [0,5]<br />
-            • If any step &gt; 0, corresponding interval &gt; 0<br />
-            • Use integer math (parseUnits) for tokens; no floats.
-          </div>
         </div>
       </div>
     </div>
