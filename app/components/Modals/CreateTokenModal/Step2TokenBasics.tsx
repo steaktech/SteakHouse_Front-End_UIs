@@ -73,6 +73,14 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
               onChange={(e) => onBasicsChange('totalSupply', e.target.value)}
               placeholder="1000000000"
             />
+            <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--text-dim)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div>
+                <span style={{ fontWeight: 600 }}>Min token supply:</span> 1,000,000 tokens (1e6)
+              </div>
+              <div>
+                <span style={{ fontWeight: 600 }}>Max token supply:</span> 1,000,000,000,000 tokens (1e12)
+              </div>
+            </div>
             {errors.totalSupply && <div className={styles.error}>{errors.totalSupply}</div>}
           </div>
 
@@ -204,7 +212,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
                   />
                   <span className={styles.switchLabel}>
                     Remove Header
-                    <HelpTooltip content="Removes the Steakhouse header from your token contract address for a cleaner look. Additional fee applies." className="ml-2" />
+                    <HelpTooltip content={`Removes the Steakhouse header from your token contract address for a cleaner look. Cost: ${initialState.fees.headerless} ETH`} className="ml-2" />
                   </span>
                 </label>
               </div>
@@ -218,7 +226,7 @@ const Step2TokenBasics: React.FC<Step2TokenBasicsProps> = ({
                   />
                   <span className={styles.switchLabel}>
                     Stealth Mode
-                    <HelpTooltip content="Your token won't appear in public listings until you're ready to reveal it. Good for keeping your investors private and selected." className="ml-2" />
+                    <HelpTooltip content={`Your token won't appear in public listings until you're ready to reveal it. Good for keeping your investors private and selected. Cost: ${initialState.fees.stealth} ETH`} className="ml-2" />
                   </span>
                 </label>
               </div>

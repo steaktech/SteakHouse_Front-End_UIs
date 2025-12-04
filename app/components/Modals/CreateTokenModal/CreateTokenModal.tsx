@@ -399,13 +399,13 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
           const totalFeeEth = Number(state.fees.creation || 0);
           const ethPrice = ethPriceUsd ?? 0; // Use 0 if price not available
           const usd_spent = Number((totalFeeEth * ethPrice).toFixed(2)); // Round to 2 decimals (cents)
-          
+
           console.log('[CreateTokenModal] Computing usd_spent:', {
             totalFeeEth,
             ethPrice,
             usd_spent
           });
-          
+
           await createTokenApi(state, files, resolvedTokenAddress, walletAddress, { usd_spent });
           if (resolvedTokenAddress) {
             router.push(`/trading-chart/${resolvedTokenAddress}`);
@@ -515,6 +515,12 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose }) 
                     </svg>
                     ETH: {formattedEthPrice}
                   </span>
+                  {Object.keys(errors).length > 0 && (
+                    <span className={styles.errorInlineMsg} style={{ padding: '6px 12px', fontSize: '0.85rem' }}>
+                      ⚠️ {Object.values(errors)[0]}
+                      {Object.keys(errors).length > 1 && ` (+${Object.keys(errors).length - 1} more)`}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
