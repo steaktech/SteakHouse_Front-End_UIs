@@ -120,6 +120,10 @@ export interface MetaData {
   mp3: string;
   mp3File: File | null;
   palette: string;
+  discord: string;
+  xCommunities: string;
+  documentation: string;
+  whitepaper: string;
 }
 
 export interface Fees {

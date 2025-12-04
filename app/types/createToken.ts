@@ -4,34 +4,34 @@
 export interface CreateTokenApiRequest {
   // Required fields
   token_address: string;
-  
+
   // Optional addresses
   virtual_token_address?: string;
   real_token_address?: string;
   creator?: string;
   tax_wallet?: string;
   steakhouse_treasury_basic?: string;
-  
+
   // Status & timing
   graduated?: boolean;
   graduation_timestamp?: number; // seconds
   start_time?: number; // seconds
   created_at_block?: number;
   created_at_timestamp?: number; // milliseconds
-  
+
   // Identity & media
   name?: string;
   symbol?: string;
   image_url?: string;
   banner_url?: string;
   mp3_url?: string;
-  
+
   // Big numbers (as strings)
   total_supply?: string;
   graduation_cap?: string;
   eth_pool?: string;
   circulating_supply?: string;
-  
+
   // Enums & flags
   token_type?: 0 | 1;
   is_stealth?: boolean;
@@ -41,13 +41,13 @@ export interface CreateTokenApiRequest {
 
   // Auto-branding color palette
   color_palette?: string;
-  
+
   /**
    * Explicit profile choice for backend routing: 'basic' | 'advanced' | 'simple' | 'zero'
    * Only set for virtual-curve flows where a profile is selected.
    */
   tokenChoice?: 'basic' | 'advanced' | 'simple' | 'zero';
-  
+
   // Curve & policy params - CORRECTED FIELD NAMES
   curve_starting_tax?: number; // percent (was curve_start_tax)
   curve_tax_duration?: number; // seconds
@@ -59,7 +59,7 @@ export interface CreateTokenApiRequest {
   lp_lock_duration?: number; // seconds
   burn_lp?: boolean;
   limit_removal_time?: number; // seconds
-  
+
   // Step-down configs - MISSING FIELDS ADDED
   tax_drop_step?: number; // percent step
   tax_drop_interval?: number; // seconds
@@ -67,12 +67,16 @@ export interface CreateTokenApiRequest {
   max_wallet_interval?: number; // seconds
   max_tx_step?: string; // tokens (uint256)
   max_tx_interval?: number; // seconds
-  
+
   // Social/meta
   bio?: string;
   telegram?: string;
   twitter?: string;
   website?: string;
+  discord?: string;
+  x_communities?: string;
+  documentation?: string;
+  whitepaper?: string;
 }
 
 export interface CreateTokenApiResponse {

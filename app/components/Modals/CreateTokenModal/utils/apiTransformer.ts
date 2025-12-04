@@ -15,16 +15,16 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   const request: CreateTokenApiRequest = {
     token_address: resolvedTokenAddress,
   };
-  
+
   // Basic token information
   if (state.basics.name) request.name = state.basics.name;
   if (state.basics.symbol) request.symbol = state.basics.symbol;
-  
+
   // Convert total supply to string (human-readable format as per API guide)
   if (state.basics.totalSupply) {
     request.total_supply = state.basics.totalSupply;
   }
-  
+
   // Handle deployment mode specific fields
   if (state.deploymentMode === 'VIRTUAL_CURVE') {
     // Virtual curve specific fields
@@ -41,52 +41,52 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
       const mapped = choiceMap[state.profile];
       if (mapped) request.tokenChoice = mapped;
     }
-    
+
     // Graduation cap: prefer API-computed wei token amount; fallback to USD input if missing
     if (state.basics.gradCapWei && /^\d+$/.test(state.basics.gradCapWei)) {
       request.graduation_cap = state.basics.gradCapWei;
     } else if (state.basics.gradCap) {
       request.graduation_cap = state.basics.gradCap;
     }
-    
+
     // Profile-based flags
     if (state.profile === 'ZERO') {
       request.is_zero_simple = true;
     } else if (state.profile === 'SUPER') {
       request.is_super_simple = true;
     }
-    
+
     // Stealth mode
     if (state.basics.stealth) {
       request.is_stealth = true;
     }
-    
+
     // Start time
     if (state.basics.startMode === 'NOW') {
       request.start_time = 0;
     } else if (state.basics.startTime) {
       request.start_time = state.basics.startTime;
     }
-    
+
     // LP handling
     if (state.basics.lpMode === 'BURN') {
       request.burn_lp = true;
     } else if (state.basics.lpMode === 'LOCK' && state.basics.lockDays) {
       request.lp_lock_duration = state.basics.lockDays * 24 * 60 * 60; // Convert days to seconds
     }
-    
+
     // Profile-specific curve settings
     if (state.profile && state.curves) {
       const curves = state.curves;
-      
+
       // Final tax configuration
       const finalType = curves.finalType[state.profile];
       const finalTax = curves.finalTax[state.profile];
-      
+
       if (finalType === 'TAX' && finalTax) {
         request.final_tax_rate = parseFloat(finalTax);
       }
-      
+
       switch (state.profile) {
         case 'SUPER':
           // Simple profile with basic limits
@@ -103,7 +103,7 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
             request.curve_max_tx = (totalSupply * BigInt(Math.floor(maxTxPercent * 1e6)) / BigInt(1e6)).toString();
           }
           break;
-          
+
         case 'BASIC':
           // Basic profile with timed tax and limits
           if (curves.basic.startTax) {
@@ -129,11 +129,11 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
             request.curve_max_tx_duration = parseInt(curves.basic.maxTxDuration);
           }
           break;
-          
+
         case 'ADVANCED':
           // Advanced profile with step-down configuration
           const adv = curves.advanced;
-          
+
           if (adv.startTax) {
             request.curve_starting_tax = parseFloat(adv.startTax);
           }
@@ -143,7 +143,7 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
           if (adv.taxInterval) {
             request.tax_drop_interval = parseInt(adv.taxInterval);
           }
-          
+
           // Max wallet configuration
           if (adv.maxWStart) {
             const maxWalletPercent = parseFloat(adv.maxWStart) / 100;
@@ -158,7 +158,7 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
           if (adv.maxWInterval) {
             request.max_wallet_interval = parseInt(adv.maxWInterval);
           }
-          
+
           // Max tx configuration
           if (adv.maxTStart) {
             const maxTxPercent = parseFloat(adv.maxTStart) / 100;
@@ -173,7 +173,7 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
           if (adv.maxTInterval) {
             request.max_tx_interval = parseInt(adv.maxTInterval);
           }
-          
+
           if (adv.removeAfter) {
             request.limit_removal_time = parseInt(adv.removeAfter);
           }
@@ -186,14 +186,14 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   } else if (state.deploymentMode === 'V2_LAUNCH') {
     // V2 Launch specific fields
     request.token_type = 1; // V2 launch type
-    
+
     const v2 = state.v2Settings;
-    
+
     // Tax settings
     if (v2.taxSettings.taxReceiver) {
       request.tax_wallet = v2.taxSettings.taxReceiver;
     }
-    
+
     // For V2 launch with advanced tax config
     if (v2.advancedTaxConfig.enabled) {
       request.curve_starting_tax = parseFloat(v2.advancedTaxConfig.startTax);
@@ -205,17 +205,17 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
       const avgTax = (parseFloat(v2.taxSettings.buyTax) + parseFloat(v2.taxSettings.sellTax)) / 2;
       request.final_tax_rate = avgTax;
     }
-    
+
     // Advanced limits configuration
     if (v2.advancedLimitsConfig.enabled) {
       const totalSupply = BigInt(state.basics.totalSupply || '0');
-      
+
       // Convert percentages to token amounts
       const startMaxTxPercent = parseFloat(v2.advancedLimitsConfig.startMaxTx) / 100;
       const maxTxStepPercent = parseFloat(v2.advancedLimitsConfig.maxTxStep) / 100;
       const startMaxWalletPercent = parseFloat(v2.advancedLimitsConfig.startMaxWallet) / 100;
       const maxWalletStepPercent = parseFloat(v2.advancedLimitsConfig.maxWalletStep) / 100;
-      
+
       request.curve_max_tx = (totalSupply * BigInt(Math.floor(startMaxTxPercent * 1e6)) / BigInt(1e6)).toString();
       request.max_tx_step = (totalSupply * BigInt(Math.floor(maxTxStepPercent * 1e6)) / BigInt(1e6)).toString();
       request.curve_max_wallet = (totalSupply * BigInt(Math.floor(startMaxWalletPercent * 1e6)) / BigInt(1e6)).toString();
@@ -227,18 +227,18 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
       const totalSupply = BigInt(state.basics.totalSupply || '0');
       const maxWalletPercent = parseFloat(v2.limits.maxWallet) / 100;
       const maxTxPercent = parseFloat(v2.limits.maxTx) / 100;
-      
+
       request.curve_max_wallet = (totalSupply * BigInt(Math.floor(maxWalletPercent * 1e6)) / BigInt(1e6)).toString();
       request.curve_max_tx = (totalSupply * BigInt(Math.floor(maxTxPercent * 1e6)) / BigInt(1e6)).toString();
     }
-    
+
     // Stealth config
     if (v2.stealthConfig.enabled) {
       request.is_stealth = true;
       // The ETH amount would be used in contract deployment, not in token metadata
     }
   }
-  
+
   // Metadata
   if (state.meta.desc) {
     request.bio = state.meta.desc;
@@ -251,6 +251,18 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   }
   if (state.meta.tw) {
     request.twitter = state.meta.tw;
+  }
+  if (state.meta.discord) {
+    request.discord = state.meta.discord;
+  }
+  if (state.meta.xCommunities) {
+    request.x_communities = state.meta.xCommunities;
+  }
+  if (state.meta.documentation) {
+    request.documentation = state.meta.documentation;
+  }
+  if (state.meta.whitepaper) {
+    request.whitepaper = state.meta.whitepaper;
   }
 
   // Auto-branding
@@ -268,14 +280,14 @@ export function transformStateToApiRequest(state: TokenState, tokenAddress?: str
   if (state.meta.banner && !state.meta.bannerFile) {
     request.banner_url = state.meta.banner;
   }
-  
+
   // MP3 URL (files are handled separately)
   if (state.meta.mp3 && !state.meta.mp3File) {
     request.mp3_url = state.meta.mp3;
   }
-  
+
   // Set timestamps
   request.created_at_timestamp = Date.now();
-  
+
   return request;
 }

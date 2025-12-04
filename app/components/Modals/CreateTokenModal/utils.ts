@@ -108,6 +108,10 @@ export const initialState: TokenState = {
     mp3: "",
     mp3File: null,
     palette: "",
+    discord: "",
+    xCommunities: "",
+    documentation: "",
+    whitepaper: "",
   },
   txHash: null,
 };

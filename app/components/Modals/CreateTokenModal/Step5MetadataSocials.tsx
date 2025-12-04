@@ -54,13 +54,13 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
   };
 
   const analyzeAndUpdatePalette = async (imageSource: File | string) => {
-      const result = await analyzeImageWithGPT(imageSource);
-      onMetaChange('palette', JSON.stringify({
-        colors: result.palette,
-        recommended: result.recommended
-      }));
-      console.log('Image analyzed successfully:', result);
-    };
+    const result = await analyzeImageWithGPT(imageSource);
+    onMetaChange('palette', JSON.stringify({
+      colors: result.palette,
+      recommended: result.recommended
+    }));
+    console.log('Image analyzed successfully:', result);
+  };
 
   return (
     <div className={styles.panel}>
@@ -122,6 +122,57 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
             value={meta.tw}
             onChange={(e) => onMetaChange('tw', e.target.value)}
             placeholder="https://x.com/yourtoken"
+          />
+        </div>
+      </div>
+
+      {/* Extended Socials & Docs */}
+      <div className={styles.grid2} style={{ marginTop: '16px' }}>
+        <div className={styles.card}>
+          <div className={styles.label}>
+            Discord
+            <HelpTooltip content="Discord community link." />
+          </div>
+          <input
+            className={styles.input}
+            value={meta.discord || ''}
+            onChange={(e) => onMetaChange('discord', e.target.value)}
+            placeholder="https://discord.gg/yourtoken"
+          />
+
+          <div className={styles.label} style={{ marginTop: '16px' }}>
+            X Communities
+            <HelpTooltip content="Link to your X Community." />
+          </div>
+          <input
+            className={styles.input}
+            value={meta.xCommunities || ''}
+            onChange={(e) => onMetaChange('xCommunities', e.target.value)}
+            placeholder="https://twitter.com/i/communities/..."
+          />
+        </div>
+
+        <div className={styles.card}>
+          <div className={styles.label}>
+            Documentation
+            <HelpTooltip content="Link to your project documentation (Gitbook, etc)." />
+          </div>
+          <input
+            className={styles.input}
+            value={meta.documentation || ''}
+            onChange={(e) => onMetaChange('documentation', e.target.value)}
+            placeholder="https://docs.yourtoken.com"
+          />
+
+          <div className={styles.label} style={{ marginTop: '16px' }}>
+            Whitepaper
+            <HelpTooltip content="Link to your whitepaper." />
+          </div>
+          <input
+            className={styles.input}
+            value={meta.whitepaper || ''}
+            onChange={(e) => onMetaChange('whitepaper', e.target.value)}
+            placeholder="https://yourtoken.com/whitepaper.pdf"
           />
         </div>
       </div>
@@ -325,7 +376,7 @@ const Step5MetadataSocials: React.FC<Step5MetadataSocialsProps> = ({
               if (imageSource && autoBrand) {
                 await analyzeAndUpdatePalette(imageSource); // Wait for completion
               }
-              
+
             } finally {
               setIsAnalyzing(false);
               onContinue();
