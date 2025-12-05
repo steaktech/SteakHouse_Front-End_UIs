@@ -56,10 +56,12 @@ const Step0ChooseDeploymentMode: React.FC<Step0ChooseDeploymentModeProps> = ({
 
           <div
             className={`${styles.radioCard} ${deploymentMode === 'V2_LAUNCH' ? styles.active : ''}`}
-            onClick={() => onDeploymentModeChange('V2_LAUNCH')}
-            style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: 'auto' }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: 'auto', opacity: 0.5, cursor: 'not-allowed' }}
           >
-            <div className="title">Direct Deploy</div>
+            <div className="title">
+              Direct Deploy
+              <span style={{ fontSize: '0.6em', background: '#333', color: '#fff', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle' }}>COMING SOON</span>
+            </div>
             <div className="desc">Deploy directly on chain and seed your own LP to Uniswap V2</div>
 
             <div style={{ fontSize: '0.9em', opacity: 0.8, marginBottom: '8px' }}>
